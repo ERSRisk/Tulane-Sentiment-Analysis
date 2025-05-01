@@ -23,7 +23,7 @@ X_API_Key = st.secrets["all_my_api_keys"]["X_API_KEY"]
 
 @st.cache_data(show_spinner=False)
 def tweet_analysis(tweet):
-    client = genai.Client(Gemini_API_Key_X)
+    client = genai.Client(api_key=Gemini_API_Key_X)
     prompt = f"""
 Analyze the following tweet and provide a description in 1–2 sentences.
 Also, analyze whether the tweet is related to sports.
