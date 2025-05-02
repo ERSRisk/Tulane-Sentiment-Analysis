@@ -611,7 +611,7 @@ def run_x_analysis():
         text="Add a new value...",
         value=["Tulane"],  # Default values
         suggestions=["Tulane University"],  # Optional suggestions
-        key="1"
+        key="2"
     )
     start_date = st.date_input("Start Date", value= datetime.date.today() - datetime.timedelta(days = 6))
     start_date= datetime.datetime.combine(start_date, datetime.time(0, 0)) + datetime.timedelta(hours=1)
