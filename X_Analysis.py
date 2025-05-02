@@ -28,6 +28,15 @@ st.sidebar.title("Navigation")
 st.sidebar.markdown("Select a tool:")
 selection = st.sidebar.selectbox("Choose a tool:", ["News Sentiment", "X Sentiment"])
 
+if "current_tab" not in st.session_state:
+    st.session_state.current_tab = selection
+
+# If the user switches tabs, clear session state
+if st.session_state.current_tab != selection:
+    keys_to_clear = [key for key in st.session_state if key not in ("current_tab",)]
+    for key in keys_to_clear:
+        del st.session_state[key]
+    st.session_state.current_tab = selection
 
 if selection == "News Sentiment":
     # Setting up the APIs for News API and Gemini API
@@ -515,7 +524,7 @@ if selection == "X Sentiment":
     Tweet:
     {tweet}
     """
-        response = client.models.generate_content(model="gemini-2.0-flash", contents=prompt)
+        response = client.models.generate_content(model="gemini-2.5-pro-exp-03-25", contents=prompt)
         #function returns the response in JSON format(description and is_sport)
         if response.candidates and response.candidates[0].content.parts:
             raw_text = response.candidates[0].content.parts[0].text
