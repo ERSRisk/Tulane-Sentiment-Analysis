@@ -553,7 +553,7 @@ if selection == "X Sentiment":
         client = tweepy.Client(bearer_token=X_API_KEY)
         response = client.search_recent_tweets(
             query=search,
-            max_results=100,
+            max_results=10,
             tweet_fields=["created_at"],
             start_time=start_date.isoformat() + "Z",
             end_time=(datetime.datetime.combine(end_date, datetime.time.min)).isoformat() + "Z"
@@ -607,9 +607,9 @@ if selection == "X Sentiment":
 
 
     if search_button:
-        st.session_state.search_ran = True
+        st.session_state.x_search_ran = True
 
-    if st.session_state.get("search_ran"):
+    if st.session_state.get("x_search_ran"):
 
         #This part of the code is used to display the results of the tweet analysis.
         #"action" afer the button is pressed
