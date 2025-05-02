@@ -34,6 +34,7 @@ for key in list(st.session_state.keys()):
         del st.session_state[key]
 
 def run_news_analysis():
+
     # Store API keys securely (Replace with your actual API keys)
     NEWS_API_KEY = st.secrets["all_my_api_keys"]["NEWS_API_KEY"]
     GEMINI_API_KEY_NEWS = st.secrets["all_my_api_keys"]["GEMINI_API_KEY_NEWS"]
@@ -50,10 +51,10 @@ def run_news_analysis():
                     text="Add a new value...",
                     value=["Tulane"],  # Default values
                     suggestions=["Tulane University"],  # Optional suggestions
-                    key="1")
+                    key="news_search_tags")
     # Separate the search terms with a plus sign
-    start_date = st.date_input("Start Date", value= datetime.date.today() - timedelta(days = 7))
-    end_date = st.date_input("End Date", value=datetime.date.today())
+    start_date = st.date_input("Start Date", value= datetime.date.today() - timedelta(days = 7), key="news_start")
+    end_date = st.date_input("End Date", value=datetime.date.today(), key="news_end")
 
 
 
@@ -63,7 +64,8 @@ def run_news_analysis():
     timezone_option = st.selectbox(
         "Select Timezone for Article Timestamps:",
         options=["UTC", "CST", "CDT"],
-        index=2  # Default to CDT
+        index=2,  # Default to CDT
+        key="news_timezone"
     )
 
 
@@ -72,13 +74,13 @@ def run_news_analysis():
 
 
 
-    sports = st.checkbox("Include sports news")
+    sports = st.checkbox("Include sports news", key="news_sports")
 
 
 
 
 
-    use_cache = st.checkbox("Use cache (uncheck for debugging purposes)", value=True)
+    use_cache = st.checkbox("Use cache (uncheck for debugging purposes)", value=True, key="news_cache")
 
 
 
@@ -318,9 +320,9 @@ def run_news_analysis():
 
 
 
-    if "slider_value" not in st.session_state:
-        st.session_state.slider_value = (-1.0, 1.0)
-    if st.button('Search') or "slider_shown" in st.session_state:
+    if "news_slider_shown" not in st.session_state:
+        st.session_state.news_slider_value = (-1.0, 1.0)
+    if st.button('Search') or "news_slider_shown" in st.session_state:
         search = '+'.join(search)
         if use_cache:
             articles = fetch_news(search, start_date, end_date, sports)
@@ -445,12 +447,12 @@ def run_news_analysis():
 
 
 
-            st.session_state.slider_shown = True
-            st.session_state.slider_value = st.slider("Sentiment Filter", -1.0, 1.0, (-1.0, 1.0), 0.1,)
+            st.session_state.news_slider_shown = True
+            st.session_state.news_slider_value = st.slider("Sentiment Filter", -1.0, 1.0, (-1.0, 1.0), 0.1,)
         
             st.write("")
-            filtered_df = df[(df['Sentiment'] >= st.session_state.slider_value[0]) &
-                    (df['Sentiment'] <= st.session_state.slider_value[1])]
+            filtered_df = df[(df['Sentiment'] >= st.session_state.news_slider_value[0]) &
+                    (df['Sentiment'] <= st.session_state.news_slider_value[1])]
 
 
 
@@ -526,6 +528,8 @@ def run_news_analysis():
 
 
 
+
+
 #X Analysis
 
 
@@ -558,7 +562,6 @@ def run_x_analysis():
         else:
             return "No analysis available."
 
-    @st.cache_data(show_spinner=False)
     @st.cache_data(show_spinner=False)
     def fetch_twits(search, start_date, end_date, no_of_tweets):
         import time
@@ -611,13 +614,12 @@ def run_x_analysis():
         text="Add a new value...",
         value=["Tulane"],  # Default values
         suggestions=["Tulane University"],  # Optional suggestions
-        key="2"
+        key="x_search_tags"
     )
-    start_date = st.date_input("Start Date", value= datetime.date.today() - datetime.timedelta(days = 6))
-    start_date= datetime.datetime.combine(start_date, datetime.time(0, 0)) + datetime.timedelta(hours=1)
-    end_date = st.date_input("End Date", value=datetime.date.today())
-    search_button = st.button("Search")
-    sports= st.checkbox("Include sports news")
+    start_date = st.date_input("Start Date", value=datetime.date.today() - datetime.timedelta(days=6), key="x_start_date")
+    end_date = st.date_input("End Date", value=datetime.date.today(), key="x_end_date")
+    search_button = st.button("Search", key="x_search_button")
+    sports = st.checkbox("Include sports news", key="x_sports_checkbox")
     pass
     pass
 
@@ -633,9 +635,9 @@ def run_x_analysis():
 
 
     #"action" afer the button is pressed
-    if "slider_value" not in st.session_state:
-        st.session_state.slider_value = (-1.0, 1.0)
-    if search_button or "slider_shown" in st.session_state:
+    if "x_slider_value" not in st.session_state:
+        st.session_state.x_slider_value = (-1.0, 1.0)
+    if search_button or "x_slider_shown" in st.session_state:
         df=fetch_twits(search, start_date, end_date,10)
         if df is None:
             st.write("No tweets found for the given search term and date range.")
@@ -668,15 +670,15 @@ def run_x_analysis():
             st.pyplot(fig)
 
             #making the slider to filter outputs by sentiment
-            st.session_state.slider_shown = True
-            st.session_state.slider_value = st.slider("Sentiment Filter", -1.0, 1.0, (-1.0, 1.0), 0.1,)
+            st.session_state.x_slider_shown = True
+            st.session_state.x_slider_value = st.slider("Sentiment Filter", -1.0, 1.0, (-1.0, 1.0), 0.1,)
             st.write("")
 
 
 
 
             #filtering df by user's sentiment range
-            df_filtered = df[(df['sentiment'] >= st.session_state.slider_value[0]) & (df['sentiment'] <= st.session_state.slider_value[1])]
+            df_filtered = df[(df['sentiment'] >= st.session_state.x_slider_value[0]) & (df['sentiment'] <= st.session_state.x_slider_value[1])]
             # Display the filtered DataFrame
             for index, row in df_filtered.iterrows():
                 st.write(f"**Created At:** {row['created_at'].strftime('%Y-%m-%d %H:%M')}")
@@ -735,15 +737,15 @@ def run_x_analysis():
 
         
             #making the slider to filter outputs by sentiment
-            st.session_state.slider_shown = True
-            st.session_state.slider_value = st.slider("Sentiment Filter", -1.0, 1.0, (-1.0, 1.0), 0.1,)
+            st.session_state.x_slider_shown = True
+            st.session_state.x_slider_value = st.slider("Sentiment Filter", -1.0, 1.0, (-1.0, 1.0), 0.1,)
             st.write("")
 
 
 
 
             #filtering df by user's sentiment range
-            df_filtered = df[(df['sentiment'] >= st.session_state.slider_value[0]) & (df['sentiment'] <= st.session_state.slider_value[1])]
+            df_filtered = df[(df['sentiment'] >= st.session_state.x_slider_value[0]) & (df['sentiment'] <= st.session_state.x_slider_value[1])]
             # Display the filtered DataFrame
             for index, row in df_filtered.iterrows():
                 st.write(f"**Created At:** {row['created_at'].strftime('%Y-%m-%d %H:%M')}")
