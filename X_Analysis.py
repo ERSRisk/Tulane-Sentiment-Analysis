@@ -607,126 +607,67 @@ if selection == "X Sentiment":
 
 
     # Store search trigger persistently
-    if search_button:
-        st.session_state.x_search_ran = True
-        st.session_state.x_results_ready = False  # Reset until fetched
+# Track button click
+if search_button:
+    st.session_state.x_search_ran = True
+    st.session_state.x_results_ready = False  # Reset
 
-    # Only fetch if button was clicked
-    if st.session_state.get("x_search_ran", False):
-        df = fetch_twits(search, start_date, end_date, 10)
-        st.session_state.x_df = df # Save results
-        st.session_state.x_search_ran = False # Reset flag
-        st.session_state.x_results_ready = True
+# Fetch only when search button is pressed
+if st.session_state.get("x_search_ran", False):
+    df = fetch_twits(search, start_date, end_date, 10)
+    st.session_state.x_df = df
+    st.session_state.x_search_ran = False
+    st.session_state.x_results_ready = True
 
+# === Display results if ready ===
+if st.session_state.get("x_results_ready", False):
+    df = st.session_state.get("x_df", None)
 
-                # Only proceed if data was fetched and is ready to display
-        if st.session_state.get("x_results_ready", False):
-            df = st.session_state.x_df
+    if df is None or df.empty:
+        st.warning("No tweets found for the given search term and date range.")
+        st.stop()
 
-            if df is None or df.empty:
-                st.write("No tweets found for the given search term and date range.")
-                st.stop()
+    # Initialize slider state if needed
+    if "slider_value" not in st.session_state:
+        st.session_state.slider_value = (-1.0, 1.0)
 
-            # Set default slider value once
-            if "slider_value" not in st.session_state:
-                st.session_state.slider_value = (-1.0, 1.0)
-    
-            #Giving all the twits(including the ones that are realted to sports)
-            if sports:
-                # Adding a title above the bar chart
-                st.subheader("Sentiment Distribution")
+    # Show slider
+    st.session_state.slider_value = st.slider(
+        "Sentiment Filter",
+        -1.0, 1.0,
+        st.session_state.slider_value,
+        step=0.1
+    )
 
+    # Filter tweets
+    df_filtered = df[
+        (df['sentiment'] >= st.session_state.slider_value[0]) &
+        (df['sentiment'] <= st.session_state.slider_value[1])
+    ]
 
+    # Clean usernames for display
+    df_filtered['text'] = df_filtered['text'].apply(lambda x: re.sub(r"@\w+", "@user", x))
 
+    # Chart
+    st.subheader("Sentiment Distribution")
+    sentiment_counts = df_filtered['sentiment'].value_counts().sort_index()
+    fig, ax = plt.subplots()
+    sentiment_counts.plot(kind='bar', ax=ax, color='skyblue')
+    for p in ax.patches:
+        ax.annotate(f'{p.get_height()}', (p.get_x() + p.get_width() / 2., p.get_height()),
+                    xytext=(0, 5), textcoords='offset points', ha='center', va='bottom', fontsize=10)
+    ax.set_ylabel("Count")
+    ax.set_xlabel("Sentiment")
+    st.pyplot(fig)
 
-                # Creating bar chart for the sentiment
-                sentiment_counts = df['sentiment'].value_counts().sort_index()
-                fig, ax = plt.subplots()
-                sentiment_counts.plot(kind='bar', ax=ax, color='skyblue')
-                for p in ax.patches:
-                    ax.annotate(f'{p.get_height()}',
-                                (p.get_x() + p.get_width() / 2., p.get_height()),
-                                xytext=(0, 5),  # отступы от столбца
-                                textcoords='offset points',
-                                ha='center', va='bottom', fontsize=10)
+    # Display tweets
+    for _, row in df_filtered.iterrows():
+        st.markdown(f"**Created At:** {row['created_at'].strftime('%Y-%m-%d %H:%M')}")
+        st.markdown(f"**Link:** [Tweet Link]({row['link']})")
+        st.markdown(f"**Text:** {row['text']}")
+        st.markdown(f"**Description:** {row['description']}")
+        st.markdown(f"**Sentiment:** {row['sentiment']}")
+        st.write("---")
 
-
-                ax.set_ylabel("Count")
-                ax.set_xlabel("Sentiment")
-                st.pyplot(fig)
-    
-                #making the slider to filter outputs by sentiment
-                st.session_state.slider_shown = True
-                st.session_state.slider_value = st.slider("Sentiment Filter", -1.0, 1.0, (-1.0, 1.0), 0.1,)
-                st.write("")
-
-
-
-
-                #filtering df by user's sentiment range
-                df_filtered = df[(df['sentiment'] >= st.session_state.slider_value[0]) & (df['sentiment'] <= st.session_state.slider_value[1])]
-                df_filtered['text'] = df_filtered['text'].apply(lambda x: re.sub(r"@\w+", "@user", x))
-                # Display the filtered DataFrame
-                for index, row in df_filtered.iterrows():
-                    st.write(f"**Created At:** {row['created_at'].strftime('%Y-%m-%d %H:%M')}")
-                    st.write(f"**Link:** [Tweet Link]({row['link']})")
-                    st.write(f"**Text:** {row['text']}")
-                    st.write(f"**Description:** {row['description']}")
-                    st.write(f"**Sentiment:** {row['sentiment']}")
-                    st.write("---")  # Separator between tweets
-            
-                df['text'] = df['text'].apply(lambda x: re.sub(r"@\w+", "@user", x))
-                st.write(df.drop(columns=["is_sport"]))
-
-
-
-
-            #presenting all the twits that are not related to sports(if user has selected it in the checkbox)
-            else:
-                # Filter out tweets related to sports
-                df=df[df['is_sport'] == 0]
-
-
-                # Adding a title above the bar chart
-                st.subheader("Sentiment Distribution")
-                # Creating bar chart for the sentiment
-                sentiment_counts = df['sentiment'].value_counts().sort_index()
-                fig, ax = plt.subplots()
-                sentiment_counts.plot(kind='bar', ax=ax, color='skyblue')
-
-
-                # Adding value labels on top of the bars
-                for p in ax.patches:
-                    ax.annotate(f'{p.get_height()}',
-                                (p.get_x() + p.get_width() / 2., p.get_height()),
-                                xytext=(0, 5),  # отступы от столбца
-                                textcoords='offset points',
-                                ha='center', va='bottom', fontsize=10)
-
-
-                # Setting the title and labels for the bar chart
-                ax.set_title("Sentiment Distribution")
-                ax.set_ylabel("Count")
-                ax.set_xlabel("Sentiment")
-                # Displaying the bar chart
-                st.pyplot(fig)
-            
-                #making the slider ti filter outputs by sentiment
-                st.session_state.slider_shown = True
-                st.session_state.slider_value = st.slider("Sentiment Filter", -1.0, 1.0, (-1.0, 1.0), 0.1,)
-                st.write("")
-
-
-                #filtering df by user's sentiment range
-                df_filtered = df[(df['sentiment'] >= st.session_state.slider_value[0]) & (df['sentiment'] <= st.session_state.slider_value[1])]
-                df_filtered['text'] = df_filtered['text'].apply(lambda x: re.sub(r"@\w+", "@user", x))
-                # Display the filtered DataFrame
-                for index, row in df_filtered.iterrows():
-                    st.write(f"**Created At:** {row['created_at'].strftime('%Y-%m-%d %H:%M')}")
-                    st.write(f"**Link:** [Tweet Link]({row['link']})")
-                    st.write(f"**Text:** {row['text']}")
-                    st.write(f"**Description:** {row['description']}")
-                    st.write(f"**Sentiment:** {row['sentiment']}")
-                    st.write("---")  # Separator between tweets
-                df['text'] = df['text'].apply(lambda x: re.sub(r"@\w+", "@user", x))
-                st.write(df.drop(columns=["is_sport"]))
+    # Full cleaned table
+    st.write(df_filtered.drop(columns=["is_sport"]))
