@@ -606,66 +606,66 @@ if selection == "X Sentiment":
 
 
     # Store search trigger persistently
-# Track button click
-if search_button:
-    st.session_state.x_search_ran = True
-    st.session_state.x_results_ready = False  # Reset
+    # Track button click
+    if search_button:
+        st.session_state.x_search_ran = True
+        st.session_state.x_results_ready = False  # Reset
 
-# Fetch only when search button is pressed
-if st.session_state.get("x_search_ran", False):
-    df = fetch_twits(search, start_date, end_date, 10)
-    st.session_state.x_df = df
-    st.session_state.x_search_ran = False
-    st.session_state.x_results_ready = True
+    # Fetch only when search button is pressed
+    if st.session_state.get("x_search_ran", False):
+        df = fetch_twits(search, start_date, end_date, 10)
+        st.session_state.x_df = df
+        st.session_state.x_search_ran = False
+        st.session_state.x_results_ready = True
 
-# === Display results if ready ===
-if st.session_state.get("x_results_ready", False):
-    df = st.session_state.get("x_df", None)
+    # === Display results if ready ===
+    if st.session_state.get("x_results_ready", False):
+        df = st.session_state.get("x_df", None)
 
-    if df is None or df.empty:
-        st.warning("No tweets found for the given search term and date range.")
-        st.stop()
+        if df is None or df.empty:
+            st.warning("No tweets found for the given search term and date range.")
+            st.stop()
 
-    # Initialize slider state if needed
-    if "slider_value" not in st.session_state:
-        st.session_state.slider_value = (-1.0, 1.0)
+        # Initialize slider state if needed
+        if "slider_value" not in st.session_state:
+            st.session_state.slider_value = (-1.0, 1.0)
 
-    # Show slider
-    slider_value = st.slider("Sentiment Filter", -1.0, 1.0, st.session_state.slider_value, step=0.1)
-    st.session_state.slider_value = slider_value
+        # Show slider
+        slider_value = st.slider("Sentiment Filter", -1.0, 1.0, st.session_state.slider_value, step=0.1)
+        st.session_state.slider_value = slider_value
 
-    # Filter tweets
-    df_filtered = df[
-        (df['sentiment'] >= st.session_state.slider_value[0]) &
-        (df['sentiment'] <= st.session_state.slider_value[1])
-    ]
-    if df_filtered.empty:
-        st.warning("No tweets found in this sentiment range.")
-        st.stop()
+        # Filter tweets
+        df_filtered = df[
+            (df['sentiment'] >= st.session_state.slider_value[0]) &
+            (df['sentiment'] <= st.session_state.slider_value[1])
+        ]
+        if df_filtered.empty:
+            st.warning("No tweets found in this sentiment range.")
+            st.stop()
 
-    # Clean usernames for display
-    df_filtered['text'] = df_filtered['text'].apply(lambda x: re.sub(r"@\w+", "@user", x))
+        # Clean usernames for display
+        df_filtered['text'] = df_filtered['text'].apply(lambda x: re.sub(r"@\w+", "@user", x))
 
-    # Chart
-    st.subheader("Sentiment Distribution")
-    sentiment_counts = df_filtered['sentiment'].value_counts().sort_index()
-    fig, ax = plt.subplots()
-    sentiment_counts.plot(kind='bar', ax=ax, color='skyblue')
-    for p in ax.patches:
-        ax.annotate(f'{p.get_height()}', (p.get_x() + p.get_width() / 2., p.get_height()),
-                    xytext=(0, 5), textcoords='offset points', ha='center', va='bottom', fontsize=10)
-    ax.set_ylabel("Count")
-    ax.set_xlabel("Sentiment")
-    st.pyplot(fig)
+        # Chart
+        st.subheader("Sentiment Distribution")
+        sentiment_counts = df_filtered['sentiment'].value_counts().sort_index()
+        fig, ax = plt.subplots()
+        sentiment_counts.plot(kind='bar', ax=ax, color='skyblue')
+        for p in ax.patches:
+            ax.annotate(f'{p.get_height()}', (p.get_x() + p.get_width() / 2., p.get_height()),
+                        xytext=(0, 5), textcoords='offset points', ha='center', va='bottom', fontsize=10)
+        ax.set_ylabel("Count")
+        ax.set_xlabel("Sentiment")
+        st.pyplot(fig)
 
-    # Display tweets
-    for _, row in df_filtered.iterrows():
-        st.markdown(f"**Created At:** {row['created_at'].strftime('%Y-%m-%d %H:%M')}")
-        st.markdown(f"**Link:** [Tweet Link]({row['link']})")
-        st.markdown(f"**Text:** {row['text']}")
-        st.markdown(f"**Description:** {row['description']}")
-        st.markdown(f"**Sentiment:** {row['sentiment']}")
-        st.write("---")
+        # Display tweets
+        for _, row in df_filtered.iterrows():
+            st.markdown(f"**Created At:** {row['created_at'].strftime('%Y-%m-%d %H:%M')}")
+            st.markdown(f"**Link:** [Tweet Link]({row['link']})")
+            st.markdown(f"**Text:** {row['text']}")
+            st.markdown(f"**Description:** {row['description']}")
+            st.markdown(f"**Sentiment:** {row['sentiment']}")
+            st.write("---")
 
-    # Full cleaned table
-    st.write(df_filtered.drop(columns=["is_sport"]))
+        # Full cleaned table
+        st.write(df_filtered.drop(columns=["is_sport"]))
