@@ -606,10 +606,14 @@ if selection == "X Sentiment":
     pass
 
 
+
+    # Store search trigger persistently
     if search_button:
         st.session_state.x_search_ran = True
+        st.session_state.x_slider_shown = False  # reset slider visibility
 
-    if st.session_state.get("x_search_ran"):
+    # Main logic runs ONLY when this is True
+    if st.session_state.get("x_search_ran", False):
 
         #This part of the code is used to display the results of the tweet analysis.
         #"action" afer the button is pressed
