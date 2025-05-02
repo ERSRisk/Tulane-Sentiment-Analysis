@@ -322,6 +322,7 @@ def run_news_analysis():
 
     if "news_slider_shown" not in st.session_state:
         st.session_state.news_slider_value = (-1.0, 1.0)
+        st.session_state.news_slider_shown = True
     if st.button('Search') or "news_slider_shown" in st.session_state:
         search = '+'.join(search)
         if use_cache:
