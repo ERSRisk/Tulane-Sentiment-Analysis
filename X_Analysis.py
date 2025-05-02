@@ -540,7 +540,6 @@ if selection == "X Sentiment":
             return "No analysis available."
    
     @st.cache_data(show_spinner=False)
-    @st.cache_data(show_spinner=False)
     #This function fetches tweets from Twitter API based on the search term and date range provided by the user.
     # It uses the Tweepy library to interact with the Twitter API and returns a DataFrame with the tweet data.
     # The function takes the following parameters:
