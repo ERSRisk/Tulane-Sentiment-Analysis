@@ -619,7 +619,6 @@ if selection == "X Sentiment":
         #"action" afer the button is pressed
         if "slider_value" not in st.session_state:
             st.session_state.slider_value = (-1.0, 1.0)
-        if search_button or "slider_shown" in st.session_state:
             df=fetch_twits(search, start_date, end_date,10)
             if df is None:
                 st.write("No tweets found for the given search term and date range.")
