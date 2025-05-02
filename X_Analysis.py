@@ -563,7 +563,7 @@ def run_x_analysis():
         else:
             return "No analysis available."
 
-    @st.cache_data(show_spinner=False)
+    #@st.cache_data(show_spinner=False)
     def fetch_twits(search, start_date, end_date, no_of_tweets):
         import time
 
