@@ -606,23 +606,30 @@ if selection == "X Sentiment":
     pass
 
 
-
     # Store search trigger persistently
     if search_button:
         st.session_state.x_search_ran = True
-        st.session_state.x_slider_shown = False  # reset slider visibility
+        st.session_state.x_results_ready = False  # Reset until fetched
 
-    # Main logic runs ONLY when this is True
+    # Only fetch if button was clicked
     if st.session_state.get("x_search_ran", False):
+        df = fetch_twits(search, start_date, end_date, 10)
+        st.session_state.x_df = df # Save results
+        st.session_state.x_search_ran = False # Reset flag
+        st.session_state.x_results_ready = True
 
-        #This part of the code is used to display the results of the tweet analysis.
-        #"action" afer the button is pressed
-        if "slider_value" not in st.session_state:
-            st.session_state.slider_value = (-1.0, 1.0)
-            df=fetch_twits(search, start_date, end_date,10)
-            if df is None:
+
+                # Only proceed if data was fetched and is ready to display
+        if st.session_state.get("x_results_ready", False):
+            df = st.session_state.x_df
+
+            if df is None or df.empty:
                 st.write("No tweets found for the given search term and date range.")
                 st.stop()
+
+            # Set default slider value once
+            if "slider_value" not in st.session_state:
+                st.session_state.slider_value = (-1.0, 1.0)
     
             #Giving all the twits(including the ones that are realted to sports)
             if sports:
