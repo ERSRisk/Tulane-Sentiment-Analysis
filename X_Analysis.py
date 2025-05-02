@@ -632,18 +632,17 @@ if st.session_state.get("x_results_ready", False):
         st.session_state.slider_value = (-1.0, 1.0)
 
     # Show slider
-    st.session_state.slider_value = st.slider(
-        "Sentiment Filter",
-        -1.0, 1.0,
-        st.session_state.slider_value,
-        step=0.1
-    )
+    slider_value = st.slider("Sentiment Filter", -1.0, 1.0, st.session_state.slider_value, step=0.1)
+    st.session_state.slider_value = slider_value
 
     # Filter tweets
     df_filtered = df[
         (df['sentiment'] >= st.session_state.slider_value[0]) &
         (df['sentiment'] <= st.session_state.slider_value[1])
     ]
+    if df_filtered.empty:
+        st.warning("No tweets found in this sentiment range.")
+        st.stop()
 
     # Clean usernames for display
     df_filtered['text'] = df_filtered['text'].apply(lambda x: re.sub(r"@\w+", "@user", x))
