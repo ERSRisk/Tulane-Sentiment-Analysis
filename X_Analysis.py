@@ -635,11 +635,6 @@ if selection == "X Sentiment":
             key="slider_value"
         )
 
-
-        # Show slider
-        slider_value = st.slider("Sentiment Filter", -1.0, 1.0, st.session_state.slider_value, step=0.1)
-        st.session_state.slider_value = slider_value
-
         # Filter tweets based on sentiment
         df_filtered = df[
             (df['sentiment'] >= slider_value[0]) &
