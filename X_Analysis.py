@@ -3,10 +3,8 @@ import requests
 from google import genai
 import pandas as pd
 import re
-import datetime
 from datetime import timedelta
 from streamlit_tags import st_tags
-import json
 import plotly.express as px
 from newspaper import Article
 from google.genai.errors import ClientError
@@ -15,35 +13,36 @@ import time
 import asyncio
 from lxml.html.clean import Cleaner
 from dateutil import parser
+import datetime
 from textblob import TextBlob
 import tweepy
 import concurrent.futures
+import json
+import re
 import altair as alt
 import matplotlib.pyplot as plt
 
-# Set wide layout and hide footer
-st.set_page_config(layout="wide")
-st.markdown("<style>footer {visibility: hidden;}</style>", unsafe_allow_html=True)
 
-# Sidebar menu for page navigation
-page = st.sidebar.selectbox("Select a page", ["Home", "News Analysis", "X Analysis"])
+st.set_page_config(page_title="Tulane Risk Dashboard")
+st.sidebar.title("Navigation")
+st.sidebar.markdown("Select a tool:")
+selection = st.sidebar.selectbox("Choose a tool:", ["News Sentiment", "X Sentiment"])
 
-# Prevent cached values or lingering output from other pages
-for key in list(st.session_state.keys()):
-    if not key.startswith(page.replace(" ", "_")):
-        del st.session_state[key]
 
-def run_news_analysis():
-
-    # Store API keys securely (Replace with your actual API keys)
+if selection == "News Sentiment":
+    # Setting up the APIs for News API and Gemini API
     NEWS_API_KEY = st.secrets["all_my_api_keys"]["NEWS_API_KEY"]
-    GEMINI_API_KEY_NEWS = st.secrets["all_my_api_keys"]["GEMINI_API_KEY_NEWS"]
+    GEMINI_API_KEY = st.secrets["all_my_api_keys"]["GEMINI_API_KEY_NEWS"]
 
 
     # Configure Gemini API
-    client = genai.Client(api_key=GEMINI_API_KEY_NEWS)
+    client = genai.Client(api_key=GEMINI_API_KEY)
+
+
     # Streamlit UI
     st.title("Tulane University: Sentiment Analysis from News")
+
+
 
 
     # Make it so someone can type in their own keywords to customize the search
@@ -51,41 +50,28 @@ def run_news_analysis():
                     text="Add a new value...",
                     value=["Tulane"],  # Default values
                     suggestions=["Tulane University"],  # Optional suggestions
-                    key="news_search_tags")
-    # Separate the search terms with a plus sign
-    start_date = st.date_input("Start Date", value= datetime.date.today() - timedelta(days = 7), key="news_start")
-    end_date = st.date_input("End Date", value=datetime.date.today(), key="news_end")
+                    key="1")
 
 
-
-
-
-
+    # Date range selection
+    start_date = st.date_input("Start Date", value= datetime.date.today() - timedelta(days = 7))
+    end_date = st.date_input("End Date", value=datetime.date.today())
     timezone_option = st.selectbox(
         "Select Timezone for Article Timestamps:",
         options=["UTC", "CST", "CDT"],
-        index=2,  # Default to CDT
-        key="news_timezone"
+        index=2  # Default to CDT
     )
 
 
+    ## Checkbox for including sports news. Selecting the checkbox will include sports news in the search.
+    sports = st.checkbox("Include sports news")
 
 
+    ## Checkbox for using cache. Unchecking this will allow for debugging.
+    use_cache = st.checkbox("Use cache (uncheck for debugging purposes)", value=True)
 
 
-
-    sports = st.checkbox("Include sports news", key="news_sports")
-
-
-
-
-
-    use_cache = st.checkbox("Use cache (uncheck for debugging purposes)", value=True, key="news_cache")
-
-
-
-
-
+    ## This first function fetches the news articles from the News API based on the search keywords and date range.
     @st.cache_data(show_spinner=False, persist=True)
     def fetch_news(search, start_date, end_date, sports):
         if sports:
@@ -106,12 +92,8 @@ def run_news_analysis():
             return []
 
 
-
-
-
-
-
-
+    ## This function fetches the full content of an article using the Newspaper3k library.
+    ## The News API only provides a snippet of the article, so this function is used to get the full text.
     def fetch_content(url):
         try:
             article = Article(url)
@@ -122,16 +104,14 @@ def run_news_analysis():
             return None
 
 
-
-
-
-
+    # This function combines the truncated content from the News API with the full content fetched from the article URL.
+    # It also extracts the date and time from the article's publishedAt field and formats it according to the selected timezone.
     @st.cache_data(show_spinner=False, persist=True)
     def get_articles_with_full_content(articles, timezone="CDT"):
         """Replace truncated content with full article text and extract formatted date and time"""
         updated_articles = []
         seen_titles = set()
-
+   
         #Determine offset based on selected timezone
         if timezone == "UTC":
             offset = timedelta(hours=0)
@@ -147,6 +127,8 @@ def run_news_analysis():
             tz_label = "UTC"
 
 
+
+
         for article in articles:
             title = article["title"]
             if title in seen_titles:
@@ -154,11 +136,16 @@ def run_news_analysis():
             seen_titles.add(title)
 
 
+
+
             #Get full text if the content is truncated
             full_text = fetch_content(article['url']) or article.get('content')
 
+
             #Parse publishedAt and split into date and time
             original_dt_str = article.get("publishedAt", "N/A")
+
+
 
 
             #try to parse and convert
@@ -172,6 +159,8 @@ def run_news_analysis():
                 adjusted_time = "N/A"
 
 
+
+
             updated_articles.append({
                 "title": article["title"],
                 "description": article.get("description", "No description available."),
@@ -182,12 +171,11 @@ def run_news_analysis():
                 "adjusted_time": adjusted_time
             })
         return updated_articles
-        
+       
 
 
-
-
-
+    # This function formats the articles into a string that can be sent to the Gemini API for sentiment analysis.
+    # It includes the title, description, content, and URL of each article.
     @st.cache_data(show_spinner=False, persist=True)
     def format_articles_for_prompt(articles):
         """Format the articles in a way that can be sent to Gemini."""
@@ -196,10 +184,9 @@ def run_news_analysis():
             for article in articles])
 
 
-
-
-
-
+    # This function analyzes the sentiment of the articles using the Gemini API.
+    # It sends a prompt to the API and returns the response.
+    # The prompt includes instructions for the API to analyze the sentiment based on the keywords provided.
     @st.cache_data(show_spinner=False, persist=True)
     def analyze_sentiment(text_to_analyze, search, sports, retries=5):
         for attempt in range(retries):
@@ -249,7 +236,7 @@ def run_news_analysis():
                     retry_delay_match = re.search(r"'retryDelay': '(\d+)s'", str(e))
                     if retry_delay_match:
                         wait_time = int(retry_delay_match.group(1))  # Use API's recommended delay
-                
+               
                     print(f"⚠️ API quota exceeded. Retrying in {wait_time} seconds...")
                     time.sleep(wait_time)
                 else:
@@ -263,10 +250,12 @@ def run_news_analysis():
 
 
 
+
+    # This function processes a batch of articles concurrently using asyncio.
     semaphore = asyncio.Semaphore(5)
 
 
-
+    # This function limits the number of concurrent tasks to avoid overwhelming the API.
     async def limited_process(batch_df, search, batch_size, total_batches, timezone):
         async with semaphore:
             return await asyncio.to_thread(process_batch, batch_df, search, batch_size, total_batches, timezone)
@@ -274,42 +263,48 @@ def run_news_analysis():
 
 
 
+    # This function processes the articles in batches and returns the responses.
+    # It divides the articles into smaller batches and processes them concurrently.
+    # It also handles the pagination of the articles by keeping track of the batch number and total batches.
     async def analyze_in_batches_concurrent(articles, search, sports, timezone, batch_size=10):
         all_responses = []
-
-
-
-
-
         total_batches = len(articles) // batch_size + (1 if len(articles) % batch_size != 0 else 0)
         print(f"Total batches: {total_batches}")
-
-
-
-
         batch_tasks = []
         for i in range(0, len(articles), batch_size):
             batch_df = articles[i:i + batch_size]
 
 
+
+
             task = limited_process(batch_df, search, i // batch_size + 1, total_batches, timezone)
             batch_tasks.append(task)
-
+   
         all_responses = await asyncio.gather(*batch_tasks)
         return '\n\n'.join(all_responses)
 
 
 
+
+    # This function runs the asynchronous batch processing and returns the final responses.
+    # It uses asyncio.run to execute the asynchronous function and waits for it to complete.
+    # It also handles the pagination of the articles by keeping track of the batch number and total batches.
     def run_async_batches(articles, search, sports, timezone, batch_size = 10):
         return asyncio.run(analyze_in_batches_concurrent(articles, search, sports, timezone, batch_size))
 
 
+    # This function caches the responses from the Gemini API to avoid redundant API calls.
+    # It uses Streamlit's caching mechanism to store the responses based on the input parameters.
     @st.cache_data(show_spinner=False, persist=True)
     def cached_gemini_response(articles, search, sports, timezone):
         return run_async_batches(articles, search, sports, timezone, batch_size=10)
 
 
+    # This function processes a batch of articles and returns the response from the Gemini API.
+    # It formats the articles for the prompt and sends them to the API for sentiment analysis.
+    # It also handles the pagination of the articles by keeping track of the batch number and total batches.
     def process_batch(batch_df, search, i, total_batches, timezone):
+
 
         processed_articles = get_articles_with_full_content(batch_df, timezone=timezone)
         formatted_batch = format_articles_for_prompt(processed_articles)
@@ -320,19 +315,18 @@ def run_news_analysis():
 
 
 
-    if "news_slider_shown" not in st.session_state:
-        st.session_state.news_slider_value = (-1.0, 1.0)
-        st.session_state.news_slider_shown = True
-    if st.button('Search') or "news_slider_shown" in st.session_state:
+    if "slider_value" not in st.session_state:
+        st.session_state.slider_value = (-1.0, 1.0)
+
+
+    # This function handles the display of the slider for filtering the sentiment scores.
+    if st.button('Search') or "slider_shown" in st.session_state:
         search = '+'.join(search)
         if use_cache:
             articles = fetch_news(search, start_date, end_date, sports)
             articles = get_articles_with_full_content(articles, timezone=timezone_option)
             unique_articles = []
             seen_titles = set()
-
-
-
             for article in articles:
                 if article['title'] not in seen_titles:
                     unique_articles.append(article)
@@ -346,18 +340,12 @@ def run_news_analysis():
             seen_titles = set()
 
 
-
-
-
             for article in articles:
                 if article['title'] not in seen_titles:
                     unique_articles.append(article)
                     seen_titles.add(article['title'])
-
-
-
             articles = unique_articles
-            
+           
         if not articles:
             st.write("No articles found.")
         else:
@@ -365,19 +353,21 @@ def run_news_analysis():
                 gemini_response_text = cached_gemini_response(articles, search, sports, timezone_option)
             else:
                 gemini_response_text = run_async_batches(articles, search, sports, timezone_option, batch_size=10)
-            
-
-
-
-
+           
+            # This function processes the response from the Gemini API and formats it into a DataFrame.
+            # It extracts the title, sentiment score, summary, and other relevant information from the response.
             def text_to_dataframe(text, articles):
                 rows = []
                 sections = re.split(r'Title:\s*', text)[1:]
 
 
+
+
                 for section in sections:
                     title_match = re.match(r'(.*?)\nSentiment:', section, re.DOTALL)
                     sentiment_match = re.search(r'Sentiment:\s*(-?\d+\.?\d*)', section)
+
+
 
 
                     if title_match and sentiment_match:
@@ -403,7 +393,9 @@ def run_news_analysis():
                             'Adjusted Date': 'Not Found',
                             'Adjusted Time': 'Not Found'
                             })
-                
+               
+
+
 
 
                 return pd.DataFrame(rows)
@@ -413,9 +405,15 @@ def run_news_analysis():
 
 
 
+
+
+
+
+
+
             df = text_to_dataframe(gemini_response_text, articles)
             sentiment_counts = df['Sentiment'].value_counts()
-        
+       
             st.header("Sentiment Score Summary")
             st.write("")
             # Plot sentiment score summary
@@ -427,44 +425,33 @@ def run_news_analysis():
                 st.metric("Number of News Stories", len(df))
 
 
-
-
-
-
-
-
+    # This function checks the overall sentiment of the articles and displays a message accordingly.
             if df['Sentiment'].mean() >= 0.1:
                 st.write("Overall sentiment is positive.")
             elif df['Sentiment'].mean() <= -0.1:
                 st.write("Overall sentiment is negative.")
             else:
                 st.write("Overall sentiment is neutral.")
-        
+       
             st.write("---")
             st.header("News Stories")
 
 
-
-
-
-
-            st.session_state.news_slider_shown = True
-            st.session_state.news_slider_value = st.slider("Sentiment Filter", -1.0, 1.0, (-1.0, 1.0), 0.1,)
-        
+            st.session_state.slider_shown = True
+            st.session_state.slider_value = st.slider("Sentiment Filter", -1.0, 1.0, (-1.0, 1.0), 0.1,)
+       
             st.write("")
-            filtered_df = df[(df['Sentiment'] >= st.session_state.news_slider_value[0]) &
-                    (df['Sentiment'] <= st.session_state.news_slider_value[1])]
+            filtered_df = df[(df['Sentiment'] >= st.session_state.slider_value[0]) &
+                    (df['Sentiment'] <= st.session_state.slider_value[1])]
 
 
-
-
-
+    # This function displays the filtered articles based on the sentiment score.
             for _, row in filtered_df.iterrows():
                 st.markdown("---") #before each row
                 st.markdown(f"###  **[{row['Title']}]({row['URL']})**")
                 st.markdown(f"**Date & Time:** {row.get('Adjusted Date', 'N/A')} at {row.get('Adjusted Time', 'N/A')}")
                 st.markdown(f"🔹 **Sentiment Score:** `{row['Sentiment']}`")
-            
+           
                 # Grab summary from the original text using the title
                 pattern = rf"Title:\s*{re.escape(row['Title'])}\s*.*?Sentiment:\s*-?\d+\.?\d*\s*Summary:\s*(.*?)(?:\n|$)"
                 match = re.search(pattern, gemini_response_text, re.DOTALL)
@@ -474,14 +461,10 @@ def run_news_analysis():
                 else:
                     st.markdown("⚠️ Summary not found.")
                 st.write("---")
-        
+       
             #format the date range into a MM-DD-YYYY format
             start_str = start_date.strftime("%m-%d-%Y")
             end_str = end_date.strftime("%m-%d-%Y")
-
-
-
-
 
 
 
@@ -492,17 +475,9 @@ def run_news_analysis():
 
 
 
-
-
-
-
             #display the Dataframe with the dynamic name
             st.header(f"Dataframe of Results")
             st.dataframe(df)
-
-
-
-
 
 
 
@@ -519,30 +494,18 @@ def run_news_analysis():
 
 
 
-
-
-
-
     st.markdown("---")
     #st.markdown("🔍 Built by Luke Roosa, Samuel Centeno, & Illia Kunin | Powered by NewsAPI & Gemini")
+if selection == "X Sentiment":
+    #This function is used to analyze the tweets using Google Gemini API
+    # It takes a tweet as input and returns a JSON response with a description and whether the tweet is related to sports or not.
 
+    #Define the API keys for X and Gemini
+    GEMINI_API_KEY_X = st.secrets["all_my_api_keys"]["GEMINI_API_KEY_X"]
+    X_API_KEY = st.secrets["all_my_api_keys"]["X_API_KEY"]
 
-
-
-
-
-#X Analysis
-
-
-def run_x_analysis():
-    # Load API keys from Streamlit secrets
-    Gemini_API_Key_X = st.secrets["all_my_api_keys"]["GEMINI_API_KEY_X"]
-    X_API_Key = st.secrets["all_my_api_keys"]["X_API_KEY"]
-
-
-    @st.cache_data(show_spinner=False)
     def tweet_analysis(tweet):
-        client = genai.Client(api_key=Gemini_API_Key_X)
+        client = genai.Client(api_key=GEMINI_API_KEY_X)
         prompt = f"""
     Analyze the following tweet and provide a description in 1–2 sentences.
     Also, analyze whether the tweet is related to sports.
@@ -559,16 +522,22 @@ def run_x_analysis():
             cleaned_text = re.sub(r"```json|```|\n|\s{2,}", "", raw_text).strip()
             data = json.loads(cleaned_text)
             return data
-
+   
         else:
             return "No analysis available."
-
-    #@st.cache_data(show_spinner=False)
+   
+    @st.cache_data(show_spinner=False)
+    @st.cache_data(show_spinner=False)
+    #This function fetches tweets from Twitter API based on the search term and date range provided by the user.
+    # It uses the Tweepy library to interact with the Twitter API and returns a DataFrame with the tweet data.
+    # The function takes the following parameters:
+    # search: The search term to look for in tweets.
+    # start_date: The start date for the tweet search.
+    # end_date: The end date for the tweet search.
+    # no_of_tweets: The number of tweets to fetch.
     def fetch_twits(search, start_date, end_date, no_of_tweets):
         import time
-
-
-        client = tweepy.Client(bearer_token=X_API_Key)
+        client = tweepy.Client(bearer_token=X_API_KEY)
         response = client.search_recent_tweets(
             query=search,
             max_results=100,
@@ -589,8 +558,6 @@ def run_x_analysis():
             except Exception as e:
                 print(f"⚠️ Failed to analyze tweet: {e}")
                 analysis = {"description": "parse error", "is_sport": 0}
-
-
             result = {
                 "created_at": tweet.created_at,
                 "text": tweet.text,
@@ -601,50 +568,40 @@ def run_x_analysis():
             }
             results.append(result)
             time.sleep(4)  # 15 requests per minute = 1 request every 4 seconds
-
-
         return pd.DataFrame(results)
 
 
 
 
-
+    #Setting the page title and layout for the UI
     st.title("Tulane University: Sentiment Analysis from X")
     search = st_tags(
         label="Enter your values (press Enter to separate keywords):",
         text="Add a new value...",
         value=["Tulane"],  # Default values
         suggestions=["Tulane University"],  # Optional suggestions
-        key="x_search_tags"
+        key="1"
     )
-    start_date = st.date_input("Start Date", value=datetime.date.today() - datetime.timedelta(days=6), key="x_start_date")
-    end_date = st.date_input("End Date", value=datetime.date.today(), key="x_end_date")
-    search_button = st.button("Search", key="x_search_button")
-    sports = st.checkbox("Include sports news", key="x_sports_checkbox")
+    #Adding a date input for the user to select the start and end dates for the tweet search
+    start_date = st.date_input("Start Date", value= datetime.date.today() - datetime.timedelta(days = 6))
+    start_date= datetime.datetime.combine(start_date, datetime.time(0, 0)) + datetime.timedelta(hours=1)
+    end_date = st.date_input("End Date", value=datetime.date.today())
+    search_button = st.button("Search")
+    sports= st.checkbox("Include sports news")
     pass
     pass
 
 
-
-
-
-
-
-
-
-
-
-
+    #This part of the code is used to display the results of the tweet analysis.
     #"action" afer the button is pressed
-    if "x_slider_value" not in st.session_state:
-        st.session_state.x_slider_value = (-1.0, 1.0)
-    if search_button or "x_slider_shown" in st.session_state:
-        query = " OR ".join(search)
-        df=fetch_twits(query, start_date, end_date,10)
+    if "slider_value" not in st.session_state:
+        st.session_state.slider_value = (-1.0, 1.0)
+    if search_button or "slider_shown" in st.session_state:
+        df=fetch_twits(search, start_date, end_date,10)
         if df is None:
             st.write("No tweets found for the given search term and date range.")
             st.stop()
-
+   
         #Giving all the twits(including the ones that are realted to sports)
         if sports:
             # Adding a title above the bar chart
@@ -660,27 +617,26 @@ def run_x_analysis():
             for p in ax.patches:
                 ax.annotate(f'{p.get_height()}',
                             (p.get_x() + p.get_width() / 2., p.get_height()),
-                            xytext=(0, 5),  #Offsets from the bar
+                            xytext=(0, 5),  # отступы от столбца
                             textcoords='offset points',
                             ha='center', va='bottom', fontsize=10)
-
-
 
 
             ax.set_ylabel("Count")
             ax.set_xlabel("Sentiment")
             st.pyplot(fig)
-
+   
             #making the slider to filter outputs by sentiment
-            st.session_state.x_slider_shown = True
-            st.session_state.x_slider_value = st.slider("Sentiment Filter", -1.0, 1.0, (-1.0, 1.0), 0.1,)
+            st.session_state.slider_shown = True
+            st.session_state.slider_value = st.slider("Sentiment Filter", -1.0, 1.0, (-1.0, 1.0), 0.1,)
             st.write("")
 
 
 
 
             #filtering df by user's sentiment range
-            df_filtered = df[(df['sentiment'] >= st.session_state.x_slider_value[0]) & (df['sentiment'] <= st.session_state.x_slider_value[1])]
+            df_filtered = df[(df['sentiment'] >= st.session_state.slider_value[0]) & (df['sentiment'] <= st.session_state.slider_value[1])]
+            df_filtered['text'] = df_filtered['text'].apply(lambda x: re.sub(r"@\w+", "@user", x))
             # Display the filtered DataFrame
             for index, row in df_filtered.iterrows():
                 st.write(f"**Created At:** {row['created_at'].strftime('%Y-%m-%d %H:%M')}")
@@ -689,6 +645,8 @@ def run_x_analysis():
                 st.write(f"**Description:** {row['description']}")
                 st.write(f"**Sentiment:** {row['sentiment']}")
                 st.write("---")  # Separator between tweets
+           
+            df['text'] = df['text'].apply(lambda x: re.sub(r"@\w+", "@user", x))
             st.write(df.drop(columns=["is_sport"]))
 
 
@@ -700,8 +658,7 @@ def run_x_analysis():
             df=df[df['is_sport'] == 0]
 
 
-
-
+            # Adding a title above the bar chart
             st.subheader("Sentiment Distribution")
             # Creating bar chart for the sentiment
             sentiment_counts = df['sentiment'].value_counts().sort_index()
@@ -709,45 +666,31 @@ def run_x_analysis():
             sentiment_counts.plot(kind='bar', ax=ax, color='skyblue')
 
 
-
-
-            #Add annotations with the number of occurrences
+            # Adding value labels on top of the bars
             for p in ax.patches:
                 ax.annotate(f'{p.get_height()}',
                             (p.get_x() + p.get_width() / 2., p.get_height()),
-                            xytext=(0, 5),  #spacing from the bar
+                            xytext=(0, 5),  # отступы от столбца
                             textcoords='offset points',
                             ha='center', va='bottom', fontsize=10)
 
 
-
-
-            #Let's configure the display
+            # Setting the title and labels for the bar chart
             ax.set_title("Sentiment Distribution")
             ax.set_ylabel("Count")
             ax.set_xlabel("Sentiment")
-
-
-
-
-            #Let's show the chart using Streamlit
+            # Displaying the bar chart
             st.pyplot(fig)
-        
-
-
-
-
-        
-            #making the slider to filter outputs by sentiment
-            st.session_state.x_slider_shown = True
-            st.session_state.x_slider_value = st.slider("Sentiment Filter", -1.0, 1.0, (-1.0, 1.0), 0.1,)
+           
+            #making the slider ti filter outputs by sentiment
+            st.session_state.slider_shown = True
+            st.session_state.slider_value = st.slider("Sentiment Filter", -1.0, 1.0, (-1.0, 1.0), 0.1,)
             st.write("")
 
 
-
-
             #filtering df by user's sentiment range
-            df_filtered = df[(df['sentiment'] >= st.session_state.x_slider_value[0]) & (df['sentiment'] <= st.session_state.x_slider_value[1])]
+            df_filtered = df[(df['sentiment'] >= st.session_state.slider_value[0]) & (df['sentiment'] <= st.session_state.slider_value[1])]
+            df_filtered['text'] = df_filtered['text'].apply(lambda x: re.sub(r"@\w+", "@user", x))
             # Display the filtered DataFrame
             for index, row in df_filtered.iterrows():
                 st.write(f"**Created At:** {row['created_at'].strftime('%Y-%m-%d %H:%M')}")
@@ -756,17 +699,5 @@ def run_x_analysis():
                 st.write(f"**Description:** {row['description']}")
                 st.write(f"**Sentiment:** {row['sentiment']}")
                 st.write("---")  # Separator between tweets
+            df['text'] = df['text'].apply(lambda x: re.sub(r"@\w+", "@user", x))
             st.write(df.drop(columns=["is_sport"]))
-
-
-
-if page == "Home":
-    st.title("Welcome to the Tulane Risk Dashboard")
-    st.write("Use the sidebar to navigate to:")
-    st.markdown("- News Analysis\n- X Analysis")
-
-elif page == "News Analysis":
-    run_news_analysis()  # move your news code to a function
-
-elif page == "X Analysis":
-    run_x_analysis()     # move your x code to a function
