@@ -626,19 +626,26 @@ if selection == "X Sentiment":
             st.warning("No tweets found for the given search term and date range.")
             st.stop()
 
-        # Initialize slider state if needed
-        if "slider_value" not in st.session_state:
-            st.session_state.slider_value = (-1.0, 1.0)
+        slider_value = st.slider(
+            "Sentiment Filter",
+            min_value=-1.0,
+            max_value=1.0,
+            value=(-1.0, 1.0),
+            step=0.1,
+            key="slider_value"
+        )
+
 
         # Show slider
         slider_value = st.slider("Sentiment Filter", -1.0, 1.0, st.session_state.slider_value, step=0.1)
         st.session_state.slider_value = slider_value
 
-        # Filter tweets
+        # Filter tweets based on sentiment
         df_filtered = df[
-            (df['sentiment'] >= st.session_state.slider_value[0]) &
-            (df['sentiment'] <= st.session_state.slider_value[1])
+            (df['sentiment'] >= slider_value[0]) &
+            (df['sentiment'] <= slider_value[1])
         ]
+
         if df_filtered.empty:
             st.warning("No tweets found in this sentiment range.")
             st.stop()
