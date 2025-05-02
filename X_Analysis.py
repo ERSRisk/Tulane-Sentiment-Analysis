@@ -552,7 +552,7 @@ if selection == "X Sentiment":
         client = tweepy.Client(bearer_token=X_API_KEY)
         response = client.search_recent_tweets(
             query=search,
-            max_results=100,
+            max_results=50,
             tweet_fields=["created_at"],
             start_time=start_date.isoformat() + "Z",
             end_time=(datetime.datetime.combine(end_date, datetime.time.min)).isoformat() + "Z"
@@ -613,7 +613,7 @@ if selection == "X Sentiment":
 
     # Fetch only when search button is pressed
     if st.session_state.get("x_search_ran", False):
-        df = fetch_twits(search, start_date, end_date, 100)
+        df = fetch_twits(search, start_date, end_date, 50)
         st.session_state.x_df = df
         st.session_state.x_search_ran = False
         st.session_state.x_results_ready = True
