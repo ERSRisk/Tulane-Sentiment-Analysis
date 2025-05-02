@@ -639,7 +639,8 @@ def run_x_analysis():
     if "x_slider_value" not in st.session_state:
         st.session_state.x_slider_value = (-1.0, 1.0)
     if search_button or "x_slider_shown" in st.session_state:
-        df=fetch_twits(search, start_date, end_date,10)
+        query = " OR ".join(search)
+        df=fetch_twits(query, start_date, end_date,10)
         if df is None:
             st.write("No tweets found for the given search term and date range.")
             st.stop()
