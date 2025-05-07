@@ -16,7 +16,7 @@ from dateutil import parser
 import datetime
 from textblob import TextBlob
 import tweepy
-import concurrent.futures
+import nest_asyncio
 import json
 import re
 import altair as alt
@@ -510,6 +510,7 @@ if selection == "News Sentiment":
         st.markdown("---")
     #st.markdown("🔍 Built by Luke Roosa, Samuel Centeno, & Illia Kunin | Powered by NewsAPI & Gemini")
 if selection == "X Sentiment":
+    nest_asyncio.apply()
     #This function is used to analyze the tweets using Google Gemini API
     # It takes a tweet as input and returns a JSON response with a description and whether the tweet is related to sports or not.
 
@@ -517,29 +518,54 @@ if selection == "X Sentiment":
     GEMINI_API_KEY_X = st.secrets["all_my_api_keys"]["GEMINI_API_KEY_X"]
     X_API_KEY = st.secrets["all_my_api_keys"]["X_API_KEY"]
 
-    def tweet_analysis(tweet):
-        client = genai.Client(api_key=GEMINI_API_KEY_X)
-        prompt = f"""
-    Analyze the following tweet and provide a description in 1–2 sentences.
-    Also, analyze whether the tweet is related to sports.
-    Respond in JSON format with two keys:
-    - "description": a short description of the tweet,
-    - "is_sport": 1 if the tweet is related to sports, otherwise 0.
-    Tweet:
-    {tweet}
-    """
-        response = client.models.generate_content(model="gemini-2.5-pro-exp-03-25", contents=prompt)
-        #function returns the response in JSON format(description and is_sport)
-        if response.candidates and response.candidates[0].content.parts:
-            raw_text = response.candidates[0].content.parts[0].text
-            cleaned_text = re.sub(r"```json|```|\n|\s{2,}", "", raw_text).strip()
-            data = json.loads(cleaned_text)
-            return data
    
-        else:
-            return "No analysis available."
-   
-    @st.cache_data(show_spinner=False)
+    #adding this option to run batches
+    semaphore = asyncio.Semaphore(5)
+
+    async def limited_process(batch_df, search, batch_size, total_batches):
+            async with semaphore:
+                return await asyncio.to_thread(process_batch, batch_df, search, batch_size, total_batches)
+
+    async def analyze_in_batches_concurrent_X(tweets, search, sports, batch_size=10):
+            all_responses = []
+            total_batches = len(tweets) // batch_size + (1 if len(tweets) % batch_size != 0 else 0)
+            print(f"Total batches: {total_batches}")
+            batch_tasks = []
+            for i in range(0, len(tweets), batch_size):
+                batch_df = tweets[i:i + batch_size]
+
+
+
+
+                task = limited_process(batch_df, search, i // batch_size + 1, total_batches)
+                batch_tasks.append(task)
+    
+            all_responses = await asyncio.gather(*batch_tasks)
+            return pd.concat(all_responses)
+    
+    async def run_async_batches_X(tweets, search, sports, batch_size = 10):
+        return asyncio.run(analyze_in_batches_concurrent_X(tweets, search, sports, batch_size = 10))
+    
+    def process_batch(batch_df, search, i, total_batches):
+        print(f"Processing batch {i} of {total_batches}...")
+        formatted_tweets = "\n\n".join([f"{tweet.text}" for tweet in batch_df])
+        analysis_list = analyze_sentiment_X(formatted_tweets, search, sports)
+        response = []
+        for tweet, analysis in zip(batch_df, analysis_list):
+            result = {
+            "created_at": tweet.created_at,
+            "text": tweet.text,
+            "link": f"https://twitter.com/{tweet.author_id}/status/{tweet.id}",
+            "description": analysis.get("description", "parse error"),
+            "sentiment": analysis.get("sentiment", 0),
+            "summary": analysis.get("summary", "parse error"),
+            "is_sport": analysis.get("is_sport", 0)
+            }
+            response.append(result)
+        return pd.DataFrame(response)
+
+
+
     #This function fetches tweets from Twitter API based on the search term and date range provided by the user.
     # It uses the Tweepy library to interact with the Twitter API and returns a DataFrame with the tweet data.
     # The function takes the following parameters:
@@ -548,7 +574,7 @@ if selection == "X Sentiment":
     # end_date: The end date for the tweet search.
     # no_of_tweets: The number of tweets to fetch.
     def fetch_twits(search, start_date, end_date, no_of_tweets):
-        import time
+        import datetime
         client = tweepy.Client(bearer_token=X_API_KEY)
         response = client.search_recent_tweets(
             query=search,
@@ -560,27 +586,42 @@ if selection == "X Sentiment":
         tweets = response.data
         if not tweets:
             return None
+        return tweets
 
-
-        results = []
-        for i, tweet in enumerate(tweets):
-            print(f"🔍 Analyzing tweet {i+1}/{len(tweets)}...")
+    def analyze_sentiment_X(formatted_tweet_block, search, sports, retries=5):
+        for attempt in range(retries):
             try:
-                analysis = tweet_analysis(tweet.text)
+                client = genai.Client(api_key=GEMINI_API_KEY_X)
+                prompt = f"""
+                Analyze the following tweets. For each one, return a JSON object with:
+                - "description": a short description of the tweet,
+                - "sentiment": a sentiment score from -1 to 1 (where -1 is very negative, 0 is neutral, and 1 is very positive) based on its relation with the keywords '{search}',
+                - "summary": a summary of the sentiment and key reasons why the sentiment is positive, neutral, or negative based on its relation with the keywords '{search}',
+                - "is_sport": 1 if the tweet is related to sports, else 0.
+
+                Respond as a JSON array of objects, one per tweet, in the order presented.
+
+                Tweets:
+                {formatted_tweet_block}
+                """
+                response = client.models.generate_content(model="gemini-2.5-pro-exp-03-25", contents=prompt)
+                if response.candidates and response.candidates[0].content.parts:
+                    raw_text = response.candidates[0].content.parts[0].text
+                    cleaned_text = re.sub(r"```json|```|\n|\s{2,}", "", raw_text).strip()
+                    return json.loads(cleaned_text)
+                else:
+                    return [{"description": "parse error", "is_sport": 0}]
+            except ClientError as e:
+                if "RESOURCE_EXHAUSTED" in str(e):
+                    wait_time = 60
+                    retry_delay_match = re.search(r"'retryDelay': '(\d+)s'", str(e))
+                    if retry_delay_match:
+                        wait_time = int(retry_delay_match.group(1))
+                    print(f"⚠️ API quota exceeded. Retrying in {wait_time} seconds...")
+                    time.sleep(wait_time)
             except Exception as e:
-                print(f"⚠️ Failed to analyze tweet: {e}")
-                analysis = {"description": "parse error", "is_sport": 0}
-            result = {
-                "created_at": tweet.created_at,
-                "text": tweet.text,
-                "sentiment": round(TextBlob(tweet.text).sentiment.polarity, 1),
-                "link": f"https://twitter.com/{tweet.author_id}/status/{tweet.id}",
-                "description": analysis.get("description", "parse error"),
-                "is_sport": analysis.get("is_sport", 0)
-            }
-            results.append(result)
-            time.sleep(4)  # 15 requests per minute = 1 request every 4 seconds
-        return pd.DataFrame(results)
+                print(f"⚠️ Failed to analyze tweet batch: {e}")
+                return [{"description": "parse error", "is_sport": 0}] * len(formatted_tweet_block.split("\n\n"))
 
 
 
@@ -613,7 +654,8 @@ if selection == "X Sentiment":
 
     # Fetch only when search button is pressed
     if st.session_state.get("x_search_ran", False):
-        df = fetch_twits(search, start_date, end_date, 100)
+        tweets = fetch_twits(search, start_date, end_date, 100)
+        df = asyncio.run(run_async_batches_X(tweets, search, sports, batch_size=10))
         st.session_state.x_df = df
         st.session_state.x_search_ran = False
         st.session_state.x_results_ready = True
@@ -651,14 +693,7 @@ if selection == "X Sentiment":
         # Chart
         st.subheader("Sentiment Distribution")
         sentiment_counts = df_filtered['sentiment'].value_counts().sort_index()
-        fig, ax = plt.subplots()
-        sentiment_counts.plot(kind='bar', ax=ax, color='skyblue')
-        for p in ax.patches:
-            ax.annotate(f'{p.get_height()}', (p.get_x() + p.get_width() / 2., p.get_height()),
-                        xytext=(0, 5), textcoords='offset points', ha='center', va='bottom', fontsize=10)
-        ax.set_ylabel("Count")
-        ax.set_xlabel("Sentiment")
-        st.pyplot(fig)
+        st.bar_chart(sentiment_counts)
 
         # Display tweets
         for _, row in df_filtered.iterrows():
@@ -667,6 +702,7 @@ if selection == "X Sentiment":
             st.markdown(f"**Text:** {row['text']}")
             st.markdown(f"**Description:** {row['description']}")
             st.markdown(f"**Sentiment:** {row['sentiment']}")
+            st.markdown(f"**Summary:** {row['summary']}")
             st.write("---")
 
         # Full cleaned table
