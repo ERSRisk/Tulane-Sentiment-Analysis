@@ -520,7 +520,7 @@ if selection == "X Sentiment":
 
    
     #adding this option to run batches
-    semaphore = asyncio.Semaphore(5)
+    semaphore = asyncio.Semaphore(3)
 
     async def limited_process(batch_df, search, batch_size, total_batches):
             async with semaphore:
@@ -551,6 +551,10 @@ if selection == "X Sentiment":
         formatted_tweets = "\n\n".join([f"{tweet.text}" for tweet in batch_df])
         analysis_list = analyze_sentiment_X(formatted_tweets, search, sports)
         response = []
+        if not analysis_list:
+            print("analysis list is missing")
+        elif len(analysis_list) != len(batch_df):
+            print(f"Got {len(analysis_list)} responses for {len(batch_df)} tweets.")
         for tweet, analysis in zip(batch_df, analysis_list):
             result = {
             "created_at": tweet.created_at,
@@ -559,9 +563,11 @@ if selection == "X Sentiment":
             "description": analysis.get("description", "parse error"),
             "sentiment": analysis.get("sentiment", 0),
             "summary": analysis.get("summary", "parse error"),
-            "is_sport": analysis.get("is_sport", 0)
+            "is_sport": analysis.get("is_sport", 0),
+            "affiliation": analysis.get("affiliation", 0)
             }
-            response.append(result)
+            if result['is_sport'] == 0 and result['affiliation'] == 1:
+                response.append(result)
         return pd.DataFrame(response)
 
 
@@ -585,45 +591,55 @@ if selection == "X Sentiment":
         )
         tweets = response.data
         if not tweets:
-            return None
+            st.warning('No tweets were extracted. Check X source')
+            st.session_state.x_search_ran = False
+            st.stop()
         return tweets
 
     def analyze_sentiment_X(formatted_tweet_block, search, sports, retries=5):
-        for attempt in range(retries):
-            try:
-                client = genai.Client(api_key=GEMINI_API_KEY_X)
-                prompt = f"""
+        flagged_keywords = ["1. Civil Rights", "2. Antisemitism", "3. Federal Grants", "4. Contracts", 
+                                "5. Discrimination", "6. Education Secretary", "7. Investigation", "8. Lawsuit", 
+                                "9. Executive Order", "10. Title IX", "11. Transgender Athletes", "12. Diversity, Equity, and Inclusion (DEI)", 
+                                "13. Funding Freeze, funding frost", "14. University Policies", "15. Student Success", '16. Allegations', "17. Compliance", 
+                                "18. Oversight", "19. Political Activity", 
+                                "20. Community Relations"]
+        client = genai.Client(api_key=GEMINI_API_KEY_X)
+        prompt = f"""
                 Analyze the following tweets. For each one, return a JSON object with:
                 - "description": a short description of the tweet,
-                - "sentiment": a sentiment score from -1 to 1 (where -1 is very negative, 0 is neutral, and 1 is very positive) based on its relation with the keywords '{search}',
+                - "sentiment": a sentiment score from -1 to 1 (where -1 is very negative, 0 is neutral, and 1 is very positive) based on its relation with the keywords '{search}'. If it's an academic study conducted by Tulane that is recognized, give it a high score. Very low scores should be given to topics regarding the following issues if shed in a negative light: {flagged_keywords},
                 - "summary": a summary of the sentiment and key reasons why the sentiment is positive, neutral, or negative based on its relation with the keywords '{search}',
-                - "is_sport": 1 if the tweet is related to sports, else 0.
+                - "is_sport": 1 if the tweet is related to sports, if the word 'player', 'platoffs', 'NFL', or any other sport related is found in the text of the post, or the description contains references to sports seasons, match results, baseball, football, player recruitment; else, give it a 0.
+                - "affiliation": 1 if the tweet is affiliated with Tulane; else, give it a 0.
 
                 Respond as a JSON array of objects, one per tweet, in the order presented.
 
                 Tweets:
                 {formatted_tweet_block}
                 """
-                response = client.models.generate_content(model="gemini-2.5-pro-exp-03-25", contents=prompt)
-                if response.candidates and response.candidates[0].content.parts:
-                    raw_text = response.candidates[0].content.parts[0].text
-                    cleaned_text = re.sub(r"```json|```|\n|\s{2,}", "", raw_text).strip()
-                    return json.loads(cleaned_text)
-                else:
-                    return [{"description": "parse error", "is_sport": 0}]
-            except ClientError as e:
-                if "RESOURCE_EXHAUSTED" in str(e):
-                    wait_time = 60
-                    retry_delay_match = re.search(r"'retryDelay': '(\d+)s'", str(e))
-                    if retry_delay_match:
-                        wait_time = int(retry_delay_match.group(1))
-                    print(f"⚠️ API quota exceeded. Retrying in {wait_time} seconds...")
-                    time.sleep(wait_time)
-            except Exception as e:
-                print(f"⚠️ Failed to analyze tweet batch: {e}")
-                return [{"description": "parse error", "is_sport": 0}] * len(formatted_tweet_block.split("\n\n"))
-
-
+        models = ["gemini-1.5-pro", "gemini-2.0-flash"]
+        for attempt in range(retries): 
+            for model in models:
+                try:
+                    
+                    response = client.models.generate_content(model="gemini-2.0-flash", contents=prompt)
+                    if response.candidates and response.candidates[0].content.parts:
+                        raw_text = response.candidates[0].content.parts[0].text
+                        print(raw_text)
+                        cleaned_text = re.sub(r"```json|```|\n|\s{2,}", "", raw_text).strip()
+                        return json.loads(cleaned_text)
+                
+                except ClientError as e:
+                    if "RESOURCE_EXHAUSTED" in str(e):
+                        wait_time = 60
+                        retry_delay_match = re.search(r"'retryDelay': '(\d+)s'", str(e))
+                        if retry_delay_match:
+                            wait_time = int(retry_delay_match.group(1))
+                        print(f"⚠️ API quota exceeded. Retrying in {wait_time} seconds...")
+                        time.sleep(60)
+                except Exception:
+                    continue
+        return print("API Failed. Check API Key or model.")
 
 
     #Setting the page title and layout for the UI
@@ -651,11 +667,17 @@ if selection == "X Sentiment":
     if search_button:
         st.session_state.x_search_ran = True
         st.session_state.x_results_ready = False  # Reset
-
     # Fetch only when search button is pressed
     if st.session_state.get("x_search_ran", False):
         tweets = fetch_twits(search, start_date, end_date, 100)
-        df = asyncio.run(run_async_batches_X(tweets, search, sports, batch_size=10))
+        with open("tweets.json", "w") as f:
+            json.dump([tweet.data for tweet in tweets], f)
+        print('Fetched tweets:', tweets[:2] if tweets else "None")
+        if not tweets:
+            st.warning('No posts were extracted. Check X source.')
+            st.session_state.x_search_ran = False
+            st.stop()    
+        df = asyncio.get_event_loop().run_until_complete(run_async_batches_X(tweets, search, sports, batch_size=10))
         st.session_state.x_df = df
         st.session_state.x_search_ran = False
         st.session_state.x_results_ready = True
