@@ -607,7 +607,7 @@ if selection == "X Sentiment":
         prompt = f"""
                 Analyze the following tweets. For each one, return a JSON object with:
                 - "description": a short description of the tweet,
-                - "sentiment": a sentiment score from -1 to 1 (where -1 is very negative, 0 is neutral, and 1 is very positive) based on its relation with the keywords '{search}'. If it's an academic study conducted by Tulane that is recognized, give it a high score. Very low scores should be given to topics regarding the following issues if shed in a negative light: {flagged_keywords},
+                - "sentiment": a sentiment score from -1 to 1 (where -1 is very negative, 0 is neutral, and 1 is very positive) based on its relation with the keywords '{search}' and {flagged_keywords}. If it's an academic study conducted by Tulane that is recognized, give it a high score. Very low scores should be given to topics regarding the following issues if shed in a negative light: {flagged_keywords},
                 - "summary": a summary of the sentiment and key reasons why the sentiment is positive, neutral, or negative based on its relation with the keywords '{search}',
                 - "is_sport": 1 if the tweet is related to sports, if the word 'player', 'playoffs', 'NFL', 'season', or any other sport related is found in the text of the post, or the description contains references to sports seasons, match results, baseball, football, player recruitment; else, give it a 0.
                 - "affiliation": 1 if the tweet is affiliated with Tulane directly and has bearing on Tulane's reputation as an organization; else, if the post is indirectly related to Tulane or has no bearing on the organization, give it a 0.
