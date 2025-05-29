@@ -42,7 +42,7 @@ if st.session_state.current_tab != selection:
 if selection == "News Sentiment":
     # Setting up the APIs for News API and Gemini API
     NEWS_API_KEY = st.secrets["all_my_api_keys"]["NEWS_API_KEY"]
-    GEMINI_API_KEY = st.secrets["all_my_api_keys"]["GEMINI_API_KEY_NEWS"]
+    GEMINI_API_KEY = st.secrets["all_my_api_keys"]["GEMINI_API_KEY_X"]
     
 
 
@@ -243,7 +243,7 @@ if selection == "News Sentiment":
                             "Tulane was found in the text. Here is the full content for analysis.\n"
                             f"{text_to_analyze}"
                         )
-                    gemini_response = client.models.generate_content(model="gemini-1.5-pro", contents=[sentiment_prompt])
+                    gemini_response = client.models.generate_content(model="gemini-2.5-pro-preview-05-06", contents=[sentiment_prompt])
                     return gemini_response.text if gemini_response and gemini_response.text else ""
                 except ClientError as e:
                     if "RESOURCE_EXHAUSTED" in str(e):
