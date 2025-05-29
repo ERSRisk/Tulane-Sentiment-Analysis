@@ -243,7 +243,7 @@ if selection == "News Sentiment":
                             "Tulane was found in the text. Here is the full content for analysis.\n"
                             f"{text_to_analyze}"
                         )
-                    gemini_response = client.models.generate_content(model="gemini-2.0-flash", contents=[sentiment_prompt])
+                    gemini_response = client.models.generate_content(model="gemini-2.5-pro-preview-05-06", contents=[sentiment_prompt])
                     return gemini_response.text if gemini_response and gemini_response.text else ""
                 except ClientError as e:
                     if "RESOURCE_EXHAUSTED" in str(e):
@@ -617,7 +617,7 @@ if selection == "X Sentiment":
                 Tweets:
                 {formatted_tweet_block}
                 """
-        models = ["gemini-1.5-pro", "gemini-2.0-flash"]
+        models = ["gemini-1.5-pro", "gemini-2.5-pro-preview-05-06"]
         for attempt in range(retries): 
             for model in models:
                 try:
