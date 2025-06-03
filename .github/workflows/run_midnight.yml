@@ -1,0 +1,32 @@
+name: Midnight Run
+
+on:
+  schedule:
+    - cron: '0 5 * * *'
+  workflow_dispatch:  
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run script
+        run: python feed_connection.py
+
+      - name: Upload JSON output (optional)
+        uses: actions/upload-artifact@v4
+        with:
+          name: extracted-json
+          path: extracted_articles.json
