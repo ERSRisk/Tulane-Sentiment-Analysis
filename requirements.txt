@@ -17,3 +17,14 @@ tweepy
 matplotlib
 protobuf==3.20.3
 altair==4.2.2
+aiohttp
+feedparser
+traceback
+spacy
+time
+json
+undetected_chromedriver
+selenium
+pickle
+trafilatura
+os
