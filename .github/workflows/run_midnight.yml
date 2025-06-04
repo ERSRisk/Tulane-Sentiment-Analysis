@@ -4,7 +4,9 @@ on:
   schedule:
     - cron: '0 5 * * *'
   workflow_dispatch:  
-
+  
+permissions:
+  contents: write
 jobs:
   run-script:
     runs-on: ubuntu-latest
@@ -23,10 +25,12 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run script
-        run: python feed_connection.py
+        run: python run.py
 
-      - name: Upload JSON output (optional)
-        uses: actions/upload-artifact@v4
-        with:
-          name: extracted-json
-          path: extracted_articles.json
+      - name: commit and push extracted JSON files
+        run: |
+          git config --global user.name 'github-actions'
+          git config -- global user.email 'github-actions@github.com'
+          git add *.json
+          git commit -m "Auto-update extracted JSON files [skip ci]" || echo "No changes to commit"
+          git push
