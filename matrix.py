@@ -20,7 +20,7 @@ for article in articles:
 
     top_risks = [
         {'risk': risks[i], 'score': round(float(cosine_scores[i]), 3)}
-        for i in top_indices if float(cosine_scores[i]) > 0.2
+        for i in top_indices if float(cosine_scores[i]) > 0.31
     ]
 
     article['Top Risks'] = top_risks
