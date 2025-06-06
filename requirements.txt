@@ -20,3 +20,4 @@ spacy
 undetected_chromedriver
 selenium
 trafilatura
+sentence_transformers
