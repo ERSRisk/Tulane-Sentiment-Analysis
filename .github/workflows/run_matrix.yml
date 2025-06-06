@@ -29,6 +29,6 @@ jobs:
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
-          git add articles_with_risks.json
+          git add articles_with_risk.json
           git commit -m "Update JSON output"
           git push
