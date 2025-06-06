@@ -1,8 +1,5 @@
-import pandas as pd
 from sentence_transformers import CrossEncoder
 import json
-from sklearn.metrics.pairwise import cosine_similarity
-import numpy as np
 import os
 
 model = CrossEncoder('cross-encoder/ms-marco-MiniLM-L-6-v2')
