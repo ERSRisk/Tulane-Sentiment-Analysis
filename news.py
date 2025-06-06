@@ -15,7 +15,7 @@ import os
 
 
 NEWS_API_KEY = os.getenv("NEWS_API_KEY")
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY_NEWS")
 GEMINI_API_KEY_X = os.getenv("GEMINI_API_KEY_X")
 X_API_KEY = os.getenv("X_API_KEY")
 
