@@ -1,29 +1,31 @@
-from sentence_transformers import CrossEncoder
+from sentence_transformers import SentenceTransformer, util
 import json
 import os
 
-model = CrossEncoder('cross-encoder/ms-marco-MiniLM-L-6-v2')
+model = SentenceTransformer('all-mpnet-base-v2')
 risks = json.loads(os.getenv('RISKS_LIST'))
-
 
 with open('extracted_RSS.json', 'r') as f:
     articles = json.load(f)
 
-article_embeddings = []
+risk_embeddings = model.encode(risks, convert_to_tensor=True)
+
+results = []
 for article in articles:
     article_text = article['Title'] + '. ' + article['Content']
-    pairs = [(article_text, risk) for risk in risks]
-    scores = model.predict(pairs)
+    article_embedding = model.encode(article_text, convert_to_tensor=True)
+
+    cosine_scores = util.cos_sim(article_embedding, risk_embeddings)[0]
+    top_indices = cosine_scores.argsort(descending=True)[:3]
 
     top_risks = [
-        (risk, float(score))
-        for risk, score in zip(risks, scores)
-        if score >= 0.2
+        {'risk': risks[i], 'score': round(float(cosine_scores[i]), 3)}
+        for i in top_indices if float(cosine_scores[i]) > 0.2
     ]
-    top_risks = sorted(top_risks, key = lambda x: x[1], reverse=True)[:3]
 
-    article['Top Risks'] = [{'risk': r, 'score': round(s, 3)} for r, s in top_risks]
-    article_embeddings.append(article)
+    article['Top Risks'] = top_risks
+    results.append(article)
 
 with open('articles_with_risk.json', 'w') as f:
-    json.dump(article_embeddings, f, indent=4)
+    json.dump(results, f, indent=4)
+
