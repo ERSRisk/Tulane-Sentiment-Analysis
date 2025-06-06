@@ -3,7 +3,7 @@ import json
 import os
 
 model = CrossEncoder('cross-encoder/ms-marco-MiniLM-L-6-v2')
-risks = json.loads(os.environ['RISKS_LIST'])
+risks = json.loads(os.getenv['RISKS_LIST'])
 
 
 with open('extracted_RSS.json', 'r') as f:
