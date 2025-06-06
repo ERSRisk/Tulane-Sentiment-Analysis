@@ -35,8 +35,8 @@ jobs:
 
       - name: commit and push extracted JSON files
         run: |
-          git config --global user.name 'github-actions'
-          git config -- global user.email 'github-actions@github.com'
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
           git add *.json
           git commit -m "Auto-update extracted JSON files [skip ci]" || echo "No changes to commit"
           git push
