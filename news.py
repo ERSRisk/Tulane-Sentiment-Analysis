@@ -16,7 +16,7 @@ import os
 
 NEWS_API_KEY = os.getenv("NEWS_API_KEY")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-GEMINI_API_KEY_X = os.getenv("GEMINI_API_KEY_X")]
+GEMINI_API_KEY_X = os.getenv("GEMINI_API_KEY_X")
 X_API_KEY = os.getenv("X_API_KEY")
 
 client = genai.Client(api_key=GEMINI_API_KEY)
