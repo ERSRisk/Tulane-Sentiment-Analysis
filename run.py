@@ -231,8 +231,6 @@ keywords = ['Civil Rights', 'Antisemitism', 'Federal Grants','federal grant',
 'visa', 'nih'
 ]
 
-with open('.streamlit/secrets.toml', 'r') as f:
-        secrets = toml.load(f)
 
 NEWS_API_KEY = os.getenv("NEWS_API_KEY")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
