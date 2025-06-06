@@ -263,7 +263,7 @@ with open('extracted_news.json', 'w') as f:
         json.dump(new_articles_news, f)
 
 tweets = te.fetch_twits(search, start_date_X, end_date, 100)
-df = asyncio.get_event_loop().run_until_complete(te.run_async_batches_X(tweets, search, batch_size=10))
+df = asyncio.run(te.run_async_batches_X(tweets, search, batch_size=10))
 existing_posts = te.load_existing_posts_X()
 new_posts = te.save_new_posts_X(existing_posts, df)
 with open('tweets.json', 'w') as f:
