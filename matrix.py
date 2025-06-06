@@ -18,7 +18,7 @@ for article in articles:
     top_risks = [
         (risk, float(score))
         for risk, score in zip(risks, scores)
-        if score >= 0.3
+        if score >= 0.2
     ]
     top_risks = sorted(top_risks, key = lambda x: x[1], reverse=True)[:3]
 
