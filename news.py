@@ -13,8 +13,6 @@ import json
 import re
 import os
 
-NEWS_API_KEY = st.secrets["all_my_api_keys"]["NEWS_API_KEY"]
-GEMINI_API_KEY = st.secrets["all_my_api_keys"]["GEMINI_API_KEY_X"]
 
 client = genai.Client(api_key=GEMINI_API_KEY)
 search = 'Tulane'
