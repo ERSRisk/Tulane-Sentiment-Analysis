@@ -25,6 +25,10 @@ jobs:
         run: |
           python matrix.py
 
+      - name: Set up Git for authenticated push
+        run: |
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository}.git
+
       - name: Commit and push JSON output
         run: |
           git config --global user.name "github-actions"
@@ -32,3 +36,5 @@ jobs:
           git add articles_with_risk.json
           git commit -m "Update JSON output"
           git push
+        env:
+          GIHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
