@@ -266,7 +266,5 @@ def load_existing_articles_news():
 def save_new_articles_news(existing_articles, new_articles):
     existing_urls = {article['URL'] for article in existing_articles}
     unique_new_articles = [article for article in new_articles if article['URL'] not in existing_urls]
-    
-    if unique_new_articles:
-        updated_articles = existing_articles + unique_new_articles
+    updated_articles = existing_articles + unique_new_articles
     return updated_articles
