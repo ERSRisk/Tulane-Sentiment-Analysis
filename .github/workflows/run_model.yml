@@ -23,10 +23,8 @@ jobs:
         run: |
           python model_train.py
 
-      - name: Commit and push model
-        run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
-          git add my_model* # or path/to/my_model_directory
-          git diff --cached --quiet || git commit -m "Update model"
-          git push
+      - name: Upload model as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: my-trained-model
+          path: 
