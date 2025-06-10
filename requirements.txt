@@ -23,3 +23,4 @@ trafilatura
 sentence-transformers
 joblib
 datasets
+transformers[torch]
