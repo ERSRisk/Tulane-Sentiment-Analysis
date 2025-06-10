@@ -14,4 +14,4 @@ Stages 1 and 2 of the summer project are found inside the Online_Extraction dire
 
 Stage 3 of the summer project is found inside the Model_training directory.
   1. matrix.py. Houses the first iteration, untrained sentence transformer machine learning model.
-  2. model_training.py
+  2. model_train.py. Houses the second iteration, first trained model. It was trained on the articles_
