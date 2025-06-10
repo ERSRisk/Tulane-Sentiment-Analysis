@@ -2,6 +2,7 @@ import pandas as pd
 from sentence_transformers import InputExample, SentenceTransformer, losses
 from torch.utils.data import DataLoader
 import random 
+import joblib
 
 df = pd.read_csv('train_articles.csv')
 
@@ -32,3 +33,7 @@ model.fit(
     epochs = 4,
     warmup_steps = 100
 )
+
+model.save("my_model_directory")
+
+joblib.dump(model, "my_model_compressed.pkl", compress=3)
