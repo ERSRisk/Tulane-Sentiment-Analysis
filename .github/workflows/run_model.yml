@@ -1,4 +1,4 @@
-name: Run model.py Now
+name: Run model_train.py Now
 on:
   workflow_dispatch:
 
@@ -21,7 +21,7 @@ jobs:
 
       - name: Run model.py
         run: |
-          python model.py
+          python model_train.py
 
       - name: Commit and push model
         run: |
