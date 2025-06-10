@@ -13,3 +13,5 @@ Stages 1 and 2 of the summer project are found inside the Online_Extraction dire
   4. run.py. This is the code that combines and actually runs the functions defined on the previous codes. This is the code that is being run every day at midnight.
 
 Stage 3 of the summer project is found inside the Model_training directory.
+  1. matrix.py. Houses the first iteration, untrained sentence transformer machine learning model.
+  2. model_training.py
