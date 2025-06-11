@@ -35,5 +35,3 @@ model.fit(
 )
 
 model.save("my_model_directory")
-
-joblib.dump(model, "my_model_compressed.pkl", compress=3)
