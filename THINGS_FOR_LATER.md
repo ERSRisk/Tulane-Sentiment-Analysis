@@ -1,0 +1,3 @@
+-Ensure all RSS feeds are getting extracted properly
+-Ensure there are no duplicate articles or X posts getting saved
+-Ensure the midnight runs are not deleting previous articles
