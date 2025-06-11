@@ -27,4 +27,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: my-trained-model
-          path: my_model_compressed.pkl
+          path: my_model_directory
