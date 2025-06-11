@@ -7,7 +7,13 @@ model = SentenceTransformer("E:/TUL SP 25/Risk Project/ERM Practicum/my-trained-
 
 risks_data = os.getenv("RISKS_LIST")
 
-for risk in risks_data['risks']:
-  risk_name = risk['name']
-  risk_weight = {'likelihood':risk['likelihood'], 'impact':risk['impact'], 'velocity':risk['velocity'], 'level':risk['level']}
+risk_name = [risk['name'] for risk in risks_data['risks']]
+risk_weight = [{'likelihood':risk['likelihood'], 'impact':risk['impact'], 'velocity':risk['velocity'], 'level':risk['level']} for risk in risks_data['risks']]
 
+risk_embedding = model.encode(risk_name, convert_to_tensor = False)
+
+for article in articles:
+  article_text = article['Title'] + '. ' article['Content']
+  article_embedding = model.encoder(article_text, convert_to_tensor = False).reshape(1,-1)
+
+  similarities = cosine_similarity(
