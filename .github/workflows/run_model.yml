@@ -21,7 +21,7 @@ jobs:
 
       - name: Run model.py
         run: |
-          python model_train.py
+          python Model_training/model_train.py
 
       - name: Upload model as artifact
         uses: actions/upload-artifact@v4
