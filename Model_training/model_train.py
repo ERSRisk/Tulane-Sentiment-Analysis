@@ -4,7 +4,7 @@ from torch.utils.data import DataLoader
 import random 
 import joblib
 
-df = pd.read_csv('train_articles.csv')
+df = pd.read_csv('Model_training/train_articles.csv')
 
 df['Top_Risks'] = df['Top_Risks'].apply(lambda x: [r.strip() for r in x.split(';')] if isinstance(x, str) else [])
 labeled = df[df['Top_Risks'].notna()]
