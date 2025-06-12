@@ -35,12 +35,12 @@ gemini_response_text = test.run_async_batches(articles, search, timezone_option,
 results = test.text_to_dataframe(gemini_response_text, articles)
 existing_articles_news = test.load_existing_articles_news()
 new_articles_news = test.save_new_articles_news(existing_articles_news, results)
-with open('extracted_news.json', 'w') as f:
+with open('Online_Extraction/extracted_news.json', 'w') as f:
         json.dump(new_articles_news, f)
 
 tweets = te.fetch_twits(search, start_date_X, end_date, 100)
 df = asyncio.run(te.run_async_batches_X(tweets, search, batch_size=10))
 existing_posts = te.load_existing_posts_X()
 new_posts = te.save_new_posts_X(existing_posts, df)
-with open('tweets.json', 'w') as f:
+with open('Online_Extraction/tweets.json', 'w') as f:
     json.dump(new_posts, f)
