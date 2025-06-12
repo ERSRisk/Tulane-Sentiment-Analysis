@@ -21,10 +21,4 @@ jobs:
 
       - name: Run model.py
         run: |
-          python Model_training/model_train.py
-
-      - name: Upload model as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: my-trained-model
-          path: my_model_directory
+          python Model_training/model_validation.py
