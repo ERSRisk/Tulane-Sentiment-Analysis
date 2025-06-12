@@ -138,8 +138,8 @@ def analyze_sentiment_X(formatted_tweet_block, search, retries=5):
     return print("API Failed. Check API Key or model.")
 
 def load_existing_posts_X():
-    if os.path.exists('tweets.json'):
-        with open('tweets.json', 'r', encoding = 'utf-8') as f:
+    if os.path.exists('Online_Extraction/tweets.json'):
+        with open('Online_Extraction/tweets.json', 'r', encoding = 'utf-8') as f:
             return json.load(f)
     return []
 
@@ -149,4 +149,6 @@ def save_new_posts_X(existing_posts, new_posts):
     unique_new_posts = [post for post in new_posts if post['link'] not in existing_urls_X]
     
     updated_posts = existing_posts + unique_new_posts
+    with open('Online_Extraction/tweets.json', 'w', encoding = 'utf-8') as f:
+            json.dump(updated_posts, f, indent = 2, ensure_ascii=False)
     return updated_posts
