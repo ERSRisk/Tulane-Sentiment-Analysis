@@ -20,5 +20,7 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run model.py
+        env: 
+          RISKS_LIST: ${{ secrets.RISKS_LIST }}
         run: |
           python Model_training/model_validation.py
