@@ -259,7 +259,7 @@ def text_to_dataframe(text, articles):
 
 def load_existing_articles_news():
     if os.path.exists('extracted_news.json'):
-        with open('extracted_news.json', 'r', encoding = 'utf-8') as f:
+        with open('Online_Extraction/extracted_news.json', 'r', encoding = 'utf-8') as f:
             return json.load(f)
     return []
 
@@ -267,4 +267,6 @@ def save_new_articles_news(existing_articles, new_articles):
     existing_urls = {article['URL'] for article in existing_articles}
     unique_new_articles = [article for article in new_articles if article['URL'] not in existing_urls]
     updated_articles = existing_articles + unique_new_articles
+    with open('Online_Extraction/extracted_news.json', 'w', encoding = 'utf-8') as f:
+        json.dump(updated_articles, f, indent = 2, ensure_ascii=False)
     return updated_articles
