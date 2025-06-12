@@ -34,7 +34,7 @@ jobs:
           NEWS_API_KEY: ${{ secrets.NEWS_API_KEY }}
           X_API_KEY: ${{ secrets.X_API_KEY }}
         run: |
-          python run.py
+          python Online_Extraction/run.py
 
       - name: commit and push extracted JSON files
         run: |
