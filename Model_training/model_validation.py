@@ -1,42 +1,40 @@
 from sentence_transformers import SentenceTransformer, util
 import json
+from sklearn.preprocessing import MultiLabelBinarizer
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split
+from sklearn.multiclass import OneVsRestClassifier
+from sklearn.metrics import classification_report, accuracy_score, f1_score
 import os
+import pandas as pd
 
-model = SentenceTransformer("E:/TUL SP 25/Risk Project/ERM Practicum/my-trained-model")
+df = pd.read_csv('Model_training/train_articles.csv')
 
-risks_data = os.getenv("RISKS_LIST")
 
-risk_name = [risk['name'] for risk in risks_data['risks']]
-risk_weight = [{'likelihood':risk['likelihood'], 'impact':risk['impact'], 'velocity':risk['velocity'], 'level':risk['level']} for risk in risks_data['risks']]
 
-risk_embedding = model.encode(risk_name, convert_to_tensor = False)
+risk_list = os.getenv('RISKS_LIST')
 
-articles_with_risk = []
-for article in articles:
-  article_text = article['Title'] + '. ' article['Content']
-  article_embedding = model.encoder(article_text, convert_to_tensor = False).reshape(1,-1)
+df['Top_Risks'] = df['Top_Risks'].apply(lambda x: [r.strip() for r in x.split(';') if r.strip()] if pd.notna(x) else "No Risk")
 
-  similarities = util.cos_sim(article_embedding, risk_embedding)[0]
+labeled = df[df['Top_Risks'].apply(lambda x: x != ["No Risk"])]
+unlabeled = df[df['Top_Risks'].apply(lambda x: x == ["No Risk"])]
 
-  top_indices = similarities.argsort()[-3:][::-1]
-  top_risks = []
+sampled_unlabeled = unlabeled.sample(frac = 0.5, random_state = 42)
 
-  for idx in top_indices:
-    risk_name = risk_name[idx]
-    score = similarities[idx]
-    weights = risk_weight[risk_name]
+df = pd.concat([labeled, sampled_unlabeled]).sample(frac = 1, random_state = 42).reset_index(drop = True)    
 
-    final_score = score + weights['likelihood'] +weights['impact']+weights['velocity']
+article_text = df['Title'] + '. ' + df['Content']
 
-    top_risks.append({
-      'risk':risk_name,
-      'similarity':round(float(score), 4),
-      'weighted_score':final_score,
-      'velocity':weights['velocity'],
-      'impact':weights['impact']})
+mlb = MultiLabelBinarizer(classes = risk_list)
+y = mlb.fit_transform(df['Top_Risks'])
 
-article['Top Risks'] = top_risks
+model = SentenceTransformer('all-mpnet-base-v2')
+X = model.encode(article_text.tolist())
 
-articles_with_risk.append(article)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2, random_state = 42)
 
-pd.to_csv('articles_with_risk)
+clf = OneVsRestClassifier(LogisticRegression(max_iter=1000))
+clf.fit(X_train, y_train)
+
+y_pred = clf.predict(X_test)
+print(classification_report(y_test, y_pred, target_names=mlb.classes_))
