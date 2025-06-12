@@ -258,8 +258,8 @@ def text_to_dataframe(text, articles):
     return rows
 
 def load_existing_articles_news():
-    if os.path.exists('articles.json'):
-        with open('articles.json', 'r', encoding = 'utf-8') as f:
+    if os.path.exists('extracted_news.json'):
+        with open('extracted_news.json', 'r', encoding = 'utf-8') as f:
             return json.load(f)
     return []
 
