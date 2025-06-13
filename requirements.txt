@@ -24,4 +24,4 @@ sentence-transformers
 joblib
 datasets
 transformers[torch]
-sklearn
+scikit-learn
