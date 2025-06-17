@@ -1368,5 +1368,65 @@
     "summary": "Positive sentiment due to showcasing the scenery of Tulane University.",
     "is_sport": 0,
     "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-16T23:42:10+00:00",
+    "text": "@cadamhicks13 @Ole_Sleepy @baritxne @turtleler2 @Frank_Boswell @PeteThamel @BonaguraESPN The same place as Memphis and/or Tulane. Likely the ACC when FSU and Clemson leave",
+    "link": "https://twitter.com/None/status/1934758431052935395",
+    "description": "Discussion of potential conference realignment involving Memphis and Tulane.",
+    "sentiment": 0.0,
+    "summary": "The tweet is neutral as it mentions Tulane in the context of conference realignment, without a clear positive or negative stance.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-16T23:37:26+00:00",
+    "text": "@cadamhicks13 @Ole_Sleepy @baritxne @turtleler2 @Frank_Boswell @PeteThamel @BonaguraESPN Better for the time being. The SBC can take ECU and UAB once the AAC is stripped of Memphis, Tulane, USF.",
+    "link": "https://twitter.com/None/status/1934757238985642189",
+    "description": "Discussion of potential conference realignment involving Memphis, Tulane, USF, ECU and UAB.",
+    "sentiment": 0.0,
+    "summary": "The tweet is neutral as it mentions Tulane in the context of conference realignment, without a clear positive or negative stance.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-16T21:55:58+00:00",
+    "text": "RT @PR927FM: WATCH: On Pirate Radio Live, Tulane voice @CoreyGloor discussed how the Green Wave is approaching NIL as part of our 2025 ECU…",
+    "link": "https://twitter.com/None/status/1934731702154199117",
+    "description": "Tweet about Tulane's approach to NIL (Name, Image, Likeness) as part of a broader discussion on Pirate Radio Live.",
+    "sentiment": 0.3,
+    "summary": "The tweet has a slightly positive sentiment as it highlights Tulane's engagement with NIL, which could be viewed as a progressive move related to student success.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-16T21:43:01+00:00",
+    "text": "RT @FTrilliams: Tulane scientist resigns citing university censorship of pollution and racial disparity research | CNN https://t.co/6kgdxOx…",
+    "link": "https://twitter.com/None/status/1934728446808051999",
+    "description": "A Tulane scientist resigns citing university censorship of pollution and racial disparity research.",
+    "sentiment": -0.8,
+    "summary": "This tweet reports on a Tulane scientist resigning due to alleged university censorship of research related to pollution and racial disparity. This is a strongly negative sentiment due to the implication of suppressing research on important social issues.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-16T21:40:09+00:00",
+    "text": "RT @FTrilliams: Tulane scientist resigns citing university censorship of pollution and racial disparity research | CNN https://t.co/6kgdxOx…",
+    "link": "https://twitter.com/None/status/1934727723735503163",
+    "description": "A Tulane scientist resigns citing university censorship of pollution and racial disparity research.",
+    "sentiment": -0.8,
+    "summary": "This tweet reports on a Tulane scientist resigning due to alleged university censorship of research related to pollution and racial disparity. This is a strongly negative sentiment due to the implication of suppressing research on important social issues.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-16T21:23:12+00:00",
+    "text": "RT @CTESPNTulane: Come to Tulane ball out and make the league young men",
+    "link": "https://twitter.com/None/status/1934723459235332336",
+    "description": "Tweet about a program involving Tulane and Loyola, with students touring the universities.",
+    "sentiment": 0.7,
+    "summary": "Positive sentiment. The tweet highlights a program involving Tulane and law school admissions, indicating a positive impact on student opportunities and education.",
+    "is_sport": 0,
+    "affiliation": 1
   }
 ]
