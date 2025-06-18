@@ -1428,5 +1428,65 @@
     "summary": "Positive sentiment. The tweet highlights a program involving Tulane and law school admissions, indicating a positive impact on student opportunities and education.",
     "is_sport": 0,
     "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-17T23:59:06+00:00",
+    "text": "@KeyShaunColema1 Congrats on ur Tulane commit 🟢🔵✊",
+    "link": "https://twitter.com/None/status/1935125079538471003",
+    "description": "Congratulatory message on a Tulane commit.",
+    "sentiment": 0.8,
+    "summary": "The sentiment is positive as it congratulates someone on their commitment to Tulane, implying positive feelings about joining the university.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-17T23:39:07+00:00",
+    "text": "@jayCthebull When will you realize that Memphis, USF, and Tulane do not care about this conference anymore. The only thing that would bring any of us joy is an exit.",
+    "link": "https://twitter.com/None/status/1935120048643006632",
+    "description": "Tweet expressing disinterest in a conference by Memphis, USF, and Tulane.",
+    "sentiment": -0.3,
+    "summary": "The sentiment is somewhat negative because it suggests dissatisfaction with the current conference affiliation and a desire to leave. This could reflect negatively on the conference's perceived value.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-17T23:07:45+00:00",
+    "text": "RT @micj46tur: @KeyShaunColema1 Welcome to the Tulane family, KeyShaun!               🌊RollWave🌊",
+    "link": "https://twitter.com/None/status/1935112158813245497",
+    "description": "A user welcomes KeyShaun to the Tulane family, using the RollWave hashtag.",
+    "sentiment": 0.8,
+    "summary": "The tweet is positive because it welcomes someone to the 'Tulane family' and uses the 'RollWave' hashtag, indicating support and positive association with the university.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-17T22:59:15+00:00",
+    "text": "Kimberly Terrell has resigned from Tulane, saying the university tried to censor her research into racial disparities in the petrochemical workforce. “I cannot remain silent as this university sacrifices academic integrity for political appeasement.”\nhttps://t.co/9HBgFQynHu",
+    "link": "https://twitter.com/None/status/1935110017838948432",
+    "description": "Kimberly Terrell resigned from Tulane, alleging censorship of her research on racial disparities in the petrochemical workforce, accusing the university of sacrificing academic integrity for political appeasement.",
+    "sentiment": -0.9,
+    "summary": "The tweet is very negative because it describes a resignation and serious allegations against Tulane, including censorship, sacrificing academic integrity, and political appeasement. This involves negative associations with 'discrimination' and 'political activity'.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-17T22:30:36+00:00",
+    "text": "@ETorresRivera1 @luzelenachavez8 @Claudiashein \"/Ex-DG \n@conafe_mx\n /#MBA \n@Tulane\n / Formado en \n@Hacienda_Mexico\n // En \n@EdoMex\n fui Tesorero General.\"\n\nY con todo eso, sólo le alcanzó para escribir esa tarugada.",
+    "link": "https://twitter.com/None/status/1935102809755804118",
+    "description": "Tweet mentioning a former director-general with an MBA from Tulane and their past roles in Mexican government, followed by a critical remark.",
+    "sentiment": -0.2,
+    "summary": "The sentiment is slightly negative. While Tulane is mentioned, the context of the tweet is critical of the individual's actions despite their qualifications, including their Tulane MBA. Thus, there is an affiliation to Tulane, but in a negative light.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-17T22:11:55+00:00",
+    "text": "@KeyShaunColema1 Welcome to the Tulane family, KeyShaun!               🌊RollWave🌊",
+    "link": "https://twitter.com/None/status/1935098107991310447",
+    "description": "Welcoming tweet to a new member of the Tulane family.",
+    "sentiment": 0.8,
+    "summary": "Positive sentiment due to welcoming new player at Tulane. This is generally a positive event for the sports program.",
+    "is_sport": 0,
+    "affiliation": 1
   }
 ]
