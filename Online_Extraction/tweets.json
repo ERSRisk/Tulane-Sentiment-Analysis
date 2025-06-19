@@ -1488,5 +1488,75 @@
     "summary": "Positive sentiment due to welcoming new player at Tulane. This is generally a positive event for the sports program.",
     "is_sport": 0,
     "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-18T23:43:56+00:00",
+    "text": "Alarmed to hear that @Tulane is silencing Dr. Kim Terrell. Counting on @TUFitts to protect the work of the Environmental Law Clinic. Watch our video below to see why this work is so important. https://t.co/xSTVqgyaar https://t.co/4XgkDpZByf",
+    "link": "https://twitter.com/None/status/1935483650809987527",
+    "description": "A tweet expressing concern that Tulane is silencing Dr. Kim Terrell and urging the protection of the Environmental Law Clinic's work.",
+    "sentiment": -0.6,
+    "summary": "The tweet has a negative sentiment due to the concern about Tulane silencing a doctor and potentially hindering the work of the Environmental Law Clinic. This relates to potential issues with academic freedom and potentially community relations if the clinic's work benefits the community.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-18T23:36:50+00:00",
+    "text": "East Jefferson General Hospital in partnership with Tulane University and LCMC Health announced Wednesday, June 18 that they successfully completed their first heart transplant. https://t.co/SGl2j0pR60",
+    "link": "https://twitter.com/None/status/1935481863075668189",
+    "description": "Announcement of a successful heart transplant performed in partnership with Tulane University and other hospitals.",
+    "sentiment": 0.9,
+    "summary": "Very positive sentiment. Highlights Tulane's involvement in a major medical achievement (heart transplant), reflecting well on its research and medical capabilities.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-18T23:19:03+00:00",
+    "text": "Way to go! @Tulane student Chloe Lindo from our office in North San Diego earned a promotion to Senior Advisor! #WTG #Tulane\n\n#PartTimeWork #VectorTrained #Sales #TheVectorWay #SummerWork https://t.co/SDeUMx9vem",
+    "link": "https://twitter.com/None/status/1935477386692210899",
+    "description": "A Tulane student earned a promotion to Senior Advisor, this is a positive thing.",
+    "sentiment": 0.9,
+    "summary": "Very positive sentiment. The tweet celebrates the accomplishment of a Tulane student, reflecting positively on the university's ability to foster student success.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-18T22:45:58+00:00",
+    "text": "RT @RollDatWave: #Tulane #GreenWave Class of 2027 starts tomorrow! #RollWave https://t.co/aGmbN8fFmz",
+    "link": "https://twitter.com/None/status/1935469064094130563",
+    "description": "Retweet announcing the start of the Class of 2027 at Tulane.",
+    "sentiment": 0.2,
+    "summary": "The tweet is neutral because it's simply announcing the start of a new class at Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-18T22:18:34+00:00",
+    "text": "RT @ltgrusselhonore: Draft Oped : @Tulane is private school know for its science , medical and Law Clinic! Is @Tulane University, getting t…",
+    "link": "https://twitter.com/None/status/1935462165885878752",
+    "description": "Tweet quoting someone questioning if Tulane University is getting taxpayer money inappropriately.",
+    "sentiment": -0.4,
+    "summary": "Negative sentiment. Raises a question about Tulane's potential misuse of taxpayer money which touches upon oversight, compliance, and potentially federal grants.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-18T21:49:20+00:00",
+    "text": "RT @ltgrusselhonore: Draft Oped : @Tulane is private school know for its science , medical and Law Clinic! Is @Tulane University, getting t…",
+    "link": "https://twitter.com/None/status/1935454811408974010",
+    "description": "Question about Tulane University's involvement with something potentially questionable.",
+    "sentiment": -0.3,
+    "summary": "Slightly negative due to the implied scrutiny and potential controversy surrounding Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-18T21:47:48+00:00",
+    "text": "RT @ltgrusselhonore: Draft Oped : @Tulane is private school know for its science , medical and Law Clinic! Is @Tulane University, getting t…",
+    "link": "https://twitter.com/None/status/1935454425184878708",
+    "description": "Question about Tulane University's involvement with something potentially questionable.",
+    "sentiment": -0.3,
+    "summary": "Slightly negative due to the implied scrutiny and potential controversy surrounding Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
   }
 ]
