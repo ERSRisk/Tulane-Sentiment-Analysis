@@ -1678,5 +1678,115 @@
     "summary": "The sentiment is neutral. The tweet is an AI generated image, and does not express a strong positive or negative opinion about Tulane.",
     "is_sport": 0,
     "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-20T23:07:06+00:00",
+    "text": "Even trash cans can be glamorous at Tulane! Check out our new trash cans in the Hertz Center! #FacilityFriday #RollWave🌊 https://t.co/YeHAEqUjNx",
+    "link": "https://twitter.com/None/status/1936199155535294884",
+    "description": "Tweet showcasing new trash cans at Tulane's Hertz Center.",
+    "sentiment": 0.2,
+    "summary": "Positive sentiment due to showcasing improvements to Tulane's facilities. No apparent negative relation to specified keywords.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-20T22:17:39+00:00",
+    "text": "RT @YEARSofLIVING: Alarmed to hear that @Tulane is silencing Dr. Kim Terrell. Counting on @TUFitts to protect the work of the Environmental…",
+    "link": "https://twitter.com/None/status/1936186711052005464",
+    "description": "Tweet expressing concern about Tulane allegedly silencing Dr. Kim Terrell regarding environmental work.",
+    "sentiment": -0.7,
+    "summary": "Very negative sentiment. The tweet alleges that Tulane is silencing a doctor, which damages the reputation of the organization, with regards to environmental work. This also relates to the 'Community Relations' and 'University Policies' keywords.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-20T22:07:24+00:00",
+    "text": "Hot Fun in the Summertime \n\nTulanians all across the globe, like the Tulane Alumni Club of Columbus, are making moves to get Greenies together. Don't miss your chance to connect this season. Check out our event calendar and see what's in store.  \n\n📰: https://t.co/Ay0j1w4UM0 https://t.co/dTgD2npIvy",
+    "link": "https://twitter.com/None/status/1936184132104581511",
+    "description": "Promoting Tulane Alumni Club events globally.",
+    "sentiment": 0.6,
+    "summary": "Positive sentiment because it connects Tulane alumni around the world, strengthening community relations.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-20T22:07:21+00:00",
+    "text": "RT @LioliosTrent: Grateful for the journey and everyone who’s been part of it. Excited to announce that I’m committed to Tulane University…",
+    "link": "https://twitter.com/None/status/1936184119266099451",
+    "description": "Tweet announcing commitment to Tulane University.",
+    "sentiment": 0.7,
+    "summary": "Positive sentiment as it is about someone's commitment to Tulane University.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-20T22:00:44+00:00",
+    "text": "RT @YEARSofLIVING: Alarmed to hear that @Tulane is silencing Dr. Kim Terrell. Counting on @TUFitts to protect the work of the Environmental…",
+    "link": "https://twitter.com/None/status/1936182454991167752",
+    "description": "Alarmed to hear that @Tulane is silencing Dr. Kim Terrell and calling on @TUFitts to protect the work of the Environmental department.",
+    "sentiment": -0.8,
+    "summary": "Very negative sentiment because it is about Tulane silencing a Dr. and is in relation to Tulane's reputation as an organization. It involves academic freedom and freedom of speech.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-20T21:41:38+00:00",
+    "text": "RT @RollDatWave: #Tulane #GreenWave Commitment! \n\n🌊Class of 26 QB🌊\n\nTrace Johnson- @Tracejohnson12_ \n6-1/191\nGainesville, FL\n3⭐️⭐️⭐️/85\n\nSR…",
+    "link": "https://twitter.com/None/status/1936177650327838770",
+    "description": "Tweet highlighting LCMC Health Weight Loss team, including Tulane Surgery, representing Louisiana at a national meeting.",
+    "sentiment": 0.8,
+    "summary": "Very positive sentiment as it showcases Tulane's involvement in important medical advancements and its representation on a national stage. This has a bearing on Tulane's reputation as an organization.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-20T21:24:43+00:00",
+    "text": "RT @Tulane: Recent Tulane grad Maya Neiberg is 1 of just 4 U.S. recipients of an @EF_Fellows award, earning the prestigious honor to pursue…",
+    "link": "https://twitter.com/None/status/1936173391397999089",
+    "description": "Tweet highlighting a Tulane grad receiving a prestigious award.",
+    "sentiment": 0.9,
+    "summary": "This is a very positive tweet as it highlights a Tulane graduate receiving a prestigious award, improving Tulane's reputation.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-20T21:21:19+00:00",
+    "text": "RT @FreemanSchool: We're incredibly proud of Hannah Huppi (B '11), who will attempt to become the 1st woman to complete an unsupported cros…",
+    "link": "https://twitter.com/None/status/1936172534547796239",
+    "description": "Tweet highlighting a Tulane graduate attempting a challenging feat.",
+    "sentiment": 0.7,
+    "summary": "Positive due to highlighting alumni achievement, contributing to a positive perception of Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-20T21:20:55+00:00",
+    "text": "RT @axios: .@Tulane Energy Institute assoc. director Eric Smith joined Axios to discuss the impacts of steel tariffs on Louisiana's economy…",
+    "link": "https://twitter.com/None/status/1936172433204994501",
+    "description": "Tweet mentioning Tulane Energy Institute assoc. director discussing steel tariffs.",
+    "sentiment": 0.1,
+    "summary": "Neutral. This tweet reports on a Tulane expert providing commentary on a policy issue. There's no inherent positive or negative sentiment toward Tulane, but the mention of 'Energy Institute' can boost reputation.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-20T20:40:24+00:00",
+    "text": "Tulane Performs First Heart Transplant at East Jefferson General Hospital\n\n https://t.co/qEed39ThkN  #NOLANewswire",
+    "link": "https://twitter.com/None/status/1936162236671623198",
+    "description": "Tulane Performs First Heart Transplant at East Jefferson General Hospital. #NOLANewswire",
+    "sentiment": 0.9,
+    "summary": "Very positive sentiment because it highlights a significant medical achievement by Tulane at East Jefferson General Hospital. This reflects positively on Tulane's medical capabilities and reputation. The reason for the high score is the successful first heart transplant.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-20T20:05:09+00:00",
+    "text": "Celebrating 20 years, @ASITWnola remains a creative home where Tulane artists and scholars explore the intersection of art, science, and environmental stewardship.\n\n📰 Learn more about this unique residency on the banks of the Mississippi: https://t.co/2y0f8KXn4m https://t.co/iN76lTG6vO",
+    "link": "https://twitter.com/None/status/1936153369413865900",
+    "description": "Celebrating the 20th anniversary of @ASITWnola, a creative residency where Tulane artists and scholars explore art, science, and environmental stewardship.",
+    "sentiment": 0.8,
+    "summary": "Very positive sentiment due to the celebration of a long-standing, unique residency program affiliated with Tulane that promotes interdisciplinary collaboration and environmental awareness.",
+    "is_sport": 0,
+    "affiliation": 1
   }
 ]
