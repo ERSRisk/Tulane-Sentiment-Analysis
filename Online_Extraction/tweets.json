@@ -1788,5 +1788,135 @@
     "summary": "Very positive sentiment due to the celebration of a long-standing, unique residency program affiliated with Tulane that promotes interdisciplinary collaboration and environmental awareness.",
     "is_sport": 0,
     "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-21T23:15:03+00:00",
+    "text": "RT @johnny_elliott8: Committed to Tulane! Roll wave! https://t.co/NJdtVkuJcJ",
+    "link": "https://twitter.com/None/status/1936563545774182473",
+    "description": "A student commits to Tulane.",
+    "sentiment": 0.5,
+    "summary": "The sentiment is positive as a student announces their commitment to Tulane. It shows a positive association with the university.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-21T23:04:17+00:00",
+    "text": "@DrJashDatta @KavinSugumar @Tulane_Surgery @edmondboxmd @USFsurgery @SocSurgOnc @SylvesterCancer @UMJMHSurgery Congrats! @KavinSugumar is an absolute star!",
+    "link": "https://twitter.com/None/status/1936560837398778020",
+    "description": "Congratulatory message to Kavin Sugumar, recognized as a \"star\", from Tulane Surgery.",
+    "sentiment": 0.8,
+    "summary": "Very positive sentiment due to the congratulatory tone and recognition of a member of Tulane Surgery. This would be of bearing to Tulane's reputation.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-21T23:03:13+00:00",
+    "text": "Kimberly Terrell says Tulane leaders tried to suppress her research showing petrochemical jobs in Louisiana mostly go to white workers, while Black and Hispanic communities face the pollution.\nhttps://t.co/9HBgFQynHu",
+    "link": "https://twitter.com/None/status/1936560565482033344",
+    "description": "Kimberly Terrell alleges Tulane leaders tried to suppress her research showing petrochemical jobs in Louisiana mostly go to white workers, while Black and Hispanic communities face the pollution.",
+    "sentiment": -0.9,
+    "summary": "Very negative sentiment due to allegations of research suppression related to racial disparity and environmental injustice, reflecting poorly on Tulane's leadership and potentially involving issues of Discrimination and Community Relations. This would have bearing to the organization's reputation.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-21T22:24:53+00:00",
+    "text": "RT @DrJashDatta: We couldn’t be happier to have matched these two outstanding surgeons @KavinSugumar @Tulane_Surgery &amp; @edmondboxmd @USFsur…",
+    "link": "https://twitter.com/None/status/1936550921565274378",
+    "description": "Retweet announcing the successful match of surgeons at Tulane Surgery.",
+    "sentiment": 0.8,
+    "summary": "Very positive as it announces a successful match for surgeons at Tulane Surgery, reflecting positively on the program.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-21T22:08:56+00:00",
+    "text": "@DrJashDatta @KavinSugumar @Tulane_Surgery @edmondboxmd @USFsurgery @SocSurgOnc @SylvesterCancer @UMJMHSurgery @MSKCancerCenter Thank you!!",
+    "link": "https://twitter.com/None/status/1936546904646840740",
+    "description": "A thank you note to Tulane Surgery and other medical institutions and people.",
+    "sentiment": 0.8,
+    "summary": "Very positive sentiment; expressed gratitude to Tulane Surgery.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-21T22:08:53+00:00",
+    "text": "@iluminatibot AFTER ATTENDING TULANE MED SCHOOL IN THE GRAD DEPT...I NEVER TRUSTED THEM IN THE FIRST PLACE.",
+    "link": "https://twitter.com/None/status/1936546893141565763",
+    "description": "A negative experience with Tulane Medical School expressed in an opinionated statement.",
+    "sentiment": -0.6,
+    "summary": "Negative sentiment due to a distrustful experience after attending Tulane Med School.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-21T21:53:08+00:00",
+    "text": "@johnny_elliott8 Welcome to Tulane and the #GreenWave family!!! 💚🩵🌊",
+    "link": "https://twitter.com/None/status/1936542928530190713",
+    "description": "A welcome message to Tulane for a new member of the Green Wave family.",
+    "sentiment": 0.9,
+    "summary": "Very positive sentiment; welcoming a new member to Tulane and the Green Wave.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-21T21:38:45+00:00",
+    "text": "RT @DrJashDatta: We couldn’t be happier to have matched these two outstanding surgeons @KavinSugumar @Tulane_Surgery &amp; @edmondboxmd @USFsur…",
+    "link": "https://twitter.com/None/status/1936539310460928440",
+    "description": "Tweet congratulating two surgeons who matched with Tulane Surgery.",
+    "sentiment": 0.9,
+    "summary": "Very positive sentiment due to the congratulations given to the two outstanding surgeons at Tulane Surgery.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-21T21:20:36+00:00",
+    "text": "RT @DrJashDatta: We couldn’t be happier to have matched these two outstanding surgeons @KavinSugumar @Tulane_Surgery &amp; @edmondboxmd @USFsur…",
+    "link": "https://twitter.com/None/status/1936534741722743173",
+    "description": "A retweet congratulating two surgeons who matched at Tulane Surgery and USF Surgery.",
+    "sentiment": 0.7,
+    "summary": "Positive sentiment due to the congratulatory tone and mentioning of matching outstanding surgeons to Tulane Surgery, which reflects well on the program's reputation.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-21T21:20:34+00:00",
+    "text": "@DrJashDatta @KavinSugumar @Tulane_Surgery @edmondboxmd @USFsurgery @SocSurgOnc @SylvesterCancer @UMJMHSurgery Congrats @KavinSugumar!!",
+    "link": "https://twitter.com/None/status/1936534733032448029",
+    "description": "A tweet congratulating Kavin Sugumar on matching with Tulane Surgery.",
+    "sentiment": 0.8,
+    "summary": "Highly positive sentiment as it directly praises and celebrates Kavin Sugumar's acceptance into Tulane Surgery, improving the school's image.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-21T21:17:42+00:00",
+    "text": "We couldn’t be happier to have matched these two outstanding surgeons @KavinSugumar @Tulane_Surgery &amp; @edmondboxmd @USFsurgery to our #CGSO #SurgOnc @SocSurgOnc fellowship @SylvesterCancer @UMJMHSurgery https://t.co/ETMKAo8IoV",
+    "link": "https://twitter.com/None/status/1936534013394772157",
+    "description": "Announcing surgeons' match to fellowships at Tulane Surgery and USF Surgery, expressing happiness about the match.",
+    "sentiment": 0.7,
+    "summary": "Positive sentiment due to the congratulatory tone and mentioning of matching outstanding surgeons to Tulane Surgery, which reflects well on the program's reputation.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-21T20:31:45+00:00",
+    "text": "RT @TXST4Life: @txstplswin @SSN_UTSA @SSN_MeanGreen This. Memphis and Tulane actually had the ability to say yes. They said no for an entir…",
+    "link": "https://twitter.com/None/status/1936522449610219859",
+    "description": "Tweet mentioning Memphis and Tulane's ability to say yes, but their refusal due to financial reasons.",
+    "sentiment": -0.1,
+    "summary": "The sentiment is slightly negative due to the suggestion of financial concerns related to Tulane's decision, however this negative impact is reduced as Tulane's current position provides them with a financial advantage.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-21T20:26:05+00:00",
+    "text": "@txstplswin @SSN_UTSA @SSN_MeanGreen This. Memphis and Tulane actually had the ability to say yes. They said no for an entirely different reason than UTSA did. \n\nIt would be a lateral move for them financially. Their current position gives them a huge $ advantage over the rest of the AAC (including UTSA.)",
+    "link": "https://twitter.com/None/status/1936521022658003320",
+    "description": "Tweet mentioning Memphis and Tulane's ability to say yes, but their refusal due to financial reasons.",
+    "sentiment": -0.1,
+    "summary": "The sentiment is slightly negative due to the suggestion of financial concerns related to Tulane's decision, however this negative impact is reduced as Tulane's current position provides them with a financial advantage.",
+    "is_sport": 0,
+    "affiliation": 1
   }
 ]
