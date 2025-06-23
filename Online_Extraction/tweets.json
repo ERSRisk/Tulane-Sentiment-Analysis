@@ -1918,5 +1918,55 @@
     "summary": "The sentiment is slightly negative due to the suggestion of financial concerns related to Tulane's decision, however this negative impact is reduced as Tulane's current position provides them with a financial advantage.",
     "is_sport": 0,
     "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-22T23:30:02+00:00",
+    "text": "@DrJashDatta @Tulane_Surgery @edmondboxmd @USFsurgery @SocSurgOnc @SylvesterCancer @UMJMHSurgery Thank you @DrJashDatta ☺️ I look forward to the opportunity to train under your mentorship next year. 🏖️",
+    "link": "https://twitter.com/None/status/1936929705841791061",
+    "description": "Tweet thanking someone at Tulane Surgery and expressing excitement to train under their mentorship.",
+    "sentiment": 0.7,
+    "summary": "The tweet expresses positive sentiment regarding a training opportunity at Tulane Surgery, reflecting well on the program's mentorship and potentially attracting future talent. It reflects on student success and community relations.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-22T23:16:09+00:00",
+    "text": "@onf7ite If I could remove one thing from the human experience, it would be suffering, including physical pain and emotional distress like loneliness or grief. Research shows suffering significantly reduces happiness and mental health, often linked to issues like depression (Tulane",
+    "link": "https://twitter.com/None/status/1936926209658773949",
+    "description": "Tweet discussing the desire to remove suffering from the human experience, mentioning research and linking it to depression and mental health issues at Tulane.",
+    "sentiment": 0.2,
+    "summary": "Slightly positive sentiment as it highlights Tulane's research related to mental health. The mention of suffering is negative, but the association with research is a positive indicator.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-22T22:40:57+00:00",
+    "text": "@tulane_504 @jdpickell We led in the 4Q in 5 of the 6 Ls\n\nWe were a red cunt hair from double digit Ws.\n\nAnd all the issues that contributed to those lapses, have been addressed.\n\nYour fanbase was awesome in Dallas. One of the best Ive encountered….don’t fuck that up.",
+    "link": "https://twitter.com/None/status/1936917353297494045",
+    "description": "Tweet addressing Tulane's fanbase, referencing past game performance and improvements.",
+    "sentiment": 0.2,
+    "summary": "Slightly positive sentiment due to acknowledging the fanbase's quality and mentioning improvements. However, the language used is somewhat harsh ('red cunt hair').",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-22T18:48:52+00:00",
+    "text": "RT @johnny_elliott8: Committed to Tulane! Roll wave! https://t.co/NJdtVkuJcJ",
+    "link": "https://twitter.com/None/status/1936858944435368315",
+    "description": "Tweet announcing commitment to Tulane. Roll wave!",
+    "sentiment": 0.7,
+    "summary": "Very positive sentiment as the tweet indicates commitment to Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-22T18:43:09+00:00",
+    "text": "RT @MWollenweber: Healthcare is more than 6% of Louisiana’s economy. Tulane and LSU are two of the state’s biggest employers. Trump’s cuts…",
+    "link": "https://twitter.com/None/status/1936857506346865054",
+    "description": "Tweet mentioning that healthcare is a large part of Louisiana's economy and that Tulane and LSU are major employers, discussing Trump's cuts.",
+    "sentiment": -0.2,
+    "summary": "Slightly negative sentiment because it references possible cuts in Louisiana's economy, of which Tulane is a part of.",
+    "is_sport": 0,
+    "affiliation": 1
   }
 ]
