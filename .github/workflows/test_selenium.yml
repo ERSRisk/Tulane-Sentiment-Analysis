@@ -1,5 +1,7 @@
 name: Run Selenium
-
+on:
+  workflow_dispatch:
+  
 jobs:
   run-selenium:
     runs-on: ubuntu-latest
