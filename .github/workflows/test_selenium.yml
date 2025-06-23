@@ -16,16 +16,23 @@ jobs:
 
       - name: Install Chrome and dependencies
         run: |
-          sudo rm -f /usr/local/bin/chromedriver
-          wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
           sudo apt-get update
-          sudo apt-get install -y ./google-chrome-stable_current_amd64.deb
-          CHROMEDRIVER_VERSION=$(curl -sS https://chromedriver.storage.googleapis.com/LATEST_RELEASE_137)
-          wget -q -O chromedriver_linux64.zip https://chromedriver.storage.googleapis.com/${CHROMEDRIVER_VERSION}/chromedriver_linux64.zip
-          unzip chromedriver_linux64.zip
-          sudo mv chromedriver /usr/local/bin/
-          sudo chmod +x /usr/local/bin/chromedriver
+          sudo apt-get install -y jq
+          sudo apt-get install -y wget unzip xvfb jq
+          wget https://dl.google.com/linux/direct/google-chrome-stabe_current_amd64.deb
+          sudo dpkg -i google-chrome-stable_current.amd64.deb || sudo apt-get install -f install -y
           google-chrome --version
+          sudo rm -f /usr/local/bin/chromedriver
+          CHROME_VERSION=$(google-chrome --version | grep -oP '\d+\.\d+\..\d+' | head -1)
+          echo "Installed Chrome version: $CHROME-VERSION"
+
+          CHROMEDRIVER_URL=$(curl -s "https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json"\
+            | jq -r --arg v "$CHROME_VERSION" '.channels.Stable.downloads.chromedriver[] | select(.platform=="linux64") | .url')
+
+          wget -q -O chromedriver_linux64.zip "$CHROMEDRIVER_URL"
+          unzip chromedriver_linux64.zip
+          sudo mv chromedriver-linux64/chromedriver /usr/local/bin/chromedriver
+          sudo chmod +x /usr/local/bin/chromedriver
           chromedriver --version
           pip install -r requirements.txt
 
