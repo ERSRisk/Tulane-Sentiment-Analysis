@@ -250,7 +250,7 @@ def get_cookies():
     driver = webdriver.Chrome(options=options)
     driver.get("https://login.nola.com/u/login?state=hKFo2SB4czdxOUVyNmdrVkY5Q0htcnl5Sk9pU1dEQkFWczlScqFur3VuaXZlcnNhbC1sb2dpbqN0aWTZIHBzOUdTQnBidGg0U3MtM25NdFotZDh6djZLS2tJVHZvo2NpZNkgTmFINm9Od0tubng2eWdIMjdMVFBZMVBBcGtSZE5USlU")
     time.sleep(10)
-    WebDriverWait(driver, 120).until(EC.presence_of_element_located((By.ID, "username"))).send_keys("Njenkins4@tulane.edu")
+    WebDriverWait(driver, 500).until(EC.presence_of_element_located((By.ID, "username"))).send_keys("Njenkins4@tulane.edu")
     driver.save_screenshot('screenshot.png')
     driver.find_element(By.ID, "password").send_keys("ERSDepartment2023")
     driver.find_element(By.CSS_SELECTOR, 'button[type = "submit"]').click()
