@@ -1,3 +1,25 @@
 name: Run Selenium
 
 jobs:
+  run-selenium:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-pyton@v4
+        with:
+          python-version: "3.10"
+
+      - name: Install Chrome and dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y chromium-browser chromium-driver xvfb
+          pip install -r requirements.txt
+
+      - name: Start Xvfb and run Selenium
+        run: |
+          Xvfb :99 -screen 0 1920x1080x24 &
+          export DISPLAY=:99
+          python test.py
