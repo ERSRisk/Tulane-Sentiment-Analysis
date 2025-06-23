@@ -42,6 +42,14 @@ jobs:
           export DISPLAY=:99
           python test.py
           
+      - name: Commit and push JSON output
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git add articles_with_risk.json
+          git commit -m "Auto-update extracted JSON files [skip ci]" || echo "No changes to commit"
+          git push
+          
       - name: Upload screenshot
         uses: actions/upload-artifact@v4
         with:
