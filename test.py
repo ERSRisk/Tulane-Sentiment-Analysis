@@ -240,7 +240,7 @@ keywords = ['Civil Rights', 'Antisemitism', 'Federal Grants','federal grant',
 ]
 keywords = [k.lower() for k in keywords]
 options = Options()
-options.binary_location = 'usr/bin/google-chrome'
+options.binary_location = '/usr/bin/google-chrome'
 options.add_argument('--headless=new')
 options.add_argument('--disable-gpu')
 options.add_argument('--no-sandbox')
