@@ -1968,5 +1968,145 @@
     "summary": "Slightly negative sentiment because it references possible cuts in Louisiana's economy, of which Tulane is a part of.",
     "is_sport": 0,
     "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-23T23:40:46+00:00",
+    "text": "RT @TulaneSoPA: Is that image real—or AI-generated?\nBen Yoss, Tulane SoPA Information Technology program graduate has created a tool to hel…",
+    "link": "https://twitter.com/None/status/1937294792511156397",
+    "description": "Tweet about Ben Yoss, a Tulane SoPA graduate, creating a tool to help identify AI-generated images.",
+    "sentiment": 0.8,
+    "summary": "Positive sentiment, highlighting a Tulane graduate's achievement in Information Technology.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-23T23:40:21+00:00",
+    "text": "RT @Tulane: Recent Tulane grad Maya Neiberg is 1 of just 4 U.S. recipients of an @EF_Fellows award, earning the prestigious honor to pursue…",
+    "link": "https://twitter.com/None/status/1937294686776950837",
+    "description": "A recent Tulane grad, Maya Neiberg, received an EF Fellows award.",
+    "sentiment": 0.8,
+    "summary": "Positive sentiment as it highlights a Tulane graduate receiving a prestigious award, reflecting well on the university's academic programs.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-23T23:37:27+00:00",
+    "text": "RT @Tulane: Excitement filled the air as @TulaneMedicine welcomed its newest residents and fellows 🩺\n\nFrom learning about local healthcare…",
+    "link": "https://twitter.com/None/status/1937293958557618384",
+    "description": "Tulane Medicine welcomes new residents and fellows.",
+    "sentiment": 0.7,
+    "summary": "Positive sentiment as it celebrates the welcoming of new medical residents and fellows, reflecting well on Tulane's medical program.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-23T23:00:26+00:00",
+    "text": "Tulane University hosts summer program teaching 'queer theory' and 'black feminism' to high schoolers\n\nLink in bio or read the story at https://t.co/MWYHbz1MyE\n\n#tulane #tulaneuniversity #neworleans #feminism #queer #black #blackfeminism #campusreform https://t.co/d6E0b5Fu0N",
+    "link": "https://twitter.com/None/status/1937284642266132900",
+    "description": "Tulane University hosts summer program teaching 'queer theory' and 'black feminism' to high schoolers.",
+    "sentiment": -0.4,
+    "summary": "The sentiment is negative. While this tweet is about education, it mentions 'queer theory' and 'black feminism' which can be contentious subjects depending on the context, especially when taught to high schoolers. Due to the polarized nature of these topics, it is rated as negative.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-23T22:42:41+00:00",
+    "text": "RT @JustinBerger27: There's a week left in our fiscal year, and the Green Wave Club is 197 donors away from our ambitious #AscendTUgether g…",
+    "link": "https://twitter.com/None/status/1937280175487520863",
+    "description": "A retweet mentioning the Green Wave Club and a fundraising campaign, #AscendTUgether.",
+    "sentiment": 0.5,
+    "summary": "The tweet is about fundraising for Tulane's Green Wave Club, indicating a positive affiliation and support for the university.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-23T22:11:13+00:00",
+    "text": "RT @TailgateTulane: BOOMM!! Tulane lands a commitment from Newman RB Jake Randle. Jake had other offers from Army, Nicholls State, Richmond…",
+    "link": "https://twitter.com/None/status/1937272256452805092",
+    "description": "Tulane professor Joel Dinerstein wrote the foreword for the new edition of Samuel Ornitz's HAUNCH, PAUNCH, & JOWL.",
+    "sentiment": 0.6,
+    "summary": "The tweet is positive as it highlights a Tulane professor's contribution to a classic piece of literature, reflecting well on the university's academic standing.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-23T21:51:46+00:00",
+    "text": "RT @valleyofthedogs: @TerrillPetersen @HGHR02 Memphis &amp; Tulane. Please please please please. 🙏🏼",
+    "link": "https://twitter.com/None/status/1937267362425868696",
+    "description": "Expressing disappointment that Tulane let someone go.",
+    "sentiment": -0.5,
+    "summary": "Negative sentiment. The tweet implies that Tulane made a bad decision, thus harming the school's reputation.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-23T21:02:38+00:00",
+    "text": "RT @tulanealumni: Hello Greenie Newbies\n\nEach summer, we roll out the green carpet to welcome new students to the Tulane family. On Thu., J…",
+    "link": "https://twitter.com/None/status/1937254997466497060",
+    "description": "Retweet from Tulane Alumni welcoming new students to the Tulane family.",
+    "sentiment": 0.9,
+    "summary": "The tweet is very positive as it conveys a welcoming message to new students joining Tulane. This is a positive and encouraging message affiliated with the university.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-23T21:01:55+00:00",
+    "text": "RT @TulaneBrain: Congratulations to all of our Neuroscience graduates! We’re proud of all you accomplished and wish you the very best in yo…",
+    "link": "https://twitter.com/None/status/1937254816956498124",
+    "description": "Tweet congratulating Neuroscience graduates from Tulane University.",
+    "sentiment": 0.8,
+    "summary": "The tweet expresses a positive sentiment, congratulating Neuroscience graduates and wishing them well. It is affiliated with Tulane University, reflecting positively on student success.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-23T20:58:45+00:00",
+    "text": "RT @zellieimani: Dr. Princess Dennar, was the first and only Black woman at @Tulane to hold the role of program director. \n\nShe was recentl…",
+    "link": "https://twitter.com/None/status/1937254021326155828",
+    "description": "Tweet mentioning Dr. Princess Dennar, the first and only Black woman at Tulane to hold the role of program director.",
+    "sentiment": 0.5,
+    "summary": "The tweet highlights a significant achievement by a Black woman at Tulane. The sentiment is neutral in itself, but carries a positive undertone relating to diversity.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-23T20:35:47+00:00",
+    "text": "Best Big 12 expansion in my opinion:\n\nWest:\nArizona\nASU\nColorado\nUtah\nBYU\nHouston\nTTU\nTCU\nBaylor\nOSU\n\nEast:\nKansas\nK-State\nIowa St.\nWVU\nCincy\nUCF\n*USF\n*Pitt\n*Memphis\n*Louisville\n\nAnd then arguments could be made if they went to 24:\nSMU\nCSU\nUNLV\nTulane or Pac-12 schools",
+    "link": "https://twitter.com/None/status/1937248239067050143",
+    "description": "Tweet congratulating graduating residents from Tulane Urology.",
+    "sentiment": 0.8,
+    "summary": "The tweet expresses a positive sentiment, congratulating graduating residents from Tulane Urology. It is affiliated with Tulane University, reflecting positively on student success.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-23T20:17:52+00:00",
+    "text": "Congratulations to our 2025 graduating residents, Drs. Omar Dawood, Brendan King, and Megan Lerner. May their journey ahead be filled with all the greatness life has in store. #graduation #graduation2025 #tulaneurology #tulane #urology #Congratulations #tulanedoctors https://t.co/S8gFGbtAHt",
+    "link": "https://twitter.com/None/status/1937243730760577535",
+    "description": "A congratulatory message to graduating residents from Tulane Urology.",
+    "sentiment": 0.9,
+    "summary": "This tweet expresses very positive sentiment as it congratulates graduating residents. The use of celebratory language like \"Congratulations\" and wishing them \"greatness\" contributes to this high score.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-23T20:00:39+00:00",
+    "text": "According to new research from Yanxu Zhang, associate professor of Earth &amp; Environmental Sciences at the School of Science &amp; Engineering, global mercury levels in rivers have doubled since the Industrial Revolution! \n\nRead more about the research here 🔗: https://t.co/87GpSwV6o4 https://t.co/EGKCc3kYBN",
+    "link": "https://twitter.com/None/status/1937239398489141408",
+    "description": "A tweet highlighting research from a Tulane professor about increased global mercury levels in rivers.",
+    "sentiment": 0.6,
+    "summary": "The tweet highlights research conducted by a Tulane professor and mentions it has bearing on global mercury levels, a serious issue. While the topic itself is concerning, highlighting Tulane's research efforts gets a moderately positive score.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-23T19:57:38+00:00",
+    "text": "RT @TulaneDoctors: Dr. Jorge Caso, Chief of Urologic Oncology at Tulane, shares his passion for treating cancers of the genitourinary syste…",
+    "link": "https://twitter.com/None/status/1937238641199223101",
+    "description": "Dr. Jorge Caso, Chief of Urologic Oncology at Tulane, shares his passion for treating cancers of the genitourinary system.",
+    "sentiment": 0.6,
+    "summary": "The tweet is positive because it highlights a doctor at Tulane and their work in treating cancer, which reflects well on the university's medical program and community relations.",
+    "is_sport": 0,
+    "affiliation": 1
   }
 ]
