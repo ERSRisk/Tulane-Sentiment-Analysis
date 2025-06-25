@@ -330,7 +330,7 @@ def create_feeds(rss_feed):
 
 def load_existing_articles():
     if os.path.exists('all_RSS.json'):
-        with open('all_RSS.json', 'r', encoding = 'utf-8') as f:
+        with open('Online_Extraction/all_RSS.json', 'r', encoding = 'utf-8') as f:
             return json.load(f)
     return []
 
@@ -340,7 +340,7 @@ def save_new_articles(existing_articles, new_articles):
     
     if unique_new_articles:
         updated_articles = existing_articles + unique_new_articles
-        with open('all_RSS.json', 'w', encoding='utf-8') as f:
+        with open('Online_Extraction/all_RSS.json', 'w', encoding='utf-8') as f:
             json.dump(updated_articles, f, indent=4)
         return unique_new_articles
     return
