@@ -295,7 +295,7 @@ def get_cookies():
     driver.get("https://login.nola.com/u/login?state=hKFo2SB4czdxOUVyNmdrVkY5Q0htcnl5Sk9pU1dEQkFWczlScqFur3VuaXZlcnNhbC1sb2dpbqN0aWTZIHBzOUdTQnBidGg0U3MtM25NdFotZDh6djZLS2tJVHZvo2NpZNkgTmFINm9Od0tubng2eWdIMjdMVFBZMVBBcGtSZE5USlU")
     time.sleep(10)
     driver.save_screenshot('screenshot.png')
-    WebDriverWait(driver, 510).until(EC.presence_of_element_located((By.ID, "username"))).send_keys("")
+    WebDriverWait(driver, 510).until(EC.presence_of_element_located((By.ID, "username"))).send_keys(os.getenv("username"))
     driver.find_element(By.ID, "password").send_keys("ERSDepartment2023")
     driver.find_element(By.CSS_SELECTOR, 'button[type = "submit"]').click()
     time.sleep(60)
