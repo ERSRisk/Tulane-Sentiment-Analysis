@@ -2108,5 +2108,155 @@
     "summary": "The tweet is positive because it highlights a doctor at Tulane and their work in treating cancer, which reflects well on the university's medical program and community relations.",
     "is_sport": 0,
     "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-24T23:52:15+00:00",
+    "text": "RT @Tulane: With support from @NewcombTulane, 12 Tulanians have been named 2025–26 @FulbrightPrgrm grant recipients, allowing them to take…",
+    "link": "https://twitter.com/None/status/1937660070923206810",
+    "description": "Tulane announces that 12 Tulanians have been named 2025–26 Fulbright Program grant recipients.",
+    "sentiment": 0.8,
+    "summary": "Positive sentiment due to the announcement of Tulane students receiving prestigious Fulbright grants, reflecting well on the university's academic standing and student success.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-24T23:52:03+00:00",
+    "text": "RT @TulaneShop: My annual reminder to Tulane employees: fiscal year ends in 1 week. If you have budget left to spend, we would be happy to…",
+    "link": "https://twitter.com/None/status/1937660019580834058",
+    "description": "The Tulane Shop reminds Tulane employees to spend remaining budget before the fiscal year ends.",
+    "sentiment": 0.2,
+    "summary": "Neutral sentiment as it's a routine reminder related to Tulane's internal financial operations.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-24T22:47:50+00:00",
+    "text": "RT @RollDatWave: The Favor’s brothers on their OV with #Tulane. \n\nClass of 26 WR/DB- Terrious Favors\n@TerriousFavors \nClass of 31 DB- Ayden…",
+    "link": "https://twitter.com/None/status/1937643860437639510",
+    "description": "Tweet about the Favor's brothers on their OV with Tulane.",
+    "sentiment": 0.2,
+    "summary": "The tweet is positive because it is mentioning recruitment and Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-24T22:24:03+00:00",
+    "text": "@HarmeetKDhillon Tulane was going to have Hunter Biden as a guest lecturer. Not kidding.",
+    "link": "https://twitter.com/None/status/1937637876453478637",
+    "description": "Tweet stating Tulane was going to have Hunter Biden as a guest lecturer.",
+    "sentiment": -0.2,
+    "summary": "The tweet has a slightly negative sentiment because the mention of Hunter Biden as a guest lecturer at Tulane could be perceived negatively by some, especially in the context of 'Political Activity'.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-24T22:01:45+00:00",
+    "text": "RT @TheJonahDylan: Top conference payouts among G5 schools:\n\n1. Memphis: $11 million\n2. Tulane: $10.8 million\n3. SMU: $10.4 million\n4. USF:…",
+    "link": "https://twitter.com/None/status/1937632261563638135",
+    "description": "Retweet about top conference payouts among G5 schools, listing Tulane as second with $10.8 million.",
+    "sentiment": 0.3,
+    "summary": "The tweet has a slightly positive sentiment. It highlights Tulane's relatively high conference payouts among G5 schools, which could be seen as a positive indicator of its financial standing or athletic success.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-24T22:01:11+00:00",
+    "text": "Fresh white coats and new beginnings! 🩺✨\nAnother group of Tulane residents and fellows started orientation this week. We’re thrilled to have them join our community. Welcome to Tulane! 💚 https://t.co/sqWt6sYMs4",
+    "link": "https://twitter.com/None/status/1937632120513450043",
+    "description": "Tweet about Tulane residents and fellows starting orientation, welcoming them to Tulane.",
+    "sentiment": 0.7,
+    "summary": "Positive. The tweet expresses excitement and welcomes new residents and fellows to Tulane, indicating a positive event for the institution and its community. Highlights student success and positive community relations.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-24T21:54:34+00:00",
+    "text": "RT @TheJonahDylan: Top conference payouts among G5 schools:\n\n1. Memphis: $11 million\n2. Tulane: $10.8 million\n3. SMU: $10.4 million\n4. USF:…",
+    "link": "https://twitter.com/None/status/1937630454494167178",
+    "description": "Retweet about top conference payouts among G5 schools, listing Tulane as second with $10.8 million.",
+    "sentiment": 0.3,
+    "summary": "The tweet has a slightly positive sentiment. It highlights Tulane's relatively high conference payouts among G5 schools, which could be seen as a positive indicator of its financial standing or athletic success.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-24T21:38:22+00:00",
+    "text": "RT @TheJonahDylan: Top conference payouts among G5 schools:\n\n1. Memphis: $11 million\n2. Tulane: $10.8 million\n3. SMU: $10.4 million\n4. USF:…",
+    "link": "https://twitter.com/None/status/1937626377768845339",
+    "description": "Tweet listing top conference payouts among G5 schools, with Tulane at number 2.",
+    "sentiment": 0.6,
+    "summary": "Positive, as it highlights Tulane's financial standing within its athletic conference.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-24T21:24:01+00:00",
+    "text": "RT @TheJonahDylan: Top conference payouts among G5 schools:\n\n1. Memphis: $11 million\n2. Tulane: $10.8 million\n3. SMU: $10.4 million\n4. USF:…",
+    "link": "https://twitter.com/None/status/1937622765869134310",
+    "description": "Tweet listing top conference payouts among G5 schools, with Tulane at number 2.",
+    "sentiment": 0.6,
+    "summary": "Positive, as it highlights Tulane's financial standing within its athletic conference.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-24T21:18:39+00:00",
+    "text": "RT @TU_Philosophy: Keith Silverman (PhD, 2020) has passed away. Since leaving Tulane, Keith was elected to the Danville, VA school board an…",
+    "link": "https://twitter.com/None/status/1937621414686732732",
+    "description": "Tweet announcing the passing of a Tulane Philosophy PhD graduate.",
+    "sentiment": -0.4,
+    "summary": "Negative due to the somber announcement of a death, even though the person had a connection to Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-24T21:12:33+00:00",
+    "text": "My annual reminder to Tulane employees: fiscal year ends in 1 week. If you have budget left to spend, we would be happy to help you spend it on departmental apparel, promo products, etc. Use it or lose it!",
+    "link": "https://twitter.com/None/status/1937619879118463424",
+    "description": "Reminder to Tulane employees to spend remaining budget on departmental apparel and promo products.",
+    "sentiment": 0.2,
+    "summary": "Slightly positive as it reminds of budget spending, doesn't touch on the negative keywords.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-24T20:07:48+00:00",
+    "text": "RT @TU_Philosophy: Keith Silverman (PhD, 2020) has passed away. Since leaving Tulane, Keith was elected to the Danville, VA school board an…",
+    "link": "https://twitter.com/None/status/1937603586134782144",
+    "description": "Retweet announcing the passing of Keith Silverman, a Tulane Philosophy PhD graduate, who later served on a school board.",
+    "sentiment": -0.2,
+    "summary": "Slightly negative sentiment due to the mention of someone's passing. However, the tweet also highlights the individual's accomplishments after graduating from Tulane, which is a neutral/positive outcome.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-24T20:03:17+00:00",
+    "text": "@SenBillCassidy @FRCAction I am RANDALL ARRINGTON, a Conservative, Republican, Veteran running against Bill Cassidy for United States Senator\n\nMy Resume:\n\nNaval Aviator (Attack Pilot)\nDHS CBP Deputy Director\nUniversity Professor (Tulane, UCLA)\nPolitical Science PhD (from UNO)\nAuthor of Politics in America",
+    "link": "https://twitter.com/None/status/1937602450338533779",
+    "description": "A candidate mentions teaching at Tulane as part of their resume.",
+    "sentiment": 0.5,
+    "summary": "Positive sentiment. Mentioning Tulane as a place of employment in a resume is a positive affiliation.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-24T19:53:05+00:00",
+    "text": "Tulane Law is heading to #SHRM25!\n\nIf you’re attending the @SHRM conference, stop by Booth #3818 to learn more about our Master of Jurisprudence in Labor &amp; Employment Law program.\n\nSchedule time with our team here: https://t.co/biQDWXnbiC https://t.co/kcAnkXyN5m",
+    "link": "https://twitter.com/None/status/1937599884342808689",
+    "description": "Tulane Law promoting its Master of Jurisprudence in Labor & Employment Law program at the SHRM conference.",
+    "sentiment": 0.7,
+    "summary": "Positive sentiment. The tweet promotes a Tulane Law program, contributing positively to its reputation and outreach.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-24T19:34:01+00:00",
+    "text": "@fionamarycamero @JC_Common_TN @RepDanGoldman Data suggests maternal and infant mortality rates have risen in U.S. states with abortion bans post-2022. A 2025 Johns Hopkins study estimated 478 extra infant deaths in 14 states, with Black infants hit hardest. Tulane research linked restrictive abortion policies to higher",
+    "link": "https://twitter.com/None/status/1937595082787684602",
+    "description": "Tweet discussing data suggesting a rise in maternal and infant mortality rates in states with abortion bans, citing a Tulane research linking restrictive abortion policies to higher mortality rates.",
+    "sentiment": 0.8,
+    "summary": "The sentiment is positive because it is highlighting a Tulane study. The study will be seen as a positive recognition for Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
   }
 ]
