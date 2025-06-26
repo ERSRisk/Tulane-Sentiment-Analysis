@@ -13,6 +13,7 @@ NEWS_API_KEY = os.getenv("NEWS_API_KEY")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY_NEWS")
 GEMINI_API_KEY_X = os.getenv("GEMINI_API_KEY_X")
 X_API_KEY = os.getenv("X_API_KEY")
+COOKIE_HEADER = os.getenv("COOKIE_HEADER")
 
 client = genai.Client(api_key=GEMINI_API_KEY)
 search = 'Tulane'
@@ -283,39 +284,6 @@ keywords = ['Civil Rights', 'Antisemitism', 'Federal Grants','federal grant',
 'visa', 'nih'
 ]
 keywords = [k.lower() for k in keywords]
-options = Options()
-options.binary_location = '/usr/bin/google-chrome'
-options.add_argument('--headless=new')
-options.add_argument('--disable-gpu')
-options.add_argument('--no-sandbox')
-options.add_argument('--disable-dev-shm-usage')
-options.add_argument("--window-size=1920,1080")
-def get_cookies():
-    driver = webdriver.Chrome(options=options)
-    driver.get("https://login.nola.com/u/login?state=hKFo2SB4czdxOUVyNmdrVkY5Q0htcnl5Sk9pU1dEQkFWczlScqFur3VuaXZlcnNhbC1sb2dpbqN0aWTZIHBzOUdTQnBidGg0U3MtM25NdFotZDh6djZLS2tJVHZvo2NpZNkgTmFINm9Od0tubng2eWdIMjdMVFBZMVBBcGtSZE5USlU")
-    time.sleep(10)
-    driver.save_screenshot('screenshot.png')
-    WebDriverWait(driver, 510).until(EC.presence_of_element_located((By.ID, "username"))).send_keys(os.getenv("USERNAME"))
-    driver.find_element(By.ID, "password").send_keys(os.getenv("PASSWORD"))
-    driver.find_element(By.CSS_SELECTOR, 'button[type = "submit"]').click()
-    time.sleep(60)
-    driver.get("https://myaccount.nola.com/ta/dashboard")
-    cookies = driver.get_cookies()
-    auth_cookies = {}
-    for cookie in cookies:
-        if cookie['domain'].endswith('.nola.com'):
-            auth_cookies[cookie['name']] = cookie['value']
-
-    with open('nola_auth_headers.pkl', 'wb') as f:
-        pickle.dump(auth_cookies, f)
-    driver.quit()
-    cookie_header = "; ".join([f"{key}={value}" for key, value in auth_cookies.items()])
-    print(cookie_header)
-    headers = {
-    "Cookie": cookie_header,
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
-    }
-    return headers
 
 
 def create_feeds(rss_feed):
@@ -451,7 +419,11 @@ async def process_feeds(feeds, session):
 async def batch_process_feeds(feeds, batch_size = 15, concurrent_batches =5):
     all_articles = []
     batches = [feeds[i:i + batch_size] for i in range(0, len(feeds), batch_size)]
-    async with aiohttp.ClientSession(headers=get_cookies()) as session:
+    headers = {
+    "Cookie": COOKIE_HEADER,
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
+    }
+    async with aiohttp.ClientSession(headers=headers) as session:
         for i in range(0, len(feeds), concurrent_batches):
             batch_group = batches[i:i + concurrent_batches]
             print(f"Processing batch {i // batch_size + 1} with {len(batches)} feeds")
