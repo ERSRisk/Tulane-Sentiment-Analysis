@@ -33,8 +33,7 @@ jobs:
           GEMINI_API_KEY_X: ${{ secrets.GEMINI_API_KEY_X }}
           NEWS_API_KEY: ${{ secrets.NEWS_API_KEY }}
           X_API_KEY: ${{ secrets.X_API_KEY }}
-          PASSWORD: ${{ secrets.PASSWORD}}
-          USERNAME: ${{ secrets.USERNAME}}
+          COOKIE_HEADER: ${{ secrets.COOKIE_HEADER }}
         run: |
           python Online_Extraction/run.py
 
