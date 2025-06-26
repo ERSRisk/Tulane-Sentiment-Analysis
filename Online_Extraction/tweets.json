@@ -2258,5 +2258,55 @@
     "summary": "The sentiment is positive because it is highlighting a Tulane study. The study will be seen as a positive recognition for Tulane.",
     "is_sport": 0,
     "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-25T23:30:15+00:00",
+    "text": "Mechanical ventilators became a big deal during the COVID-19 pandemic, but the life-saving machine comes with risks. Today on @LAConsidered, we hear about a new study from @Tulane that suggests certain uses of the machine could cause lung damage. https://t.co/ENK7MJ9oJS",
+    "link": "https://twitter.com/None/status/1938016922676691330",
+    "description": "A new Tulane study suggests certain uses of mechanical ventilators could cause lung damage.",
+    "sentiment": 0.5,
+    "summary": "The sentiment is positive because it highlights a research study by Tulane. While the topic of lung damage is negative, the focus is on the university's research contribution.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-25T23:30:15+00:00",
+    "text": "Mechanical ventilators became a big deal during the COVID-19 pandemic, but the life-saving machine comes with risks. Today on @LAConsidered, we hear about a new study from @Tulane that suggests certain uses of the machine could cause lung damage. https://t.co/Qdmh9lzv8c",
+    "link": "https://twitter.com/None/status/1938016921791676914",
+    "description": "A new Tulane study suggests certain uses of mechanical ventilators could cause lung damage.",
+    "sentiment": 0.5,
+    "summary": "The sentiment is positive because it highlights a research study by Tulane. While the topic of lung damage is negative, the focus is on the university's research contribution.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-25T22:35:54+00:00",
+    "text": "RT @ACCTMTH: Join Our Upcoming Webinar!\n\nTopic: AI's Future in Tropical Medicine\nDate: Thursday, June 26th\nTime: 2pm EST\n\nSpeakers\n✅ Dr. Ka…",
+    "link": "https://twitter.com/None/status/1938003243503685812",
+    "description": "Announcement of a webinar on AI's future in tropical medicine featuring a speaker from Tulane, focusing on academic research.",
+    "sentiment": 0.7,
+    "summary": "Positive sentiment because it highlights Tulane's involvement in an academic webinar and research in tropical medicine and AI, which enhances its reputation.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-25T22:28:00+00:00",
+    "text": "Five American Universities to follow on Facebook\n\nhttps://t.co/jBwsCkd420\n\nAppalachian State University\nSUNY Fredonia\nCSU Monterey Bay\nUniversity of Alaska – Fairbanks\nTulane University\n\n:::",
+    "link": "https://twitter.com/None/status/1938001256900858086",
+    "description": "Tulane University listed as one of five American Universities to follow on Facebook.",
+    "sentiment": 0.8,
+    "summary": "Positive sentiment as it highlights Tulane's presence and recognition among other universities on Facebook.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-25T22:05:18+00:00",
+    "text": "RT @RollDatWave: #Tulane #GreenWave \n\n🌊Class of 25 Bandit🌊\n\nWarren Roberts Jr- @warrenrobertsjr \n6-2/230\n#40\nNew Orleans, LA\n\n3⭐️⭐️⭐️/88…",
+    "link": "https://twitter.com/None/status/1937995543969407330",
+    "description": "Tweet announcing commitment to Tulane University.",
+    "sentiment": 0.9,
+    "summary": "The tweet is highly positive as it indicates a commitment to Tulane University, showcasing the university's appeal and success in attracting individuals.",
+    "is_sport": 0,
+    "affiliation": 1
   }
 ]
