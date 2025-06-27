@@ -6,12 +6,64 @@ from google import genai
 import toml
 import random
 from sentence_transformers import SentenceTransformer, util
+import zipfile
 
 
 with open('Online_Extraction/all_RSS.json', 'r', encoding = 'utf-8') as f:
     articles = json.load(f)
 df = pd.DataFrame(articles)
 
+def download_and_extract_model(url, output_dir, zip_path="BERTopic_model.zip"):
+    if not os.path.exists(output_dir):
+        print("BERTopic model not found — downloading...")
+        # Download the file
+        response = requests.get(url)
+        with open(zip_path, 'wb') as f:
+            f.write(response.content)
+        # Extract the zip
+        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+            zip_ref.extractall(output_dir)
+        print("Model downloaded and extracted.")
+        topic_model = bt.load("BERTopic_model")
+    else:
+        topic_model = bt.BERTopic(language = 'english', verbose = True)
+    
+        topics, probs = topic_model.fit_transform(df['Text'].tolist())
+    
+        df['Topic'] = topics
+        df['Probability'] = probs
+    
+        topic_blocks = []
+        rep_docs = topic_model.get_representative_docs()
+        topics = topic_model.get_topic_info()['Topic'].tolist()
+        valid_topics = [t for t in topics if t in rep_docs]
+        for topic in valid_topics:
+            words = topic_model.get_topic(topic)
+            docs = topic_model.get_representative_docs()[topic]
+            random.shuffle(docs)
+            docs = docs[:15]
+            keywords = ', '.join([word for word, _ in words])
+            blocks = f"Topic {topic}: Keywords: {keywords}. Representative Documents: {docs[0]} | {docs[1]}"
+            topic_blocks.append(blocks)
+    
+    
+        topic_model.save('Model_trainingBERTopic_model')
+        df.to_csv('BERTopic_results.csv', index=False)
+        GEMINI_API_KEY = secrets["all_my_api_keys"]["GEMINI_API_KEY_X2"]
+        client = genai.Client(api_key=GEMINI_API_KEY)
+        prompt = "You are helping in analyzing these topics given by BERTopic. Each topic includes a list of" \
+        "keywords and two representative documents. " \
+        "Your task is to return a name for each specific topic based on the keywords and documents." \
+        "An example topic can be 'Erosion of Human Rights'. Here is the topics: {topic_blocks}" \
+        "\n\nReturn your response as a list of names, one per topic, in the same order. Just give me the names with no furhter explanation."
+        response = client.models.generate_content(
+            model="gemini-1.5-flash",
+            contents=prompt.format(topic_blocks=' '.join(topic_blocks)),
+        )
+        save_to_json(topics, response)
+
+model_url = "https://drive.google.com/uc?export=download&id=1g1BUS2HjNpj6iAXDTG3MIEpEocNHEUbn"
+download_and_extract_model(model_url, "BERTopic_model")
 
 df = df[~(df['Source']=="Economist")]
 df['Text'] = df['Title'] + '. ' + df['Content']
@@ -31,52 +83,6 @@ def save_to_json(topics, response):
     with open('Model_training/topics_BERT.json', 'w') as f:
         json.dump(topic_dict, f, indent=4)
 
-if os.path.exists('Model_training/BERTopic_model'):
-    print("BERTopic model already exists. Loading the model.")
-    topic_model = bt.BERTopic.load('BERTopic_model')
-    #give me the number of entries per topic
-
-    
-else:
-
-    topic_model = bt.BERTopic(language = 'english', verbose = True)
-
-    topics, probs = topic_model.fit_transform(df['Text'].tolist())
-
-    df['Topic'] = topics
-    df['Probability'] = probs
-
-    topic_blocks = []
-    rep_docs = topic_model.get_representative_docs()
-    topics = topic_model.get_topic_info()['Topic'].tolist()
-    valid_topics = [t for t in topics if t in rep_docs]
-    for topic in valid_topics:
-        words = topic_model.get_topic(topic)
-        docs = topic_model.get_representative_docs()[topic]
-        random.shuffle(docs)
-        docs = docs[:15]
-        keywords = ', '.join([word for word, _ in words])
-        blocks = f"Topic {topic}: Keywords: {keywords}. Representative Documents: {docs[0]} | {docs[1]}"
-        topic_blocks.append(blocks)
-
-
-    topic_model.save('Model_trainingBERTopic_model')
-    df.to_csv('BERTopic_results.csv', index=False)
-    GEMINI_API_KEY = secrets["all_my_api_keys"]["GEMINI_API_KEY_X2"]
-    client = genai.Client(api_key=GEMINI_API_KEY)
-    prompt = "You are helping in analyzing these topics given by BERTopic. Each topic includes a list of" \
-    "keywords and two representative documents. " \
-    "Your task is to return a name for each specific topic based on the keywords and documents." \
-    "An example topic can be 'Erosion of Human Rights'. Here is the topics: {topic_blocks}" \
-    "\n\nReturn your response as a list of names, one per topic, in the same order. Just give me the names with no furhter explanation."
-    response = client.models.generate_content(
-        model="gemini-1.5-flash",
-        contents=prompt.format(topic_blocks=' '.join(topic_blocks)),
-    )
-    save_to_json(topics, response)
-
-
-    
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY_X")
 client = genai.Client(api_key=GEMINI_API_KEY)
