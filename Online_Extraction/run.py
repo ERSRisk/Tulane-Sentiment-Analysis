@@ -406,27 +406,51 @@ async def process_feeds(feeds, session):
                     print(f"Skipping feed {url} due to parse failure")
                     continue
         except Exception as e:
-            print(f"⚠️ Hard failure parsing {url}: {e}")
+            print(f"⚠️ Hard failure fetching {url}: {e}")
             continue        
-                
+
         if feed_extract['bozo']:
             print(f"Error parsing feed {url}: {feed_extract['bozo_exception']}")
+            continue  # skip this feed, already logged
+
+        async def process_entry(entry, source):
             try:
-                for entry in feed_extract.entries:
-                    content = await fetch_article_content(entry.link)
-                    text = await response.read()
-                    feed_extract = feedparser.parse(text.decode("utf-8"))
-                    article_data = {
-                            "Title": entry.title,
-                            "Link": entry.link,
-                            "Published": get_available(entry, ['published', 'pubDate', 'updated']),
-                            "Summary": get_available(entry, ["summary", "description", "content"]),
-                            "Content": "Paywalled article" if any(p.lower() in name.lower() for p in paywalled) else content if content else get_available(entry, ["summary", "description", "content"])
-                        }
-                    articles.append(article_data)
+                content = await fetch_article_content(entry['link'])
+                text = content if content else get_available(entry, ["summary"])
+                if not text or not text.strip():
+                    print(f"Skipping with no valid entry text {entry['link']}")
+                    return None
+
+                doc = nlp(text)
+                relevant_entities = ['ORG', 'PERSON', 'GPE', 'LAW', 'EVENT', 'MONEY']
+                entities = [ent.text for ent in doc.ents if ent.label_ in relevant_entities]
+
+                combined_text = " ".join(filter(None, [
+                    entry.get('title', ''),
+                    entry.get('summary', ''),
+                    text
+                ])).lower()
+
+                matched_keywords = [keyword for keyword in keywords if keyword in combined_text]
+                return {
+                    "Title": entry.get('title'),
+                    "Link": entry.get('link'),
+                    "Published": entry.get('published'),
+                    "Summary": entry.get('summary'),
+                    "Content": "Paywalled article" if any(p.lower() in name.lower() for p in paywalled) else text,
+                    "Source": source,
+                    "Keyword": matched_keywords,
+                    "Entities": entities if entities else None
+                }
             except Exception as e:
-                print(f"Failed to fetch or parse feed {url} after retry: {e}")
-                continue
+                print(f"Error processing entry {entry.get('link')}: {e}")
+                return None
+
+        tasks = [process_entry(entry, name) for entry in feed_extract['entries']]
+        entry_results = await asyncio.gather(*tasks)
+        articles.extend([r for r in entry_results if r])
+
+    return articles
         
         async def process_entry(entry, source):
             try:
