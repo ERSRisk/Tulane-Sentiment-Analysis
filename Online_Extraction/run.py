@@ -451,46 +451,6 @@ async def process_feeds(feeds, session):
         articles.extend([r for r in entry_results if r])
 
     return articles
-        
-        async def process_entry(entry, source):
-            try:
-                content = await fetch_article_content(entry.link)
-                text = content if content else get_available(entry, ["summary", "description", "content"])
-                if not text or not text.strip():
-                    print(f"Skipping with no valid entry text {entry.link}")
-                    return None
-                    
-               
-                doc = nlp(text)
-                relevant_entities = ['ORG', 'PERSON', 'GPE', 'LAW', 'EVENT', 'MONEY']
-                entities = [ent.text for ent in doc.ents if ent.label_ in relevant_entities]
-                
-                text_to_check = (
-                    entry.title,
-                    get_available(entry, ["summary", "description", "content"]),
-                    text
-                )
-                combined_text = " ".join(filter(None, text_to_check)).lower()
-                
-                matched_keywords = [keyword for keyword in keywords if keyword in combined_text]
-                return {
-                    "Title": entry.title,
-                    "Link": entry.link,
-                    "Published": get_available(entry, ['published', 'pubDate', 'updated']),
-                    "Summary": get_available(entry, ["summary", "description", "content"]),
-                    "Content": "Paywalled article" if any(p.lower() in name.lower() for p in paywalled) else text,
-                    "Source": source,
-                    "Keyword": matched_keywords,
-                    "Entities": entities if entities else None
-                }
-            except Exception as e:
-                print(f"Error processing entry {entry.link}: {e}")
-                return None
-        tasks = [process_entry(entry, name) for entry in feed_extract.entries]
-        entry_results = await asyncio.gather(*tasks)
-        articles.extend([r for r in entry_results if r])
-
-    return articles
 
 async def batch_process_feeds(feeds, batch_size = 15, concurrent_batches =5):
     all_articles = []
