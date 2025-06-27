@@ -317,7 +317,9 @@ def fetch_content(article_url):
     try:
         downloaded = trafilatura.fetch_url(article_url)
         if downloaded:
-            return trafilatura.extract(downloaded)
+            extracted =  trafilatura.extract(downloaded)
+            if extracted:
+                return extracted
         return None
     except Exception as e:
         print(f"Error fetching content from {article_url}: {e}")
@@ -344,6 +346,8 @@ def get_available(entry, keys, default = None):
 final_articles = []
 async def fetch_article_content(url):
     return await asyncio.to_thread(fetch_content, url)
+    
+nlp = spacy.load('en_core_web_sm')
 
 async def process_feeds(feeds, session):
     articles = [] 
@@ -381,18 +385,24 @@ async def process_feeds(feeds, session):
             except Exception as e:
                 print(f"Failed to fetch or parse feed {url} after retry: {e}")
             continue
+        
         async def process_entry(entry, source):
             try:
                 content = await fetch_article_content(entry.link)
-                nlp = spacy.load('en_core_web_sm')
                 text = content if content else get_available(entry, ["summary", "description", "content"])
+                if not text or not text.strip():
+                    print(f"Skipping with no valid entry text {entry.link}")
+                    return None
+                    
+               
                 doc = nlp(text)
                 relevant_entities = ['ORG', 'PERSON', 'GPE', 'LAW', 'EVENT', 'MONEY']
                 entities = [ent.text for ent in doc.ents if ent.label_ in relevant_entities]
+                
                 text_to_check = (
                     entry.title,
                     get_available(entry, ["summary", "description", "content"]),
-                    content or get_available(entry, ["summary", "description", "content"])
+                    text
                 )
                 combined_text = " ".join(filter(None, text_to_check)).lower()
                 
@@ -402,7 +412,7 @@ async def process_feeds(feeds, session):
                     "Link": entry.link,
                     "Published": get_available(entry, ['published', 'pubDate', 'updated']),
                     "Summary": get_available(entry, ["summary", "description", "content"]),
-                    "Content": "Paywalled article" if any(p.lower() in name.lower() for p in paywalled) else content or get_available(entry, ["summary", "description", "content"]),
+                    "Content": "Paywalled article" if any(p.lower() in name.lower() for p in paywalled) else text,
                     "Source": source,
                     "Keyword": matched_keywords,
                     "Entities": entities if entities else None
@@ -434,6 +444,9 @@ async def batch_process_feeds(feeds, batch_size = 15, concurrent_batches =5):
     return all_articles
 
 feeds = create_feeds(rss_feed)
-all_articles = asyncio.run(batch_process_feeds(feeds, batch_size=5, concurrent_batches=2))
+try:
+    all_articles = asyncio.run(batch_process_feeds(feeds, batch_size=5, concurrent_batches=1))
+except Exception as e:
+    print(f"Fatal error {e}") 
 existing_articles = load_existing_articles()
 new_articles = save_new_articles(existing_articles, all_articles)
