@@ -361,16 +361,14 @@ async def process_feeds(feeds, session):
         try:
             async with session.get(url, timeout=aiohttp.ClientTimeout(total=150)) as response:
                 text = await response.text()
-                try:
-                    feed_extract = feedparser.parse(text)
-                except Exception as e:
-                    print(f"⚠️ Hard failure parsing {url}: {e}")
-                    continue        
-                
+                if 'xml' not in response.headers.get('Content-Type', ''):
+                    print(f"Skipping non-XML content: {url}")
+                    continue
+                feed_extract = feedparser.parse(text)
         except Exception as e:
-            print(f"Error fetching {url}: {repr(e)}")
-            traceback.print_exc()
-            continue
+            print(f"⚠️ Hard failure parsing {url}: {e}")
+            continue        
+                
         if feed_extract.bozo:
             print(f"Error parsing feed {url}: {feed_extract.bozo_exception}")
             try:
