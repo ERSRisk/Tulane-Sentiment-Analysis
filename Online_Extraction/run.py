@@ -434,6 +434,6 @@ async def batch_process_feeds(feeds, batch_size = 15, concurrent_batches =5):
     return all_articles
 
 feeds = create_feeds(rss_feed)
-all_articles = asyncio.run(batch_process_feeds(feeds, batch_size=15, concurrent_batches=3))
+all_articles = asyncio.run(batch_process_feeds(feeds, batch_size=5, concurrent_batches=2))
 existing_articles = load_existing_articles()
 new_articles = save_new_articles(existing_articles, all_articles)
