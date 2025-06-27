@@ -8,6 +8,7 @@ import toml
 import tweets_extract as te
 import rss
 import os
+import sys
 import subprocess
 
 NEWS_API_KEY = os.getenv("NEWS_API_KEY")
