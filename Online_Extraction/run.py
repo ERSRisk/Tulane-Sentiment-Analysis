@@ -8,6 +8,7 @@ import toml
 import tweets_extract as te
 import rss
 import os
+import subprocess
 
 NEWS_API_KEY = os.getenv("NEWS_API_KEY")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY_NEWS")
@@ -348,7 +349,43 @@ async def fetch_article_content(url):
     return await asyncio.to_thread(fetch_content, url)
     
 nlp = spacy.load('en_core_web_sm')
+async def safe_feed_parse(text):
+    try:
+        proc = await asyncio.create_subprocess_exec(
+            sys.executable, "-c",
+            (
+                "import sys, feedparser, json; "
+                "raw = sys.stdin.read(); "
+                "try: "
+                "  p = feedparser.parse(raw); "
+                "  print(json.dumps({"
+                "'bozo': p.bozo, "
+                "'bozo_exception': str(p.bozo_exception) if p.bozo else None, "
+                "'entries': ["
+                "{'title': e.get('title'), 'link': e.get('link'), 'published': e.get('published'), 'summary': e.get('summary')} "
+                "for e in p.entries]"
+                "})) "
+                "except Exception as e: "
+                "  print(json.dumps({'error': str(e)}))"
+            ),
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+        )
+        stdout, stderr = await proc.communicate(input=text.encode())
 
+        if proc.returncode != 0:
+            print(f"Parser subprocess crashed: {stderr.decode()}")
+            return None
+        
+        result = json.loads(stdout.decode())
+        if 'error' in result:
+            print(f"Parser error: {result['error']}")
+            return None
+        return result
+    except Exception as e:
+        print(f"Subprocess failed: {e}")
+        return None
 async def process_feeds(feeds, session):
     articles = [] 
     for feed in feeds:
@@ -364,13 +401,16 @@ async def process_feeds(feeds, session):
                 if 'xml' not in response.headers.get('Content-Type', ''):
                     print(f"Skipping non-XML content: {url}")
                     continue
-                feed_extract = feedparser.parse(text)
+                feed_extract = await safe_feed_parse(text)
+                if not feed_extract:
+                    print(f"Skipping feed {url} due to parse failure")
+                    continue
         except Exception as e:
             print(f"⚠️ Hard failure parsing {url}: {e}")
             continue        
                 
-        if feed_extract.bozo:
-            print(f"Error parsing feed {url}: {feed_extract.bozo_exception}")
+        if feed_extract['bozo']:
+            print(f"Error parsing feed {url}: {feed_extract['bozo_exception']}")
             try:
                 for entry in feed_extract.entries:
                     content = await fetch_article_content(entry.link)
