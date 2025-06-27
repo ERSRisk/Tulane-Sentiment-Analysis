@@ -361,7 +361,11 @@ async def process_feeds(feeds, session):
         try:
             async with session.get(url, timeout=aiohttp.ClientTimeout(total=150)) as response:
                 text = await response.text()
-                feed_extract = feedparser.parse(text)
+                try:
+                    feed_extract = feedparser.parse(text)
+                except Exception as e:
+                    print(f"⚠️ Hard failure parsing {url}: {e}")
+                    continue        
                 
         except Exception as e:
             print(f"Error fetching {url}: {repr(e)}")
@@ -384,7 +388,7 @@ async def process_feeds(feeds, session):
                     articles.append(article_data)
             except Exception as e:
                 print(f"Failed to fetch or parse feed {url} after retry: {e}")
-            continue
+                continue
         
         async def process_entry(entry, source):
             try:
