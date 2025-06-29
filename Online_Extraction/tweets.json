@@ -2408,5 +2408,95 @@
     "summary": "This is a positive tweet because it mentions Tulane receiving a significant amount of funding for a state-of-the-art facility. This implies advancement and investment in research and education, positively reflecting on Tulane. Mention of funding is a reference to the keywords.",
     "is_sport": 0,
     "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-28T23:39:55+00:00",
+    "text": "RT @fightbacknews: \"I will be appealing this conviction in order to set the record straight: Tulane University is the criminal, Israel is t…",
+    "link": "https://twitter.com/None/status/1939106516818428362",
+    "description": "Retweet of a statement claiming Tulane University is a criminal, related to Israel and the United States government.",
+    "sentiment": -0.9,
+    "summary": "This tweet is highly negative towards Tulane, accusing it of criminal activity. The mention of Israel may also be linked to concerns about antisemitism or political activity.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-28T23:30:07+00:00",
+    "text": "\"I will be appealing this conviction in order to set the record straight: Tulane University is the criminal, Israel is the criminal, the United States government is the criminal.”\n\nhttps://t.co/k6sGjm1egy",
+    "link": "https://twitter.com/None/status/1939104053805400505",
+    "description": "Statement claiming Tulane University, Israel, and the United States government are criminals.",
+    "sentiment": -0.9,
+    "summary": "This tweet is highly negative towards Tulane, accusing it of criminal activity. The mention of Israel may also be linked to concerns about antisemitism or political activity.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-28T23:29:08+00:00",
+    "text": "@DStav1868 @i_Bob_Cats @ryan_rgdemps @been12v @RossDellenger @YahooSports @ASJSportsATX We went over this, Derrick. The Sun Belt is not on par with the MW &amp; AAC. Even if you were a top SBC school with multiple football titles, you would be been 4-5th option from Memphis, Tulane, &amp; even UTSA, UNLV. We’re desperate, but not stupid. It’d look bad giving a full share.",
+    "link": "https://twitter.com/None/status/1939103805444153688",
+    "description": "Advertisement to join the Tulane Green Wave family.",
+    "sentiment": 0.8,
+    "summary": "This tweet has a very positive sentiment since it is trying to encourage people to join the Tulane program.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-28T21:45:12+00:00",
+    "text": "@FSGreenVsecton @OzarkSammie @AdamC559 @pac12 Memphis and Tulane would have been very stupid to join in 2026. Their exit fees would only be 10 million if they just wait until 2027. Rather than 25-27 million",
+    "link": "https://twitter.com/None/status/1939077647658820092",
+    "description": "Discussion of exit fees for Memphis and Tulane if they join a conference in 2026 versus 2027.",
+    "sentiment": 0.0,
+    "summary": "The tweet provides information about exit fees, which can have positive or negative bearing on Tulane based on whether the organization views the exit fees as a burden or a good deal.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-28T20:59:42+00:00",
+    "text": "RT @lifesafeast: @JustJenRX Dr. Levine is a pediatrician, a graduate of Harvard &amp; of Tulane Medical School, created an adolescent health cl…",
+    "link": "https://twitter.com/None/status/1939066200232992775",
+    "description": "Tweet highlighting Dr. Levine's credentials, including graduation from Tulane Medical School.",
+    "sentiment": 0.6,
+    "summary": "The tweet is positive as it reflects well on Tulane Medical School by associating it with a highly qualified individual.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-28T19:36:58+00:00",
+    "text": "@LucFladda Good luck Luc.  We will miss you and your family at Tulane.",
+    "link": "https://twitter.com/None/status/1939045376184721830",
+    "description": "Wishing someone good luck and expressing that they will be missed at Tulane.",
+    "sentiment": 0.7,
+    "summary": "Positive sentiment due to the expression of well wishes and missing the person at Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-28T19:24:14+00:00",
+    "text": "SEC : 9 conference games, championship game at Mercedes-Benz\n\nEast\n-Florida\n-Georgia\n-Georgia Tech\n-Kentucky\n-Louisville\n-South Carolina\n-Tennessee\n-Vanderbilt\n\nWest\n-Alabama\n-Arkansas\n-Auburn\n-LSU\n-Memphis\n-Mississippi State\n-Ole Miss\n-Tulane",
+    "link": "https://twitter.com/None/status/1939042172373999725",
+    "description": "Tulane drops sanctions against students for protesting, related to education.",
+    "sentiment": 0.4,
+    "summary": "The event is seen as positive given the context. Tulane allows students to protest without punishment.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-28T19:17:37+00:00",
+    "text": "RT @RollDatWave: The Favor’s brothers on their OV with #Tulane. \n\nClass of 26 WR/DB- Terrious Favors\n@TerriousFavors \nClass of 31 DB- Ayden…",
+    "link": "https://twitter.com/None/status/1939040508220973230",
+    "description": "A warning regarding Tulane frats.",
+    "sentiment": -0.5,
+    "summary": "Negative, implies potential issues with Tulane fraternities.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-28T18:16:14+00:00",
+    "text": "Tulane University questioned whether Kimberly Terrell’s research on racial disparities was relevant to the law clinic’s mission—despite it being cited in legal arguments for the clinic’s clients. https://t.co/9HBgFQynHu",
+    "link": "https://twitter.com/None/status/1939025059932221803",
+    "description": "Tulane University questioned a researcher's work on racial disparities, even though it was relevant to clients.",
+    "sentiment": -0.6,
+    "summary": "This tweet describes Tulane questioning research related to racial disparities. Given that 'Civil Rights' and 'Discrimination' are key indicators, and the questioning of the research is seen negatively, the sentiment score is very low.",
+    "is_sport": 0,
+    "affiliation": 1
   }
 ]
