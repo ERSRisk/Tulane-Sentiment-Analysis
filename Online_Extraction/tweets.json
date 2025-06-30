@@ -2498,5 +2498,45 @@
     "summary": "This tweet describes Tulane questioning research related to racial disparities. Given that 'Civil Rights' and 'Discrimination' are key indicators, and the questioning of the research is seen negatively, the sentiment score is very low.",
     "is_sport": 0,
     "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-29T23:05:17+00:00",
+    "text": "@SullenSerf Outside of bias, Tulane has the best helmets. Just perfection",
+    "link": "https://twitter.com/None/status/1939460189431779839",
+    "description": "Tweet stating that Tulane has the best helmets outside of bias.",
+    "sentiment": 0.5,
+    "summary": "Positive sentiment because the user is stating that Tulane has the best helmets.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-29T20:43:11+00:00",
+    "text": "@tulane_504 @IanJaeger29 Let them try it... Watch Big Gretch destroy them in a heartbeat.",
+    "link": "https://twitter.com/None/status/1939424430943306192",
+    "description": "A user responds to a tweet mentioning 'tulane_504' (likely a Tulane-related account), expressing a combative sentiment.",
+    "sentiment": -0.2,
+    "summary": "The tweet expresses a slightly negative sentiment, although not explicitly directed at Tulane itself. The aggressive tone indicates a potentially unfavorable situation.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-29T20:28:00+00:00",
+    "text": "@Afri_core Tulane is a living proof of what colonialism has done to most so 'educated clever blacks'. With him European curriculum has achieved its objectives",
+    "link": "https://twitter.com/None/status/1939420610599211460",
+    "description": "A user claims that Tulane is 'living proof' of the negative effects of colonialism on 'educated clever blacks'.",
+    "sentiment": -0.8,
+    "summary": "The tweet expresses a very negative sentiment, accusing Tulane of embodying the negative impacts of colonialism. This is a strong condemnation of the university's legacy and its effect on Black individuals.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-06-29T20:00:36+00:00",
+    "text": "Zhihao Wu grew up playing table tennis and brought his love of the game to Tulane School of Medicine. Wu and his classmates formed a ping pong club as a way to decompress between studies. Learn more about the club here: https://t.co/UjCkWfMrFr https://t.co/7x6zWcVqhj",
+    "link": "https://twitter.com/None/status/1939413712189710336",
+    "description": "A tweet describing a Tulane School of Medicine student forming a ping pong club to de-stress.",
+    "sentiment": 0.7,
+    "summary": "The tweet highlights a positive aspect of student life at Tulane School of Medicine, focusing on student well-being and community building, which aligns with 'Student Success' and 'Community Relations'.",
+    "is_sport": 0,
+    "affiliation": 1
   }
 ]
