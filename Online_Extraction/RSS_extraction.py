@@ -261,10 +261,12 @@ def save_new_articles(existing_articles, new_articles):
     existing_urls = {article['Link'] for article in existing_articles}
     unique_new_articles = [article for article in new_articles if article['Link'] not in existing_urls]
     
-    updated_articles = existing_articles + unique_new_articles
-    with open('Online_Extraction/all_RSS.json', 'w', encoding='utf-8') as f:
-        json.dump(updated_articles, f, indent=4)
-    return unique_new_articles
+    if unique_new_articles:
+        updated_articles = existing_articles + unique_new_articles
+        with open('all_RSS.json', 'w', encoding='utf-8') as f:
+            json.dump(updated_articles, f, indent=4)
+        return unique_new_articles
+    return
 
 def fetch_content(article_url):
     try:
