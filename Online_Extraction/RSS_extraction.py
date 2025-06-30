@@ -406,6 +406,7 @@ async def process_feeds(feeds, session):
 
     return articles
 
+COOKIE_HEADER = os.getenv("COOKIE_HEADER")
 async def batch_process_feeds(feeds, batch_size = 15, concurrent_batches =5):
     all_articles = []
     batches = [feeds[i:i + batch_size] for i in range(0, len(feeds), batch_size)]
