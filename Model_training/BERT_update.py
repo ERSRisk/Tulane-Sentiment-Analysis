@@ -127,59 +127,63 @@ def get_topic(temp_model, topic_ids):
         docs = docs[:8]
         keywords = ', '.join([word for word, _ in words])
         doc_list = '\n'.join([f"- {doc}" for doc in docs])
-        blocks = (
+        block = (
             f"---\n"
             f"TopicID: {topic}\n"
             f"Keywords: {keywords}\n"
             f"Representative Documents: {doc_list}\n"
         )
-        topic_blocks.append((topic, blocks))
+        topic_blocks.append((topic, block))
 
-    prompt_blocks = "\n\n".join([block for (_, block) in topic_blocks])
-    prompt = (
-        "You are helping analyze topics from BERTopic. Each topic includes keywords and representative documents.\n"
-        "Your task is to return a short, clear name for each topic, based ONLY on the provided keywords and documents.\n"
-        "Return your response as a list: one name per topic, in order, no explanations.\n"
-        "Example: ['Erosion of Human Rights', 'University Funding Cuts', ...]\n\n"
-        + prompt_blocks +
-        "\nReturn your response as a JSON array of names."
-    )
+    # Chunk your topic blocks (e.g., 5 topics per call)
+    chunk_size = 5
+    topic_name_pairs = []
 
-    max_attempts = 5
-    for attempt in range(max_attempts):
-        try:
-            # Direct raw HTTP request via Gemini client — no internal retries
-            response = client._api_client._request_once(
-                client._api_client._prepare_request(
+    for i in range(0, len(topic_blocks), chunk_size):
+        chunk = topic_blocks[i:i + chunk_size]
+        prompt_blocks = "\n\n".join([b for (_, b) in chunk])
+        prompt = (
+            "You are helping analyze topics from BERTopic. Each topic includes keywords and representative documents.\n"
+            "Your task is to return a short, clear name for each topic, based ONLY on the provided keywords and documents.\n"
+            "Return your response as a list: one name per topic, in order, no explanations.\n"
+            "Example: ['Erosion of Human Rights', 'University Funding Cuts', ...]\n\n"
+            + prompt_blocks +
+            "\nReturn your response as a JSON array of names."
+        )
+
+        # Retry logic as you had it
+        max_attempts = 5
+        for attempt in range(max_attempts):
+            try:
+                response = client.models.generate_content(
                     model="gemini-2.0-flash",
-                    contents=prompt
-                ),
-                stream=False
-            )
-            break  # Success!
-        except APIError as e:
-            error_str = str(e)
-            if "RESOURCE_EXHAUSTED" in error_str or "quota" in error_str.lower():
-                retry_delay = 60
-                retry_match = re.search(r"'retryDelay': '(\d+)s'", error_str)
-                if retry_match:
-                    retry_delay = int(retry_match.group(1))
-                print(f"⚠️ Quota exceeded, retrying in {retry_delay}s...")
-                time.sleep(retry_delay)
-            else:
-                print(f"❌ Non-retryable API error: {e}")
-                return "❌ API error encountered."
-        except Exception as e:
-            wait_time = 2 ** attempt + random.uniform(0, 1)
-            print(f"⚠️ Unexpected error: {e}. Retrying in {wait_time:.2f} seconds...")
-            time.sleep(wait_time)
-    else:
-        print("❌ API failed after multiple attempts.")
-        return "❌ API failed after multiple attempts."
+                    contents=prompt,
+                )
+                break  # Success
+            except APIError as e:
+                error_str = str(e)
+                if "RESOURCE_EXHAUSTED" in error_str or "quota" in error_str.lower():
+                    retry_delay = 60
+                    retry_match = re.search(r"'retryDelay': '(\d+)s'", error_str)
+                    if retry_match:
+                        retry_delay = int(retry_match.group(1))
+                    print(f"⚠️ Quota exceeded, retrying in {retry_delay}s...")
+                    time.sleep(retry_delay)
+                else:
+                    print(f"❌ Non-retryable API error: {e}")
+                    return "❌ API error encountered."
+            except Exception as e:
+                wait_time = 2 ** attempt + random.uniform(0, 1)
+                print(f"⚠️ Unexpected error: {e}. Retrying in {wait_time:.2f} seconds...")
+                time.sleep(wait_time)
+        else:
+            print("❌ API failed after multiple attempts.")
+            return "❌ API failed after multiple attempts."
 
-    output_text = response.candidates[0].content.parts[0].text
-    new_topic_names = json.loads(output_text)
-    topic_name_pairs = list(zip([tid for tid, _ in topic_blocks], new_topic_names))
+        output_text = response.candidates[0].content.parts[0].text
+        new_names = json.loads(output_text)
+        topic_name_pairs.extend(zip([tid for (tid, _) in chunk], new_names))
+
     return topic_name_pairs
 def existing_risks_json(topic_name_pairs, topic_model):
     model = SentenceTransformer('all-MiniLM-L6-v2')
