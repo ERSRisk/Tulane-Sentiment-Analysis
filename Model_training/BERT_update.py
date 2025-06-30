@@ -148,24 +148,28 @@ def get_topic(temp_model, topic_ids):
     max_attempts = 5
     for attempt in range(max_attempts):
         try:
-            response = client.models.generate_content(
-                model="gemini-2.0-flash",
-                contents=prompt,
+            # Direct raw HTTP request via Gemini client — no internal retries
+            response = client._api_client._request_once(
+                client._api_client._prepare_request(
+                    model="gemini-2.0-flash",
+                    contents=prompt
+                ),
+                stream=False
             )
-            break  # Success, exit loop
+            break  # Success!
         except APIError as e:
-            if "RESOURCE_EXHAUSTED" in str(e) or "quota" in str(e).lower():
-                wait_time = 60  # default
-                retry_match = re.search(r"'retryDelay': '(\d+)s'", str(e))
+            error_str = str(e)
+            if "RESOURCE_EXHAUSTED" in error_str or "quota" in error_str.lower():
+                retry_delay = 60
+                retry_match = re.search(r"'retryDelay': '(\d+)s'", error_str)
                 if retry_match:
-                    wait_time = int(retry_match.group(1))
-                print(f"⚠️ API quota exhausted. Retrying in {wait_time} seconds...")
-                time.sleep(wait_time)
+                    retry_delay = int(retry_match.group(1))
+                print(f"⚠️ Quota exceeded, retrying in {retry_delay}s...")
+                time.sleep(retry_delay)
             else:
-                print(f"❌ API request failed: {e}")
+                print(f"❌ Non-retryable API error: {e}")
                 return "❌ API error encountered."
         except Exception as e:
-            # Catch all other errors (e.g., connection issues)
             wait_time = 2 ** attempt + random.uniform(0, 1)
             print(f"⚠️ Unexpected error: {e}. Retrying in {wait_time:.2f} seconds...")
             time.sleep(wait_time)
@@ -175,7 +179,7 @@ def get_topic(temp_model, topic_ids):
 
     output_text = response.candidates[0].content.parts[0].text
     new_topic_names = json.loads(output_text)
-    topic_name_pairs = list(zip([tid for tid, _ in topic_blocks], new_topic_names)) 
+    topic_name_pairs = list(zip([tid for tid, _ in topic_blocks], new_topic_names))
     return topic_name_pairs
 def existing_risks_json(topic_name_pairs, topic_model):
     model = SentenceTransformer('all-MiniLM-L6-v2')
