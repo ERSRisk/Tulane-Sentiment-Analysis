@@ -96,7 +96,7 @@ else:
             try:
                 response = client.models.generate_content(
                     model="gemini-2.0-flash",
-                    contents=prompt,
+                    contents=[{"role": "user", "parts": [prompt]}],  # Adjust if needed for your SDK version
                 )
                 break  # Success
             except APIError as e:
@@ -110,13 +110,19 @@ else:
                     time.sleep(retry_delay)
                 else:
                     print(f"❌ Non-retryable API error: {e}")
+                    response = None
                     break
             except Exception as e:
                 wait_time = 2 ** attempt + random.uniform(0, 1)
                 print(f"⚠️ Unexpected error: {e}. Retrying in {wait_time:.2f} seconds...")
                 time.sleep(wait_time)
         else:
+            # Only runs if loop exhausted without break
             print("❌ API failed after multiple attempts.")
+            response = None
+        
+        if response is None:
+            # Handle failure: e.g., skip chunk, log, or raise error
             return "❌ API failed after multiple attempts."
     
         output_text = response.candidates[0].content.parts[0].text
