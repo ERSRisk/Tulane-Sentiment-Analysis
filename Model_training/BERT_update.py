@@ -15,6 +15,9 @@ with open('Online_Extraction/all_RSS.json', 'r', encoding = 'utf-8') as f:
     articles = json.load(f)
 df = pd.DataFrame(articles)
 
+def estimate_tokens(text):
+    # Approx 4 chars per token (rough estimate for English, GPT-like models)
+    return len(text) / 4
 
 df = df[~(df['Source']=="Economist")]
 df['Text'] = df['Title'] + '. ' + df['Content']
@@ -136,10 +139,14 @@ def get_topic(temp_model, topic_ids):
         topic_blocks.append((topic, block))
 
     # Chunk your topic blocks (e.g., 5 topics per call)
-    chunk_size = 5
+    chunk_size = 3
     topic_name_pairs = []
 
     for i in range(0, len(topic_blocks), chunk_size):
+        tokens_estimate = estimate_tokens(prompt)
+        print(f"🔹 Sending prompt with approx {int(tokens_estimate)} tokens...")
+        if tokens_estimate > 10000:
+        print("⚠️ Prompt too large, consider lowering chunk_size!")
         chunk = topic_blocks[i:i + chunk_size]
         prompt_blocks = "\n\n".join([b for (_, b) in chunk])
         prompt = (
