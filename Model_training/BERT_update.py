@@ -65,7 +65,7 @@ else:
 
     topic_model.save('Model_training/BERTopic_model')
     df.to_csv('Model_training/BERTopic_results.csv', index=False)
-    GEMINI_API_KEY = os.getenv("GEMINI_API_KEY_X2")
+    GEMINI_API_KEY = os.getenv("GEMINI_API_KEY_NEWS")
     client = genai.Client(api_key=GEMINI_API_KEY)
     prompt = "You are helping in analyzing these topics given by BERTopic. Each topic includes a list of" \
     "keywords and two representative documents. " \
