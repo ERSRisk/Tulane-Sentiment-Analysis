@@ -3,6 +3,7 @@ import feedparser
 import traceback
 import spacy
 import time
+import subprocess
 import asyncio
 import json
 import re
