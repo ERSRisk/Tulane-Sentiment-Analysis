@@ -307,27 +307,28 @@ async def fetch_article_content(url):
 nlp = spacy.load('en_core_web_sm')
 async def safe_feed_parse(text):
     try:
-        proc = await asyncio.create_subprocess_exec(
-            sys.executable, "-c",
-            (
-                "import sys, feedparser, json; "
-                "raw = sys.stdin.read(); "
-                "try: "
-                "  p = feedparser.parse(raw); "
-                "  print(json.dumps({"
-                "'bozo': p.bozo, "
-                "'bozo_exception': str(p.bozo_exception) if p.bozo else None, "
-                "'entries': ["
-                "{'title': e.get('title'), 'link': e.get('link'), 'published': e.get('published'), 'summary': e.get('summary')} "
-                "for e in p.entries]"
-                "})) "
-                "except Exception as e: "
-                "  print(json.dumps({'error': str(e)}))"
-            ),
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE
-        )
+      proc = await asyncio.create_subprocess_exec(
+          sys.executable, "-c",
+          (
+              "import sys, feedparser, json\n"
+              "raw = sys.stdin.read()\n"
+              "try:\n"
+              "  p = feedparser.parse(raw)\n"
+              "  print(json.dumps({\n"
+              "    'bozo': p.bozo,\n"
+              "    'bozo_exception': str(p.bozo_exception) if p.bozo else None,\n"
+              "    'entries': [\n"
+              "      {'title': e.get('title'), 'link': e.get('link'), 'published': e.get('published'), 'summary': e.get('summary')}\n"
+              "      for e in p.entries\n"
+              "    ]\n"
+              "  }))\n"
+              "except Exception as e:\n"
+              "  print(json.dumps({'error': str(e)}))"
+          ),
+          stdin=subprocess.PIPE,
+          stdout=subprocess.PIPE,
+          stderr=subprocess.PIPE
+          )
         stdout, stderr = await proc.communicate(input=text.encode())
 
         if proc.returncode != 0:
