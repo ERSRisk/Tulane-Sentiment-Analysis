@@ -110,7 +110,7 @@ else:
                     time.sleep(retry_delay)
                 else:
                     print(f"❌ Non-retryable API error: {e}")
-                    return "❌ API error encountered."
+                    break
             except Exception as e:
                 wait_time = 2 ** attempt + random.uniform(0, 1)
                 print(f"⚠️ Unexpected error: {e}. Retrying in {wait_time:.2f} seconds...")
