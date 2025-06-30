@@ -63,7 +63,7 @@ else:
         docs = docs[:15]
         keywords = ', '.join([word for word, _ in words])
         blocks = f"Topic {topic}: Keywords: {keywords}. Representative Documents: {docs[0]} | {docs[1]}"
-        topic_blocks.append(blocks)
+        topic_blocks.append((topic, blocks))
 
 
     topic_model.save('Model_training/BERTopic_model')
