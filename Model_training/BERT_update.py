@@ -123,7 +123,8 @@ else:
         
         if response is None:
             # Handle failure: e.g., skip chunk, log, or raise error
-            return "❌ API failed after multiple attempts."
+            print("❌ API failed after multiple attempts.")
+            break
     
         output_text = response.candidates[0].content.parts[0].text
         new_names = json.loads(output_text)
