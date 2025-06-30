@@ -6,6 +6,9 @@ from google import genai
 import toml
 import random
 from sentence_transformers import SentenceTransformer, util
+import time
+import re
+from google.genai.errors import APIError
 
 
 with open('Online_Extraction/all_RSS.json', 'r', encoding = 'utf-8') as f:
@@ -133,21 +136,47 @@ def get_topic(temp_model, topic_ids):
         topic_blocks.append((topic, blocks))
 
     prompt_blocks = "\n\n".join([block for (_, block) in topic_blocks])
-    prompt = "You are helping analyze topics from BERTopic. Each topic includes keywords and representative documents.\n"
-    "Your task is to return a short, clear name for each topic, based ONLY on the provided keywords and documents.\n"
-    "Return your response as a list: one name per topic, in order, no explanations.\n"
-    "Example: ['Erosion of Human Rights', 'University Funding Cuts', ...]\n\n"
-    prompt += prompt_blocks
-    prompt += "\nReturn your response as a JSON array of names."
-    response = client.models.generate_content(
-        model="gemini-2.0-flash",
-        contents=prompt,
+    prompt = (
+        "You are helping analyze topics from BERTopic. Each topic includes keywords and representative documents.\n"
+        "Your task is to return a short, clear name for each topic, based ONLY on the provided keywords and documents.\n"
+        "Return your response as a list: one name per topic, in order, no explanations.\n"
+        "Example: ['Erosion of Human Rights', 'University Funding Cuts', ...]\n\n"
+        + prompt_blocks +
+        "\nReturn your response as a JSON array of names."
     )
+
+    max_attempts = 5
+    for attempt in range(max_attempts):
+        try:
+            response = client.models.generate_content(
+                model="gemini-2.0-flash",
+                contents=prompt,
+            )
+            break  # Success, exit loop
+        except APIError as e:
+            if "RESOURCE_EXHAUSTED" in str(e) or "quota" in str(e).lower():
+                wait_time = 60  # default
+                retry_match = re.search(r"'retryDelay': '(\d+)s'", str(e))
+                if retry_match:
+                    wait_time = int(retry_match.group(1))
+                print(f"⚠️ API quota exhausted. Retrying in {wait_time} seconds...")
+                time.sleep(wait_time)
+            else:
+                print(f"❌ API request failed: {e}")
+                return "❌ API error encountered."
+        except Exception as e:
+            # Catch all other errors (e.g., connection issues)
+            wait_time = 2 ** attempt + random.uniform(0, 1)
+            print(f"⚠️ Unexpected error: {e}. Retrying in {wait_time:.2f} seconds...")
+            time.sleep(wait_time)
+    else:
+        print("❌ API failed after multiple attempts.")
+        return "❌ API failed after multiple attempts."
+
     output_text = response.candidates[0].content.parts[0].text
     new_topic_names = json.loads(output_text)
     topic_name_pairs = list(zip([tid for tid, _ in topic_blocks], new_topic_names)) 
     return topic_name_pairs
-
 def existing_risks_json(topic_name_pairs, topic_model):
     model = SentenceTransformer('all-MiniLM-L6-v2')
     with open('Model_training/topics_BERT.json') as f:
