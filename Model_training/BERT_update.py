@@ -146,7 +146,7 @@ def get_topic(temp_model, topic_ids):
         tokens_estimate = estimate_tokens(prompt)
         print(f"🔹 Sending prompt with approx {int(tokens_estimate)} tokens...")
         if tokens_estimate > 10000:
-        print("⚠️ Prompt too large, consider lowering chunk_size!")
+            print("⚠️ Prompt too large, consider lowering chunk_size!")
         chunk = topic_blocks[i:i + chunk_size]
         prompt_blocks = "\n\n".join([b for (_, b) in chunk])
         prompt = (
