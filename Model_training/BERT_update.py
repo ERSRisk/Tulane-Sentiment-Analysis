@@ -77,28 +77,30 @@ else:
         chunk = topic_blocks[i:i + chunk_size]
         prompt_blocks = "\n\n".join([b for (_, b) in chunk])
         prompt = (
-            "You are helping in analyzing these topics given by BERTopic. Each topic includes a list of "
-            "keywords and two representative documents. "
-            "Your task is to return a name for each specific topic based on the keywords and documents. "
-            "An example topic can be 'Erosion of Human Rights'. "
-            "Here is the topics: \n\n" + prompt_blocks +
-            "\n\nReturn your response as a list of names, one per topic, in the same order. "
-            "Just give me the names with no further explanation."
+            "You are helping in analyzing these topics given by BERTopic. Each topic includes keywords and two representative documents.\n"
+            "Your task is to return a name for each specific topic based on the keywords and documents.\n"
+            "An example topic can be 'Erosion of Human Rights'.\n"
+            "Here is the topics:\n\n" + prompt_blocks +
+            "\n\nReturn your response as a JSON array of names, one per topic, in the same order."
         )
     
         tokens_estimate = estimate_tokens(prompt)
         print(f"🔹 Sending prompt with approx {int(tokens_estimate)} tokens...")
         if tokens_estimate > 10000:
             print("⚠️ Prompt too large, consider lowering chunk_size!")
-        
-        max_attempts = 5
-        for attempt in range(max_attempts):
+    
+        while True:
             try:
                 response = client.models.generate_content(
                     model="gemini-2.0-flash",
-                    contents=[{"role": "user", "parts": [prompt]}],  # Adjust if needed for your SDK version
+                    contents=[{"role": "user", "parts": [prompt]}],
                 )
-                break  # Success
+                output_text = response.candidates[0].content.parts[0].text
+                new_names = json.loads(output_text)
+                topic_name_pairs.extend(zip([tid for (tid, _) in chunk], new_names))
+                print("✅ Chunk processed successfully.")
+                break  # Exit retry loop on success
+    
             except APIError as e:
                 error_str = str(e)
                 if "RESOURCE_EXHAUSTED" in error_str or "quota" in error_str.lower():
@@ -109,30 +111,18 @@ else:
                     print(f"⚠️ Quota exceeded, retrying in {retry_delay}s...")
                     time.sleep(retry_delay)
                 else:
-                    print(f"❌ Non-retryable API error: {e}")
-                    response = None
-                    break
+                    print(f"❌ Non-retryable API error: {e}. Will keep retrying anyway after 60s...")
+                    time.sleep(60)
+    
             except Exception as e:
-                wait_time = 2 ** attempt + random.uniform(0, 1)
+                wait_time = random.uniform(1, 3)
                 print(f"⚠️ Unexpected error: {e}. Retrying in {wait_time:.2f} seconds...")
                 time.sleep(wait_time)
-        else:
-            # Only runs if loop exhausted without break
-            print("❌ API failed after multiple attempts.")
-            response = None
-        
-        if response is None:
-            # Handle failure: e.g., skip chunk, log, or raise error
-            print("❌ API failed after multiple attempts.")
-            break
     
-        output_text = response.candidates[0].content.parts[0].text
-        new_names = json.loads(output_text)
-        topic_name_pairs.extend(zip([tid for (tid, _) in chunk], new_names))
-    
-    # After loop finishes, save all topic names
-    save_to_json([tid for (tid, _) in topic_name_pairs], response)
-
+    # Save at the end
+    all_tids = [tid for (tid, _) in topic_name_pairs]
+    all_names = [name for (_, name) in topic_name_pairs]
+    save_to_json(all_tids, all_names)
 
     
 
