@@ -60,7 +60,7 @@ else:
         words = topic_model.get_topic(topic)
         docs = topic_model.get_representative_docs()[topic]
         random.shuffle(docs)
-        docs = docs[:10]
+        docs = docs[:7]
         keywords = ', '.join([word for word, _ in words])
         blocks = f"Topic {topic}: Keywords: {keywords}. Representative Documents: {docs[0]} | {docs[1]}"
         topic_blocks.append((topic, blocks))
@@ -168,7 +168,7 @@ def get_topic(temp_model, topic_ids):
     for topic in topic_ids:
         words = temp_model.get_topic(topic)
         docs = temp_model.get_representative_docs()[topic]
-        docs = docs[:8]
+        docs = docs[:7]
         keywords = ', '.join([word for word, _ in words])
         doc_list = '\n'.join([f"- {doc}" for doc in docs])
         block = (
