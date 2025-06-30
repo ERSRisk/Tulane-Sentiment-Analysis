@@ -93,8 +93,7 @@ else:
             try:
                 response = client.models.generate_content(
                     model="gemini-2.0-flash",
-                    contents=[{"role": "user", "parts": [prompt]}],
-                )
+                    contents=prompt
                 output_text = response.candidates[0].content.parts[0].text
                 new_names = json.loads(output_text)
                 topic_name_pairs.extend(zip([tid for (tid, _) in chunk], new_names))
