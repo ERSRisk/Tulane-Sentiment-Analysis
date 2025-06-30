@@ -81,7 +81,7 @@ else:
 
     
 
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY_X")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY_NEWS")
 client = genai.Client(api_key=GEMINI_API_KEY)
 df['Topic'] = pd.NA
 df['Probability'] = pd.NA
