@@ -70,7 +70,7 @@ else:
     df.to_csv('Model_training/BERTopic_results.csv', index=False)
     GEMINI_API_KEY = os.getenv("GEMINI_API_KEY_NEWS")
     client = genai.Client(api_key=GEMINI_API_KEY)
-    chunk_size = 3
+    chunk_size = 1
     topic_name_pairs = []
     
     for i in range(0, len(topic_blocks), chunk_size):
@@ -180,7 +180,7 @@ def get_topic(temp_model, topic_ids):
         topic_blocks.append((topic, block))
 
     # Chunk your topic blocks (e.g., 5 topics per call)
-    chunk_size = 3
+    chunk_size = 1
     topic_name_pairs = []
 
     for i in range(0, len(topic_blocks), chunk_size):
