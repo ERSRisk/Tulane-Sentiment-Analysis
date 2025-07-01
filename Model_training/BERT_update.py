@@ -62,7 +62,15 @@ else:
         random.shuffle(docs)
         docs = docs[:4]
         keywords = ', '.join([word for word, _ in words])
-        blocks = f"Topic {topic}: Keywords: {keywords}. Representative Documents: {docs[0]} | {docs[1]}"
+        def first_n_words(text, n=300):
+            words = text.split()
+            if len(words) <= n:
+                return text
+            else:
+                return ' '.join(words[:n]) + '...'
+
+        docs_clean = [first_n_words(doc, 300) for doc in docs[:4]]
+        blocks = f"Topic {topic}: Keywords: {keywords}. Representative Documents: {docs_clean[0]} | {docs_clean[1]}"
         topic_blocks.append((topic, blocks))
 
 
