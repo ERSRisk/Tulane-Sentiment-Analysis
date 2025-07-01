@@ -44,7 +44,7 @@ jobs:
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
-          git pull --rebase origin main
-          git add Online_Extraction/*.json all_RSS.json  # Explicitly add all you want tracked
+          git add Online_Extraction/*.json all_RSS.json  # Add your generated files
           git commit -m "Auto-update extracted JSON files" || echo "Nothing to commit"
+          git pull --rebase origin main
           git push
