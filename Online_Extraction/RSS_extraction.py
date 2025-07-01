@@ -254,7 +254,7 @@ def create_feeds(rss_feed):
     return feeds
 
 def load_existing_articles():
-    if os.path.exists('all_RSS.json'):
+    if os.path.exists('Online_Extraction/all_RSS.json'):
         with open('Online_Extraction/all_RSS.json', 'r', encoding = 'utf-8') as f:
             return json.load(f)
     return []
@@ -263,12 +263,18 @@ def save_new_articles(existing_articles, new_articles):
     existing_urls = {article['Link'] for article in existing_articles}
     unique_new_articles = [article for article in new_articles if article['Link'] not in existing_urls]
     
+    print(f"Existing articles: {len(existing_articles)}")
+    print(f"New unique articles: {len(unique_new_articles)}")
+    
     if unique_new_articles:
         updated_articles = existing_articles + unique_new_articles
-        with open('all_RSS.json', 'w', encoding='utf-8') as f:
+        with open('Online_Extraction/all_RSS.json', 'w', encoding='utf-8') as f:
             json.dump(updated_articles, f, indent=4)
+        print(f"Saved {len(updated_articles)} articles.")
         return unique_new_articles
-    return
+    else:
+        print("No new unique articles found.")
+    return []
 
 def fetch_content(article_url):
     try:
