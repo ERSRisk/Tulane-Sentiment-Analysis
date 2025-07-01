@@ -76,7 +76,7 @@ else:
 
     topic_model.save('Model_training/BERTopic_model')
     df.to_csv('Model_training/BERTopic_results.csv', index=False)
-    GEMINI_API_KEY = os.getenv("GEMINI_API_KEY_NEWS")
+    GEMINI_API_KEY = os.getenv("GEMINI_API_KEY_X")
     client = genai.Client(api_key=GEMINI_API_KEY)
     chunk_size = 1
     topic_name_pairs = []
@@ -124,7 +124,7 @@ else:
 
     
 
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY_NEWS")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY_X")
 client = genai.Client(api_key=GEMINI_API_KEY)
 df['Topic'] = pd.NA
 df['Probability'] = pd.NA
