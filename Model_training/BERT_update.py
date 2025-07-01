@@ -60,7 +60,7 @@ else:
         words = topic_model.get_topic(topic)
         docs = topic_model.get_representative_docs()[topic]
         random.shuffle(docs)
-        docs = docs[:5]
+        docs = docs[:4]
         keywords = ', '.join([word for word, _ in words])
         blocks = f"Topic {topic}: Keywords: {keywords}. Representative Documents: {docs[0]} | {docs[1]}"
         topic_blocks.append((topic, blocks))
