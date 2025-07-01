@@ -12,7 +12,7 @@ import sys
 import subprocess
 
 NEWS_API_KEY = os.getenv("NEWS_API_KEY")
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY_NEWS")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY_X")
 GEMINI_API_KEY_X = os.getenv("GEMINI_API_KEY_X_2")
 X_API_KEY = os.getenv("X_API_KEY")
 COOKIE_HEADER = os.getenv("COOKIE_HEADER")
