@@ -101,7 +101,8 @@ else:
             max_attempts = 5
             for attempt in range(1, max_attempts + 1):
                 try:
-                    response = client.models.generate_content(...)
+                    response = client.models.generate_content(model="gemini-2.0-flash",
+                    contents=[prompt])
                     break  # success!
                 except APIError as e:
                     if "quota" in str(e).lower():
@@ -203,7 +204,7 @@ def get_topic(temp_model, topic_ids):
             try:
                 response = client.models.generate_content(
                     model="gemini-2.0-flash",
-                    contents=prompt,
+                    contents=[prompt],
                 )
                 break  # Success
             except APIError as e:
