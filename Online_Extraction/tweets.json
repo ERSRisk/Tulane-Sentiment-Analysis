@@ -2538,5 +2538,85 @@
     "summary": "The tweet highlights a positive aspect of student life at Tulane School of Medicine, focusing on student well-being and community building, which aligns with 'Student Success' and 'Community Relations'.",
     "is_sport": 0,
     "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-01T23:55:23+00:00",
+    "text": "RT @UTulsaFacts: The University of Tulsa's endowment per student is higher than SMU, Tulane and countless other respected private colleges.…",
+    "link": "https://twitter.com/None/status/1940197573748478435",
+    "description": "A retweet comparing the University of Tulsa's endowment per student to Tulane's.",
+    "sentiment": 0.0,
+    "summary": "Neutral sentiment; it's a factual comparison without expressing positive or negative judgment about Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-01T23:42:49+00:00",
+    "text": "@tulane_504 @BetterKoli18462 @DailyNoahNews @GuntherEagleman You know what? When all you do is look for that sort of thing, of course you can find examples. Nothing is ever perfect.  But have we tried to fix our midtakes? Yes. And we did.\nAre there more to fix. Sure. There are many other countries that still use women like cattle.",
+    "link": "https://twitter.com/None/status/1940194412958773398",
+    "description": "A response defending Tulane against criticism, acknowledging past mistakes but highlighting improvements and the imperfections of other nations.",
+    "sentiment": 0.2,
+    "summary": "Neutral to slightly positive.While acknowledging flaws, the response is defensive and attempts to portray progress.No specific negative keywords heavily impact the sentiment.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-01T22:04:30+00:00",
+    "text": "@tulane_504 @Batman4evRon @DailyNoahNews @GuntherEagleman Notice how he says \"you would all\" instead of \"we would all\". These people are the same ones that listened to Father Coughlin and belonged to Lindbergh's America First Committee.",
+    "link": "https://twitter.com/None/status/1940169670415573448",
+    "description": "A tweet criticizing unnamed individuals, referencing historical figures.",
+    "sentiment": -0.2,
+    "summary": "Slightly negative sentiment. The tweet uses Tulane's Twitter handle but doesn't directly discuss the university. The negative sentiment stems from the criticism of historical figures.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-01T21:45:57+00:00",
+    "text": "RT @Tulane: Starting Sunday, March 15, 2026, Family Day at the @NOLAbookfest at Tulane will offer a full day of free, kid-friendly programm…",
+    "link": "https://twitter.com/None/status/1940165000351678891",
+    "description": "Tweet announcing Family Day at the New Orleans Book Festival at Tulane.",
+    "sentiment": 0.5,
+    "summary": "Positive sentiment due to the announcement of a family-friendly event at Tulane, showcasing the university's community engagement.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-01T21:33:35+00:00",
+    "text": "@lesleyabravanel Graffiti was seen in a men's bathroom at Tulane back in the day: \n\"Vote for Nixon in '72, don't switch Dicks in the middle of a screw.\"",
+    "link": "https://twitter.com/None/status/1940161890451152948",
+    "description": "Tweet about anti-Nixon graffiti found in a Tulane men's bathroom.",
+    "sentiment": -0.2,
+    "summary": "Slightly negative due to the mention of graffiti, though not directly related to current Tulane activities or reputation.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-01T20:37:52+00:00",
+    "text": "@tulane_504 @bennyjohnson It’s a bot genius",
+    "link": "https://twitter.com/None/status/1940147869421601210",
+    "description": "Labels a tweet as coming from a bot.",
+    "sentiment": -0.1,
+    "summary": "Slightly negative sentiment.The tweet expresses a negative view of a certain account (which may be affiliated with Tulane), suggesting it is automated.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-01T20:10:07+00:00",
+    "text": "@MekhaelMario @HRSonline @HeartRhythmTV @TulaneMedicine @Tulane @TulaneTriad @nmarrouche @HanFengGHD Fascinating findings—do you think this could lead to a shift in stroke risk stratification beyond just AF classification?",
+    "link": "https://twitter.com/None/status/1940140884609142893",
+    "description": "Discussion of research findings related to stroke risk stratification, potentially involving researchers from Tulane Medicine.",
+    "sentiment": 0.9,
+    "summary": "Very positive sentiment; showcases positive research output from Tulane Medicine, contributing to its academic reputation.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-01T20:03:06+00:00",
+    "text": "RT @UTulsaFacts: The University of Tulsa's endowment per student is higher than SMU, Tulane and countless other respected private colleges.…",
+    "link": "https://twitter.com/None/status/1940139119616971043",
+    "description": "The University of Tulsa boasts a higher endowment per student than Tulane.",
+    "sentiment": -0.3,
+    "summary": "Negative sentiment; Tulane is mentioned in a comparison where it is less favorably positioned.",
+    "is_sport": 0,
+    "affiliation": 1
   }
 ]
