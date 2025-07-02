@@ -113,7 +113,7 @@ def analyze_sentiment_X(formatted_tweet_block, search, retries=5):
             Tweets:
             {formatted_tweet_block}
             """
-    models = ["gemini-1.5-pro", "gemini-2.5-pro-preview-05-06", 'gemini-2.0-flash']
+    models = ["gemini-1.5-flash", "gemini-2.5-pro-preview-05-06", 'gemini-2.0-flash']
     for attempt in range(retries): 
         for model in models:
             try:
