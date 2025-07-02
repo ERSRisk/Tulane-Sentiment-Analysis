@@ -101,7 +101,7 @@ else:
             max_attempts = 5
             for attempt in range(1, max_attempts + 1):
                 try:
-                    response = client.models.generate_content(model="gemini-2.0-flash",
+                    response = client.models.generate_content(model="gemini-1.5-flash",
                     contents=[prompt])
                     break  # success!
                 except APIError as e:
@@ -204,7 +204,7 @@ def get_topic(temp_model, topic_ids):
         for attempt in range(max_attempts):
             try:
                 response = client.models.generate_content(
-                    model="gemini-2.0-flash",
+                    model="gemini-1.5-flash",
                     contents=[prompt],
                 )
                 break  # Success
