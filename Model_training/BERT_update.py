@@ -107,6 +107,7 @@ else:
                 except APIError as e:
                     if "quota" in str(e).lower():
                         print(f"❌ Quota exhausted. Giving up after {attempt} attempt(s).")
+                        print(e)
                         break
                     else:
                         print(f"⚠️ API error: {e}. Retrying {attempt}/{max_attempts}...")
