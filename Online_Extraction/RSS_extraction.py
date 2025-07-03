@@ -129,7 +129,7 @@ rss_feed =   {"RSS_Feeds":[{"IMF": ["https://www.imf.org/en/Publications/RSS?lan
                      "https://reliefweb.int/disasters/rss.xml"],
         "GDeltProject": ["http://data.gdeltproject.org/gdeltv3/gal/feed.rss"],
         
-                            ],
+                           }],
               "RSS_URLs":[{"AP News":["http://associated-press.s3-website-us-east-1.amazonaws.com/business.xml",
                                      "http://associated-press.s3-website-us-east-1.amazonaws.com/climate-and-environment.xml",
                                      "http://associated-press.s3-website-us-east-1.amazonaws.com/health.xml",
