@@ -2618,5 +2618,65 @@
     "summary": "Negative sentiment; Tulane is mentioned in a comparison where it is less favorably positioned.",
     "is_sport": 0,
     "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-02T23:50:16+00:00",
+    "text": "Good job with first amendment protection @thefire. Louisiana #highered is a hotbed for A1 violations. @Tulane drops charges against students involved in off-campus protest https://t.co/KMmpXygxN8 @chronicle @insidehighered @AAUP #lalege",
+    "link": "https://twitter.com/None/status/1940558674709434789",
+    "description": "A tweet praising Tulane for dropping charges against students involved in an off-campus protest, referencing the First Amendment.",
+    "sentiment": 0.8,
+    "summary": "Positive sentiment as it highlights Tulane's respect for free speech and protection of student rights.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-02T23:40:07+00:00",
+    "text": "College Tulane West Point Virginia Tech, Dartmouth, C of C, Clemson, Carolina Coker educations. It shakes out pretty damn pathetic, a d you turn around and steal all of the investments that your family couldn't and didn't bother to take the time to. Your all pathetic Murderers",
+    "link": "https://twitter.com/None/status/1940556119845621821",
+    "description": "A negative tweet referencing several universities, including Tulane, and accusing them of stealing investments.",
+    "sentiment": -0.8,
+    "summary": "Negative sentiment due to serious accusations of theft and the use of inflammatory language.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-02T22:47:46+00:00",
+    "text": "@MeganHeartwood @Marxon1134x @Holycrusa Fair\nTulane is very ugly about it",
+    "link": "https://twitter.com/None/status/1940542945503203590",
+    "description": "Criticizes Tulane's handling of a situation, calling it 'very ugly.'",
+    "sentiment": -0.7,
+    "summary": "Negative sentiment due to the direct criticism of Tulane's actions and the use of the negative term 'very ugly,' indicating disapproval and potentially damaging the university's image.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-02T22:23:28+00:00",
+    "text": "@VanceNate @BreakingNews4X 😯\nThis looks like Richardson architecture. I've been in at least two of his buildings at Tulane University - and the old library at \"Lee Circle\".",
+    "link": "https://twitter.com/None/status/1940536832464506959",
+    "description": "Commenting on architecture, mentioning Richardson's buildings at Tulane University.",
+    "sentiment": 0.4,
+    "summary": "Positive sentiment. The tweet associates Tulane with recognizable architecture.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-02T21:59:05+00:00",
+    "text": "@heckintulane Congrats Tulane",
+    "link": "https://twitter.com/None/status/1940530693949607992",
+    "description": "Congratulates Tulane.",
+    "sentiment": 0.7,
+    "summary": "Positive sentiment.A direct congratulatory message towards Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-02T18:36:02+00:00",
+    "text": "@rcardinal124 You need some Jewish friends, don't you go to Tulane",
+    "link": "https://twitter.com/None/status/1940479594358046756",
+    "description": "A tweet suggesting someone needs Jewish friends and mentioning they go to Tulane.",
+    "sentiment": -0.2,
+    "summary": "Slightly negative sentiment due to the implied connection between lacking Jewish friends and attending Tulane. It could be construed as a subtle negative stereotype.",
+    "is_sport": 0,
+    "affiliation": 1
   }
 ]
