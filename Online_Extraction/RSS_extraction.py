@@ -18,7 +18,9 @@ import pickle
 import trafilatura
 import os
 
-rss_feed =   {"CDC":["http://wwwnc.cdc.gov/eid/rss/ahead-of-print.xml"],
+rss_feed =   {"RSS_Feeds":[{"IMF": ["https://www.imf.org/en/Publications/RSS?language=eng"],
+              "Bureau of Economic Analysis":["https://apps.bea.gov/rss/rss.xml?_gl=1*f107ux*_ga*OTI3ODA4ODM3LjE3NTE1NTI2MTY.*_ga_J4698JNNFT*czE3NTE1NTI2MTUkbzEkZzEkdDE3NTE1NTI2NDMkajMyJGwwJGgw"],
+              "CDC":["http://wwwnc.cdc.gov/eid/rss/ahead-of-print.xml"],
               "The Advocate": ["https://www.theadvocate.com/search/?q=&t=article&l=35&d=&d1=&d2=&s=start_time&sd=desc&c%5b%20%5d=new_orleans/news*,baton_rouge/news/politics/legislature,baton_rouge/news/politics,new_orleans/opinion*,baton_rouge/opinion/stephanie_grace,baton_rouge/opinion/jeff_sadow,ba%20ton_rouge/opinion/mark_ballard,new_orleans/sports*,baton_rouge/sports/lsu&nk=%23tncen&f=rss",
                         "https://www.theadvocate.com/search/?q=&t=article&l=35&d=&d1=&d2=&s=start_time&sd=desc&c%5b%5d=new_orleans/news/business&nk=%20%23tncen&f=rss",
                         "https://www.theadvocate.com/search/?q=&t=article&l=35&d=&d1=&d2=&s=start_time&sd=desc&c%5b%5d=new_orleans/news/communities*&nk=%20%23tncen&f=rss"],
@@ -108,11 +110,35 @@ rss_feed =   {"CDC":["http://wwwnc.cdc.gov/eid/rss/ahead-of-print.xml"],
         "Huffington Post": ["https://chaski.huffpost.com/us/auto/vertical/us-news",
                             "https://chaski.huffpost.com/us/auto/vertical/health"],
         "Business Insider": "https://feeds.businessinsider.com/custom/all",
-        "Reuters": "https://ir.thomsonreuters.com/rss/news-releases.xml?items=15",
+        "Reuters": "https://ir.thomsonreuters.com/rss/news-releases.xml?items=20",
         "Economist": ["https://www.economist.com/finance-and-economics/rss.xml",
 "https://www.economist.com/business/rss.xml",
 "https://www.economist.com/united-states/rss.xml",
-"https://www.economist.com/science-and-technology/rss.xml"]
+"https://www.economist.com/science-and-technology/rss.xml"],
+        "Bloomberg": ["https://feeds.bloomberg.com/markets/news.rss",
+                     "https://feeds.bloomberg.com/politics/news.rss",
+                     "https://feeds.bloomberg.com/economics/news.rss",
+                     "https://feeds.bloomberg.com/industries/news.rss",
+                     "https://feeds.bloomberg.com/business/news.rss"],
+        "BBC": ["https://feeds.bbci.co.uk/news/world/rss.xml",
+               "https://feeds.bbci.co.uk/news/science_and_environment/rss.xml",
+               "https://feeds.bbci.co.uk/news/technology/rss.xml"],
+        "BioRxiv": ["https://connect.biorxiv.org/biorxiv_xml.php?subject=all"],
+        "ReliefWeb": ["https://reliefweb.int/updates/rss.xml?view=headlines",
+                     "https://reliefweb.int/updates/rss.xml",
+                     "https://reliefweb.int/disasters/rss.xml"],
+        "GDeltProject": ["http://data.gdeltproject.org/gdeltv3/gal/feed.rss"],
+        
+                            ],
+              "RSS_URLs":[{"AP News":["http://associated-press.s3-website-us-east-1.amazonaws.com/business.xml",
+                                     "http://associated-press.s3-website-us-east-1.amazonaws.com/climate-and-environment.xml",
+                                     "http://associated-press.s3-website-us-east-1.amazonaws.com/health.xml",
+                                     "http://associated-press.s3-website-us-east-1.amazonaws.com/politics.xml",
+                                     "http://associated-press.s3-website-us-east-1.amazonaws.com/science.xml",
+                                     "http://associated-press.s3-website-us-east-1.amazonaws.com/technology.xml",
+                                     "http://associated-press.s3-website-us-east-1.amazonaws.com/us-news.xml",
+                                     "http://associated-press.s3-website-us-east-1.amazonaws.com/world-news.xml"]]
+                           
         }
 
 paywalled = ['Economist']
@@ -246,12 +272,14 @@ keywords = [k.lower() for k in keywords]
 
 def create_feeds(rss_feed):
     feeds = []
-    for name, urls in rss_feed.items():
-        if isinstance(urls, str):
-            feeds.append({"source": name, "url": urls})
-        else:
-            for url in urls:
-                feeds.append({"source": name, "url": url})
+    for group_name, group_list in rss_feed.items():
+      for group in group_list:
+        for name, urls in group.items():
+            if isinstance(urls, str):
+                feeds.append({"source": name, "url": urls, "group": group_name})
+            else:
+                for url in urls:
+                    feeds.append({"source": name, "url": url, "group": group_name})
     return feeds
 
 def load_existing_articles():
