@@ -137,7 +137,7 @@ rss_feed =   {"RSS_Feeds":[{"IMF": ["https://www.imf.org/en/Publications/RSS?lan
                                      "http://associated-press.s3-website-us-east-1.amazonaws.com/science.xml",
                                      "http://associated-press.s3-website-us-east-1.amazonaws.com/technology.xml",
                                      "http://associated-press.s3-website-us-east-1.amazonaws.com/us-news.xml",
-                                     "http://associated-press.s3-website-us-east-1.amazonaws.com/world-news.xml"]]
+                                     "http://associated-press.s3-website-us-east-1.amazonaws.com/world-news.xml"]}]
                            
         }
 
