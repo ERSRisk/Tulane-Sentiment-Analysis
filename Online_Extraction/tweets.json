@@ -2678,5 +2678,65 @@
     "summary": "Slightly negative sentiment due to the implied connection between lacking Jewish friends and attending Tulane. It could be construed as a subtle negative stereotype.",
     "is_sport": 0,
     "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-03T22:51:36+00:00",
+    "text": "@LisaDNews @SpeakerJohnson Revolting Tulane Graduate School.",
+    "link": "https://twitter.com/None/status/1940906298176045204",
+    "description": "Tweet expressing negative sentiment towards Tulane Graduate School.",
+    "sentiment": -0.8,
+    "summary": "Negative sentiment due to strongly worded disapproval of Tulane Graduate School.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-03T22:24:50+00:00",
+    "text": "@nizzaneela Context 3\nProblematic involvement of 🇺🇸company Metabiota* at the Lass/Ebola lab at Kenema General Hospital; cooperation degenerating to conflict with Tulane University researchers.\n\n*yes, that Metabiota\nhttps://t.co/N0tcpBuZtz https://t.co/NtmltYA7Kw",
+    "link": "https://twitter.com/None/status/1940899563910713611",
+    "description": "Discusses the problematic involvement of Metabiota with the Lass/Ebola lab at Kenema General Hospital and a conflict with Tulane University researchers.",
+    "sentiment": 0.0,
+    "summary": "Neutral sentiment. While the tweet mentions a conflict, it doesn't explicitly frame Tulane in a positive or negative light. The focus is on Metabiota's involvement and the resulting conflict.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-03T22:03:06+00:00",
+    "text": "RT @Tulane: Starting Sunday, March 15, 2026, Family Day at the @NOLAbookfest at Tulane will offer a full day of free, kid-friendly programm…",
+    "link": "https://twitter.com/None/status/1940894092822827228",
+    "description": "Retweet about Tulane hosting Family Day at the New Orleans Book Festival.",
+    "sentiment": 0.7,
+    "summary": "Positive sentiment. Promotes a positive community event hosted by Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-03T22:02:53+00:00",
+    "text": "RT @Tulane: Nearly 20 years after Hurricane Katrina, a new report from Tulane’s @CowenInstitute reveals how far New Orleans’ charter-based…",
+    "link": "https://twitter.com/None/status/1940894038938603998",
+    "description": "Retweet about a Tulane Cowen Institute report on New Orleans' charter-based school system after Hurricane Katrina.",
+    "sentiment": 0.8,
+    "summary": "Positive sentiment. Highlights Tulane's research contributions to understanding the impact of Hurricane Katrina on education.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-03T20:57:41+00:00",
+    "text": "Yes it was! From Tulane’s School of Public Health and Tropical Medicine. \n\nI cant mentor anybody girl. I got recruited almost 7 years ago for my career. Ive never known anything else really except the summer before I started it. I also had different priorities. https://t.co/j9JaWQI6gp",
+    "link": "https://twitter.com/None/status/1940877628908753229",
+    "description": "Reply confirming affiliation with Tulane's School of Public Health and Tropical Medicine and declining a mentorship request.",
+    "sentiment": 0.8,
+    "summary": "Positive sentiment as it highlights an affiliation with a specific school within Tulane and is neutral in the declining of mentorship.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-03T20:52:02+00:00",
+    "text": "@tulane_504 They’ll find a way to blame Biden",
+    "link": "https://twitter.com/None/status/1940876207815586236",
+    "description": "Tweet directed at a Tulane-related account expressing cynicism about blaming Biden.",
+    "sentiment": -0.2,
+    "summary": "Slightly negative sentiment due to the cynical tone and the implied negative association with Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
   }
 ]
