@@ -2888,5 +2888,75 @@
     "summary": "Slightly positive. Offers an explanation about the complexities of university budgeting, which could alleviate some concerns about resource allocation. While it doesn't explicitly praise Tulane, it provides context that frames the university's actions in a more neutral or slightly positive light.",
     "is_sport": 0,
     "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-05T22:49:17+00:00",
+    "text": "@MdBreathe Want to know where the next Mengele, Pernkopf or Ishii will come from? Wonder no more. It will be institutions like the Tulane School of Medicine and Princeton University. We'll have homegrown monsters whose medical ethics are purely situational while touting their 5 Star reviews",
+    "link": "https://twitter.com/None/status/1941630490093420904",
+    "description": "Negative comparison of Tulane School of Medicine to infamous figures.",
+    "sentiment": -1.0,
+    "summary": "Extremely negative sentiment.Compares Tulane to individuals known for unethical medical practices, referencing 'medical ethics' and 'monsters'.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-05T21:20:51+00:00",
+    "text": "The tingle I feel inside when I imagine Rolin adapting anything from the Tulane Archive 😍",
+    "link": "https://twitter.com/None/status/1941608238115430590",
+    "description": "Expresses excitement about Rolin adapting something from the Tulane Archive.",
+    "sentiment": 0.8,
+    "summary": "Positive sentiment due to expressed excitement and interest in Tulane's archive. This is a recognition of the academic or research value of the university, hence the positive sentiment.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-05T18:14:52+00:00",
+    "text": "@JasonCorriher @TransferPortal_ @AZATHLETICS @DavidHarrisAD @JanaWoodson @TulaneAthletics @Tulane YES!!!!!! Welcome back home Jason!!!",
+    "link": "https://twitter.com/None/status/1941561432711233572",
+    "description": "Tweet welcoming Jason back home, mentioning Tulane Athletics.",
+    "sentiment": 0.7,
+    "summary": "Positive sentiment due to welcoming someone back and mentioning Tulane Athletics in a positive light.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-05T17:41:00+00:00",
+    "text": "@JasonCorriher Congrats, welcome back to Tulane!",
+    "link": "https://twitter.com/None/status/1941552909592023154",
+    "description": "Congratulatory tweet welcoming someone back to Tulane.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment; a welcoming message suggests a positive association with Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-05T17:30:25+00:00",
+    "text": "@TheLeoTerrell He is such an embarrassment for Tulane University.",
+    "link": "https://twitter.com/None/status/1941550244413710527",
+    "description": "Negative comment about someone associated with Tulane University.",
+    "sentiment": -0.7,
+    "summary": "Negative sentiment due to the use of 'embarrassment,' indicating a negative view of someone connected to Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-05T17:15:35+00:00",
+    "text": "@JasonCorriher @TransferPortal_ @AZATHLETICS @DavidHarrisAD @JanaWoodson @TulaneAthletics @Tulane Heck yeah!! Roll Wave 🌊",
+    "link": "https://twitter.com/None/status/1941546514217828447",
+    "description": "Positive and enthusiastic tweet referencing Tulane.",
+    "sentiment": 1.0,
+    "summary": "Highly positive sentiment;enthusiastic support for Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-05T16:27:47+00:00",
+    "text": "RT @Tulane: Current TB tests often miss infections in people with HIV, but Tulane researchers developed a handheld, electricity-free device…",
+    "link": "https://twitter.com/None/status/1941534484828217772",
+    "description": "A retweet about Tulane researchers developing a device to detect TB infections in people with HIV.",
+    "sentiment": 1.0,
+    "summary": "Highly positive sentiment. Highlights a significant research achievement by Tulane researchers with potential positive impact on public health.",
+    "is_sport": 0,
+    "affiliation": 1
   }
 ]
