@@ -3,19 +3,25 @@ name: RSS Extraction
 on:
   schedule:
     - cron: '0 5 * * *'
-  workflow_dispatch:  
-  
+  workflow_dispatch:
+
 permissions:
   contents: write
+
 jobs:
   run-script:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
-        
+
       - name: Pull latest articles
         run: git pull origin main --rebase
+
+      - name: Download all_RSS.json from GitHub Release
+        run: |
+          curl -L -o Online_Extraction/all_RSS.json \
+          "https://github.com/ERSRisk/Tulane-Sentiment-Analysis/releases/download/rss_json/all_RSS.3.json"
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -30,8 +36,8 @@ jobs:
       - name: Install spaCy English model
         run: python -m spacy download en_core_web_sm
 
-      - name: Run script
-        env: 
+      - name: Run RSS extraction script
+        env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY_NEWS }}
           GEMINI_API_KEY_X: ${{ secrets.GEMINI_API_KEY_X }}
           NEWS_API_KEY: ${{ secrets.NEWS_API_KEY }}
@@ -40,11 +46,39 @@ jobs:
         run: |
           python Online_Extraction/RSS_extraction.py
 
-      - name: commit and push extracted JSON files
+      - name: Replace all_RSS.json asset in GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          release_id=$(curl -s -H "Authorization: token $GH_TOKEN" \
+            https://api.github.com/repos/ERSRisk/Tulane-Sentiment-Analysis/releases/tags/rss_json | jq -r '.id')
+          echo "Release ID: $release_id"
+
+          
+          asset_id=$(curl -s -H "Authorization: token $GH_TOKEN" \
+            https://api.github.com/repos/ERSRisk/Tulane-Sentiment-Analysis/releases/$release_id/assets | jq -r '.[] | select(.name=="all_RSS.3.json") | .id')
+          echo "Existing asset ID: $asset_id"
+
+          
+          if [ -n "$asset_id" ]; then
+            curl -X DELETE -H "Authorization: token $GH_TOKEN" \
+              https://api.github.com/repos/ERSRisk/Tulane-Sentiment-Analysis/releases/assets/$asset_id
+            echo "Deleted old asset."
+          else
+            echo "No existing asset to delete."
+          fi
+
+          
+          curl -H "Authorization: token $GH_TOKEN" \
+               -H "Content-Type: application/json" \
+               --data-binary @"Online_Extraction/all_RSS.json" \
+               "https://uploads.github.com/repos/ERSRisk/Tulane-Sentiment-Analysis/releases/$release_id/assets?name=all_RSS.3.json"
+
+      - name: Commit and push other extracted JSON files
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
-          git add Online_Extraction/*.json all_RSS.json  # Add your generated files
+          git add Online_Extraction/*.json
           git commit -m "Auto-update extracted JSON files" || echo "Nothing to commit"
           git pull --rebase origin main
           git push
