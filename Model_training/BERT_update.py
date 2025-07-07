@@ -92,6 +92,19 @@ print(f"✅ Prepared {len(topic_blocks)} topic blocks for Gemini.", flush=True)
 
 
 topic_model.save('Model_training/BERTopic_model', serialization = 'persistence')
+
+print("✅ Save function completed.")
+print("📁 Checking if model file exists...")
+
+if os.path.exists(model_path):
+    print("✔ Model file exists!")
+    print("📐 File size:", os.path.getsize(model_path))
+else:
+    print("❌ Model file does NOT exist after save.")
+    print("⚠️ Forcing model to be serializable...")
+    topic_model.embedding_model = None  # Strip problematic object
+    topic_model.save("Model_training/BERTopic_model", serialization="persistence")
+
 df.to_csv('Model_training/BERTopic_results.csv', index=False)
 print("✅ Model saved and results CSV written.", flush=True)
 #    GEMINI_API_KEY = os.getenv("PAID_API_KEY")
