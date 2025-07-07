@@ -37,6 +37,7 @@ jobs:
           NEWS_API_KEY: ${{ secrets.NEWS_API_KEY }}
           X_API_KEY: ${{ secrets.X_API_KEY }}
           COOKIE_HEADER: ${{ secrets.COOKIE_HEADER }}
+          PAID_API_KEY: ${{ secrets.PAID_API_KEY }}
         run: |
           python Model_training/BERT_update.py
           
