@@ -47,16 +47,8 @@ else:
 
     topic_model = bt.BERTopic(language = 'english', verbose = True)
     print(f"Transforming {len(df)} articles in batches...")
-    all_topics, all_probs = [], []
-    batch_size = 100  # or smaller
-    texts_list = df['Text'].tolist()
-    
-    for i in range(0, len(texts_list), batch_size):
-        batch = texts_list[i:i+batch_size]
-        topics, probs = topic_model.transform(batch)
-        all_topics.extend(topics)
-        all_probs.extend(probs)
-        print(f"✅ Transformed batch {i//batch_size + 1}/{(len(texts_list) // batch_size) + 1}")
+    print(f"Fitting and transforming {len(df)} articles...")
+    topics, probs = topic_model.fit_transform(df['Text'].tolist())
 
     df['Topic'] = topics
     df['Probability'] = probs
