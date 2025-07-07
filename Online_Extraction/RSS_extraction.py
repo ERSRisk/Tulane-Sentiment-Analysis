@@ -337,7 +337,14 @@ def get_available(entry, keys, default = None):
 
 final_articles = []
 async def fetch_article_content(url):
-    return await asyncio.to_thread(fetch_content, url)
+    try:
+        return await asyncio.wait_for(
+            asyncio.to_thread(fetch_content, url),
+            timeout=30
+        )
+    except asyncio.TimeoutError:
+        print(f"⚠️ Timeout fetching article: {url}")
+        return None
     
 nlp = spacy.load('en_core_web_sm')
 async def safe_feed_parse(text):
@@ -364,7 +371,14 @@ async def safe_feed_parse(text):
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE
         )
-        stdout, stderr = await proc.communicate(input=text.encode())
+        try:
+            stdout, stderr = await asyncio.wait_for(
+                proc.communicate(input=text.encode()), timeout=30
+            )
+        except asyncio.TimeoutError:
+            proc.kill()
+            print(f"Parser subprocess timed out for a feed!")
+            return None
 
         if proc.returncode != 0:
             print(f"Parser subprocess crashed: {stderr.decode()}")
@@ -383,7 +397,7 @@ async def process_feeds(feeds, session):
     for feed in feeds:
         name = feed["source"]
         url = feed["url"]   
-        print(f"Fetching feed from {name}, {url}")
+        print(f"✅ Processing feed {name} - {url}", flush=True)
         if '/video/' in url or '/podcast/' in url:
             print(f"Skipping video or podcast feed: {url}")
             continue
@@ -453,7 +467,7 @@ async def batch_process_feeds(feeds, batch_size = 15, concurrent_batches =5):
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
     }
     async with aiohttp.ClientSession(headers=headers) as session:
-        for i in range(0, len(feeds), concurrent_batches):
+        for i in range(0, len(batches), concurrent_batches):
             batch_group = batches[i:i + concurrent_batches]
             print(f"Processing batch {i // batch_size + 1} with {len(batches)} feeds")
             tasks = [asyncio.create_task(process_feeds(batch, session)) for batch in batch_group]
