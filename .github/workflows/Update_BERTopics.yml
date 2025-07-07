@@ -13,9 +13,7 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
-        with: 
-          lfs: True
-          
+
       - name: Pull latest articles
         run: git pull origin main --rebase
 
@@ -28,7 +26,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          
+          pip install jq
 
       - name: Run script
         env: 
@@ -40,18 +38,31 @@ jobs:
           PAID_API_KEY: ${{ secrets.PAID_API_KEY }}
         run: |
           python Model_training/BERT_update.py
-          
-      - name: Setup Git LFS
-        run: git lfs install
 
-      - name: Commit and push results
+      - name: Commit and push results (excluding model)
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add Model_training/BERTopic_results.csv
           git add Model_training/topics_BERT.json
-          git add Model_training/BERTopic_model
-          git commit -m "Update model and topic results from GitHub Actions run" || echo "No changes to commit"
+          git commit -m "Update topic results from GitHub Actions run" || echo "No changes to commit"
+          git pull --rebase origin main
           git push origin main
+
+      - name: Upload BERTopic model to existing release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          RELEASE_TAG="rss_json"
+          FILE_PATH="Model_training/BERTopic_model"
+          FILE_NAME="BERTopic_model"
+
+          echo "🔍 Getting release ID for tag: $RELEASE_TAG"
+          RELEASE_ID=$(curl -s -H "Authorization: token $GH_TOKEN" \
+            https://api.github.com/repos/ERSRisk/Tulane-Sentiment-Analysis/releases/tags/$RELEASE_TAG | jq -r '.id')
+
+          echo "⬆️ Uploading $FILE_NAME to release ID $RELEASE_ID..."
+          curl -s -X POST -H "Authorization: token $GH_TOKEN" \
+               -H "Content-Type: application/octet-stream" \
+               --data-binary @"$FILE_PATH" \
+               "https://uploads.github.com/repos/ERSRisk/Tulane-Sentiment-Analysis/releases/$RELEASE_ID/assets?name=$FILE_NAME"
