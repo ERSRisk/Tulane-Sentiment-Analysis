@@ -47,13 +47,17 @@ jobs:
           git commit -m "Update topic results from GitHub Actions run" || echo "No changes to commit"
           git pull --rebase origin main
           git push origin main
-
+      - name: Zip BERTopic model folder
+        run: |
+          cd Model_training
+          zip -r BERTopic_model.zip BERTopic_model
+          
       - name: Upload BERTopic model to existing release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           RELEASE_TAG="rss_json"
-          FILE_PATH="Model_training/BERTopic_model"
+          FILE_PATH="Model_training/BERTopic_model.zip"
           FILE_NAME="BERTopic_model"
 
           echo "🔍 Getting release ID for tag: $RELEASE_TAG"
