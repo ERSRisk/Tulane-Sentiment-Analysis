@@ -51,55 +51,49 @@ def save_to_json(topics, response):
     with open('topics_BERT.json', 'w') as f:
         json.dump(topic_dict, f, indent=4)
 
-if os.path.exists('Model_training/BERTopic_model'):
-    print("BERTopic model already exists. Loading the model.")
-    topic_model = bt.BERTopic.load('Model_training/BERTopic_model')
-    #give me the number of entries per topic
 
+topic_model = bt.BERTopic(language = 'english', verbose = True)
+print(f"🚀 Starting BERTopic fit_transform on {len(df)} articles...", flush=True)
+
+topics, probs = topic_model.fit_transform(df['Text'].tolist())
+
+print(f"✅ BERTopic fit_transform completed. {len(set(topics))} topics found.", flush=True)
+
+df['Topic'] = topics
+df['Probability'] = probs
+
+topic_blocks = []
+rep_docs = topic_model.get_representative_docs()
+topics = topic_model.get_topic_info()['Topic'].tolist()
+valid_topics = [t for t in topics if t in rep_docs]
+
+print(f"🔹 Preparing topic blocks for {len(valid_topics)} valid topics...", flush=True)
+
+for topic in valid_topics:
+    words = topic_model.get_topic(topic)
+    docs = topic_model.get_representative_docs()[topic]
+    print(f"🔸 Processing topic {topic} with {len(docs)} representative docs.", flush=True)
+    random.shuffle(docs)
+    docs = docs[:4]
+    keywords = ', '.join([word for word, _ in words])
     
-else:
-    topic_model = bt.BERTopic(language = 'english', verbose = True)
-    print(f"🚀 Starting BERTopic fit_transform on {len(df)} articles...", flush=True)
-    
-    topics, probs = topic_model.fit_transform(df['Text'].tolist())
-    
-    print(f"✅ BERTopic fit_transform completed. {len(set(topics))} topics found.", flush=True)
+    def first_n_words(text, n=300):
+        words = text.split()
+        if len(words) <= n:
+            return text
+        else:
+            return ' '.join(words[:n]) + '...'
 
-    df['Topic'] = topics
-    df['Probability'] = probs
+    docs_clean = [first_n_words(doc, 300) for doc in docs[:4]]
+    blocks = f"Topic {topic}: Keywords: {keywords}. Representative Documents: {docs_clean[0]} | {docs_clean[1]}"
+    topic_blocks.append((topic, blocks))
 
-    topic_blocks = []
-    rep_docs = topic_model.get_representative_docs()
-    topics = topic_model.get_topic_info()['Topic'].tolist()
-    valid_topics = [t for t in topics if t in rep_docs]
-
-    print(f"🔹 Preparing topic blocks for {len(valid_topics)} valid topics...", flush=True)
-
-    for topic in valid_topics:
-        words = topic_model.get_topic(topic)
-        docs = topic_model.get_representative_docs()[topic]
-        print(f"🔸 Processing topic {topic} with {len(docs)} representative docs.", flush=True)
-        random.shuffle(docs)
-        docs = docs[:4]
-        keywords = ', '.join([word for word, _ in words])
-        
-        def first_n_words(text, n=300):
-            words = text.split()
-            if len(words) <= n:
-                return text
-            else:
-                return ' '.join(words[:n]) + '...'
-
-        docs_clean = [first_n_words(doc, 300) for doc in docs[:4]]
-        blocks = f"Topic {topic}: Keywords: {keywords}. Representative Documents: {docs_clean[0]} | {docs_clean[1]}"
-        topic_blocks.append((topic, blocks))
-
-    print(f"✅ Prepared {len(topic_blocks)} topic blocks for Gemini.", flush=True)
+print(f"✅ Prepared {len(topic_blocks)} topic blocks for Gemini.", flush=True)
 
 
-    topic_model.save('Model_training/BERTopic_model', serialization = 'persistence')
-    df.to_csv('Model_training/BERTopic_results.csv', index=False)
-    print("✅ Model saved and results CSV written.", flush=True)
+topic_model.save('Model_training/BERTopic_model', serialization = 'persistence')
+df.to_csv('Model_training/BERTopic_results.csv', index=False)
+print("✅ Model saved and results CSV written.", flush=True)
 #    GEMINI_API_KEY = os.getenv("PAID_API_KEY")
  #   client = genai.Client(api_key=GEMINI_API_KEY)
   #  chunk_size = 1
