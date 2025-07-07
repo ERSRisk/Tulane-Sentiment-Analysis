@@ -11,4 +11,28 @@ on:
       - name: Download model from release
         run: |
           mkdir -p Model_training
-          curl -L -o Model_training/BERTopic_model
+          curl -L -o Model_training/BERTopic_model https://github.com/ERSRisk/Tulane-Sentiment-Analysis/releases/download/rss_json/BERTopic_model
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install bertopic
+
+      - name: Convert model
+        run: python Model_training/convert_model.py
+
+      - name: Zip model folder
+        run: cd Model_training && zip -r BERTopic_model_persisted.zip BERTopic_model_persisted
+
+      - name: Upload as release asset
+        uses: softprops/action-gh-release@v1
+        with: 
+          tag_name: rss_json
+          files: Model_training/BERTopic_model_persisted.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
