@@ -9,11 +9,23 @@ from sentence_transformers import SentenceTransformer, util
 import time
 import re
 from google.genai.errors import APIError
+import requests
 
+rss_url = "https://github.com/ERSRisk/Tulane-Sentiment-Analysis/releases/download/rss_json/all_RSS.3.json"
+rss_local_path = "Online_Extraction/all_RSS.json"
 
-with open('Online_Extraction/all_RSS.json', 'r', encoding = 'utf-8') as f:
+print(f"📥 Downloading all_RSS.json from release link...", flush=True)
+response = requests.get(rss_url)
+response.raise_for_status()
+
+with open(rss_local_path, "w", encoding="utf-8") as f:
+    f.write(response.text)
+
+print(f"✅ Downloaded and saved to {rss_local_path}", flush=True)
+
+# Now load it
+with open(rss_local_path, 'r', encoding = 'utf-8') as f:
     articles = json.load(f)
-df = pd.DataFrame(articles)
 
 def estimate_tokens(text):
     # Approx 4 chars per token (rough estimate for English, GPT-like models)
