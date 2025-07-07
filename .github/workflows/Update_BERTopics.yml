@@ -50,7 +50,7 @@ jobs:
       - name: Zip BERTopic model folder
         run: |
           cd Model_training
-          zip -r BERTopic_model.zip BERTopic_model
+          zip BERTopic_model.zip BERTopic_model
           
       - name: Upload BERTopic model to existing release
         env:
