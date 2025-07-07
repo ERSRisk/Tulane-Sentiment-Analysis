@@ -388,7 +388,7 @@ async def process_feeds(feeds, session):
             print(f"Skipping video or podcast feed: {url}")
             continue
         try:
-            async with session.get(url, timeout=aiohttp.ClientTimeout(total=150)) as response:
+            async with session.get(url, timeout=aiohttp.ClientTimeout(total=30)) as response:
                 text = await response.text()
                 if 'xml' not in response.headers.get('Content-Type', ''):
                     print(f"Skipping non-XML content: {url}")
@@ -464,7 +464,7 @@ async def batch_process_feeds(feeds, batch_size = 15, concurrent_batches =5):
 
 feeds = create_feeds(rss_feed)
 try:
-    all_articles = asyncio.run(batch_process_feeds(feeds, batch_size=5, concurrent_batches=1))
+    all_articles = asyncio.run(batch_process_feeds(feeds, batch_size=5, concurrent_batches=2))
 except Exception as e:
     print(f"Fatal error {e}") 
 existing_articles = load_existing_articles()
