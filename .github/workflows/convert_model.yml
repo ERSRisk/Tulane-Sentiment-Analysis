@@ -2,6 +2,9 @@ name: Convert BERTopic release model
 
 on:
   workflow_dispatch:
+
+jobs:
+  convert:
     runs-on: ubuntu-latest
 
     steps:
