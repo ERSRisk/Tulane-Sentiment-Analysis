@@ -86,14 +86,18 @@ else:
     topic_model.save('Model_training/BERTopic_model')
     df.to_csv('Model_training/BERTopic_results.csv', index=False)
     print("✅ Model saved and results CSV written.", flush=True)
-    GEMINI_API_KEY = os.getenv("PAID_API_KEY")
+    GEMINI_API_KEY = os.getenv("GEMINI_API_KEY_X")
     client = genai.Client(api_key=GEMINI_API_KEY)
     chunk_size = 1
     topic_name_pairs = []
     
     for i in range(0, len(topic_blocks), chunk_size):
         chunk = topic_blocks[i:i + chunk_size]
+        print(f"⚡ Building prompt chunk {i // chunk_size + 1}/{(len(topic_blocks) // chunk_size) + 1}", flush=True)
+    
         prompt_blocks = "\n\n".join([b for (_, b) in chunk])
+        print(f"⚡ Prompt_blocks built. Length: {len(prompt_blocks)} characters", flush=True)
+    
         prompt = (
             "You are helping in analyzing these topics given by BERTopic. Each topic includes keywords and two representative documents.\n"
             "Your task is to return a name for each specific topic based on the keywords and documents.\n"
@@ -101,9 +105,10 @@ else:
             "Here is the topics:\n\n" + prompt_blocks +
             "\n\nReturn your response as a JSON array of names, one per topic, in the same order."
         )
-    
-        tokens_estimate = estimate_tokens(prompt)
-        print(f"🔹 Sending prompt with approx {int(tokens_estimate)} tokens...")
+        print(f"⚡ Full prompt built. Length: {len(prompt)} characters", flush=True)
+
+    tokens_estimate = estimate_tokens(prompt)
+    print(f"🔹 Sending prompt with approx {int(tokens_estimate)} tokens...", flush=True)
         if tokens_estimate > 10000:
             print("⚠️ Prompt too large, consider lowering chunk_size!")
     
