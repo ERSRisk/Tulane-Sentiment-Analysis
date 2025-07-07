@@ -1,12 +1,12 @@
 name: Convert BERTopic release model
 
 on:
-  convert-model:
+  workflow_dispatch:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repo
-        uses: actiona/checkout@v3
+        uses: actions/checkout@v3
 
       - name: Download model from release
         run: |
