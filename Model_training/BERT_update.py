@@ -86,7 +86,7 @@ else:
     topic_model.save('Model_training/BERTopic_model')
     df.to_csv('Model_training/BERTopic_results.csv', index=False)
     print("✅ Model saved and results CSV written.", flush=True)
-    GEMINI_API_KEY = os.getenv("GEMINI_API_KEY_X")
+    GEMINI_API_KEY = os.getenv("PAID_API_KEY")
     client = genai.Client(api_key=GEMINI_API_KEY)
     chunk_size = 1
     topic_name_pairs = []
