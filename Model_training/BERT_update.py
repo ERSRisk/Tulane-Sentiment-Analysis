@@ -53,82 +53,17 @@ def save_to_json(topics, response):
 
 if os.path.exists('Model_training/BERTopic_model'):
     print("BERTopic model already exists. Loading the model.")
-    topic_model = bt.BERTopic.load('BERTopic_model')
-    GEMINI_API_KEY = "AIzaSyCRfgIp5p9BsKCJZOBI2KyGIsqpnFpTLxc"
-    client = genai.Client(api_key=GEMINI_API_KEY)
-    chunk_size = 1
-    topic_name_pairs = []
-    topics, probs = topic_model.fit_transform(df['Text'].tolist())
-
-    df['Topic'] = topics
-    df['Probability'] = probs
-
-    topic_blocks = []
-    rep_docs = topic_model.get_representative_docs()
-    topics = topic_model.get_topic_info()['Topic'].tolist()
-    valid_topics = [t for t in topics if t in rep_docs]
-    for i in range(0, len(topic_blocks), chunk_size):
-        chunk = topic_blocks[i:i + chunk_size]
-        prompt_blocks = "\n\n".join([b for (_, b) in chunk])
-        prompt = (
-            "You are helping in analyzing these topics given by BERTopic. Each topic includes keywords and two representative documents.\n"
-            "Your task is to return a name for each specific topic based on the keywords and documents.\n"
-            "An example topic can be 'Erosion of Human Rights'.\n"
-            "Here is the topics:\n\n" + prompt_blocks +
-            "\n\nReturn your response as a JSON array of names, one per topic, in the same order."
-        )
-    
-        tokens_estimate = estimate_tokens(prompt)
-        print(f"🔹 Sending prompt with approx {int(tokens_estimate)} tokens...")
-        if tokens_estimate > 10000:
-            print("⚠️ Prompt too large, consider lowering chunk_size!")
-    
-        while True:
-            try:
-                response = client.models.generate_content(
-                    model="gemini-1.5-flash",
-                    contents=[prompt])
-                output_text = response.candidates[0].content.parts[0].text
-                clean_text = re.sub(r"^```json\s*|\s*```$", "", output_text.strip(), flags=re.MULTILINE)
-                new_names = json.loads(clean_text)
-                topic_name_pairs.extend(zip([tid for (tid, _) in chunk], new_names))
-                print("✅ Chunk processed successfully.")
-                break  # Exit retry loop on success
-    
-            except APIError as e:
-                error_str = str(e)
-                if "RESOURCE_EXHAUSTED" in error_str or "quota" in error_str.lower():
-                    retry_delay = 60
-                    retry_match = re.search(r"'retryDelay': '(\d+)s'", error_str)
-                    if retry_match:
-                        retry_delay = int(retry_match.group(1))
-                    print(f"⚠️ Quota exceeded, retrying in {retry_delay}s...")
-                    time.sleep(retry_delay)
-                else:
-                    print(f"❌ Non-retryable API error: {e}. Will keep retrying anyway after 60s...")
-                    time.sleep(60)
-    
-            except Exception as e:
-                wait_time = random.uniform(1, 3)
-                print(f"⚠️ Unexpected error: {e}. Retrying in {wait_time:.2f} seconds...")
-                time.sleep(wait_time)
-    
-    # Save at the end
-    all_tids = [tid for (tid, _) in topic_name_pairs]
-    all_names = [name for (_, name) in topic_name_pairs]
-    save_to_json(topic_name_pairs)
-
-    
-
-
+    topic_model = bt.BERTopic.load('Model_training/BERTopic_model')
     #give me the number of entries per topic
 
     
 else:
-
     topic_model = bt.BERTopic(language = 'english', verbose = True)
-
+    print(f"🚀 Starting BERTopic fit_transform on {len(df)} articles...", flush=True)
+    
     topics, probs = topic_model.fit_transform(df['Text'].tolist())
+    
+    print(f"✅ BERTopic fit_transform completed. {len(set(topics))} topics found.", flush=True)
 
     df['Topic'] = topics
     df['Probability'] = probs
@@ -137,12 +72,17 @@ else:
     rep_docs = topic_model.get_representative_docs()
     topics = topic_model.get_topic_info()['Topic'].tolist()
     valid_topics = [t for t in topics if t in rep_docs]
+
+    print(f"🔹 Preparing topic blocks for {len(valid_topics)} valid topics...", flush=True)
+
     for topic in valid_topics:
         words = topic_model.get_topic(topic)
         docs = topic_model.get_representative_docs()[topic]
+        print(f"🔸 Processing topic {topic} with {len(docs)} representative docs.", flush=True)
         random.shuffle(docs)
         docs = docs[:4]
         keywords = ', '.join([word for word, _ in words])
+        
         def first_n_words(text, n=300):
             words = text.split()
             if len(words) <= n:
@@ -150,69 +90,16 @@ else:
             else:
                 return ' '.join(words[:n]) + '...'
 
-        docs_clean = [first_n_words(doc, 100) for doc in docs[:4]]
+        docs_clean = [first_n_words(doc, 300) for doc in docs[:4]]
         blocks = f"Topic {topic}: Keywords: {keywords}. Representative Documents: {docs_clean[0]} | {docs_clean[1]}"
         topic_blocks.append((topic, blocks))
 
+    print(f"✅ Prepared {len(topic_blocks)} topic blocks for Gemini.", flush=True)
 
-    topic_model.save('Model_training/BERTopic_model', serialization = 'persistence')
+
+    topic_model.save('Model_training/BERTopic_model')
     df.to_csv('Model_training/BERTopic_results.csv', index=False)
-    GEMINI_API_KEY = "AIzaSyCRfgIp5p9BsKCJZOBI2KyGIsqpnFpTLxc"
-    client = genai.Client(api_key=GEMINI_API_KEY)
-    chunk_size = 1
-    topic_name_pairs = []
-    
-    for i in range(0, len(topic_blocks), chunk_size):
-        chunk = topic_blocks[i:i + chunk_size]
-        prompt_blocks = "\n\n".join([b for (_, b) in chunk])
-        prompt = (
-            "You are helping in analyzing these topics given by BERTopic. Each topic includes keywords and two representative documents.\n"
-            "Your task is to return a name for each specific topic based on the keywords and documents.\n"
-            "An example topic can be 'Erosion of Human Rights'.\n"
-            "Here is the topics:\n\n" + prompt_blocks +
-            "\n\nReturn your response as a JSON array of names, one per topic, in the same order."
-        )
-    
-        tokens_estimate = estimate_tokens(prompt)
-        print(f"🔹 Sending prompt with approx {int(tokens_estimate)} tokens...")
-        if tokens_estimate > 10000:
-            print("⚠️ Prompt too large, consider lowering chunk_size!")
-    
-        while True:
-            try:
-                response = client.models.generate_content(
-                    model="gemini-1.5-flash",
-                    contents=[prompt])
-                output_text = response.candidates[0].content.parts[0].text
-                clean_text = re.sub(r"^```json\s*|\s*```$", "", output_text.strip(), flags=re.MULTILINE)
-                new_names = json.loads(clean_text)
-                topic_name_pairs.extend(zip([tid for (tid, _) in chunk], new_names))
-                print("✅ Chunk processed successfully.")
-                break  # Exit retry loop on success
-    
-            except APIError as e:
-                error_str = str(e)
-                if "RESOURCE_EXHAUSTED" in error_str or "quota" in error_str.lower():
-                    retry_delay = 60
-                    retry_match = re.search(r"'retryDelay': '(\d+)s'", error_str)
-                    if retry_match:
-                        retry_delay = int(retry_match.group(1))
-                    print(f"⚠️ Quota exceeded, retrying in {retry_delay}s...")
-                    time.sleep(retry_delay)
-                else:
-                    print(f"❌ Non-retryable API error: {e}. Will keep retrying anyway after 60s...")
-                    time.sleep(60)
-    
-            except Exception as e:
-                wait_time = random.uniform(1, 3)
-                print(f"⚠️ Unexpected error: {e}. Retrying in {wait_time:.2f} seconds...")
-                time.sleep(wait_time)
-    
-    # Save at the end
-    all_tids = [tid for (tid, _) in topic_name_pairs]
-    all_names = [name for (_, name) in topic_name_pairs]
-    save_to_json(all_tids, all_names)
-#    GEMINI_API_KEY = os.getenv("PAID_API_KEY")
+    print("✅ Model saved and results CSV written.", flush=True)#    GEMINI_API_KEY = os.getenv("PAID_API_KEY")
  #   client = genai.Client(api_key=GEMINI_API_KEY)
   #  chunk_size = 1
    # topic_name_pairs = []
