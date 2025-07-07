@@ -3008,5 +3008,25 @@
     "summary": "Positive sentiment due to association with academic study at Tulane.",
     "is_sport": 0,
     "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-06T20:12:41+00:00",
+    "text": "@TheEvstrodome I’m either going back to App State or going to Tulane",
+    "link": "https://twitter.com/None/status/1941953469230793163",
+    "description": "A user considering transferring to either Appalachian State or Tulane.",
+    "sentiment": 0.2,
+    "summary": "Slightly positive sentiment as Tulane is being considered as a potential school.This shows some level of interest in the university.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-06T19:55:44+00:00",
+    "text": "@ImmaculateView Based on the AAC inaction in bringing in TXST and keeping PAC-12 to have a foothold closer to Tulane &amp; Memphis, I say they are prey.",
+    "link": "https://twitter.com/None/status/1941949205012001259",
+    "description": "A tweet speculating about the AAC's vulnerability based on their inaction regarding Texas State and the Pac-12's position relative to Tulane and Memphis.",
+    "sentiment": -0.2,
+    "summary": "Slightly negative sentiment as it discusses potential vulnerability and uses the term \"prey\" in relation to the conference Tulane is a part of.This could be perceived as negative regarding Tulane's conference affiliation.",
+    "is_sport": 0,
+    "affiliation": 1
   }
 ]
