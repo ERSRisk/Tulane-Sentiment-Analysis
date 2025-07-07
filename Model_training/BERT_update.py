@@ -27,6 +27,8 @@ print(f"✅ Downloaded and saved to {rss_local_path}", flush=True)
 with open(rss_local_path, 'r', encoding = 'utf-8') as f:
     articles = json.load(f)
 
+df = pd.DataFrame(articles)
+
 def estimate_tokens(text):
     # Approx 4 chars per token (rough estimate for English, GPT-like models)
     return len(text) / 4
