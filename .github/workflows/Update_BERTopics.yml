@@ -1,5 +1,7 @@
 name: Update BERT
 
+on:
+  workflow_dispatch:
 
   
 permissions:
