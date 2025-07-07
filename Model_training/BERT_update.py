@@ -46,8 +46,17 @@ if os.path.exists('Model_training/BERTopic_model'):
 else:
 
     topic_model = bt.BERTopic(language = 'english', verbose = True)
-
-    topics, probs = topic_model.fit_transform(df['Text'].tolist())
+    print(f"Transforming {len(df)} articles in batches...")
+    all_topics, all_probs = [], []
+    batch_size = 100  # or smaller
+    texts_list = df['Text'].tolist()
+    
+    for i in range(0, len(texts_list), batch_size):
+        batch = texts_list[i:i+batch_size]
+        topics, probs = topic_model.transform(batch)
+        all_topics.extend(topics)
+        all_probs.extend(probs)
+        print(f"✅ Transformed batch {i//batch_size + 1}/{(len(texts_list) // batch_size) + 1}")
 
     df['Topic'] = topics
     df['Probability'] = probs
@@ -136,9 +145,19 @@ df = pd.concat([df, bert_art], ignore_index=True)
 df = df.drop_duplicates(subset=['Title', 'Content'], keep='last')
 
 def transform_text(texts):
-    topics, probs = topic_model.transform(texts['Text'].tolist())
-    texts['Topic'] = topics
-    texts['Probability'] = probs
+    print(f"Transforming {len(df)} articles in batches...")
+    all_topics, all_probs = [], []
+    batch_size = 100  # or smaller
+    texts_list = df['Text'].tolist()
+    
+    for i in range(0, len(texts_list), batch_size):
+        batch = texts_list[i:i+batch_size]
+        topics, probs = topic_model.transform(batch)
+        all_topics.extend(topics)
+        all_probs.extend(probs)
+        print(f"✅ Transformed batch {i//batch_size + 1}/{(len(texts_list) // batch_size) + 1}")
+    texts['Topic'] = all_topics
+    texts['Probability'] = all_probs
     return texts
 
 def save_new_topics(existing_df, new_df):
