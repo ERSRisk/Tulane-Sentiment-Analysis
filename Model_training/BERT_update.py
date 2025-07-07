@@ -96,9 +96,9 @@ topic_model.save('Model_training/BERTopic_model', serialization = 'persistence')
 print("✅ Save function completed.")
 print("📁 Checking if model file exists...")
 
-if os.path.exists(model_path):
+if os.path.exists('Model_training/BERTopic_model'):
     print("✔ Model file exists!")
-    print("📐 File size:", os.path.getsize(model_path))
+    print("📐 File size:", os.path.getsize('Model_training/BERTopic_model'))
 else:
     print("❌ Model file does NOT exist after save.")
     print("⚠️ Forcing model to be serializable...")
