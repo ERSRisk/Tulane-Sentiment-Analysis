@@ -1,0 +1,14 @@
+name: Convert BERTopic release model
+
+on:
+  convert-model:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actiona/checkout@v3
+
+      - name: Download model from release
+        run: |
+          mkdir -p Model_training
+          curl -L -o Model_training/BERTopic_model
