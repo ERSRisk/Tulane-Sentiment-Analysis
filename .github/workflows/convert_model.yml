@@ -30,11 +30,18 @@ jobs:
         run: python Model_training/convert_model.py
 
       - name: Zip model folder
-        run: cd Model_training && zip -r BERTopic_model_persisted.zip BERTopic_model_persisted
+        run: |
+          cd Model_training
+          if [ -d "BERTopic_model_persisted" ]; then
+            zip -r BERTopic_model_persisted.zip BERTopic_model_persisted
+          else
+            echo "❌ Folder BERTopic_model_persisted not found!"
+            exit 1
+          fi
 
       - name: Upload as release asset
         uses: softprops/action-gh-release@v1
-        with: 
+        with:
           tag_name: rss_json
           files: Model_training/BERTopic_model_persisted.zip
         env:
