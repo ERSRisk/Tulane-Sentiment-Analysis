@@ -47,9 +47,10 @@ jobs:
           git commit -m "Update topic results from GitHub Actions run" || echo "No changes to commit"
           git pull --rebase origin main
           git push origin main
-      - name: Zip BERTopic model folder
+      - name: Zip BERTopic model file
         run: |
           cd Model_training
+          ls -lah  # <-- show contents to verify!
           zip BERTopic_model.zip BERTopic_model
           
       - name: Upload BERTopic model to existing release
