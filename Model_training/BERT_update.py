@@ -107,8 +107,8 @@ else:
         )
         print(f"⚡ Full prompt built. Length: {len(prompt)} characters", flush=True)
 
-    tokens_estimate = estimate_tokens(prompt)
-    print(f"🔹 Sending prompt with approx {int(tokens_estimate)} tokens...", flush=True)
+        tokens_estimate = estimate_tokens(prompt)
+        print(f"🔹 Sending prompt with approx {int(tokens_estimate)} tokens...", flush=True)
         if tokens_estimate > 10000:
             print("⚠️ Prompt too large, consider lowering chunk_size!")
     
