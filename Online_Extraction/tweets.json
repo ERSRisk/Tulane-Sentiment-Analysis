@@ -2958,5 +2958,55 @@
     "summary": "Highly positive sentiment. Highlights a significant research achievement by Tulane researchers with potential positive impact on public health.",
     "is_sport": 0,
     "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-06T22:33:25+00:00",
+    "text": "@tulane_504 @ToriatheistTori How in any way is that PROOF? \nYou and can say “Tulane Greenwave is a pedophile” but without definite proof it doesn’t mean you’re a pedophile.",
+    "link": "https://twitter.com/None/status/1941988886663610503",
+    "description": "Tweet discussing the need for proof related to an allegation against Tulane Greenwave.",
+    "sentiment": -0.8,
+    "summary": "Negative sentiment due to the mention of serious, unproven allegations against Tulane, impacting its reputation. Keywords like 'allegations' and potential legal/compliance issues are relevant.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-06T21:59:54+00:00",
+    "text": "@johncanzanobft If Tulane/Memphis were to join Pac12 as football only, where would there Olympics plays? Also, do you see a possibility of Big East/Pac12 working together for challenge and maybe even allowing for Memphis/Tulane/USF to join as Olympics and Pac for football? Then UConn could join",
+    "link": "https://twitter.com/None/status/1941980450034950424",
+    "description": "Mentions Frank Tipler, a late physicist at Tulane, and his claim to be able to prove the existence of God and resurrection.",
+    "sentiment": 0.5,
+    "summary": "Neutral to slightly positive sentiment.While mentioning a deceased Tulane professor and his theological work, it doesn't directly relate to the provided keywords for negative sentiment.It's a somewhat positive reflection on a Tulane faculty member's notable, albeit controversial, work.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-06T21:36:46+00:00",
+    "text": "RT @TULNrecruiting: Tulane’s stadium entrance in the new @EASPORTSCollege ‘26 game\n\n🌊🏈🏟️🔥 https://t.co/PH0YgYpv7T",
+    "link": "https://twitter.com/None/status/1941974629083382127",
+    "description": "Tweet mentioning Tulane University in relation to universities and programs, possibly in a list or directory.",
+    "sentiment": 0.5,
+    "summary": "Neutral sentiment. Simply mentioning Tulane University doesn't inherently convey positive or negative sentiment without further context.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-06T20:54:47+00:00",
+    "text": "Universidades y Programas: Tulane University https://t.co/QPfO8I5z6G",
+    "link": "https://twitter.com/None/status/1941964062830612892",
+    "description": "A tweet sharing a link to Tulane University's programs.",
+    "sentiment": 0.7,
+    "summary": "Positive sentiment due to sharing information about Tulane's academic programs.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-06T19:35:18+00:00",
+    "text": "@SauberManC24 I’m not an academically trained Egyptologist nor have I ever claimed to be. \n\nHowever, I have studied Middle Egyptian privately under Dr. Melinda Nelson-Hurst, a PhD Egyptologist and professor at Tulane University.\n\nMy book was co-signed by Dr. El Sayed Hegazy, who discovered the",
+    "link": "https://twitter.com/None/status/1941944060295700953",
+    "description": "Tweet mentions studying Middle Egyptian under a professor at Tulane University.",
+    "sentiment": 0.7,
+    "summary": "Positive sentiment due to association with academic study at Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
   }
 ]
