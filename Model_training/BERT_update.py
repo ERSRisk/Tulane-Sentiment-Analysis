@@ -78,7 +78,7 @@ topic_blocks = []
 if model_path.exists() or download_model_if_exists():
     print("Loading existing BERTopic model from disk...")
     model_loaded = True
-    GEMINI_API_KEY = os.getenv("GEMINI_API_KEY_NEWS")
+    GEMINI_API_KEY = os.getenv("PAID_API_KEY")
     client = genai.Client(api_key=GEMINI_API_KEY)
     topic_model = joblib.load(model_path)
 
@@ -194,7 +194,7 @@ else:
 
     
 
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY_NEWS")
+GEMINI_API_KEY = os.getenv("PAID_API_KEY")
 client = genai.Client(api_key=GEMINI_API_KEY)
 df['Topic'] = pd.NA
 df['Probability'] = pd.NA
