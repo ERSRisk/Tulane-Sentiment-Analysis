@@ -10,9 +10,14 @@ import time
 import re
 from google.genai.errors import APIError
 import requests
+from pathlib import Path
+import joblib
 
 rss_url = "https://github.com/ERSRisk/Tulane-Sentiment-Analysis/releases/download/rss_json/all_RSS.3.json"
 rss_local_path = "Online_Extraction/all_RSS.json"
+
+model_url = "https://github.com/ERSRisk/Tulane-Sentiment-Analysis/releases/download/rss_json/BERTopic_model"
+model_path = Path("Model_training/BERTopic_model")
 
 print(f"📥 Downloading all_RSS.json from release link...", flush=True)
 response = requests.get(rss_url)
@@ -29,6 +34,23 @@ with open(rss_local_path, 'r', encoding = 'utf-8') as f:
 
 df = pd.DataFrame(articles)
 
+def download_model_if_exists():
+    try:
+        print("📦 Checking for model in GitHub release...", flush=True)
+        response = requests.get(model_url, stream=True)
+        if response.status_code == 200:
+            with open(model_path, 'wb') as f:
+                for chunk in response.iter_content(chunk_size=8192):
+                    f.write(chunk)
+            print("✅ Model downloaded successfully.")
+            return True
+        else:
+            print(f"⚠️ Model not found at {model_url}. Status: {response.status_code}")
+            return False
+    except Exception as e:
+        print(f"❌ Error while downloading model: {e}")
+        return False
+        
 def estimate_tokens(text):
     # Approx 4 chars per token (rough estimate for English, GPT-like models)
     return len(text) / 4
@@ -51,20 +73,90 @@ def save_to_json(topics, response):
     with open('topics_BERT.json', 'w') as f:
         json.dump(topic_dict, f, indent=4)
 
-if os.path.exists('Model_training/BERTopic_model'):
-    print("BERTopic model already exists. Loading the model.")
-    topic_model = bt.BERTopic.load('Model_training/BERTopic_model')
-    #give me the number of entries per topic
+topic_blocks = []
 
+if model_path.exists() or download_model_if_exists():
+    print("Loading existing BERTopic model from disk...")
+    model_loaded = True
+    GEMINI_API_KEY = os.getenv("GEMINI_API_KEY_NEWS")
+    client = genai.Client(api_key=GEMINI_API_KEY)
+    topic_model = joblib.load(model_path)
+
+    # Rebuild topic_blocks from existing model
+    rep_docs = topic_model.get_representative_docs()
+    topics = topic_model.get_topic_info()['Topic'].tolist()
+    valid_topics = [t for t in topics if t in rep_docs]
+
+    for topic in valid_topics:
+        words = topic_model.get_topic(topic)
+        docs = topic_model.get_representative_docs()[topic]
+        random.shuffle(docs)
+        docs = docs[:4]
+        keywords = ', '.join([word for word, _ in words])
+
+        def first_n_words(text, n=300):
+            words = text.split()
+            return text if len(words) <= n else ' '.join(words[:n]) + '...'
+
+        docs_clean = [first_n_words(doc, 300) for doc in docs]
+        blocks = f"Topic {topic}: Keywords: {keywords}. Representative Documents: {docs_clean[0]} | {docs_clean[1]}"
+        topic_blocks.append((topic, blocks))
+    chunk_size = 1
+    topic_name_pairs = []
     
+    for i in range(0, len(topic_blocks), chunk_size):
+        chunk = topic_blocks[i:i + chunk_size]
+        print(f"⚡ Building prompt chunk {i // chunk_size + 1}/{(len(topic_blocks) // chunk_size) + 1}", flush=True)
+    
+        prompt_blocks = "\n\n".join([b for (_, b) in chunk])
+        print(f"⚡ Prompt_blocks built. Length: {len(prompt_blocks)} characters", flush=True)
+
+        prompt = (
+            "You are helping in analyzing these topics given by BERTopic. Each topic includes keywords and two representative documents.\n"
+            "Your task is to return a name for each specific topic based on the keywords and documents.\n"
+            "An example topic can be 'Erosion of Human Rights'.\n"
+            "Here is the topics:\n\n" + prompt_blocks +
+            "\n\nReturn your response as a JSON array of names, one per topic, in the same order."
+        )
+        print(f"⚡ Full prompt built. Length: {len(prompt)} characters", flush=True)
+
+        tokens_estimate = estimate_tokens(prompt)
+        print(f"🔹 Sending prompt with approx {int(tokens_estimate)} tokens...", flush=True)
+        if tokens_estimate > 10000:
+            print("⚠️ Prompt too large, consider lowering chunk_size!")
+    
+        while True:
+            max_attempts = 5
+            for attempt in range(1, max_attempts + 1):
+                try:
+                    response = client.models.generate_content(model="gemini-1.5-flash",
+                    contents=[prompt])
+                    break  # success!
+                except APIError as e:
+                    if "quota" in str(e).lower():
+                        print(f"❌ Quota exhausted. Giving up after {attempt} attempt(s).")
+                        print(e)
+                        break
+                    else:
+                        print(f"⚠️ API error: {e}. Retrying {attempt}/{max_attempts}...")
+                        time.sleep(60)
+                except Exception as e:
+                    print(f"⚠️ Unexpected error: {e}. Retrying {attempt}/{max_attempts}...")
+                    time.sleep(2 ** attempt)
+            else:
+                print("❌ All attempts failed.")
+    
+    # Save at the end
+    all_tids = [tid for (tid, _) in topic_name_pairs]
+    all_names = [name for (_, name) in topic_name_pairs]
+    save_to_json(all_tids, all_names)
+
 else:
-    topic_model = bt.BERTopic(language = 'english', verbose = True)
-    print(f"🚀 Starting BERTopic fit_transform on {len(df)} articles...", flush=True)
-    
+    print("Training new BERTopic model from scratch...", flush=True)
+    topic_model = bt.BERTopic(language='english', verbose=True)
     topics, probs = topic_model.fit_transform(df['Text'].tolist())
-    
-    print(f"✅ BERTopic fit_transform completed. {len(set(topics))} topics found.", flush=True)
 
+    print(f"✅ BERTopic fit_transform completed. {len(set(topics))} topics found.", flush=True)
     df['Topic'] = topics
     df['Probability'] = probs
 
@@ -74,94 +166,43 @@ else:
     valid_topics = [t for t in topics if t in rep_docs]
 
     print(f"🔹 Preparing topic blocks for {len(valid_topics)} valid topics...", flush=True)
-
     for topic in valid_topics:
         words = topic_model.get_topic(topic)
         docs = topic_model.get_representative_docs()[topic]
-        print(f"🔸 Processing topic {topic} with {len(docs)} representative docs.", flush=True)
         random.shuffle(docs)
         docs = docs[:4]
         keywords = ', '.join([word for word, _ in words])
-        
+
         def first_n_words(text, n=300):
             words = text.split()
-            if len(words) <= n:
-                return text
-            else:
-                return ' '.join(words[:n]) + '...'
+            return text if len(words) <= n else ' '.join(words[:n]) + '...'
 
-        docs_clean = [first_n_words(doc, 300) for doc in docs[:4]]
+        docs_clean = [first_n_words(doc, 300) for doc in docs]
         blocks = f"Topic {topic}: Keywords: {keywords}. Representative Documents: {docs_clean[0]} | {docs_clean[1]}"
         topic_blocks.append((topic, blocks))
 
     print(f"✅ Prepared {len(topic_blocks)} topic blocks for Gemini.", flush=True)
 
-
-    topic_model.save('Model_training/BERTopic_model')
+    # Save model and results
+    model_path.parent.mkdir(exist_ok=True, parents=True)
+    joblib.dump(topic_model, model_path)
     df.to_csv('Model_training/BERTopic_results.csv', index=False)
-    print("✅ Model saved and results CSV written.", flush=True)#    GEMINI_API_KEY = os.getenv("PAID_API_KEY")
- #   client = genai.Client(api_key=GEMINI_API_KEY)
-  #  chunk_size = 1
-   # topic_name_pairs = []
-    
-#    for i in range(0, len(topic_blocks), chunk_size):
- #       chunk = topic_blocks[i:i + chunk_size]
-  #      print(f"⚡ Building prompt chunk {i // chunk_size + 1}/{(len(topic_blocks) // chunk_size) + 1}", flush=True)
-    
-   #     prompt_blocks = "\n\n".join([b for (_, b) in chunk])
-    #    print(f"⚡ Prompt_blocks built. Length: {len(prompt_blocks)} characters", flush=True)
-    
-     #   prompt = (
-      #      "You are helping in analyzing these topics given by BERTopic. Each topic includes keywords and two representative documents.\n"
-       #     "Your task is to return a name for each specific topic based on the keywords and documents.\n"
-        #    "An example topic can be 'Erosion of Human Rights'.\n"
-         #   "Here is the topics:\n\n" + prompt_blocks +
-          #  "\n\nReturn your response as a JSON array of names, one per topic, in the same order."
-#        )
- #       print(f"⚡ Full prompt built. Length: {len(prompt)} characters", flush=True)
-#
- #       tokens_estimate = estimate_tokens(prompt)
-  #      print(f"🔹 Sending prompt with approx {int(tokens_estimate)} tokens...", flush=True)
-   #     if tokens_estimate > 10000:
-    #        print("⚠️ Prompt too large, consider lowering chunk_size!")
-    #
-     #   while True:
-      #      max_attempts = 5
-       #     for attempt in range(1, max_attempts + 1):
-        #        try:
-         #           response = client.models.generate_content(model="gemini-1.5-flash",
-          #          contents=[prompt])
-           #         break  # success!
-            #    except APIError as e:
-             #       if "quota" in str(e).lower():
-              #          print(f"❌ Quota exhausted. Giving up after {attempt} attempt(s).")
-               #         print(e)
-                #        break
-                 #   else:
-                  #      print(f"⚠️ API error: {e}. Retrying {attempt}/{max_attempts}...")
-                   #     time.sleep(60)
-#                except Exception as e:
- #                   print(f"⚠️ Unexpected error: {e}. Retrying {attempt}/{max_attempts}...")
-  #                  time.sleep(2 ** attempt)
-   #         else:
-    #            print("❌ All attempts failed.")
-    #
-    # Save at the end
-#    all_tids = [tid for (tid, _) in topic_name_pairs]
- #   all_names = [name for (_, name) in topic_name_pairs]
-  #  save_to_json(all_tids, all_names)
-#
+    print("✅ Model saved as .joblib and CSV written.", flush=True)
+
     
 
-#GEMINI_API_KEY = os.getenv("PAID_API_KEY")
-#client = genai.Client(api_key=GEMINI_API_KEY)
-#df['Topic'] = pd.NA
-#df['Probability'] = pd.NA
 
-#bert_art = pd.read_csv('Model_training/BERTopic_results.csv', encoding='utf-8')
+    
 
-#df = pd.concat([df, bert_art], ignore_index=True)
-#df = df.drop_duplicates(subset=['Title', 'Content'], keep='last')
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY_NEWS")
+client = genai.Client(api_key=GEMINI_API_KEY)
+df['Topic'] = pd.NA
+df['Probability'] = pd.NA
+
+bert_art = pd.read_csv('Model_training/BERTopic_results.csv', encoding='utf-8')
+
+df = pd.concat([df, bert_art], ignore_index=True)
+df = df.drop_duplicates(subset=['Title', 'Content'], keep='last')
 
 def transform_text(texts):
     print(f"Transforming {len(df)} articles in batches...")
@@ -401,29 +442,29 @@ def track_over_time(df):
 
     
 #Assign topics and probabilities to new_df
-#print("✅ Starting transform_text on new data...", flush=True)
-#new_df = transform_text(df)
+print("✅ Starting transform_text on new data...", flush=True)
+new_df = transform_text(df)
 #Fill missing topic/probability rows in the original df
-#mask = (df['Topic'].isna()) | (df['Probability'].isna())
-#df.loc[mask, ['Topic', 'Probability']] = new_df[['Topic', 'Probability']]
+mask = (df['Topic'].isna()) | (df['Probability'].isna())
+df.loc[mask, ['Topic', 'Probability']] = new_df[['Topic', 'Probability']]
 #Save only new, non-duplicate rows
-#print("✅ Saving new topics to CSV...", flush=True)
-#save_new_topics(df, new_df)
+print("✅ Saving new topics to CSV...", flush=True)
+save_new_topics(df, new_df)
 
 #Double-check if there are still unmatched (-1) topics and assign a temporary model to assign topics to them
-#print("✅ Running double-check for unmatched topics (-1)...", flush=True)
-#new_articles, topic_ids = double_check_articles(new_df)
+print("✅ Running double-check for unmatched topics (-1)...", flush=True)
+new_articles, topic_ids = double_check_articles(new_df)
 
 #If there are unmatched topics, name them using Gemini
-#print("✅ Checking for unmatched topics to name using Gemini...", flush=True)
-#if new_articles:
-#    topic_name_pairs = get_topic(new_articles, topic_ids)
-#    #atch or append named topics into saved JSON files
-#    existing_risks_json(topic_name_pairs, new_articles)
+print("✅ Checking for unmatched topics to name using Gemini...", flush=True)
+if new_articles:
+    topic_name_pairs = get_topic(new_articles, topic_ids)
+    #atch or append named topics into saved JSON files
+    existing_risks_json(topic_name_pairs, new_articles)
 
 #Assign weights to each article
-#print("✅ Applying risk_weights...", flush=True)
-#df = risk_weights(df)
-#df.to_csv('Model_training/BERTopic_results.csv', index =False)
+print("✅ Applying risk_weights...", flush=True)
+df = risk_weights(df)
+df.to_csv('Model_training/BERTopic_results.csv', index =False)
 #Show the articles over time
-#track_over_time(df)
+track_over_time(df)
