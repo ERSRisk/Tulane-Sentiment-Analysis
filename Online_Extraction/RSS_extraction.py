@@ -18,7 +18,17 @@ import pickle
 import trafilatura
 import os
 
-rss_feed =   {"RSS_Feeds":[{"IMF": ["https://www.imf.org/en/Publications/RSS?language=eng"],
+rss_feed =   {"RSS_Feeds":[{
+              "WHO": ["https://www.who.int/rss-feeds/news-english.xml"],
+              "NIH": ["https://grants.nih.gov/news-events/nih-extramural-nexus-news/rss-feed"],
+              "NOAA": ["noaa.gov/rss.xml"],
+              "FEMA": ["https://www.fema.gov/feeds/news.rss", "https://www.fema.gov/feeds/disasters-major.rss", "https://www.fema.gov/feeds/disasters-fire.rss"],
+              "NASA": ["https://www.nasa.gov/news-release/feed/"],
+  "CISA": ["https://www.cisa.gov/news.xml"],
+  "National Institute of Standards and Technology": ["https://www.nist.gov/news-events/news/rss.xml"],
+  "National Center for Education Statistics": ["https://nces.ed.gov/whatsnew/whatsnew_rss.asp"],
+  "Centers for Medicare & Medicaid Services":["https://www.cms.gov/newsroom/rss-feeds"],
+  "IMF": ["https://www.imf.org/en/Publications/RSS?language=eng"],
               "Bureau of Economic Analysis":["https://apps.bea.gov/rss/rss.xml?_gl=1*f107ux*_ga*OTI3ODA4ODM3LjE3NTE1NTI2MTY.*_ga_J4698JNNFT*czE3NTE1NTI2MTUkbzEkZzEkdDE3NTE1NTI2NDMkajMyJGwwJGgw"],
               "CDC":["http://wwwnc.cdc.gov/eid/rss/ahead-of-print.xml"],
               "The Advocate": ["https://www.theadvocate.com/search/?q=&t=article&l=35&d=&d1=&d2=&s=start_time&sd=desc&c%5b%20%5d=new_orleans/news*,baton_rouge/news/politics/legislature,baton_rouge/news/politics,new_orleans/opinion*,baton_rouge/opinion/stephanie_grace,baton_rouge/opinion/jeff_sadow,ba%20ton_rouge/opinion/mark_ballard,new_orleans/sports*,baton_rouge/sports/lsu&nk=%23tncen&f=rss",
