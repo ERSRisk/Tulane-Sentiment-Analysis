@@ -47,20 +47,24 @@ jobs:
           git pull --rebase origin main
           git push origin main
 
-      - name: Upload BERTopic model to existing release
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          RELEASE_TAG="rss_json"
-          FILE_PATH="Model_training/BERTopic_model"
-          FILE_NAME="BERTopic_model"
+     - name: Zip JSON-based BERTopic model
+       run: |
+        cd Model_training
+        zip -r BERTopic_model.zip BERTopic_model
 
-          echo "🔍 Getting release ID for tag: $RELEASE_TAG"
-          RELEASE_ID=$(curl -s -H "Authorization: token $GH_TOKEN" \
-            https://api.github.com/repos/ERSRisk/Tulane-Sentiment-Analysis/releases/tags/$RELEASE_TAG | jq -r '.id')
+     - name: Upload model ZIP to GitHub release    
+       env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+       run: |
+        RELEASE_TAG="rss_json"
+        FILE_PATH="Model_training/BERTopic_model.zip"
+        FILE_NAME="BERTopic_model.zip"
 
-          echo "⬆️ Uploading $FILE_NAME to release ID $RELEASE_ID..."
-          curl -s -X POST -H "Authorization: token $GH_TOKEN" \
-               -H "Content-Type: application/octet-stream" \
-               --data-binary @"$FILE_PATH" \
-               "https://uploads.github.com/repos/ERSRisk/Tulane-Sentiment-Analysis/releases/$RELEASE_ID/assets?name=$FILE_NAME"
+        RELEASE_ID=$(curl -s -H "Authorization: token $GH_TOKEN" \
+          https://api.github.com/repos/ERSRisk/Tulane-Sentiment-Analysis/releases/tags/$RELEASE_TAG | jq -r '.id')
+    
+        echo "⬆️ Uploading $FILE_NAME to release ID $RELEASE_ID..."
+        curl -s -X POST -H "Authorization: token $GH_TOKEN" \
+             -H "Content-Type: application/zip" \
+             --data-binary @"$FILE_PATH" \
+             "https://uploads.github.com/repos/ERSRisk/Tulane-Sentiment-Analysis/releases/$RELEASE_ID/assets?name=$FILE_NAME"
