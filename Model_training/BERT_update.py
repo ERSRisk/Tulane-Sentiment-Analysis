@@ -129,8 +129,10 @@ if model_path.exists() or download_model_if_exists():
             max_attempts = 5
             for attempt in range(1, max_attempts + 1):
                 try:
-                    response = client.models.generate_content(model="gemini-2.5-flash",
-                    contents=[prompt])
+                    model = client.get_model("models/gemini-1.5-flash")
+                    response = model.generate_content([
+                        {"role": "user", "parts": [prompt]}
+                    ])
                     break  # success!
                 except APIError as e:
                     if "quota" in str(e).lower():
@@ -284,10 +286,10 @@ def get_topic(temp_model, topic_ids):
         max_attempts = 5
         for attempt in range(max_attempts):
             try:
-                response = client.models.generate_content(
-                    model="gemini-2.5-flash",
-                    contents=[prompt],
-                )
+                model = client.get_model("models/gemini-1.5-flash")
+                response = model.generate_content([
+                    {"role": "user", "parts": [prompt]}
+                ])
                 break  # Success
             except APIError as e:
                 error_str = str(e)
