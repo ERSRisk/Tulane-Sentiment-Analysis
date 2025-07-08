@@ -52,7 +52,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           RELEASE_TAG="rss_json"
-          FILE_PATH="Model_training/BERTopic_model.zip"
+          FILE_PATH="Model_training/BERTopic_model"
           FILE_NAME="BERTopic_model"
       
           RELEASE_ID=$(curl -s -H "Authorization: token $GH_TOKEN" \
