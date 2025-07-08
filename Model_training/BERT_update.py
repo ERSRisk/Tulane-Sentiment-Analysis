@@ -101,7 +101,7 @@ if model_path.exists() or download_model_if_exists():
         docs_clean = [first_n_words(doc, 300) for doc in docs]
         blocks = f"Topic {topic}: Keywords: {keywords}. Representative Documents: {docs_clean[0]} | {docs_clean[1]}"
         topic_blocks.append((topic, blocks))
-    chunk_size = 1
+    chunk_size = 5
     topic_name_pairs = []
     
     for i in range(0, len(topic_blocks), chunk_size):
@@ -129,7 +129,7 @@ if model_path.exists() or download_model_if_exists():
             max_attempts = 5
             for attempt in range(1, max_attempts + 1):
                 try:
-                    response = client.models.generate_content(model="gemini-1.5-flash",
+                    response = client.models.generate_content(model="gemini-2.5-flash",
                     contents=[prompt])
                     break  # success!
                 except APIError as e:
@@ -260,7 +260,7 @@ def get_topic(temp_model, topic_ids):
         topic_blocks.append((topic, block))
 
     # Chunk your topic blocks (e.g., 5 topics per call)
-    chunk_size = 1
+    chunk_size = 5
     topic_name_pairs = []
     print(f"✅ Starting Gemini API calls on {len(topic_blocks)} topics...", flush=True)
     for i in range(0, len(topic_blocks), chunk_size):
@@ -285,7 +285,7 @@ def get_topic(temp_model, topic_ids):
         for attempt in range(max_attempts):
             try:
                 response = client.models.generate_content(
-                    model="gemini-1.5-flash",
+                    model="gemini-2.5-flash",
                     contents=[prompt],
                 )
                 break  # Success
