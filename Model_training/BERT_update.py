@@ -57,8 +57,7 @@ def estimate_tokens(text):
 
 df = df[~(df['Source']=="Economist")]
 df['Text'] = df['Title'] + '. ' + df['Content']
-def save_to_json(topics, response):
-    names = response.candidates[0].content.parts[0].text.strip().split('\n')
+def save_to_json(topics, topic_names):
     topic_dict = []
 
     for i, topic in enumerate(topics):
@@ -66,7 +65,7 @@ def save_to_json(topics, response):
         keywords = ', '.join([word for word, _ in topic_model.get_topic(topic)])
         topic_dict.append({
             "topic": topic,
-            "name": names[i] if i < len(names) else f"Topic {topic}",
+            "name": topic_names[i] if i < len(topic_names) else f"Topic {topic}",
             "keywords": keywords,
             "documents": docs
         })
