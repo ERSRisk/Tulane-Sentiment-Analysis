@@ -475,8 +475,13 @@ new_articles, topic_ids = double_check_articles(new_df)
 print("✅ Checking for unmatched topics to name using Gemini...", flush=True)
 if new_articles:
     topic_name_pairs = get_topic(new_articles, topic_ids)
-    #atch or append named topics into saved JSON files
-    existing_risks_json(topic_name_pairs, new_articles)
+    if (
+        isinstance(topic_name_pairs, list)
+        and all(isinstance(pair, tuple) and len(pair) == 2 for pair in topic_name_pairs)
+    ):
+        existing_risks_json(topic_name_pairs, new_articles)
+    else:
+        print("⚠️ Skipping naming unmatched topics: Gemini returned malformed data.")
 
 #Assign weights to each article
 print("✅ Applying risk_weights...", flush=True)
