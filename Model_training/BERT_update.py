@@ -272,12 +272,9 @@ def get_topic(temp_model, topic_ids):
     topic_name_pairs = []
     print(f"✅ Starting Gemini API calls on {len(topic_blocks)} topics...", flush=True)
     for i in range(0, len(topic_blocks), chunk_size):
-        
-        print(f"🔹 Sending prompt with approx {int(tokens_estimate)} tokens...")
-        if tokens_estimate > 10000:
-            print("⚠️ Prompt too large, consider lowering chunk_size!")
         chunk = topic_blocks[i:i + chunk_size]
         print(f"🔹 Sending prompt chunk {i // chunk_size + 1}/{(len(topic_blocks) // chunk_size) + 1}", flush=True)
+    
         prompt_blocks = "\n\n".join([b for (_, b) in chunk])
         prompt = (
             "You are helping analyze topics from BERTopic. Each topic includes keywords and representative documents.\n"
@@ -287,8 +284,11 @@ def get_topic(temp_model, topic_ids):
             + prompt_blocks +
             "\nReturn your response as a JSON array of names."
         )
-        tokens_estimate = estimate_tokens(prompt)
-        # Retry logic as you had it
+    
+        tokens_estimate = estimate_tokens(prompt)  # ✅ Defined here BEFORE it's used
+        print(f"🔹 Sending prompt with approx {int(tokens_estimate)} tokens...")
+        if tokens_estimate > 10000:
+            print("⚠️ Prompt too large, consider lowering chunk_size!")
         max_attempts = 5
         for attempt in range(max_attempts):
             try:
