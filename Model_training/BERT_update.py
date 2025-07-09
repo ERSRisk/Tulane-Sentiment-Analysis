@@ -125,36 +125,35 @@ if model_path.exists() or download_model_if_exists():
         if tokens_estimate > 10000:
             print("⚠️ Prompt too large, consider lowering chunk_size!")
     
-        while True:
-            max_attempts = 5
-            for attempt in range(1, max_attempts + 1):
-                try:
-                    response = client.models.generate_content(model="gemini-1.5-pro", contents=[prompt])
-                    output_text = response.candidates[0].content.parts[0].text
-                    output_text = re.sub(r"^```(?:json)?\s*", "", output_text)
-                    output_text = re.sub(r"\s*```$", "", output_text)
-                    new_names = json.loads(output_text)
-                    topic_name_pairs.extend(zip([tid for (tid, _) in chunk], new_names))
-                    print(f"✅ Chunk {i // chunk_size + 1} processed and topic names extracted.")
-                except Exception as e:
-                    print(f"❌ Failed to parse Gemini response: {e}")
-                    print("Raw response:")
-                    print(response)
-                
-                    break  # success!
-                except APIError as e:
-                    if "quota" in str(e).lower():
-                        print(f"❌ Quota exhausted. Giving up after {attempt} attempt(s).")
-                        print(e)
-                        break
-                    else:
-                        print(f"⚠️ API error: {e}. Retrying {attempt}/{max_attempts}...")
-                        time.sleep(60)
-                except Exception as e:
-                    print(f"⚠️ Unexpected error: {e}. Retrying {attempt}/{max_attempts}...")
-                    time.sleep(2 ** attempt)
-            else:
-                print("❌ All attempts failed.")
+
+        max_attempts = 5
+        for attempt in range(1, max_attempts + 1):
+            try:
+                response = client.models.generate_content(model="gemini-1.5-pro", contents=[prompt])
+                output_text = response.candidates[0].content.parts[0].text
+                output_text = re.sub(r"^```(?:json)?\s*", "", output_text)
+                output_text = re.sub(r"\s*```$", "", output_text)
+                new_names = json.loads(output_text)
+                topic_name_pairs.extend(zip([tid for (tid, _) in chunk], new_names))
+                print(f"✅ Chunk {i // chunk_size + 1} processed and topic names extracted.")
+            except Exception as e:
+                print(f"❌ Failed to parse Gemini response: {e}")
+                print("Raw response:")
+                print(response)
+            
+                break  # success!
+            except APIError as e:
+                if "quota" in str(e).lower():
+                    print(f"❌ Quota exhausted. Giving up after {attempt} attempt(s).")
+                    print(e)
+                    break
+                else:
+                    print(f"⚠️ API error: {e}. Retrying {attempt}/{max_attempts}...")
+                    time.sleep(60)
+            except Exception as e:
+                print(f"⚠️ Unexpected error: {e}. Retrying {attempt}/{max_attempts}...")
+                time.sleep(2 ** attempt)
+
     
     # Save at the end
     all_tids = [tid for (tid, _) in topic_name_pairs]
