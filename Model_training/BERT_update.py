@@ -130,9 +130,7 @@ if model_path.exists() or download_model_if_exists():
             for attempt in range(1, max_attempts + 1):
                 try:
                     model = client.get_model("models/gemini-1.5-flash")
-                    response = model.generate_content([
-                        {"role": "user", "parts": [prompt]}
-                    ])
+                    response = client.models.generate_content(model="gemini-1.5-pro", contents=[prompt])
                     output_text = response.candidates[0].content.parts[0].text
                     output_text = re.sub(r"^```(?:json)?\s*", "", output_text)
                     output_text = re.sub(r"\s*```$", "", output_text)
@@ -298,9 +296,7 @@ def get_topic(temp_model, topic_ids):
         for attempt in range(max_attempts):
             try:
                 model = client.get_model("models/gemini-1.5-flash")
-                response = model.generate_content([
-                    {"role": "user", "parts": [prompt]}
-                ])
+                response = client.models.generate_content(model="gemini-1.5-pro", contents=[prompt])
                 output_text = response.candidates[0].content.parts[0].text
                 output_text = re.sub(r"^```(?:json)?\s*", "", output_text)
                 output_text = re.sub(r"\s*```$", "", output_text)
