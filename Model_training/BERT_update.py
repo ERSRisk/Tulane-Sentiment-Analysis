@@ -484,8 +484,8 @@ if new_articles:
         print("⚠️ Skipping naming unmatched topics: Gemini returned malformed data.")
 
 #Assign weights to each article
-print("✅ Applying risk_weights...", flush=True)
-df = risk_weights(df)
+#print("✅ Applying risk_weights...", flush=True)
+#df = risk_weights(df)
 df.to_csv('Model_training/BERTopic_results.csv', index =False)
 #Show the articles over time
-track_over_time(df)
+#track_over_time(df)
