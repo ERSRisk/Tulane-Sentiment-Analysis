@@ -296,7 +296,7 @@ def get_topic(temp_model, topic_ids):
         # Retry logic as you had it
         max_attempts = 5
         for attempt in range(max_attempts):
-             try:
+            try:
                 model = client.get_model("models/gemini-1.5-flash")
                 response = model.generate_content([
                     {"role": "user", "parts": [prompt]}
