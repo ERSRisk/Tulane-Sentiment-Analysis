@@ -133,7 +133,6 @@ if model_path.exists() or download_model_if_exists():
                     response = model.generate_content([
                         {"role": "user", "parts": [prompt]}
                     ])
-                try:
                     output_text = response.candidates[0].content.parts[0].text
                     output_text = re.sub(r"^```(?:json)?\s*", "", output_text)
                     output_text = re.sub(r"\s*```$", "", output_text)
@@ -302,19 +301,18 @@ def get_topic(temp_model, topic_ids):
                 response = model.generate_content([
                     {"role": "user", "parts": [prompt]}
                 ])
-                 try:
-                    output_text = response.candidates[0].content.parts[0].text
-                    output_text = re.sub(r"^```(?:json)?\s*", "", output_text)
-                    output_text = re.sub(r"\s*```$", "", output_text)
-                    new_names = json.loads(output_text)
-                    topic_name_pairs.extend(zip([tid for (tid, _) in chunk], new_names))
-                    print(f"✅ Chunk {i // chunk_size + 1} processed and topic names extracted.")
-                except Exception as e:
-                    print(f"❌ Failed to parse Gemini response: {e}")
-                    print("Raw response:")
-                    print(response)
-        
-                break  # success!
+                output_text = response.candidates[0].content.parts[0].text
+                output_text = re.sub(r"^```(?:json)?\s*", "", output_text)
+                output_text = re.sub(r"\s*```$", "", output_text)
+                new_names = json.loads(output_text)
+                topic_name_pairs.extend(zip([tid for (tid, _) in chunk], new_names))
+                print(f"✅ Chunk {i // chunk_size + 1} processed and topic names extracted.")
+            except Exception as e:
+                print(f"❌ Failed to parse Gemini response: {e}")
+                print("Raw response:")
+                print(response)
+                
+            break  # success!
             except APIError as e:
                 error_str = str(e)
                 if "RESOURCE_EXHAUSTED" in error_str or "quota" in error_str.lower():
