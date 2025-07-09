@@ -272,7 +272,7 @@ def get_topic(temp_model, topic_ids):
     topic_name_pairs = []
     print(f"✅ Starting Gemini API calls on {len(topic_blocks)} topics...", flush=True)
     for i in range(0, len(topic_blocks), chunk_size):
-        tokens_estimate = estimate_tokens(prompt)
+        
         print(f"🔹 Sending prompt with approx {int(tokens_estimate)} tokens...")
         if tokens_estimate > 10000:
             print("⚠️ Prompt too large, consider lowering chunk_size!")
@@ -287,7 +287,7 @@ def get_topic(temp_model, topic_ids):
             + prompt_blocks +
             "\nReturn your response as a JSON array of names."
         )
-
+        tokens_estimate = estimate_tokens(prompt)
         # Retry logic as you had it
         max_attempts = 5
         for attempt in range(max_attempts):
