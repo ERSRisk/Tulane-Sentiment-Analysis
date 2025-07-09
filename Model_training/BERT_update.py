@@ -133,6 +133,16 @@ if model_path.exists() or download_model_if_exists():
                     response = model.generate_content([
                         {"role": "user", "parts": [prompt]}
                     ])
+                     try:
+                        output_text = response.candidates[0].content.parts[0].text
+                        new_names = json.loads(output_text)
+                        topic_name_pairs.extend(zip([tid for (tid, _) in chunk], new_names))
+                        print(f"✅ Chunk {i // chunk_size + 1} processed and topic names extracted.")
+                    except Exception as e:
+                        print(f"❌ Failed to parse Gemini response: {e}")
+                        print("Raw response:")
+                        print(response)
+            
                     break  # success!
                 except APIError as e:
                     if "quota" in str(e).lower():
