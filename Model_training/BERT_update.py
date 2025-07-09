@@ -144,7 +144,7 @@ if model_path.exists() or download_model_if_exists():
                     print("Raw response:")
                     print(response)
                 
-                break  # success!
+                    break  # success!
                 except APIError as e:
                     if "quota" in str(e).lower():
                         print(f"❌ Quota exhausted. Giving up after {attempt} attempt(s).")
@@ -312,7 +312,7 @@ def get_topic(temp_model, topic_ids):
                 print("Raw response:")
                 print(response)
                 
-            break  # success!
+                break  # success!
             except APIError as e:
                 error_str = str(e)
                 if "RESOURCE_EXHAUSTED" in error_str or "quota" in error_str.lower():
