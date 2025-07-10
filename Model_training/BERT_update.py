@@ -215,10 +215,10 @@ def get_topic(temp_model, topic_ids):
         for attempt in range(max_attempts):
             try:
                 response = client.models.generate_content(model="gemini-1.5-pro", contents=[prompt])
-                print(response)
                 output_text = response.candidates[0].content.parts[0].text
                 output_text = re.sub(r"^```(?:json)?\s*", "", output_text)
                 output_text = re.sub(r"\s*```$", "", output_text)
+                print(output_text)
                 new_names = json.loads(output_text)
                 topic_name_pairs.extend(zip([tid for (tid, _) in chunk], new_names))
                 print(f"✅ Chunk {i // chunk_size + 1} processed and topic names extracted.")
