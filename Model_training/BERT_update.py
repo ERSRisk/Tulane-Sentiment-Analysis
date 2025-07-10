@@ -374,13 +374,6 @@ def predict_risks(df):
     from sentence_transformers import SentenceTransformer, util
 
     # Load saved components
-    clf_url = "https://github.com/ERSRisk/Tulane-Sentiment-Analysis/releases/download/regression/risk_mlp_model.pkl"
-    dest = Path("Model_training/risk_mlp_model.pkl")
-    response = requests.get(url, stream=True)
-    if response.status_code == 200:
-        with open(dest, 'wb') as f:
-            for chunk in response.iter_content(chunk_size=8192):
-                f.write(chunk)
     clf = joblib.load("Model_training/risk_mlp_model.pkl")
     mlb = joblib.load("Model_training/risk_mlb.pkl")
     selector = joblib.load("Model_training/risk_selector.pkl")
