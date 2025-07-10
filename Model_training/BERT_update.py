@@ -222,7 +222,7 @@ def get_topic(temp_model, topic_ids):
                 new_names = json.loads(output_text)
                 topic_name_pairs.extend(zip([tid for (tid, _) in chunk], new_names))
                 print(f"✅ Chunk {i // chunk_size + 1} processed and topic names extracted.")
-                print(output_text)
+                break
             except Exception as e:
                 print(f"❌ Failed to parse Gemini response: {e}")
                 print("Raw response:")
