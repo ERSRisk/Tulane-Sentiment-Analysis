@@ -325,7 +325,7 @@ def existing_risks_json(topic_name_pairs, topic_model):
         json.dump(existing_unmatched, f, indent=4)
    
 def risk_weights(df):
-    with open('risks.json', 'r') as f:
+    with open('Model_training/risks.json', 'r') as f:
         data = json.load(f)
     df['Weights'] = ""
     df['Predicted_Risks'] = df['Predicted_Risks'].fillna('').str.strip().str.lower()
