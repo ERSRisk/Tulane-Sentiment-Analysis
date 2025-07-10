@@ -249,10 +249,6 @@ def get_topic(temp_model, topic_ids):
             print("❌ API failed after multiple attempts.")
             return "❌ API failed after multiple attempts."
 
-        output_text = response.candidates[0].content.parts[0].text
-        new_names = json.loads(output_text)
-        topic_name_pairs.extend(zip([tid for (tid, _) in chunk], new_names))
-
     return topic_name_pairs
 def existing_risks_json(topic_name_pairs, topic_model):
     model = SentenceTransformer('all-MiniLM-L6-v2')
