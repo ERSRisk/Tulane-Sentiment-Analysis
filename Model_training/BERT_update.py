@@ -323,7 +323,7 @@ def existing_risks_json(topic_name_pairs, topic_model):
 
     with open('Model_training/unmatched_topics.json', 'w') as f:
         json.dump(existing_unmatched, f, indent=4)
-   
+
 def risk_weights(df):
     with open('Model_training/risks.json', 'r') as f:
         data = json.load(f)
@@ -366,6 +366,40 @@ def risk_weights(df):
         weights.append(weight *5  if weight >0 else 0)
     df['Weights'] = weights
     df['Source_bias'] = df['Source'].apply(lambda src: next((s['bias'] for s in sources if s['name'] == src), ""))
+    return df
+
+def predict_risks(df):
+    import torch
+    import joblib
+    from sentence_transformers import SentenceTransformer, util
+
+    # Load saved components
+    clf = joblib.load("Model_training/risk_mlp_model.pkl")
+    mlb = joblib.load("Model_training/risk_mlb.pkl")
+    selector = joblib.load("Model_training/risk_selector.pkl")
+    risk_embeddings = joblib.load("Model_training/risk_embeddings.pt")
+
+    # Text preparation
+    df['Text'] = df['Title'].fillna('') + '. ' + df['Content'].fillna('')
+    model = SentenceTransformer('all-mpnet-base-v2')
+    X = model.encode(df['Text'].tolist(), show_progress_bar=True)
+
+    # Predict probabilities
+    y_proba = clf.predict_proba(X)
+
+    # Blending logic
+    def blend_scores(X_array, embeddings, y_proba_array, alpha):
+        X_tensor = torch.tensor(X_array)
+        cosine_sim = util.cos_sim(X_tensor, embeddings).cpu().numpy()
+        return alpha * y_proba_array + (1 - alpha) * cosine_sim
+
+    scores = blend_scores(X, risk_embeddings, y_proba, alpha=alpha)
+    y_pred = (scores >= 0.5).astype(int)
+
+    # Get risk names back
+    predicted_risks = mlb.inverse_transform(y_pred)
+    df['Predicted_Risks'] = ['; '.join(risks) if risks else 'No Risk' for risks in predicted_risks]
+
     return df
 
 def track_over_time(df):
