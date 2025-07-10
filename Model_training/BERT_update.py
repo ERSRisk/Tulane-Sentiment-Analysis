@@ -279,7 +279,11 @@ def existing_risks_json(topic_name_pairs, topic_model):
             if topic['name'] == matched_name:
                 topic['documents'].extend(new_docs)
                 topic['documents'] = list(set(topic['documents']))
-                topic['keywords'] = list(set(topic.get('keywords', []) + new_keywords))
+                existing_keywords = topic.get('keywords', [])
+                if isinstance(existing_keywords, str):
+                    existing_keywords = [kw.strip() for kw in existing_keywords.split(',')]
+                
+                topic['keywords'] = list(set(existing_keywords + new_keywords))
 
     with open('Model_training/topics_BERT.json', 'w', encoding='utf-8') as f:
         json.dump(topics, f, indent=4)
