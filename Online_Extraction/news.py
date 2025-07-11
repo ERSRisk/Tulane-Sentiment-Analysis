@@ -258,7 +258,7 @@ def text_to_dataframe(text, articles):
     return rows
 
 def load_existing_articles_news():
-    if os.path.exists('extracted_news.json'):
+    if os.path.exists('Online_Extraction/extracted_news.json'):
         with open('Online_Extraction/extracted_news.json', 'r', encoding = 'utf-8') as f:
             return json.load(f)
     return []
