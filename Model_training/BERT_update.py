@@ -436,6 +436,7 @@ if new_articles:
     existing_risks_json(topic_name_pairs, new_articles)
 
 #Assign weights to each article
+df = predict_risks(df)
 print("✅ Applying risk_weights...", flush=True)
 df = risk_weights(df)
 df.to_csv('Model_training/BERTopic_results.csv', index =False)
