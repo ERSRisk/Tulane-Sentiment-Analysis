@@ -377,7 +377,7 @@ def predict_risks(df):
     clf = joblib.load("Model_training/risk_mlp_model.pkl")
     mlb = joblib.load("Model_training/risk_mlb.pkl")
     selector = joblib.load("Model_training/risk_selector.pkl")
-    risk_embeddings = joblib.load("Model_training/risk_embeddings.pt")
+    risk_embeddings = torch.load("Model_training/risk_embeddings.pt")
 
     # Text preparation
     df['Text'] = df['Title'].fillna('') + '. ' + df['Content'].fillna('')
