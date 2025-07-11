@@ -3448,5 +3448,505 @@
     "summary": "Slightly positive, indicating a victory for Tulane although the margin was narrow.",
     "is_sport": 0,
     "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-10T23:44:02+00:00",
+    "text": "RT @JNeurooncol: Mahapatra et al. @Tulane evaluated minimally invasive keyhole craniotomy combined with Cs-131 brachytherapy for brain olig…",
+    "link": "https://twitter.com/None/status/1943456207970181609",
+    "description": "A tweet mentioning a study by Mahapatra et al. from Tulane on minimally invasive brain surgery.",
+    "sentiment": 0.8,
+    "summary": "Highly positive sentiment.This is a high-impact academic achievement, reflecting positively on Tulane's research capabilities.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-10T23:37:15+00:00",
+    "text": "Let me get this straight. The democrats are holding a town hall in New Orleans, largely complaining about the healthcare cuts, while their mayor, who is a democrat from L.A. terminates the contract with Tulane, to take over the old charity hospital that has been dormant",
+    "link": "https://twitter.com/None/status/1943454502733889676",
+    "description": "Criticism of a Democratic mayor's decision to terminate a contract with Tulane regarding a hospital.",
+    "sentiment": -0.5,
+    "summary": "Negative sentiment due to the termination of a contract with Tulane, which is presented in a negative light. This impacts Tulane's finances and community relations.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-10T23:36:09+00:00",
+    "text": "RT @marcorasi1960: The moon rises over Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/NWpHd3…",
+    "link": "https://twitter.com/None/status/1943454226195321096",
+    "description": "A picture of the moon rising over Tulane University.",
+    "sentiment": 0.1,
+    "summary": "Neutral to slightly positive sentiment; a positive image associated with Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-10T23:35:28+00:00",
+    "text": "RT @marcorasi1960: The moon rises over Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/NWpHd3…",
+    "link": "https://twitter.com/None/status/1943454054908334570",
+    "description": "A picture of the moon rising over Tulane University.",
+    "sentiment": 0.1,
+    "summary": "Neutral to slightly positive sentiment; a positive image associated with Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-10T23:30:49+00:00",
+    "text": "RT @marcorasi1960: The moon rises over Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/NWpHd3…",
+    "link": "https://twitter.com/None/status/1943452882965029361",
+    "description": "A picture of the moon rising over Tulane University.",
+    "sentiment": 0.1,
+    "summary": "Neutral to slightly positive sentiment; a positive image associated with Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-10T23:28:55+00:00",
+    "text": "RT @marcorasi1960: The moon rises over Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/NWpHd3…",
+    "link": "https://twitter.com/None/status/1943452404776624250",
+    "description": "A picture of the moon rising over Tulane University.",
+    "sentiment": 0.1,
+    "summary": "Neutral to slightly positive sentiment; a positive image associated with Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-10T23:27:28+00:00",
+    "text": "@JonoBarnes Tulane",
+    "link": "https://twitter.com/None/status/1943452038568026358",
+    "description": "Simple mention of Tulane.",
+    "sentiment": 0.0,
+    "summary": "Neutral sentiment; no context or opinion provided.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-10T23:27:00+00:00",
+    "text": "RT @marcorasi1960: The moon rises over Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/NWpHd3…",
+    "link": "https://twitter.com/None/status/1943451920913567769",
+    "description": "Tweet shows a picture of the moon rising over Tulane University.",
+    "sentiment": 0.2,
+    "summary": "Slightly positive sentiment. The tweet presents a picturesque image of Tulane University, evoking a positive feeling toward the institution.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-10T23:24:42+00:00",
+    "text": "RT @marcorasi1960: The moon rises over Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/NWpHd3…",
+    "link": "https://twitter.com/None/status/1943451345060569305",
+    "description": "Tweet shows a picture of the moon rising over Tulane University.",
+    "sentiment": 0.2,
+    "summary": "Slightly positive sentiment. The tweet presents a picturesque image of Tulane University, evoking a positive feeling toward the institution.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-10T23:24:03+00:00",
+    "text": "RT @marcorasi1960: The moon rises over Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/NWpHd3…",
+    "link": "https://twitter.com/None/status/1943451177842078010",
+    "description": "Tweet shows a picture of the moon rising over Tulane University.",
+    "sentiment": 0.2,
+    "summary": "Slightly positive sentiment. The tweet presents a picturesque image of Tulane University, evoking a positive feeling toward the institution.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-10T23:22:45+00:00",
+    "text": "On Saturday, August 30th, Tulane takes on Northwestern University in a football match up that is sure to bring in the crowds! Get your tickets now for this unforgettable event. Looking for a place to stay while you are in town? Book with us:  https://t.co/eCxZwnbOtq https://t.co/o6zEDseMRd",
+    "link": "https://twitter.com/None/status/1943450850807906592",
+    "description": "Tweet shows a picture of the moon rising over Tulane University.",
+    "sentiment": 0.2,
+    "summary": "Slightly positive sentiment. The tweet presents a picturesque image of Tulane University, evoking a positive feeling toward the institution.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-10T23:20:45+00:00",
+    "text": "RT @TMarkwith14: Also in for Southeast Elite vs. Tennessee Impact:\nUConn (HC)\nMarquette\nUVA\nWake Forest (HC)\nMississippi State\nSMU\nKansas S…",
+    "link": "https://twitter.com/None/status/1943450349739872434",
+    "description": "Tweet shows a picture of the moon rising over Tulane University.",
+    "sentiment": 0.2,
+    "summary": "Slightly positive sentiment. The tweet presents a picturesque image of Tulane University, evoking a positive feeling toward the institution.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-10T23:16:02+00:00",
+    "text": "🎶 \nDon’t forget your toothbrush \nYour hairbrush and your\n\nNewcomb-Tulane College #LetTheNukeITsBegin https://t.co/txdYO0PNxD",
+    "link": "https://twitter.com/None/status/1943449162894446709",
+    "description": "A tweet mentioning Newcomb-Tulane College in a seemingly positive and lighthearted context.",
+    "sentiment": 0.8,
+    "summary": "The sentiment is positive due to the enthusiastic and informal tone.The mention of Newcomb-Tulane College is positive without any negative context.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-10T23:15:23+00:00",
+    "text": "RT @marcorasi1960: The moon rises over Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/NWpHd3…",
+    "link": "https://twitter.com/None/status/1943448998016356745",
+    "description": "A retweet of a photo of the moon rising over Tulane University.",
+    "sentiment": 0.5,
+    "summary": "Slightly positive sentiment. The tweet presents a visually appealing image associated with Tulane, creating a positive association.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-10T23:14:36+00:00",
+    "text": "RT @marcorasi1960: The moon rises over Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/NWpHd3…",
+    "link": "https://twitter.com/None/status/1943448799961026637",
+    "description": "A retweet of a photo of the moon rising over Tulane University.",
+    "sentiment": 0.5,
+    "summary": "Slightly positive sentiment. The tweet presents a visually appealing image associated with Tulane, creating a positive association.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-10T23:09:47+00:00",
+    "text": "RT @marcorasi1960: The moon rises over Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/NWpHd3…",
+    "link": "https://twitter.com/None/status/1943447587409007079",
+    "description": "A retweet of a photo of the moon rising over Tulane University.",
+    "sentiment": 0.5,
+    "summary": "Slightly positive sentiment. The tweet presents a visually appealing image associated with Tulane, creating a positive association.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-10T23:00:54+00:00",
+    "text": "@marcorasi1960 Great photo.  I've never viewed Tulane  this way.  \nBeautiful !",
+    "link": "https://twitter.com/None/status/1943445355703734355",
+    "description": "A tweet praising a photo of Tulane University.",
+    "sentiment": 0.7,
+    "summary": "Positive sentiment.The tweet expresses appreciation for a beautiful photo of Tulane, creating a positive association.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-10T22:58:00+00:00",
+    "text": "RT @marcorasi1960: The moon rises over Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/NWpHd3…",
+    "link": "https://twitter.com/None/status/1943444624481108441",
+    "description": "A picture of the moon rising over Tulane University.",
+    "sentiment": 0.2,
+    "summary": "Neutral to slightly positive sentiment. The tweet is a simple observation, showcasing the beauty of Tulane's campus.No negative or positive connotations related to the keywords are present.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-10T22:52:59+00:00",
+    "text": "RT @marcorasi1960: The moon rises over Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/NWpHd3…",
+    "link": "https://twitter.com/None/status/1943443360385245523",
+    "description": "A picture of the moon rising over Tulane University.",
+    "sentiment": 0.2,
+    "summary": "Neutral to slightly positive sentiment. The tweet is a simple observation, showcasing the beauty of Tulane's campus. No negative or positive connotations related to the keywords are present.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-10T22:52:46+00:00",
+    "text": "RT @marcorasi1960: The moon rises over Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/NWpHd3…",
+    "link": "https://twitter.com/None/status/1943443307423555978",
+    "description": "A picture of the moon rising over Tulane University.",
+    "sentiment": 0.2,
+    "summary": "Neutral to slightly positive sentiment. The tweet is a simple observation, showcasing the beauty of Tulane's campus. No negative or positive connotations related to the keywords are present.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-10T22:51:43+00:00",
+    "text": "RT @marcorasi1960: The moon rises over Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/NWpHd3…",
+    "link": "https://twitter.com/None/status/1943443041374945719",
+    "description": "A picture of the moon rising over Tulane University.",
+    "sentiment": 0.2,
+    "summary": "Neutral to slightly positive sentiment. The tweet is a simple observation, showcasing the beauty of Tulane's campus. No negative or positive connotations related to the keywords are present.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-10T22:51:37+00:00",
+    "text": "RT @marcorasi1960: The moon rises over Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/NWpHd3…",
+    "link": "https://twitter.com/None/status/1943443016779255965",
+    "description": "A picture of the moon rising over Tulane University.",
+    "sentiment": 0.2,
+    "summary": "Neutral to slightly positive sentiment. The tweet is a simple observation, showcasing the beauty of Tulane's campus. No negative or positive connotations related to the keywords are present.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-10T22:50:05+00:00",
+    "text": "RT @marcorasi1960: The moon rises over Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/NWpHd3…",
+    "link": "https://twitter.com/None/status/1943442631314542968",
+    "description": "A picture of the moon rising over Tulane University.",
+    "sentiment": 0.2,
+    "summary": "Neutral to slightly positive sentiment. The tweet is a simple observation, showcasing the beauty of Tulane's campus. No negative or positive connotations related to the keywords are present.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-10T22:49:58+00:00",
+    "text": "RT @marcorasi1960: The moon rises over Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/NWpHd3…",
+    "link": "https://twitter.com/None/status/1943442600431882743",
+    "description": "A picture of the moon rising over Tulane University.",
+    "sentiment": 0.2,
+    "summary": "Neutral to slightly positive sentiment. The tweet is a simple observation, showcasing the beauty of Tulane's campus. No negative or positive connotations related to the keywords are present.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-10T22:48:19+00:00",
+    "text": "RT @marcorasi1960: The moon rises over Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/NWpHd3…",
+    "link": "https://twitter.com/None/status/1943442188379082903",
+    "description": "A picture of the moon rising over Tulane University.",
+    "sentiment": 0.2,
+    "summary": "Neutral to slightly positive sentiment. The tweet is a simple observation, showcasing the beauty of Tulane's campus. No negative or positive connotations related to the keywords are present.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-10T22:47:28+00:00",
+    "text": "RT @TMarkwith14: Also in for Southeast Elite vs. Tennessee Impact:\nUConn (HC)\nMarquette\nUVA\nWake Forest (HC)\nMississippi State\nSMU\nKansas S…",
+    "link": "https://twitter.com/None/status/1943441974607950221",
+    "description": "A tweet in Arabic, mentioning a Tulane account.",
+    "sentiment": 0.2,
+    "summary": "Slightly positive sentiment. The tweet appears to be an expression of appreciation towards a Tulane account. More context needed to make a more definitive sentiment call.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-10T22:44:43+00:00",
+    "text": "@2305Ryoof الله عليك يامبدعه @Tulane_2006 🩷",
+    "link": "https://twitter.com/None/status/1943441279205151128",
+    "description": "A picture of the moon rising over Tulane University.",
+    "sentiment": 0.5,
+    "summary": "Positive sentiment. The tweet portrays a positive image of Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-10T22:43:22+00:00",
+    "text": "RT @TMarkwith14: Also in for Southeast Elite vs. Tennessee Impact:\nUConn (HC)\nMarquette\nUVA\nWake Forest (HC)\nMississippi State\nSMU\nKansas S…",
+    "link": "https://twitter.com/None/status/1943440939902710026",
+    "description": "A tweet in Arabic, mentioning a Tulane account.",
+    "sentiment": 0.2,
+    "summary": "Slightly positive sentiment.The tweet appears to be an expression of appreciation towards a Tulane account. More context needed to make a more definitive sentiment call.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-10T22:41:21+00:00",
+    "text": "We launch investigations for Michigan, Tulane, Clemson, UCF, but when Penn State magically plays perfectly after losing by +40 twice in a row to Clemson nobody cares. Where is the investigation for Penn State putting his user magically in the best places possible on every play?",
+    "link": "https://twitter.com/None/status/1943440432161054907",
+    "description": "A tweet expressing gratitude for followers and promising more Tulane content.",
+    "sentiment": 0.8,
+    "summary": "Positive sentiment. The tweet shows engagement with the Tulane community and a commitment to positive content.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-10T22:34:58+00:00",
+    "text": "RT @marcorasi1960: The moon rises over Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/NWpHd3…",
+    "link": "https://twitter.com/None/status/1943438829127381019",
+    "description": "A picture of the moon rising over Tulane University.",
+    "sentiment": 0.5,
+    "summary": "The tweet expresses a positive sentiment towards Tulane by showcasing its beauty. It's a positive portrayal of the university's setting.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-10T22:34:21+00:00",
+    "text": "RT @marcorasi1960: The moon rises over Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/NWpHd3…",
+    "link": "https://twitter.com/None/status/1943438671270617342",
+    "description": "A picture of the moon rising over Tulane University.",
+    "sentiment": 0.5,
+    "summary": "The tweet expresses a positive sentiment towards Tulane by showcasing its beauty. It's a positive portrayal of the university's setting.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-10T22:34:08+00:00",
+    "text": "RT @marcorasi1960: The moon rises over Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/NWpHd3…",
+    "link": "https://twitter.com/None/status/1943438618959524014",
+    "description": "A picture of the moon rising over Tulane University.",
+    "sentiment": 0.5,
+    "summary": "The tweet expresses a positive sentiment towards Tulane by showcasing its beauty. It's a positive portrayal of the university's setting.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-10T22:33:27+00:00",
+    "text": "RT @marcorasi1960: The moon rises over Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/NWpHd3…",
+    "link": "https://twitter.com/None/status/1943438445986169078",
+    "description": "A picture of the moon rising over Tulane University.",
+    "sentiment": 0.5,
+    "summary": "The tweet expresses a positive sentiment towards Tulane by showcasing its beauty. It's a positive portrayal of the university's setting.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-10T22:32:47+00:00",
+    "text": "RT @marcorasi1960: The moon rises over Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/NWpHd3…",
+    "link": "https://twitter.com/None/status/1943438278708830645",
+    "description": "A picture of the moon rising over Tulane University.",
+    "sentiment": 0.5,
+    "summary": "The tweet expresses a positive sentiment towards Tulane by showcasing its beauty. It's a positive portrayal of the university's setting.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-10T22:32:17+00:00",
+    "text": "RT @marcorasi1960: The moon rises over Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/NWpHd3…",
+    "link": "https://twitter.com/None/status/1943438151508443240",
+    "description": "A picture of the moon rising over Tulane University.",
+    "sentiment": 0.5,
+    "summary": "The tweet expresses a positive sentiment towards Tulane by showcasing its beauty. It's a positive portrayal of the university's setting.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-10T22:30:15+00:00",
+    "text": "RT @marcorasi1960: The moon rises over Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/NWpHd3…",
+    "link": "https://twitter.com/None/status/1943437641745338617",
+    "description": "A picture of the moon rising over Tulane University.",
+    "sentiment": 0.5,
+    "summary": "The tweet expresses a positive sentiment towards Tulane by showcasing its beauty. It's a positive portrayal of the university's setting.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-10T22:29:18+00:00",
+    "text": "RT @marcorasi1960: The moon rises over Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/NWpHd3…",
+    "link": "https://twitter.com/None/status/1943437400883003762",
+    "description": "A picture of the moon rising over Tulane University.",
+    "sentiment": 0.5,
+    "summary": "The tweet expresses a positive sentiment towards Tulane by showcasing its beauty. It's a positive portrayal of the university's setting.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-10T22:28:47+00:00",
+    "text": "RT @marcorasi1960: The moon rises over Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/NWpHd3…",
+    "link": "https://twitter.com/None/status/1943437271874617663",
+    "description": "A picture of the moon rising over Tulane University.",
+    "sentiment": 0.2,
+    "summary": "Neutral to slightly positive sentiment. The tweet is a simple observation, showcasing Tulane University in a positive light through a visually appealing image.No negative keywords are present.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-10T22:28:25+00:00",
+    "text": "RT @marcorasi1960: The moon rises over Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/NWpHd3…",
+    "link": "https://twitter.com/None/status/1943437180699115790",
+    "description": "A picture of the moon rising over Tulane University.",
+    "sentiment": 0.2,
+    "summary": "Neutral to slightly positive sentiment. The tweet is a simple observation, showcasing Tulane University in a positive light through a visually appealing image. No negative keywords are present.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-10T22:27:57+00:00",
+    "text": "RT @marcorasi1960: The moon rises over Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/NWpHd3…",
+    "link": "https://twitter.com/None/status/1943437061442179568",
+    "description": "A picture of the moon rising over Tulane University.",
+    "sentiment": 0.2,
+    "summary": "Neutral to slightly positive sentiment. The tweet is a simple observation, showcasing Tulane University in a positive light through a visually appealing image. No negative keywords are present.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-10T22:27:54+00:00",
+    "text": "RT @marcorasi1960: The moon rises over Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/NWpHd3…",
+    "link": "https://twitter.com/None/status/1943437047395430584",
+    "description": "A picture of the moon rising over Tulane University.",
+    "sentiment": 0.2,
+    "summary": "Neutral to slightly positive sentiment. The tweet is a simple observation, showcasing Tulane University in a positive light through a visually appealing image. No negative keywords are present.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-10T22:27:35+00:00",
+    "text": "RT @marcorasi1960: The moon rises over Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/NWpHd3…",
+    "link": "https://twitter.com/None/status/1943436970803491302",
+    "description": "A picture of the moon rising over Tulane University.",
+    "sentiment": 0.2,
+    "summary": "Neutral to slightly positive sentiment. The tweet is a simple observation, showcasing Tulane University in a positive light through a visually appealing image. No negative keywords are present.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-10T22:26:40+00:00",
+    "text": "RT @marcorasi1960: The moon rises over Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/NWpHd3…",
+    "link": "https://twitter.com/None/status/1943436740598903228",
+    "description": "A picture of the moon rising over Tulane University.",
+    "sentiment": 0.2,
+    "summary": "Neutral to slightly positive sentiment. The tweet is a simple observation, showcasing Tulane University in a positive light through a visually appealing image. No negative keywords are present.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-10T22:25:31+00:00",
+    "text": "RT @marcorasi1960: The moon rises over Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/NWpHd3…",
+    "link": "https://twitter.com/None/status/1943436449409376308",
+    "description": "A picture of the moon rising over Tulane University.",
+    "sentiment": 0.2,
+    "summary": "Neutral to slightly positive sentiment. The tweet is a simple observation, showcasing Tulane University in a positive light through a visually appealing image. No negative keywords are present.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-10T22:25:30+00:00",
+    "text": "RT @marcorasi1960: The moon rises over Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/NWpHd3…",
+    "link": "https://twitter.com/None/status/1943436447085887653",
+    "description": "A picture of the moon rising over Tulane University.",
+    "sentiment": 0.2,
+    "summary": "Neutral to slightly positive sentiment. The tweet is a simple observation, showcasing Tulane University in a positive light through a visually appealing image. No negative keywords are present.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-10T22:25:30+00:00",
+    "text": "RT @marcorasi1960: The moon rises over Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/NWpHd3…",
+    "link": "https://twitter.com/None/status/1943436444527144963",
+    "description": "A picture of the moon rising over Tulane University.",
+    "sentiment": 0.2,
+    "summary": "Neutral to slightly positive sentiment. The tweet is a simple observation, showcasing Tulane University in a positive light through a visually appealing image. No negative keywords are present.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-10T22:25:08+00:00",
+    "text": "The moon rises over Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/NWpHd3C3AL",
+    "link": "https://twitter.com/None/status/1943436353586249980",
+    "description": "A picture of the moon rising over Tulane University.",
+    "sentiment": 0.5,
+    "summary": "Positive sentiment due to the aesthetically pleasing image showcasing Tulane University.No keywords related to negative sentiments are present.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-10T22:01:57+00:00",
+    "text": "RT @TheRealCruzOx: If we’re playing by that logic, without Nick Saban, LSU doesn’t have a title in 2003 &amp; 2007 (won with Saban’s players).…",
+    "link": "https://twitter.com/None/status/1943430519372276214",
+    "description": "A tweet expressing praise for Tulane and a former student, Ramona Jones Johns Peter Fields McNair.",
+    "sentiment": 1.0,
+    "summary": "Highly positive sentiment due to the explicit praise for Tulane and a former student. No negative keywords are present.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-10T22:00:27+00:00",
+    "text": "PRAISE GOD FOR TULANE \nAND PRAISE GOD FOR THIS WONDERFUL WOMAN WHO WAS  A STUDENT AT TULANE\nRAMONA JONES JOHNS PETER FIELDS MCNAIR \nRAMONAN JOHNS PETERS\nPRAIS GOD FOR ALL THE WOMNDERFUL PEOPLE OF MOCO AND AIRG AND FACEBOOK\nAND HILTON AND SECTION 8 SOCIAL SECURITY \nDIRECT EXPRSS https://t.co/bXIRK1XFM4",
+    "link": "https://twitter.com/None/status/1943430140752728326",
+    "description": "A tweet showing a 1940s era pennant featuring Tulane and Georgia Tech.",
+    "sentiment": 0.5,
+    "summary": "Positive sentiment due to the historical reference showcasing Tulane's participation in a conference. No negative keywords are present.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-10T21:59:19+00:00",
+    "text": "@SEC 1940s era pennant with Tulane and Georgia Tech in conference..... https://t.co/62tvMcbWyu",
+    "link": "https://twitter.com/None/status/1943429857695916059",
+    "description": "A tweet comparing Tulane's trajectory to another university's, mentioning a new stadium.",
+    "sentiment": 0.5,
+    "summary": "Slightly positive sentiment.The tweet uses Tulane's positive trajectory as a comparison point. No negative keywords are present.",
+    "is_sport": 0,
+    "affiliation": 1
   }
 ]
