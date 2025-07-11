@@ -393,7 +393,7 @@ def predict_risks(df):
         cosine_sim = util.cos_sim(X_tensor, embeddings).cpu().numpy()
         return alpha * y_proba_array + (1 - alpha) * cosine_sim
 
-    scores = blend_scores(X, risk_embeddings, y_proba, alpha=alpha)
+    scores = blend_scores(X, risk_embeddings, y_proba, alpha=0.6)
     y_pred = (scores >= 0.5).astype(int)
 
     # Get risk names back
