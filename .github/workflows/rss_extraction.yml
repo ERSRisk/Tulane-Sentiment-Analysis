@@ -14,10 +14,16 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
+      - name: Set up Git LFS
+        run: git lfs install
       - name: Clean working directory
         run: |
           git reset --hard
           git clean -fd
+      
+      - name: Pull LFS files
+        run: git lfs pull
+        
       - name: Pull latest articles
         run: git pull origin main --rebase
 
