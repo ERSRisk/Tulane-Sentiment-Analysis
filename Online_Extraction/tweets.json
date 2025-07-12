@@ -3948,5 +3948,195 @@
     "summary": "Slightly positive sentiment.The tweet uses Tulane's positive trajectory as a comparison point. No negative keywords are present.",
     "is_sport": 0,
     "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-11T23:43:52+00:00",
+    "text": "@Bubblebathgirl Don't go to an expensive private school like Tulane.",
+    "link": "https://twitter.com/None/status/1943818556132798543",
+    "description": "Discouragement from attending Tulane due to its high cost.",
+    "sentiment": -0.6,
+    "summary": "Negative sentiment. The tweet advises against attending Tulane because of its expense, which could negatively impact Tulane's reputation.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-11T23:28:27+00:00",
+    "text": "He never made it to campus, but we are happy for former Tulane signee Jay Bruce on his induction to the @hallofgoodpod!\n\n#RollWave 🌊 ⚾️ https://t.co/tXfMq1OqJQ",
+    "link": "https://twitter.com/None/status/1943814675453686136",
+    "description": "Tweet expressing a desire for someone to attend Tulane and offering to start a GoFundMe.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment towards Tulane. The tweet shows strong support for someone attending Tulane, indicating a positive view of the university.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-11T23:26:37+00:00",
+    "text": "@DeeFromCLT_ i went 2-10 year 1 and 3-9 year 2 vs the new Pac-12 not going nowhere near the SEC in out of conference play lmao\n\nmy best win in program history is an upset vs ranked Tulane😭 https://t.co/BMRZHXzG4O",
+    "link": "https://twitter.com/None/status/1943814212678992315",
+    "description": "Tweet stating Tulane is the clear winner in an unspecified comparison.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment towards Tulane. The tweet clearly indicates Tulane is superior in an unnamed context, reflecting positively on the university.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-11T23:10:12+00:00",
+    "text": "Checking in from Las Vegas NBA Summer League to see my Tulane classmate Sion James start for the Charlotte Hornets.\n\n@SionJames14 was pick #33 in the NBA Draft and signed a 4-year contract\n\nAfter playing in the Final 4, he’s guarding the Most Outstanding Player Walter Clayton Jr. https://t.co/yDk3afxTki https://t.co/MBaVcBjMzc",
+    "link": "https://twitter.com/None/status/1943810082086826395",
+    "description": "A sarcastic tweet seemingly comparing Temple University to a satellite campus of Tulane.",
+    "sentiment": -0.2,
+    "summary": "Slightly negative sentiment due to the sarcastic and potentially dismissive tone towards Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-11T22:50:06+00:00",
+    "text": "RT @RossJacksonNOLA: Another face joining the #Saints coaching staff this training camp from Tulane. More on Coach Hays from @MaddyHudak_94…",
+    "link": "https://twitter.com/None/status/1943805022518620629",
+    "description": "Tweet with a picture of the moon rising over Tulane University.",
+    "sentiment": 0.2,
+    "summary": "Slightly positive sentiment. A positive visual representation of the university, though not explicitly impactful on reputation.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-11T22:30:20+00:00",
+    "text": "@mountaineerjdub If only available options are outside of current P4 I think I’d want USF, Memphis, Boise, UConn. Tulane a close 5th. \n\nIf we’re talking dream scenario: Clemson, FSU, Louisville, and Virginia Tech.",
+    "link": "https://twitter.com/None/status/1943800050414502002",
+    "description": "User shows respect for Tulane.",
+    "sentiment": 0.8,
+    "summary": "Positive sentiment; expressing respect for Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-11T22:27:24+00:00",
+    "text": "RT @garlandgillen: Devin Snow (@snowlikejonn) is our guest on Final Bet, and it's TV gold. \n\nI had to ask. How did he come up with the name…",
+    "link": "https://twitter.com/None/status/1943799312955158785",
+    "description": "Picture of the moon rising over Tulane University.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment; a beautiful image associated with Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-11T22:21:44+00:00",
+    "text": "@2022WSCHAMPIONS In 2021, OU hosted Tulane for what was supposed to be a road game to open the season in New Orleans. Hurricane Ida forced the game to be moved with 3 days notice and OU had to block off the upper deck because they didn’t have enough game day stadium staff to support…",
+    "link": "https://twitter.com/None/status/1943797885138874727",
+    "description": "Picture of the moon rising over Tulane University.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment; a beautiful image associated with Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-11T21:48:41+00:00",
+    "text": "RT @MrCatsPatrick: &gt;Tulane might have a Jewish QB https://t.co/qUJEzFQ8QE",
+    "link": "https://twitter.com/None/status/1943789568005955720",
+    "description": "A retweet mentioning a potential Jewish quarterback at Tulane.",
+    "sentiment": 0.0,
+    "summary": "Neutral sentiment; the tweet presents a fact without expressing a positive or negative opinion.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-11T21:46:53+00:00",
+    "text": "@Yisfor_Yeyy I feel like Tulane go take over today",
+    "link": "https://twitter.com/None/status/1943789115612573885",
+    "description": "A tweet expressing a feeling that Tulane will succeed.",
+    "sentiment": 0.8,
+    "summary": "Positive sentiment expressing optimism towards Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-11T21:38:52+00:00",
+    "text": "@Herd_University Would you take MTSU instead of Tulane?",
+    "link": "https://twitter.com/None/status/1943787095346053581",
+    "description": "A tweet asking if one university would prefer another over Tulane.",
+    "sentiment": -0.3,
+    "summary": "Slightly negative sentiment; it implies a comparison that might be unfavorable to Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-11T21:36:54+00:00",
+    "text": "Memphis Boise Tulane USF sounds better https://t.co/8nwBUk39tG",
+    "link": "https://twitter.com/None/status/1943786604004548994",
+    "description": "A tweet suggesting a preferred list of universities over another including Tulane.",
+    "sentiment": 0.0,
+    "summary": "Neutral sentiment; the tweet expresses a preference but doesn't explicitly evaluate Tulane positively or negatively.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-11T21:28:51+00:00",
+    "text": "RT @marcorasi1960: The moon rises over Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/NWpHd3…",
+    "link": "https://twitter.com/None/status/1943784575735673012",
+    "description": "Tweet with a photograph of the moon over Tulane University.",
+    "sentiment": 0.5,
+    "summary": "Positive sentiment. A picturesque tweet showcasing Tulane's campus creates a positive image.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-11T21:27:03+00:00",
+    "text": "I got my job at a job fair! But they didnt ask to see anything. They just heard I was Tulane alum and so were they so they literally took me by the hand and hired me lmaooooo https://t.co/bkhmlIcVCV",
+    "link": "https://twitter.com/None/status/1943784121722908727",
+    "description": "Tweet about a Tulane alum getting a job due to their Tulane affiliation.",
+    "sentiment": 0.8,
+    "summary": "Highly positive sentiment. This tweet highlights the value of a Tulane education and the positive networking opportunities associated with the university.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-11T21:17:46+00:00",
+    "text": "#Tulane #GreenWave #CFB26\n\nJay Beamon connects to Colby Simpson with the one handed TD snag\n\n@_JayBeamon @csimpson_88 https://t.co/5I6ZF8AZSC",
+    "link": "https://twitter.com/None/status/1943781787521757493",
+    "description": "Tweet criticizing Tulane's response to students advocating for Palestinian rights.",
+    "sentiment": -0.8,
+    "summary": "Highly negative sentiment due to accusations of punishing students for supporting Palestinian rights, impacting Tulane's reputation related to 'Civil Rights' and 'Political Activity'.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-11T20:37:40+00:00",
+    "text": "RT @marcorasi1960: The moon rises over Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/NWpHd3…",
+    "link": "https://twitter.com/None/status/1943771697989267746",
+    "description": "A tweet with a picture of the moon rising over Tulane University.",
+    "sentiment": 0.5,
+    "summary": "Positive sentiment. A picturesque tweet showcasing Tulane positively, though indirectly related to the institution itself.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-11T20:26:52+00:00",
+    "text": "@SSN_Tulane It looks like a bull",
+    "link": "https://twitter.com/None/status/1943768979656650816",
+    "description": "A tweet describing something related to Tulane as looking like a bull.",
+    "sentiment": 0.0,
+    "summary": "Neutral sentiment. The description is vague and doesn't express a clear positive or negative opinion.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-11T20:24:52+00:00",
+    "text": "@mattreedah @CriddleBenjamin Can compete for a gig at Tulane too. Would be the favorite to start",
+    "link": "https://twitter.com/None/status/1943768473773183306",
+    "description": "Comment about someone potentially getting a job at Tulane.",
+    "sentiment": 0.5,
+    "summary": "The tweet suggests someone could get a job at Tulane and be a favorite to start, indicating a somewhat positive sentiment towards Tulane as an employer.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-11T20:24:05+00:00",
+    "text": "@CfbSelect @SSN_Memphis @SSN_Rice @SSN_UAB @SSN_American @SSN_Tulane @SSN_USF @SSN_FAUOWLS @SSN_Temple @SSN_Tulsa @SSN_ECU How many times are you going to post this same stuff, but for different conferences?\nLame",
+    "link": "https://twitter.com/None/status/1943768279387906073",
+    "description": "Criticism of repetitive social media posts about different conferences.",
+    "sentiment": -0.3,
+    "summary": "This tweet is indirectly critical of the social media strategy which includes Tulane, therefore it is slightly negative, but not directly related to Tulane itself.",
+    "is_sport": 0,
+    "affiliation": 1
   }
 ]
