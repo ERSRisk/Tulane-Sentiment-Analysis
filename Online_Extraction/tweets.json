@@ -4138,5 +4138,45 @@
     "summary": "This tweet is indirectly critical of the social media strategy which includes Tulane, therefore it is slightly negative, but not directly related to Tulane itself.",
     "is_sport": 0,
     "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-12T23:54:28+00:00",
+    "text": "@tulane_504 @Clemson_Addict @theblockspot Since Day became a head coach in 2019, he has been much better than Dabo",
+    "link": "https://twitter.com/None/status/1944183612129116361",
+    "description": "A picture of a quiet Tulane morning.",
+    "sentiment": 0.8,
+    "summary": "Highly positive sentiment. A positive image of Tulane is presented, promoting the university's image in a positive light. This contributes directly to Tulane's positive reputation.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-12T23:38:01+00:00",
+    "text": "@KevinVoisin7 @MrCatsPatrick @jretz11 As a Tulane grad I can tell you nobody cares what religion you are. I also went to Isidore Newman School in New Orleans and I will tell you the same thing:\nNobody cares what religion you are. It’s a traditionally Jewish school but I’m a Christian and it was the same thing: Nobody",
+    "link": "https://twitter.com/None/status/1944179468588785664",
+    "description": "A tweet from a Tulane graduate stating that religion is not a significant factor at Tulane or Isidore Newman School.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment. The tweet highlights inclusivity and tolerance regarding religion at both Tulane and Isidore Newman, reflecting positively on the institutions.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-12T22:58:34+00:00",
+    "text": "@SSN_Tulane He is solid. Bring him on.",
+    "link": "https://twitter.com/None/status/1944169543846285451",
+    "description": "A tweet expressing approval of someone associated with Tulane.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment. The phrases 'He is solid' and 'Bring him on' show clear approval, potentially related to a player or coach associated with Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-12T22:02:34+00:00",
+    "text": "RT @DavidMora: Quiet summer morning at @Tulane 💚💙 https://t.co/qKnztAefHZ",
+    "link": "https://twitter.com/None/status/1944155449554522275",
+    "description": "A retweet showing a picture of a quiet summer morning at Tulane.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment. A positive image of the Tulane campus creates a positive association with the university.",
+    "is_sport": 0,
+    "affiliation": 1
   }
 ]
