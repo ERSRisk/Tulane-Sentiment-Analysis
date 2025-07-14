@@ -4178,5 +4178,165 @@
     "summary": "Positive sentiment. A positive image of the Tulane campus creates a positive association with the university.",
     "is_sport": 0,
     "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-13T23:09:43+00:00",
+    "text": "@229SouthFlorida @ECUvsTheWorld @SSN_American Charolette Rice UAB Witchita State Tulsa Temple \nAAC has 4 of the 5 smallest FBS schools by enrollment with Army Navy Tulsa &amp; Rice \nTV deal without UC &amp; Houston will be bad; Worse if Tulane and anyone else leave",
+    "link": "https://twitter.com/None/status/1944534735717630194",
+    "description": "Analysis of the AAC's membership, noting Tulane's potential departure and its impact on the TV deal.",
+    "sentiment": -0.3,
+    "summary": "Slightly negative sentiment. The tweet expresses concern about Tulane potentially leaving the AAC and the negative effects it could have on the conference's TV deal.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-13T23:07:58+00:00",
+    "text": "RT @marcorasi1960: Live oak and fire hydrant, Tulane University, New Orleans https://t.co/LdbYaignXc",
+    "link": "https://twitter.com/None/status/1944534293960937614",
+    "description": "A retweet of a picture of a live oak and fire hydrant at Tulane University.",
+    "sentiment": 0.0,
+    "summary": "Neutral sentiment. The tweet is descriptive and does not express any positive or negative sentiment towards Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-13T23:04:03+00:00",
+    "text": "@usfbulls69 @TheOffSeasonCFB @CollegeSportsO @CFBRep @allcfbIG @BarstoolBigCat @PFTCommenter @PregameEmpire @Pypeline_ @SickosCBB @JackMacCFB @BFW Not Tulane. Sure they went SEC after but they left in the 60s",
+    "link": "https://twitter.com/None/status/1944533309176136125",
+    "description": "A tweet denying Tulane's presence in a specific context (possibly a conference), mentioning their eventual move to the SEC.",
+    "sentiment": 0.0,
+    "summary": "Neutral sentiment.The tweet provides factual information about Tulane's past conference affiliations without expressing a positive or negative opinion.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-13T23:02:45+00:00",
+    "text": "@LHMountaineer24 RIP Cougs. I only included P4 + Tulane cause they're awesome",
+    "link": "https://twitter.com/None/status/1944532984196919406",
+    "description": "A tweet mentioning Tulane as one of a few schools considered 'awesome'.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment.The tweet explicitly labels Tulane as 'awesome', indicating a positive evaluation.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-13T22:54:40+00:00",
+    "text": "RT @marcorasi1960: The moon rises over Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/NWpHd3…",
+    "link": "https://twitter.com/None/status/1944530949787812116",
+    "description": "A picture of the moon over Tulane University.",
+    "sentiment": 0.5,
+    "summary": "Slightly positive sentiment. The tweet presents a positive image of Tulane University.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-13T22:47:00+00:00",
+    "text": "@CollegeFBonX Tulane and it’s not even close ngl",
+    "link": "https://twitter.com/None/status/1944529021225640158",
+    "description": "Short, positive tweet declaring Tulane's superiority.",
+    "sentiment": 1.0,
+    "summary": "The tweet expresses a strong positive sentiment towards Tulane, implying clear dominance or superiority without specifying in what area.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-13T22:41:12+00:00",
+    "text": "@UNLVRebelGrl @benadryl111 @bresee_k Partially true. The exit fees for Memphis &amp; Tulane would have been $25m and they weren't confident the Pac12 media deal would be better than their current deal.",
+    "link": "https://twitter.com/None/status/1944527560722850077",
+    "description": "Discussion about financial implications of Memphis and Tulane leaving a conference.",
+    "sentiment": -0.2,
+    "summary": "Slightly negative sentiment due to the discussion of potential financial losses ('exit fees') for Tulane related to conference realignment. The uncertainty surrounding the media deal adds to a slightly negative implication.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-13T22:37:45+00:00",
+    "text": "@tulane_504 @DavidLSandersJr Sit down and hush.  You nothing about the kid.  You're a casual",
+    "link": "https://twitter.com/None/status/1944526693529735409",
+    "description": "Negative tweet directed at another user.",
+    "sentiment": -0.7,
+    "summary": "The tweet is highly negative and contains an aggressive and dismissive tone towards another user. It does not reflect well on Tulane indirectly.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-13T22:37:29+00:00",
+    "text": "@TUptownUpdate May I please DM you? Go Tulane!",
+    "link": "https://twitter.com/None/status/1944526624894198055",
+    "description": "A user requesting a DM, showing support for Tulane.",
+    "sentiment": 1.0,
+    "summary": "Highly positive sentiment expressed through simple support ('Go Tulane!').",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-13T21:43:54+00:00",
+    "text": "@CollegeFBonX Tulane and Memphis",
+    "link": "https://twitter.com/None/status/1944513137757344234",
+    "description": "A positive tweet about a person attending Tulane after high school.",
+    "sentiment": 0.8,
+    "summary": "The tweet expresses strong positive sentiment towards Tulane. It highlights a success story of a student achieving their goal of attending a D1 university.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-13T21:35:01+00:00",
+    "text": "@benadryl111 @bresee_k @SmokenMirrors24 Not to mention it's been reported by Memphis and Tulane that the pac refused to pay any of their exit fees which is part of the reason they refused to join. Prove me wrong",
+    "link": "https://twitter.com/None/status/1944510903912894955",
+    "description": "Tweet discussing Tulane's exit fees from the Pac-12.",
+    "sentiment": -0.2,
+    "summary": "Slightly negative.The tweet mentions a negative aspect of Tulane's relationship with the Pac-12 (refusal to pay exit fees).",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-13T21:29:01+00:00",
+    "text": "@WCCSG_ @Texanroadrunner @TheHerdBros @Bill_CFB_Guy @SSN_Pac12 @SSN_American @SSN_BoiseState @SSN_Tulane @PacChatNetwork @CFBHome @OS_Beaver @SSN_TexasState @SSN_UTSA @pac9conference Should’ve paid those teams their worth then.",
+    "link": "https://twitter.com/None/status/1944509392390631508",
+    "description": "Tweet criticizing the Pac-12 for not paying teams their worth.",
+    "sentiment": -0.2,
+    "summary": "Slightly negative. Implies that Tulane (and other teams) were underpaid by the Pac-12.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-13T20:30:32+00:00",
+    "text": "@CollegeFBonX Tulane",
+    "link": "https://twitter.com/None/status/1944494675647185076",
+    "description": "A simple mention of Tulane.",
+    "sentiment": 0.0,
+    "summary": "Neutral sentiment; a simple mention without further context.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-13T20:26:12+00:00",
+    "text": "@Not_NileKinnick Tulane should be in the excellent tier such a fun logo",
+    "link": "https://twitter.com/None/status/1944493584134136174",
+    "description": "Positive comment about Tulane's logo.",
+    "sentiment": 0.8,
+    "summary": "Positive sentiment; the tweet praises Tulane's logo as 'fun' and suggests it should be in a higher tier.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-13T20:23:27+00:00",
+    "text": "@DrCarolHenricks Check out the study Tulane done on swcc members. A huge percentage had TBI",
+    "link": "https://twitter.com/None/status/1944492895941312689",
+    "description": "Tweet mentioning a Tulane study on TBI in SWCC members.",
+    "sentiment": 0.7,
+    "summary": "Positive sentiment assuming the study is well-regarded and contributes to academic knowledge. More context is needed for a definitive assessment.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-13T20:00:34+00:00",
+    "text": "📊 Turn data into discovery\nTulane’s MS in Biomedical Informatics prepares you to lead in health data science, clinical informatics &amp; research innovation.\n\n🌿 Apply now: https://t.co/jgPrJcsZ07\n\n#BiomedicalInformatics #Tulane #DataScience #STEM https://t.co/h4ZfUwhE2T",
+    "link": "https://twitter.com/None/status/1944487135291068626",
+    "description": "Promotion of Tulane's MS in Biomedical Informatics program.",
+    "sentiment": 1.0,
+    "summary": "Very positive sentiment.This is a direct promotion of a Tulane academic program, showcasing its strengths.",
+    "is_sport": 0,
+    "affiliation": 1
   }
 ]
