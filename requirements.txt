@@ -26,3 +26,4 @@ joblib
 datasets
 transformers[torch]
 scikit-learn
+playwright
