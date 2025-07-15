@@ -17,6 +17,7 @@ from selenium.webdriver.chrome.options import Options
 import pickle
 import trafilatura
 import os
+from playwright.sync_api import sync_playwright
 
 rss_feed =   {"RSS_Feeds":[{
               "WHO": ["https://www.who.int/rss-feeds/news-english.xml"],
@@ -150,7 +151,38 @@ rss_feed =   {"RSS_Feeds":[{
                                      "http://associated-press.s3-website-us-east-1.amazonaws.com/world-news.xml"]}]
                            
         }
+with sync_playwright() as p:
+    page.goto("https://gohsep.la.gov/about/news/")
+    page.wait_for_load_state("networkidle")
+    news_items = page.locator("div.col-lg-9 ul li")
+    extracted_gohsep_news = []
 
+    for item in news_items.all():
+        link = item.locator("a")
+        url = link.get_attribute("href")
+        url = url if url.startswith("http") else "https://gohsep.la.gov" + url
+        extracted_gohsep_news.append({
+            "source": "Gohsep",
+            "url": url
+        })
+
+    for news in extracted_gohsep_news:
+        page.goto(news["url"])
+        page.wait_for_load_state("networkidle")
+        try:
+            paragraph = page.locator("p.MsoNormal span").all()
+            content = " ".join([p.inner_text() for p in paragraph])
+        except:
+            content = "Content not found"
+
+        news['content'] = content
+        print(news['content'])
+        rss_feed['Extracted_News'] = {}
+
+        if news['source'] not in rss_feed['Extracted_News'][news['source']]:
+          rss_feed['Extracted_News'][news['source']] = []
+
+        rss_feed['Extracted_News'][news['source']].append(news['url'])
 paywalled = ['Economist']
 keywords = ['Civil Rights', 'Antisemitism', 'Federal Grants','federal grant',
 'Discrimination', 'Education Secretary', 'Executive Order', 'Title IX', 'Transgender Athletes',
