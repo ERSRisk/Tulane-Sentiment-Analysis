@@ -152,6 +152,8 @@ rss_feed =   {"RSS_Feeds":[{
                            
         }
 with sync_playwright() as p:
+    browser = p.chromium.launch(headless = True)
+    page = browser.new_page()
     page.goto("https://gohsep.la.gov/about/news/")
     page.wait_for_load_state("networkidle")
     news_items = page.locator("div.col-lg-9 ul li")
