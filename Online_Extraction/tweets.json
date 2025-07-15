@@ -4338,5 +4338,85 @@
     "summary": "Very positive sentiment.This is a direct promotion of a Tulane academic program, showcasing its strengths.",
     "is_sport": 0,
     "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-14T23:59:02+00:00",
+    "text": "@_BryantK_ @AlafrigginBama Chris Hampton from Oregon. was the DC at Tulane in 2022. has been Co-DC and safeties coach and oregon past 2 seasons. maybe not the hottest name, but other P4 teams tried to hire him as DC this past offseason. great recruiter and developer",
+    "link": "https://twitter.com/None/status/1944909534402896193",
+    "description": "Discussion about a former Tulane defensive coordinator.",
+    "sentiment": 0.0,
+    "summary": "Neutral sentiment. The tweet discusses a former Tulane employee's career progression, without expressing significant positive or negative opinions about Tulane itself.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-14T23:22:54+00:00",
+    "text": "RT @RollDatWave: #Tulane #GreenWave Season Preview E-Book is here! \n\n75 pages all Tulane Football ⁦@beinthekneaux⁩  https://t.co/obTdCMfo4p",
+    "link": "https://twitter.com/None/status/1944900443575898486",
+    "description": "Tweet mentioning a learn-to-swim clinic at Tulane.",
+    "sentiment": 0.5,
+    "summary": "Slightly positive sentiment. The mention of Tulane is in a positive context of community outreach, but it's a brief mention.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-14T22:21:06+00:00",
+    "text": "RT @FletcherWDSU: Congrats to New Orleans couple, @Tulane graduates and Team USA rowers John &amp; Hannah Huppi, Saints legend @TheJimmyGraham…",
+    "link": "https://twitter.com/None/status/1944884888101925182",
+    "description": "A user suggests replacing some college teams with Tulane and Georgia Tech.",
+    "sentiment": 0.2,
+    "summary": "Slightly positive sentiment towards Tulane; the inclusion is a positive suggestion.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-14T21:57:11+00:00",
+    "text": "RT @TulaneShop: Hey parents! Want your kids to think you're the GOAT? Buy them a pack of our new Tulane Croc Charms. You can thank us later…",
+    "link": "https://twitter.com/None/status/1944878870953648192",
+    "description": "A tweet promoting Tulane-branded Croc charms.",
+    "sentiment": 0.5,
+    "summary": "Slightly positive sentiment. It's a marketing tweet, indirectly supporting Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-14T21:44:21+00:00",
+    "text": "@CregStephenson Tulane be like: https://t.co/LCX5PeHX4F",
+    "link": "https://twitter.com/None/status/1944875641540894827",
+    "description": "A tweet with an image implying Tulane's excellence.",
+    "sentiment": 0.8,
+    "summary": "Positive; the implication is that Tulane excels, although the content itself is vague.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-14T20:58:30+00:00",
+    "text": "@RedCupKnights @Connor_M_Kelley @CFBKnights Not only UF, I also went to Tulane. Look up both of those acceptance ratings my brother. Study hard, and you won’t have to end up at a safety school🫡",
+    "link": "https://twitter.com/None/status/1944864102104646048",
+    "description": "Comparison of college acceptance rates, mentioning Tulane.",
+    "sentiment": 0.5,
+    "summary": "Slightly positive sentiment.Mentions Tulane in a positive comparison of academic rigor. ",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-14T20:47:36+00:00",
+    "text": "RT @DanielBena15: @Mandee_Lou My two Favorite Are UTSA &amp; Tulane",
+    "link": "https://twitter.com/None/status/1944861358836867532",
+    "description": "Tweet expressing preference for UTSA and Tulane.",
+    "sentiment": 0.5,
+    "summary": "Positive sentiment due to expressing a preference for Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-14T20:47:31+00:00",
+    "text": "@Mandee_Lou My two Favorite Are UTSA &amp; Tulane",
+    "link": "https://twitter.com/None/status/1944861336510586947",
+    "description": "Tweet expressing preference for UTSA and Tulane.",
+    "sentiment": 0.5,
+    "summary": "Positive sentiment due to expressing a preference for Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
   }
 ]
