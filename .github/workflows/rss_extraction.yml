@@ -42,7 +42,9 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          
+      - name: Install Playwright browsers
+        run: python -m playwright install --with-deps
+        
       - name: Install spaCy English model
         run: python -m spacy download en_core_web_sm
 
