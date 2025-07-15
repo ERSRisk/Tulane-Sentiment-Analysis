@@ -69,7 +69,7 @@ def save_to_json(topics, topic_names):
             "keywords": keywords,
             "documents": docs
         })
-    with open('topics_BERT.json', 'w') as f:
+    with open('Model_trianing/topics_BERT.json', 'w') as f:
         json.dump(topic_dict, f, indent=4)
 
 topic_blocks = []
@@ -407,7 +407,7 @@ def track_over_time(df):
     df = df.dropna(subset=['Published'])
 
     df['week'] = df['Published'].dt.to_period('W').apply(lambda r: r.start_time)
-    topic_name_map = {topic['topic']: topic['name'] for topic in json.load(open('topics_BERT.json'))}
+    topic_name_map = {topic['topic']: topic['name'] for topic in json.load(open('Model_training/topics_BERT.json'))}
     df['Topic_Name'] = df['Topic'].map(topic_name_map)
     topic_trend = df.groupby(['week', 'Topic_Name']).size().reset_index(name='article_count')
     topic_trend.to_csv('topic_trend.csv', index = False)
