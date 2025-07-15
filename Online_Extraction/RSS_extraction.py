@@ -181,7 +181,7 @@ with sync_playwright() as p:
         print(news['content'])
         rss_feed['Extracted_News'] = {}
 
-        if news['source'] not in rss_feed['Extracted_News'][news['source']]:
+        if news['source'] not in rss_feed['Extracted_News']:
           rss_feed['Extracted_News'][news['source']] = []
 
         rss_feed['Extracted_News'][news['source']].append(news['url'])
