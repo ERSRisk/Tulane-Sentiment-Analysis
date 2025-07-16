@@ -26,7 +26,7 @@ import matplotlib.pyplot as plt
 st.set_page_config(page_title="Tulane Risk Dashboard")
 st.sidebar.title("Navigation")
 st.sidebar.markdown("Select a tool:")
-selection = st.sidebar.selectbox("Choose a tool:", ["News Sentiment", "X Sentiment", "Unmatched Topic Analysis"])
+selection = st.sidebar.selectbox("Choose a tool:", ["News Sentiment", "X Sentiment", "Article Risk Review", "Unmatched Topic Analysis"])
 
 if "current_tab" not in st.session_state:
     st.session_state.current_tab = selection
@@ -841,3 +841,54 @@ if selection == "X Sentiment":
                     json.dump(unmatched_json, f)
                 
                 st.success(f"Topic {topic['topic']} discarded successfully!")
+
+if selection == "Article Risk Review":
+    import streamlit as st
+    import pandas as pd
+    import json
+    from datetime import datetime
+    from datetime import timedelta
+
+    st.title("Article Risk Review Portal")
+    #give me a filter to filter articles by date range
+    st.sidebar.header("Filter Articles")
+    start_date = st.sidebar.date_input("Start Date", datetime.now() - timedelta(days=30))
+    end_date = st.sidebar.date_input("End Date", datetime.now())
+    
+    
+    if start_date > end_date:
+        st.sidebar.error("Start date must be before end date.")
+    # Load articles and risks
+    
+    articles = pd.read_csv('Model_training/BERTopic_results.csv')
+    articles = articles[articles['Published']> start_date.strftime('%Y-%m-%d')]
+    articles = articles[articles['Published']< end_date.strftime('%Y-%m-%d')]
+    with open('Model_training/risks.json', 'r') as f:
+        data = json.load(f)
+    risks = data['risks']
+    all_possible_risks = [risk['name'] for risk in risks]
+    
+    all_possible_risks = [r.lower() for r in all_possible_risks if isinstance(r, str)]
+    filter_risks = [r for r in all_possible_risks if r != "no risk"]
+    
+    filtered_risks = st.multiselect("Select Risks to Filter Articles", options = all_possible_risks, default=filter_risks, key="risk_filter")
+    for idx, article in articles.iterrows():
+        if pd.isna(article.get('Title')) or pd.isna(article.get('Content')):
+            continue
+        if not any(risk.lower() in article.get('Predicted_Risks', []) for risk in filtered_risks):
+            continue
+        title = str(article.get("Title", ""))[:100]
+        if title != "":
+            with st.expander(f"{title}..."):
+                st.markdown(f"[Read full article]({article['Link']})")
+                st.write(article['Content'][:1000])
+                
+                predicted = article.get("Predicted_Risks", [])
+                st.markdown("**Predicted Risks:**")
+                selected_risks = st.multiselect("Edit risks if necessary:", all_possible_risks, default=predicted, key=f"edit_{idx}")
+                
+                if st.button("Save Correction", key=f"save_{idx}"):
+                    # Save the correction
+                    articles.at[idx, 'Predicted_Risks'] = selected_risks
+                    articles.to_csv('Model_training/BERTopic_results.csv', index=False)
+                    st.success("Correction saved.")
