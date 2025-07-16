@@ -4418,5 +4418,185 @@
     "summary": "Positive sentiment due to expressing a preference for Tulane.",
     "is_sport": 0,
     "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-15T23:43:17+00:00",
+    "text": "RT @famousjordyn1: It’s almost that time, Green Wave fans!\nLock in your Tulane Football season tickets and be there for every big play, eve…",
+    "link": "https://twitter.com/None/status/1945267960362205446",
+    "description": "Tweet stating a fact about Tulane's football stadium.",
+    "sentiment": 0.0,
+    "summary": "Neutral sentiment; a factual statement about Tulane's facilities.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-15T23:31:53+00:00",
+    "text": "RT @marcorasi1960: The moon rises over Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/NWpHd3…",
+    "link": "https://twitter.com/None/status/1945265091600850966",
+    "description": "Tweet featuring a picture of the moon rising over Tulane University.",
+    "sentiment": 0.5,
+    "summary": "Positive sentiment; a picturesque image promoting Tulane University.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-15T23:24:03+00:00",
+    "text": "📰 Our collaborative study on telomere maintenance in #Drosophila was featured in this month’s Bio Notes newsletter from Tulane’s Dept. of Biochemistry &amp; Molecular Biology!\n🔗 https://t.co/wPdPu8yacC\n✨ Thanks to everyone who contributed to this work!\n#Telomeres #ScienceAdvances https://t.co/PffmFoRaFm",
+    "link": "https://twitter.com/None/status/1945263121125241079",
+    "description": "Tweet announcing a featured collaborative study from Tulane's Department of Biochemistry & Molecular Biology.",
+    "sentiment": 0.9,
+    "summary": "Very positive sentiment; highlights a successful academic achievement.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-15T22:57:10+00:00",
+    "text": "@GreenWaveMan @SSN_Tulane Clemson is going to poach us after the natty 💀",
+    "link": "https://twitter.com/None/status/1945256352009310564",
+    "description": "A tweet expressing concern about Clemson potentially poaching Tulane's coaching staff.",
+    "sentiment": -0.3,
+    "summary": "Slightly negative sentiment due to the concern about losing key personnel.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-15T22:40:57+00:00",
+    "text": "@DrG_Tulane Unfortunately rules for drones may be confusing at times….  I always prefer to err on safe side, so I never enter the perimeter of a refinery :-)",
+    "link": "https://twitter.com/None/status/1945252274600562729",
+    "description": "A tweet offering advice about drone safety near refineries.",
+    "sentiment": 0.0,
+    "summary": "Neutral sentiment.The tweet is unrelated to Tulane's academic or athletic reputation.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-15T22:38:12+00:00",
+    "text": "@SSN_Tulane @GreenWaveMan You gotta do what you gotta do",
+    "link": "https://twitter.com/None/status/1945251580044820975",
+    "description": "A tweet expressing agreement or support, context unclear.",
+    "sentiment": 0.0,
+    "summary": "Neutral sentiment.The tweet lacks context and does not express any positive or negative feelings toward Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-15T22:19:14+00:00",
+    "text": "@SSN_Tulane Bad really bad",
+    "link": "https://twitter.com/None/status/1945246808248062075",
+    "description": "Expressing strong negative sentiment towards Tulane.",
+    "sentiment": -1.0,
+    "summary": "Extremely negative sentiment.The tweet uses strong negative language ('bad really bad') without further explanation, suggesting significant dissatisfaction with Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-15T22:04:15+00:00",
+    "text": "RT @ParkerWaters: My license plate says it all.  Made it official today and signed up for another year of covering Tulane Athletics. It isn…",
+    "link": "https://twitter.com/None/status/1945243038860644408",
+    "description": "Tweet highlighting a Tulane doctor's advice on stroke prevention.",
+    "sentiment": 1.0,
+    "summary": "Very positive sentiment.This tweet promotes a Tulane doctor's expertise and contributes positively to Tulane's reputation through association with high-quality research and healthcare.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-15T21:42:33+00:00",
+    "text": "RT @nkvlahos: @samspiegs @SWiltfong_ @ChadSimmons_ @YellowhammerFB Sam - thanks for the Tulane coverage.  If we subscribed to the old Rival…",
+    "link": "https://twitter.com/None/status/1945237575653789748",
+    "description": "A retweet thanking someone for Tulane coverage.",
+    "sentiment": 0.5,
+    "summary": "Slightly positive.Acknowledgement of positive coverage of Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-15T21:41:36+00:00",
+    "text": "Guys, Tulane needs a “locked on” podcast. If the sun-belt can get a podcast, the AAC and Tulane should have their own.",
+    "link": "https://twitter.com/None/status/1945237338394640586",
+    "description": "Suggestion for a 'Locked On' podcast about Tulane.",
+    "sentiment": 0.5,
+    "summary": "Slightly positive. Shows interest in Tulane and its athletics.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-15T21:11:47+00:00",
+    "text": "@Tulane Love seeing our faculty leading innovative research that addresses real environmental challenges. The built environment has such potential for positive impact!",
+    "link": "https://twitter.com/None/status/1945229831966212581",
+    "description": "A tweet praising Tulane faculty's innovative environmental research.",
+    "sentiment": 1.0,
+    "summary": "Very positive.Directly praises Tulane's faculty and research, highlighting positive contributions to the environment. This is a strong positive statement directly related to Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-15T20:52:20+00:00",
+    "text": "RT @john_siglerr: The Bill Walsh Diversity Coaching Fellowship has tabbed Tulane coach Brock Hays for a unique experience at Saints trainin…",
+    "link": "https://twitter.com/None/status/1945224937297387738",
+    "description": "Tulane coach Brock Hays participating in the Bill Walsh Diversity Coaching Fellowship.",
+    "sentiment": 1.0,
+    "summary": "Very positive sentiment. Highlights Tulane's involvement in a diversity initiative, showcasing a positive aspect of the university.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-15T20:13:32+00:00",
+    "text": "@KaareJohnson @MichaelArata @GreenWaveFB @Tulane @TulaneAthletics @FTWCollective @CoachJonSumrall Yea I’m unfollowing. You have no clue what you are talking about and even worse giving an opinion before you do. Did you even read the announcement that Tulane was utilizing a highly regarded third party to operate a chunk of their in-house rev share team? No? Didn’t think so 🙄",
+    "link": "https://twitter.com/None/status/1945215173217734859",
+    "description": "A critical response to a previous tweet about Tulane's revenue sharing, suggesting a lack of understanding and information.",
+    "sentiment": -0.3,
+    "summary": "Negative sentiment towards the previous tweet, indirectly affecting Tulane's perception.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-15T20:12:11+00:00",
+    "text": "RT @Kenichi_FTW: The Tulane community needs unified support more than ever. This sort of comment minimizes our absolute effort to bring us…",
+    "link": "https://twitter.com/None/status/1945214833952981469",
+    "description": "A retweet emphasizing the need for unified support for the Tulane community.",
+    "sentiment": 0.8,
+    "summary": "Highly positive; promotes unity and support for Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-15T20:07:17+00:00",
+    "text": "@MaximusTitanFan Nah spears went to Tulane",
+    "link": "https://twitter.com/None/status/1945213600668238299",
+    "description": "A statement that someone named Spears attended Tulane.",
+    "sentiment": 0.0,
+    "summary": "Neutral; a simple factual statement.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-15T20:07:10+00:00",
+    "text": "@Harrison8701 @ruslivingood Absolutely wrong. Your stance is the SBC could steal and AAC team but only if the AAC falls apart. Tulane would not join the SBC and be the 4th Louisiana team. If the SBC could poach an AAC team they would have done it. Instead they got a mid CUSA team.",
+    "link": "https://twitter.com/None/status/1945213572100849981",
+    "description": "An argument against Tulane joining the Sun Belt Conference, asserting it wouldn't happen.",
+    "sentiment": 0.0,
+    "summary": "Neutral; a statement of opinion on a hypothetical scenario.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-15T19:48:09+00:00",
+    "text": "@KaareJohnson @MichaelArata @GreenWaveFB @Tulane @TulaneAthletics @FTWCollective @CoachJonSumrall As a matter of fact, now that I think of it, this has the tang of some anti-David Harris stuff that was circulating on X last fall. Maybe it’s the same people (no, this doesn’t include Kaare).",
+    "link": "https://twitter.com/None/status/1945208784978112906",
+    "description": "Tweet suggesting possible anti-David Harris sentiment on X.",
+    "sentiment": -0.5,
+    "summary": "Slightly negative sentiment due to the implication of negativity and potential infighting within the Tulane community.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-15T19:47:39+00:00",
+    "text": "RT @Kenichi_FTW: The Tulane community needs unified support more than ever. This sort of comment minimizes our absolute effort to bring us…",
+    "link": "https://twitter.com/None/status/1945208662278201611",
+    "description": "Tweet calling for unified support for the Tulane community.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment. It emphasizes the importance of community support and unity for Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
   }
 ]
