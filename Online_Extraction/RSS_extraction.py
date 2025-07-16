@@ -182,7 +182,7 @@ with sync_playwright() as p:
         rss_feed['Extracted_News'] = {}
 
         if news['source'] not in rss_feed['Extracted_News']:
-          rss_feed['Extracted_News'][news['source']] = []
+          rss_feed["RSS_Feeds"][0]["Gohsep"].append(news["url"])
 
         rss_feed['Extracted_News'][news['source']].append(news['url'])
 paywalled = ['Economist']
