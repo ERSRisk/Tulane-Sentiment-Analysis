@@ -186,7 +186,6 @@ with sync_playwright() as p:
             rss_feed["RSS_Feeds"][0][news['source']] = []
           rss_feed["RSS_Feeds"][0][news['source']].append(news["url"])
 
-        rss_feed['Extracted_News'][news['source']].append(news['url'])
 paywalled = ['Economist']
 keywords = ['Civil Rights', 'Antisemitism', 'Federal Grants','federal grant',
 'Discrimination', 'Education Secretary', 'Executive Order', 'Title IX', 'Transgender Athletes',
