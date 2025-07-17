@@ -411,6 +411,59 @@ def track_over_time(df):
     df['Topic_Name'] = df['Topic'].map(topic_name_map)
     topic_trend = df.groupby(['week', 'Topic_Name']).size().reset_index(name='article_count')
     topic_trend.to_csv('topic_trend.csv', index = False)
+
+def university_label(articles, batch_size = 5, delay =5):
+    GEMINI_API_KEY = os.getenv("PAID_API_KEY")
+    client = genai.Client(api_key=GEMINI_API_KEY)
+    results = []
+    for start in range(0, len(articles), batch_size):
+        batch = articles.iloc[start:start + batch_size]
+        batch_number = start // batch_size + 1
+        total_batches = (len(articles) + batch_size - 1) // batch_size
+        print(f"📦 Processing batch {batch_number} of {total_batches}...")
+        for _, article in batch.iterrows():
+            try:
+                prompt = (
+                    f"""
+                    Read the following title and content from the following article: \
+                    Title: {article['Title']}"
+                    Article: {article['Content']}
+                    If the article refers to higher education, university lawsuits, or research funding in higher education, 
+                    return a JSON object like:
+                    {{
+                        "Title":"same title",
+                        "Content":"same content",
+                        "University Label": 1
+                    }}
+                    Else, set "University Label" to 0
+                    """
+                )
+                response = client.models.generate_content(model="gemini-1.5-flash", contents=[prompt])
+                
+                if response.text:
+                    response_text = response.text
+                    json_str = re.search(r"```json\s*(\{.*\})\s*```", response_text, re.DOTALL)
+                    parsed = json.loads(json_str.group(1))
+                    results.append(parsed)
+            except ClientError as e:
+                if "RESOURCE_EXHAUSTED" in str(e):
+                    wait_time = 60  # Default wait time (1 minute)
+                    retry_delay_match = re.search(r"'retryDelay': '(\d+)s'", str(e))
+                    if retry_delay_match:
+                        wait_time = int(retry_delay_match.group(1))  # Use API's recommended delay
+            
+                    print(f"⚠️ API quota exceeded. Retrying in {wait_time} seconds...")
+                    time.sleep(wait_time)
+                else:
+                    print(f"❌ API request failed: {e}")
+                    return "❌ API error encountered."
+                continue
+            except requests.exceptions.ConnectionError:
+                wait_time = 2
+                print(f"Connection error. Waiting for {wait_time:.2f} seconds before retrying...")
+                time.sleep(wait_time)
+                continue
+    return results
     
 
 
@@ -439,6 +492,9 @@ if new_articles:
 df = predict_risks(df)
 print("✅ Applying risk_weights...", flush=True)
 df = risk_weights(df)
-df.to_csv('Model_training/BERTopic_results.csv', index =False)
+results = university_label(df)
+labeled_df = pd.DataFrame(results)
+labeled_df.rename(columns = {"University Label": "University_Label"}, inplace = True)
+df.to_csv('Model_training/BERTopic_results1.csv', index =False)
 #Show the articles over time
 track_over_time(df)
