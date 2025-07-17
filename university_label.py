@@ -8,6 +8,7 @@ import toml
 import time
 import requests
 import re
+import os
 
 articles = pd.read_csv('Model_training/BERTopic_results.csv')
 
