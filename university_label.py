@@ -12,7 +12,7 @@ import re
 articles = pd.read_csv('Model_training/BERTopic_results.csv')
 
 def university_label(articles, batch_size = 5, delay =5):
-    GEMINI_API_KEY = "AIzaSyAKMuQsZAl9Yzps7aCsGCIWXlhqlz0QdAs"
+    GEMINI_API_KEY = os.getenv("PAID_API_KEY")
     client = genai.Client(api_key=GEMINI_API_KEY)
     results = []
     for start in range(0, len(articles), batch_size):
