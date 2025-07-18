@@ -1,3 +1,4 @@
+import streamlit as st
 import pandas as pd
 import json
 from datetime import datetime
@@ -8,12 +9,35 @@ import toml
 import time
 import requests
 import re
-import os
+import backoff
 
-articles = pd.read_csv('Model_training/BERTopic_results.csv')
+@backoff.on_exception(backoff.expo,
+                        (genai.errors.ServerError, requests.exceptions.ConnectionError),
+                        max_tries = 6,
+                        jitter = None,
+                        on_backoff = lambda details: print(
+                            f"Retrying after error: {details['exception']} (try {details['tries']} after {details['wait']}s)"
+                        ))
 
-def university_label(articles, batch_size = 5, delay =5):
-    GEMINI_API_KEY = os.getenv("PAID_API_KEY")
+def call_gemini(client, prompt):
+    return client.models.generate_content(model = "gemini-1.5-flash", contents = [prompt])
+st.title("Article Risk Review Portal")
+#give me a filter to filter articles by date range
+st.sidebar.header("Filter Articles")
+start_date = st.sidebar.date_input("Start Date", datetime.now() - timedelta(days=30))
+end_date = st.sidebar.date_input("End Date", datetime.now())
+
+
+if start_date > end_date:
+    st.sidebar.error("Start date must be before end date.")
+# Load articles and risks
+
+articles = pd.read_csv('E:/TUL SP 25/Risk Project/ERM Practicum/Model_training/BERTopic_results.csv')
+print(len(articles))
+def university_label(articles, batch_size = 10, delay =5):
+    with open('.streamlit/secrets.toml', 'r') as f:
+        secrets = toml.load(f)
+    GEMINI_API_KEY = "AIzaSyAKMuQsZAl9Yzps7aCsGCIWXlhqlz0QdAs"
     client = genai.Client(api_key=GEMINI_API_KEY)
     results = []
     for start in range(0, len(articles), batch_size):
@@ -22,12 +46,16 @@ def university_label(articles, batch_size = 5, delay =5):
         total_batches = (len(articles) + batch_size - 1) // batch_size
         print(f"📦 Processing batch {batch_number} of {total_batches}...")
         for _, article in batch.iterrows():
+            content = article['Content']
+            title = article['Title']
+            if pd.isna(content) or pd.isna(title):
+                continue
             try:
                 prompt = (
                     f"""
                     Read the following title and content from the following article: \
                     Title: {article['Title']}"
-                    Article: {article['Content']}
+                    Article: {" ".join(str(article['Content']).split()[:200])}
                     If the article refers to higher education, university lawsuits, or research funding in higher education, 
                     return a JSON object like:
                     {{
@@ -38,13 +66,22 @@ def university_label(articles, batch_size = 5, delay =5):
                     Else, set "University Label" to 0
                     """
                 )
-                response = client.models.generate_content(model="gemini-1.5-flash", contents=[prompt])
+                response = call_gemini(client, prompt)
                 
                 if response.text:
                     response_text = response.text
                     json_str = re.search(r"```json\s*(\{.*\})\s*```", response_text, re.DOTALL)
-                    parsed = json.loads(json_str.group(1))
-                    results.append(parsed)
+                    if json_str:
+                        parsed = json.loads(json_str.group(1))
+                        results.append(parsed)
+                    else:
+                        try:
+                            # Try parsing whole text as raw JSON (no backticks)
+                            parsed = json.loads(response_text)
+                            results.append(parsed)
+                        except Exception:
+                            print("⚠️ Could not parse Gemini output:", response_text[:200])
+                            continue
             except ClientError as e:
                 if "RESOURCE_EXHAUSTED" in str(e):
                     wait_time = 60  # Default wait time (1 minute)
@@ -67,16 +104,5 @@ def university_label(articles, batch_size = 5, delay =5):
 
 
 results = university_label(articles)
-labeled_df = pd.DataFrame(results)
-labeled_df.rename(columns = {"University Label": "University_Label"}, inplace = True)
-
-merged_articles = pd.merge(
-    articles,
-    labeled_df[['Title', "Content", "University_Label"]],
-    on = ["Title", "Content"],
-    how = "left"
-)
-
-merged_articles['University_Label'] = merged_articles["University_Label"].fillna(-1).astype(int)
-
-merged_articles.to_csv("Model_training/BERTopic_test.csv", index = False)
+results_df = pd.DataFrame(results)
+results_df.to_csv('BERTopic_before.csv', index = False)
