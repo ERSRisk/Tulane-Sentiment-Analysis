@@ -35,8 +35,6 @@ if start_date > end_date:
 articles = pd.read_csv('Model_training/BERTopic_results.csv')
 print(len(articles))
 def university_label(articles, batch_size = 10, delay =5):
-    with open('.streamlit/secrets.toml', 'r') as f:
-        secrets = toml.load(f)
     GEMINI_API_KEY = os.getenv('PAID_API_KEY')
     client = genai.Client(api_key=GEMINI_API_KEY)
     results = []
