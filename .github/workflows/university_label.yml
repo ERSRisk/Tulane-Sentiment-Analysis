@@ -36,6 +36,6 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git pull --rebase origin main
-          git add Model_training/BERTopic_test.csv
+          git add Model_training/BERTopic_before.csv
           git commit -m "Update topic results from GitHub Actions run" || echo "No changes to commit"
           git push origin main
