@@ -56,7 +56,7 @@ def university_label(articles, batch_size = 10, delay =5):
                     Title: {article['Title']}"
                     Article: {" ".join(str(article['Content']).split()[:200])}
                     If the article refers to higher education, university lawsuits, or research funding in higher education, 
-                    return a JSON object like:
+                    return a **compact and valid JSON object**, properly escaped, without explanations:
                     {{
                         "Title":"same title",
                         "Content":"same content",
@@ -70,17 +70,23 @@ def university_label(articles, batch_size = 10, delay =5):
                 if response.text:
                     response_text = response.text
                     json_str = re.search(r"```json\s*(\{.*\})\s*```", response_text, re.DOTALL)
-                    if json_str:
+                if json_str:
+                    try:
                         parsed = json.loads(json_str.group(1))
                         results.append(parsed)
-                    else:
-                        try:
-                            # Try parsing whole text as raw JSON (no backticks)
-                            parsed = json.loads(response_text)
-                            results.append(parsed)
-                        except Exception:
-                            print("⚠️ Could not parse Gemini output:", response_text[:200])
-                            continue
+                    except json.JSONDecodeError as e:
+                        print(f"⚠️ JSON decode error in triple-backtick block: {e}")
+                        print("Raw text:", json_str.group(1)[:300])
+                        continue
+                else:
+                    try:
+                        parsed = json.loads(response_text)
+                        results.append(parsed)
+                    except json.JSONDecodeError as e:
+                        print(f"⚠️ JSON decode error in fallback block: {e}")
+                        print("Raw text:", response_text[:300])
+                        continue
+                        
             except ClientError as e:
                 if "RESOURCE_EXHAUSTED" in str(e):
                     wait_time = 60  # Default wait time (1 minute)
