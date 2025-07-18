@@ -44,7 +44,7 @@ def university_label(articles, batch_size = 10, delay =5):
         batch = articles.iloc[start:start + batch_size]
         batch_number = start // batch_size + 1
         total_batches = (len(articles) + batch_size - 1) // batch_size
-        print(f"📦 Processing batch {batch_number} of {total_batches}...")
+        print(f"📦 Processing batch {batch_number} of {total_batches}...", flush = True)
         for _, article in batch.iterrows():
             content = article['Content']
             title = article['Title']
