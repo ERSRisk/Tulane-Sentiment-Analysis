@@ -10,6 +10,7 @@ import time
 import requests
 import re
 import backoff
+import os
 
 @backoff.on_exception(backoff.expo,
                         (genai.errors.ServerError, requests.exceptions.ConnectionError),
