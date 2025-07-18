@@ -6,6 +6,7 @@ nest_asyncio
 google-generativeai
 google-genai
 requests
+backoff
 plotly
 streamlit-tags
 newspaper3k
