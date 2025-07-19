@@ -9,6 +9,7 @@ import re
 import backoff
 import os
 import asyncio
+import ast
 
 # Initialize Gemini client
 GEMINI_API_KEY = os.getenv("PAID_API_KEY")
@@ -54,14 +55,22 @@ async def process_article(article, sem, batch_number=None, total_batches=None, a
             if hasattr(response, "text") and response.text:
                 response_text = response.text
                 json_str = re.search(r"```json\s*(\{.*\})\s*```", response_text, re.DOTALL)
+                
+                # Try parsing from triple backticks
+                if json_str:
+                    raw = json_str.group(1)
+                else:
+                    raw = response_text
+                
+                # Attempt robust parsing
                 try:
-                    if json_str:
-                        return json.loads(json_str.group(1))
-                    else:
-                        return json.loads(response_text)
-                except json.JSONDecodeError as e:
-                    print(f"⚠️ JSON decode error: {e}")
-                    return None
+                    parsed = json.loads(raw)
+                except json.JSONDecodeError as e1:
+                    try:
+                        parsed = ast.literal_eval(raw)  # fallback (still secure)
+                    except Exception as e2:
+                        print(f"⚠️ JSON decode fallback error: {e1} | Eval error: {e2}")
+                        return None
         except ClientError as e:
             print(f"❌ ClientError: {e}")
             return None
