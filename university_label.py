@@ -11,82 +11,73 @@ import os
 import asyncio
 import ast
 
-# Initialize Gemini client
-GEMINI_API_KEY = os.getenv("PAID_API_KEY")
-client = genai.Client(api_key=GEMINI_API_KEY)
-
-# Gemini API call
-def call_gemini(client, prompt):
+# 🧠 Create Gemini client inside the thread to avoid thread-sharing issues
+def call_gemini(prompt):
+    GEMINI_API_KEY = os.getenv("PAID_API_KEY")
+    client = genai.Client(api_key=GEMINI_API_KEY)
     return client.models.generate_content(model="gemini-1.5-flash", contents=[prompt])
 
-# Async error handling decorator (used inside process_article)
+# 🧠 Async article processor
 @backoff.on_exception(backoff.expo,
                       (genai.errors.ServerError, requests.exceptions.ConnectionError),
                       max_tries=6,
                       jitter=None,
                       on_backoff=lambda details: print(
-                          f"Retrying after error: {details['exception']} (try {details['tries']} after {details['wait']}s)")
+                          f"Retrying after error: {details['exception']} (try {details['tries']} after {details['wait']}s)", flush=True)
 )
 async def process_article(article, sem, batch_number=None, total_batches=None, article_index=None):
-    if batch_number is not None and total_batches is not None and article_index is not None:
-        print(f"📦 Processing Batch {batch_number} of {total_batches} | Article {article_index}", flush=True)
     async with sem:
-        content = article['Content']
-        title = article['Title']
-        if pd.isna(content) or pd.isna(title):
-            return None
-
-        prompt = f"""
-        Read the following title and content from the following article: 
-        Title: {title}
-        Article: {" ".join(str(content).split()[:200])}
-        If the article refers to higher education, university lawsuits, or research funding in higher education, 
-        return a **compact and valid JSON object**, properly escaped, without explanations:
-        {{
-            "Title":"same title",
-            "Content":"same content",
-            "University Label": 1
-        }}
-        Else, set "University Label" to 0
-        """
-
         try:
-            response = await asyncio.to_thread(call_gemini, client, prompt)
+            if batch_number is not None and total_batches is not None and article_index is not None:
+                print(f"📦 Processing Batch {batch_number} of {total_batches} | Article {article_index}", flush=True)
+
+            content = article['Content']
+            title = article['Title']
+            if pd.isna(content) or pd.isna(title):
+                return None
+
+            prompt = f"""
+            Read the following title and content from the following article: 
+            Title: {title}
+            Article: {" ".join(str(content).split()[:200])}
+            If the article refers to higher education, university lawsuits, or research funding in higher education, 
+            return a **compact and valid JSON object**, properly escaped, without explanations:
+            {{
+                "Title":"same title",
+                "Content":"same content",
+                "University Label": 1
+            }}
+            Else, set "University Label" to 0
+            """
+
+            response = await asyncio.to_thread(call_gemini, prompt)
             if hasattr(response, "text") and response.text:
                 response_text = response.text
                 json_str = re.search(r"```json\s*(\{.*\})\s*```", response_text, re.DOTALL)
-                
-                # Try parsing from triple backticks
-                if json_str:
-                    raw = json_str.group(1)
-                else:
-                    raw = response_text
-                
-                # Attempt robust parsing
+                raw = json_str.group(1) if json_str else response_text
+
                 try:
-                    parsed = json.loads(raw)
+                    return json.loads(raw)
                 except json.JSONDecodeError as e1:
                     try:
-                        parsed = ast.literal_eval(raw)  # fallback (still secure)
+                        return ast.literal_eval(raw)
                     except Exception as e2:
-                        print(f"⚠️ JSON decode fallback error: {e1} | Eval error: {e2}")
+                        print(f"⚠️ JSON decode fallback error: {e1} | Eval error: {e2}", flush=True)
                         return None
-        except ClientError as e:
-            print(f"❌ ClientError: {e}")
-            return None
-        except requests.exceptions.ConnectionError:
-            print("⚠️ Connection error, skipping...")
+        except Exception as e:
+            print(f"🔥 Uncaught error in article {article_index} of batch {batch_number}: {e}", flush=True)
             return None
 
-# Run all in async
+# 🚀 Async batch runner
 async def university_label_async(articles, batch_size=15, concurrency=10):
     sem = asyncio.Semaphore(concurrency)
     tasks = []
 
     total_articles = len(articles)
-    total_batches = (len(articles) + batch_size - 1) // batch_size
+    total_batches = (total_articles + batch_size - 1) // batch_size
     for start in range(0, total_articles, batch_size):
         batch_number = (start // batch_size) + 1
+        print(f"🚚 Starting Batch {batch_number} of {total_batches}", flush=True)
         batch = articles.iloc[start:start+batch_size]
         for i, (_, row) in enumerate(batch.iterrows()):
             tasks.append(process_article(row, sem,
@@ -97,7 +88,7 @@ async def university_label_async(articles, batch_size=15, concurrency=10):
     results = await asyncio.gather(*tasks)
     return [r for r in results if r is not None]
 
-# Streamlit UI
+# 🎛️ Streamlit UI
 st.title("Article Risk Review Portal")
 
 st.sidebar.header("Filter Articles")
@@ -107,9 +98,11 @@ end_date = st.sidebar.date_input("End Date", datetime.now())
 if start_date > end_date:
     st.sidebar.error("Start date must be before end date.")
 
+# 📄 Load and run
 articles = pd.read_csv('Model_training/BERTopic_results.csv')
-print(len(articles))
+print(f"📄 Total articles: {len(articles)}", flush=True)
 
 results = asyncio.run(university_label_async(articles))
 results_df = pd.DataFrame(results)
 results_df.to_csv('BERTopic_before.csv', index=False)
+print("✅ Done! Saved as BERTopic_before.csv", flush=True)
