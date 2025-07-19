@@ -35,7 +35,7 @@ if start_date > end_date:
 
 articles = pd.read_csv('Model_training/BERTopic_results.csv')
 print(len(articles))
-def university_label(articles, batch_size = 10, delay =5):
+def university_label(articles, batch_size = 15, delay =5):
     GEMINI_API_KEY = os.getenv('PAID_API_KEY')
     client = genai.Client(api_key=GEMINI_API_KEY)
     results = []
