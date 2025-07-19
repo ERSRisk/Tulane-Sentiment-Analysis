@@ -4948,5 +4948,145 @@
     "summary": "Very positive; highlights academic achievement and prestige for Tulane.",
     "is_sport": 0,
     "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-18T22:25:31+00:00",
+    "text": "Still Fly is an all-time marching band song Tulane’s band should play it every timeout or better yet just make it the fight song https://t.co/5pye8L1Ri4",
+    "link": "https://twitter.com/None/status/1946335552896106590",
+    "description": "Suggestion to make 'Still Fly' the Tulane marching band's fight song.",
+    "sentiment": 0.5,
+    "summary": "Positive sentiment because it expresses school spirit and pride in the Tulane marching band.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-18T21:41:54+00:00",
+    "text": "RT @BattleCattleFan: Former AD at Penn State, Cal, Tulane. \n\nDeputy AD at Notre Dame. \n\nWilling to take an Interim role, in little ol’ Loga…",
+    "link": "https://twitter.com/None/status/1946324577761763605",
+    "description": "Tweet mentioning someone's experience as a former athletic director at Tulane.",
+    "sentiment": 0.2,
+    "summary": "Slightly positive; mentions past affiliation with Tulane in a non-negative context.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-18T21:10:52+00:00",
+    "text": "@watchlover679 @tulane_504 OMG what have we come to",
+    "link": "https://twitter.com/None/status/1946316766403088488",
+    "description": "A user expresses confusion or concern related to something at Tulane.",
+    "sentiment": -0.5,
+    "summary": "Negative sentiment due to the expression of confusion and concern, implying a potentially negative situation at Tulane without further context.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-18T21:07:07+00:00",
+    "text": "@SGMAN31 Tulane is redeveloping it.",
+    "link": "https://twitter.com/None/status/1946315823993278763",
+    "description": "Tulane is redeveloping something (unspecified).",
+    "sentiment": 0.5,
+    "summary": "Slightly positive as redevelopment usually implies improvement, but the lack of specifics makes it neutral leaning positive.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-18T21:03:03+00:00",
+    "text": "@dovebluejay69 Your new name is confusing me I was like omg who is this mystery Tulane female……",
+    "link": "https://twitter.com/None/status/1946314800314679701",
+    "description": "A user expresses confusion about a Twitter account potentially related to Tulane.",
+    "sentiment": 0.0,
+    "summary": "Neutral sentiment; it's a statement of confusion, not a positive or negative opinion of Tulane itself.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-18T20:53:43+00:00",
+    "text": "@CollegeFBonX Tulane/ Northwestern…",
+    "link": "https://twitter.com/None/status/1946312450254532943",
+    "description": "A comparison between Tulane and Northwestern.",
+    "sentiment": 0.0,
+    "summary": "Neutral sentiment; it's a simple comparison without any positive or negative connotations towards Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-18T20:37:11+00:00",
+    "text": "RT @Electro8236: Tulane has a great color scheme and they’ve had many designs over the years. I fixed the inconsistent striping throughout…",
+    "link": "https://twitter.com/None/status/1946308287563006128",
+    "description": "A tweet praising Tulane's color scheme and designs.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment due to praise for Tulane's visual identity.No negative keywords are present.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-18T20:30:19+00:00",
+    "text": "RT @Electro8236: Tulane has a great color scheme and they’ve had many designs over the years. I fixed the inconsistent striping throughout…",
+    "link": "https://twitter.com/None/status/1946306561468432812",
+    "description": "A tweet praising Tulane's color scheme and designs.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment due to praise for Tulane's visual identity.No negative keywords are present.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-18T19:22:32+00:00",
+    "text": "@burn3racc0unt13 “tulane alumni” 😭",
+    "link": "https://twitter.com/None/status/1946289501522829439",
+    "description": "A tweet expressing sentimental feelings towards Tulane alumni.",
+    "sentiment": 0.2,
+    "summary": "The sentiment is slightly positive due to the nostalgic tone towards Tulane alumni.There is no negative connotation, but it lacks strong positive sentiment.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-18T18:24:13+00:00",
+    "text": "RT @FletcherWDSU: Congratulations to John a&amp; Hannah Huppi.\nNOLA couple, @Tulane graduates shattered world record rowing the Arctic Ocean fo…",
+    "link": "https://twitter.com/None/status/1946274825141473410",
+    "description": "A tweet praising a Tulane alumna's performance on Jeopardy!",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment. The tweet expresses admiration for a Tulane alumna's performance on Jeopardy!",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-18T18:19:18+00:00",
+    "text": "RT @Electro8236: Tulane has a great color scheme and they’ve had many designs over the years. I fixed the inconsistent striping throughout…",
+    "link": "https://twitter.com/None/status/1946273588761477160",
+    "description": "Positive comment on Tulane's color scheme and designs.",
+    "sentiment": 0.8,
+    "summary": "The tweet expresses a positive sentiment towards Tulane's visual identity, focusing on its color scheme and design history. This is not directly related to any of the keywords in a way that would negatively impact the sentiment. ",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-18T18:13:05+00:00",
+    "text": "RT @Electro8236: Tulane has a great color scheme and they’ve had many designs over the years. I fixed the inconsistent striping throughout…",
+    "link": "https://twitter.com/None/status/1946272025196032199",
+    "description": "Retweet of a positive comment on Tulane's color scheme and designs.",
+    "sentiment": 0.8,
+    "summary": "This is a retweet of the first tweet, so the sentiment and reasoning are the same.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-18T17:53:01+00:00",
+    "text": "RT @NILNewsstand: 🔔 New Job Opportunity 🔔\n\nEntity: Learfield\n \nPosition Title: Associate NIL Business Development Manager - Tulane Universi…",
+    "link": "https://twitter.com/None/status/1946266974578696459",
+    "description": "Retweet announcing a job opportunity at Tulane University through Learfield.",
+    "sentiment": 0.6,
+    "summary": "This tweet announces a job opportunity at Tulane, indirectly suggesting growth and positive activity within the university.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-18T17:52:22+00:00",
+    "text": "@LockedByElliott @teeithiggins Acting like Tulane doesn't have insane aura",
+    "link": "https://twitter.com/None/status/1946266811734835552",
+    "description": "Tweet suggesting Tulane has a strong and impressive presence.",
+    "sentiment": 0.8,
+    "summary": "This tweet comments positively on Tulane's overall image and reputation ('insane aura').",
+    "is_sport": 0,
+    "affiliation": 1
   }
 ]
