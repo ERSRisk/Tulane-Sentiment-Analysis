@@ -26,7 +26,9 @@ def call_gemini(client, prompt):
                       on_backoff=lambda details: print(
                           f"Retrying after error: {details['exception']} (try {details['tries']} after {details['wait']}s)")
 )
-async def process_article(article, sem):
+async def process_article(article, sem, batch_number=None, total_batches=None, article_index=None):
+    if batch_number is not None and total_batches is not None and article_index is not None:
+        print(f"📦 Processing Batch {batch_number} of {total_batches} | Article {article_index}", flush=True)
     async with sem:
         content = article['Content']
         title = article['Title']
@@ -68,9 +70,21 @@ async def process_article(article, sem):
             return None
 
 # Run all in async
-async def university_label_async(articles, concurrency=10):
+async def university_label_async(articles, batch_size=15, concurrency=10):
     sem = asyncio.Semaphore(concurrency)
-    tasks = [process_article(row, sem) for _, row in articles.iterrows()]
+    tasks = []
+
+    total_articles = len(articles)
+    total_batches = (len(articles) + batch_size - 1) // batch_size
+    for start in range(0, total_articles, batch_size):
+        batch_number = (start // batch_size) + 1
+        batch = articles.iloc[start:start+batch_size]
+        for i, (_, row) in enumerate(batch.iterrows()):
+            tasks.append(process_article(row, sem,
+                                         batch_number=batch_number,
+                                         total_batches=total_batches,
+                                         article_index=i+1))
+    
     results = await asyncio.gather(*tasks)
     return [r for r in results if r is not None]
 
