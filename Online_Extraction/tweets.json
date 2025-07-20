@@ -5088,5 +5088,215 @@
     "summary": "This tweet comments positively on Tulane's overall image and reputation ('insane aura').",
     "is_sport": 0,
     "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-19T22:24:51+00:00",
+    "text": "RT @bigjohnny292: @tulane_504 @LiterarySkuller @ProudElephantUS policies prove you wrong",
+    "link": "https://twitter.com/None/status/1946697772901577148",
+    "description": "A retweet claiming that Tulane's policies are wrong.",
+    "sentiment": -0.5,
+    "summary": "Negative sentiment due to the claim that Tulane's policies are incorrect. This is vague, but implies criticism of Tulane's actions.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-19T21:38:17+00:00",
+    "text": "RT @ipopStats: Tulane @GreenWaveMBB will host University of New Orleans for the 2nd year in a row after not playing from 2016 to 2024. Thei…",
+    "link": "https://twitter.com/None/status/1946686054792036763",
+    "description": "A retweet claiming that Tulane's policies are wrong.",
+    "sentiment": -0.5,
+    "summary": "Negative sentiment due to the assertion that Tulane's policies are incorrect.This is vague but implies criticism.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-19T21:32:43+00:00",
+    "text": "RT @mikesaunders: @TailgateTulane There’s a strong culture Uptown. My son passed on multiple P4 offers to commit to Tulane…",
+    "link": "https://twitter.com/None/status/1946684651096920533",
+    "description": "A tweet expressing pride in a son's decision to attend Tulane over multiple Power 4 offers.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment due to the parent's clear pride in their son choosing Tulane, highlighting the university's attractiveness and strong culture.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-19T20:55:21+00:00",
+    "text": "RT @mikesaunders: @TailgateTulane There’s a strong culture Uptown. My son passed on multiple P4 offers to commit to Tulane…",
+    "link": "https://twitter.com/None/status/1946675249228947936",
+    "description": "A tweet expressing pride in a son's decision to attend Tulane over multiple Power 4 offers.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment due to the parent's clear pride in their son choosing Tulane, highlighting the university's attractiveness and strong culture.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-19T20:46:42+00:00",
+    "text": "@sohowistexas The boat is literally named Tulane, the water green and the kid’s name is Wave. No, this wasn't planned before posting. 🙏",
+    "link": "https://twitter.com/None/status/1946673073207267466",
+    "description": "A tweet about a coincidental similarity between a person's name, a boat's name, and Tulane's colors.",
+    "sentiment": 0.5,
+    "summary": "Slightly positive sentiment. The coincidence is viewed as a positive and amusing anecdote related to Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-19T20:43:52+00:00",
+    "text": "RT @mikesaunders: @TailgateTulane There’s a strong culture Uptown. My son passed on multiple P4 offers to commit to Tulane…",
+    "link": "https://twitter.com/None/status/1946672360825794589",
+    "description": "A tweet about a student choosing Tulane over other offers.",
+    "sentiment": 1.0,
+    "summary": "Very positive sentiment. A student choosing Tulane over other prominent offers is a strong endorsement of the university and its culture.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-19T20:38:30+00:00",
+    "text": "RT @mikesaunders: @TailgateTulane There’s a strong culture Uptown. My son passed on multiple P4 offers to commit to Tulane…",
+    "link": "https://twitter.com/None/status/1946671007600668708",
+    "description": "A tweet about a student choosing Tulane over other offers.",
+    "sentiment": 1.0,
+    "summary": "Very positive sentiment. A student choosing Tulane over other prominent offers is a strong endorsement of the university and its culture.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-19T20:35:00+00:00",
+    "text": "RT @mikesaunders: @TailgateTulane There’s a strong culture Uptown. My son passed on multiple P4 offers to commit to Tulane…",
+    "link": "https://twitter.com/None/status/1946670128810123461",
+    "description": "A tweet about a student choosing Tulane over other offers.",
+    "sentiment": 1.0,
+    "summary": "Very positive sentiment. A student choosing Tulane over other prominent offers is a strong endorsement of the university and its culture.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-19T20:32:07+00:00",
+    "text": "RT @mikesaunders: @TailgateTulane There’s a strong culture Uptown. My son passed on multiple P4 offers to commit to Tulane…",
+    "link": "https://twitter.com/None/status/1946669401190629792",
+    "description": "A tweet about a student choosing Tulane over other offers.",
+    "sentiment": 1.0,
+    "summary": "Very positive sentiment. A student choosing Tulane over other prominent offers is a strong endorsement of the university and its culture.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-19T20:29:47+00:00",
+    "text": "RT @mikesaunders: @TailgateTulane There’s a strong culture Uptown. My son passed on multiple P4 offers to commit to Tulane…",
+    "link": "https://twitter.com/None/status/1946668813010993486",
+    "description": "A tweet about a student choosing Tulane over other offers.",
+    "sentiment": 1.0,
+    "summary": "Very positive sentiment. A student choosing Tulane over other prominent offers is a strong endorsement of the university and its culture.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-19T20:27:59+00:00",
+    "text": "RT @mikesaunders: @TailgateTulane There’s a strong culture Uptown. My son passed on multiple P4 offers to commit to Tulane…",
+    "link": "https://twitter.com/None/status/1946668363410817403",
+    "description": "A tweet about a student choosing Tulane over other offers.",
+    "sentiment": 1.0,
+    "summary": "Very positive sentiment. A student choosing Tulane over other prominent offers is a strong endorsement of the university and its culture.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-19T20:24:28+00:00",
+    "text": "RT @mikesaunders: @TailgateTulane There’s a strong culture Uptown. My son passed on multiple P4 offers to commit to Tulane…",
+    "link": "https://twitter.com/None/status/1946667477888340017",
+    "description": "A tweet highlighting the strong culture at Tulane, evidenced by a student's decision to attend Tulane over other prestigious offers.",
+    "sentiment": 0.8,
+    "summary": "Very positive sentiment. The tweet emphasizes Tulane's strong culture and attractiveness as an institution, showcasing its appeal to prospective students.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-19T20:23:07+00:00",
+    "text": "RT @mikesaunders: @TailgateTulane There’s a strong culture Uptown. My son passed on multiple P4 offers to commit to Tulane…",
+    "link": "https://twitter.com/None/status/1946667136853631325",
+    "description": "A tweet highlighting the strong culture at Tulane, evidenced by a student's decision to attend Tulane over other prestigious offers.",
+    "sentiment": 0.8,
+    "summary": "Very positive sentiment. The tweet emphasizes Tulane's strong culture and attractiveness as an institution, showcasing its appeal to prospective students.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-19T20:20:06+00:00",
+    "text": "RT @mikesaunders: @TailgateTulane There’s a strong culture Uptown. My son passed on multiple P4 offers to commit to Tulane…",
+    "link": "https://twitter.com/None/status/1946666376891941293",
+    "description": "A tweet highlighting the strong culture at Tulane, evidenced by a student's decision to attend Tulane over other prestigious offers.",
+    "sentiment": 0.8,
+    "summary": "Very positive sentiment. The tweet emphasizes Tulane's strong culture and attractiveness as an institution, showcasing its appeal to prospective students.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-19T20:20:04+00:00",
+    "text": "RT @mikesaunders: @TailgateTulane There’s a strong culture Uptown. My son passed on multiple P4 offers to commit to Tulane…",
+    "link": "https://twitter.com/None/status/1946666371242172682",
+    "description": "A tweet highlighting the strong culture at Tulane, evidenced by a student's decision to attend Tulane over other prestigious offers.",
+    "sentiment": 0.8,
+    "summary": "Very positive sentiment. The tweet emphasizes Tulane's strong culture and attractiveness as an institution, showcasing its appeal to prospective students.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-19T20:15:57+00:00",
+    "text": "@mikesaunders Yessir! Tulane is a special place.",
+    "link": "https://twitter.com/None/status/1946665333202235867",
+    "description": "A tweet expressing positive sentiment towards Tulane.",
+    "sentiment": 1.0,
+    "summary": "Very positive sentiment. The tweet directly expresses positive feelings towards Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-19T19:48:35+00:00",
+    "text": "@tiktok_us @sinnfeinireland @Harvard @MIT @UPennEM @Tulane @IndianaUniv @uarizona @calstate @FBI @CIA @MCIWPendletonCA @DefenceHQ @StandUpX2 @mattletiss7 @TruthBeTold @GBNEWS @LincsPolice @nottspolice @HMCTSgovuk @CEOofHMCTS @Yale @BrownUniversity",
+    "link": "https://twitter.com/None/status/1946658446125711383",
+    "description": "Observation about the removal of COVID-era tents and the return of grass on Tulane's Newcomb Hall quad.",
+    "sentiment": 0.7,
+    "summary": "Positive sentiment; reflects positively on Tulane's campus.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-19T19:44:33+00:00",
+    "text": "@bluestberries The Miraculous Journey of Edward Tulane!!! It’s a children’s book, but I’ve been reading it since 1st Grade whenever I feel like crying 😭 ★",
+    "link": "https://twitter.com/None/status/1946657432995799510",
+    "description": "Observation about the removal of COVID-era tents and the return of grass on Tulane's Newcomb Hall quad.",
+    "sentiment": 0.7,
+    "summary": "Positive sentiment; reflects positively on Tulane's campus.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-19T19:05:08+00:00",
+    "text": "@cased_nm @Inmyidgaferaa__ @PopBase I appreciate your feedback. Could you specify which part you believe is inaccurate? My stats were drawn from UN Women (2024) for Bangladesh (84% public harassment), NCRB (2021) for India (~80% with 31,677 rapes), UNFPA for Pakistan (28-34% spousal violence), Tulane (2024) for USA",
+    "link": "https://twitter.com/None/status/1946647511588098227",
+    "description": "Tweet cites Tulane (2024) as a source for US statistics on violence against women.",
+    "sentiment": 0.8,
+    "summary": "Highly positive sentiment.The tweet uses a Tulane study as a reputable source, implying high academic standing and recognition.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-19T18:03:05+00:00",
+    "text": "@TulaneAthletics @GreenWaveFB Tulane",
+    "link": "https://twitter.com/None/status/1946631895686565984",
+    "description": "A personal anecdote about a difficult experience studying abroad at Tulane.",
+    "sentiment": -0.6,
+    "summary": "Negative sentiment due to the negative personal experience described.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-19T17:53:38+00:00",
+    "text": "@ByYourLogic @AtomicTormentor @DarkDementus after months of hospitalizations and surgeries i 'studied abroad' at tulane and spent my time crippled and very depressed w a blockbuster rental of mgs iv and delightfully knew nothing of what was happening",
+    "link": "https://twitter.com/None/status/1946629519273549872",
+    "description": "Criticism of Tulane's alleged support for a particular political group and their approach to government contracts.",
+    "sentiment": -0.7,
+    "summary": "Negative sentiment due to accusations of supporting a specific political group and their practices regarding government contracts.The criticism is directed at Tulane's actions and their potential implications.",
+    "is_sport": 0,
+    "affiliation": 1
   }
 ]
