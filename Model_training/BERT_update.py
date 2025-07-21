@@ -502,7 +502,7 @@ def load_university_label(new_label):
     new_articles = all_articles[~all_articles['Title'].isin(labeled_titles)]
     print(f"🔎 Total articles: {len(all_articles)} | Unlabeled: {len(new_articles)}", flush=True)
     
-    results = asyncio.run(university_label_async(articles))
+    results = asyncio.run(university_label_async(new_articles))
     new_df = pd.DataFrame(results)
     if not existing.empty:
         combined = pd.concat([existing, new_df], ignore_index = True)
