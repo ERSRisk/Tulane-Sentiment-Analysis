@@ -860,7 +860,7 @@ if selection == "Article Risk Review":
         st.sidebar.error("Start date must be before end date.")
     # Load articles and risks
     
-    articles = pd.read_csv('Model_training/BERTopic_results.csv')
+    articles = pd.read_csv('BERTopic_results_test.csv')
     articles = articles[articles['Published']> start_date.strftime('%Y-%m-%d')]
     articles = articles[articles['Published']< end_date.strftime('%Y-%m-%d')]
     with open('Model_training/risks.json', 'r') as f:
