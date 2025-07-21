@@ -11,12 +11,6 @@ import os
 import asyncio
 import ast
 
-def call_gemini(prompt):
-    GEMINI_API_KEY = os.getenv("PAID_API_KEY")
-    client = genai.Client(api_key=GEMINI_API_KEY)
-    return client.models.generate_content(model="gemini-1.5-flash", contents=[prompt])
-
-
 @backoff.on_exception(backoff.expo,
                       (genai.errors.ServerError, requests.exceptions.ConnectionError),
                       max_tries=6,
@@ -24,6 +18,13 @@ def call_gemini(prompt):
                       on_backoff=lambda details: print(
                           f"Retrying after error: {details['exception']} (try {details['tries']} after {details['wait']}s)", flush=True)
 )
+def call_gemini(prompt):
+    GEMINI_API_KEY = os.getenv("PAID_API_KEY")
+    client = genai.Client(api_key=GEMINI_API_KEY)
+    return client.models.generate_content(model="gemini-1.5-pro", contents=[prompt])
+
+
+
 async def process_article(article, sem, batch_number=None, total_batches=None, article_index=None):
     async with sem:
         try:
