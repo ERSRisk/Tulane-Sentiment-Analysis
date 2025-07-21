@@ -490,26 +490,25 @@ def university_label(articles, batch_size = 5, delay =5):
         results = await asyncio.gather(*tasks)
         return [r for r in results if r is not None]
 
-# 🎛️ Streamlit UI
-st.title("Article Risk Review Portal")
+def load_university_label(new_label):
+    all_articles = pd.read_csv('Model_training/BERTopic_results.csv')
+    try:
+        existing = pd.read_csv('BERTopic_before.csv')
+        labeled_titles = set(existing['Topic']) if 'Topic' in existing_label else set()
+    except FileNotFoundError:
+        existing = pd.DataFrame()
+        labeled_titles = set()
 
-st.sidebar.header("Filter Articles")
-start_date = st.sidebar.date_input("Start Date", datetime.now() - timedelta(days=30))
-end_date = st.sidebar.date_input("End Date", datetime.now())
-
-if start_date > end_date:
-    st.sidebar.error("Start date must be before end date.")
-
-# 📄 Load and run
-articles = pd.read_csv('Model_training/BERTopic_results.csv')
-print(f"📄 Total articles: {len(articles)}", flush=True)
-
-results = asyncio.run(university_label_async(articles))
-results_df = pd.DataFrame(results)
-results_df.to_csv('BERTopic_before.csv', index=False)
-print("✅ Done! Saved as BERTopic_before.csv", flush=True)
+    new_articles = all_articles[~all_articles['Title'].isin(labeled_titles)]
+    print(f"🔎 Total articles: {len(all_articles)} | Unlabeled: {len(new_articles)}", flush=True)
     
-
+    results = asyncio.run(university_label_async(articles))
+    new_df = pd.DataFrame(results)
+    if not existing.empty:
+        combined = pd.concat([existing, new_df], ignore_index = True)
+    else:
+        combined = new_df
+    return combined
 
     
 #Assign topics and probabilities to new_df
@@ -536,8 +535,7 @@ if new_articles:
 df = predict_risks(df)
 print("✅ Applying risk_weights...", flush=True)
 df = risk_weights(df)
-results = asyncio.run(university_label_async(articles))
-results_df = pd.DataFrame(results)
+results_df = load_university_label(df)
 results_df.to_csv('BERTopic_before.csv', index=False)
 #Show the articles over time
 track_over_time(df)
