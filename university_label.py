@@ -49,6 +49,9 @@ async def process_article(article, sem, batch_number=None, total_batches=None, a
                 "University Label": 1
             }}
             Else, set "University Label" to 0
+            Only label an article as "University Label: 1" if it clearly discusses topics related to higher education, university policies, research funding in higher education, or lawsuits involving universities.
+
+            Do NOT assign label 1 based on vague references to students, siblings moving out, or any other generic life events that are not clearly about higher education.
             """
 
             response = await asyncio.to_thread(call_gemini, prompt)
