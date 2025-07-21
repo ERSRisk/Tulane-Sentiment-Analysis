@@ -89,11 +89,11 @@ def university_label(articles, batch_size = 5, delay =5):
         results = await asyncio.gather(*tasks)
         return [r for r in results if r is not None]
 
-def load_university_label(new_label):
+def load_university_label():
     all_articles = pd.read_csv('Model_training/BERTopic_results.csv')
     try:
         existing = pd.read_csv('BERTopic_before.csv')
-        labeled_titles = set(existing['Topic']) if 'Topic' in existing_label else set()
+        labeled_titles = set(existing['Title']) if 'Title' in existing else set()
     except FileNotFoundError:
         existing = pd.DataFrame()
         labeled_titles = set()
@@ -111,12 +111,12 @@ def load_university_label(new_label):
 
 def combine_into_dataframe():
     all_articles = pd.read_csv('Model_training/BERTopic_results.csv')
-    labeled_df = pd.read.csv('BERTopic_before.csv')
+    labeled_df = pd.read_csv('BERTopic_before.csv')
     merged = pd.merge(all_articles, labeled_df[['Title', 'University Label']], on = 'Title', how = 'left')
     merged['University Label'] = merged['University Label'].fillna(0).astype(int)
     merged.to_csv('BERTopic_results_test.csv', index = False)
-    
-results_df = load_university_label(df)
+
+results_df = load_university_label()
 results_df.to_csv('BERTopic_before.csv', index=False)
 print("✅ Done! Saved as BERTopic_before.csv", flush=True)
 combine_into_dataframe()
