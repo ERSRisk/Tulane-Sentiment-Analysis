@@ -66,7 +66,7 @@ async def process_article(article, sem, batch_number=None, total_batches=None, a
                         return None
         except Exception as e:
             print(f"🔥 Error in article {article_index} of batch {batch_number}: {e}", flush=True)
-            return None
+            raise e
 
 
 async def university_label_async(articles, batch_size=15, concurrency=10):
