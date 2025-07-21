@@ -861,8 +861,8 @@ if selection == "Article Risk Review":
     # Load articles and risks
     
     articles = pd.read_csv('BERTopic_results_test.csv')
-    articles = articles[articles['Published']> start_date.strftime('%Y-%m-%d')]
-    articles = articles[articles['Published']< end_date.strftime('%Y-%m-%d')]
+    #articles = articles[articles['Published']> start_date.strftime('%Y-%m-%d')]
+    #articles = articles[articles['Published']< end_date.strftime('%Y-%m-%d')]
     articles = articles[articles['University Label'] == 1]
     with open('Model_training/risks.json', 'r') as f:
         data = json.load(f)
