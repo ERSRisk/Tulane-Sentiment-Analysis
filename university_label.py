@@ -39,7 +39,6 @@ async def process_article(article, sem, batch_number=None, total_batches=None, a
             prompt = f"""
             Read the following title and content from the following article: 
             Title: {title}
-            Content: {" ".join(str(content).split()[:200])}
             You are a content labeling assistant.
             Check each article Title and Content for news regarding higher education, university news, or
             university funding. If the article refers to higher education or university news, 
