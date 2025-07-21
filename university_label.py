@@ -40,18 +40,21 @@ async def process_article(article, sem, batch_number=None, total_batches=None, a
             Read the following title and content from the following article: 
             Title: {title}
             Content: {" ".join(str(content).split()[:200])}
+            You are a content labeling assistant.
             Check each article Title and Content for news regarding higher education, university news, or
             university funding. If the article refers to higher education or university news, 
-            return a **compact and valid JSON object**, properly escaped, without explanations:
+            return a 1
+            Only assign a label of 1 if the *main topic* of the article is centered on universties or higher education -- such as issues of funding, lawsuits, admissions, faculty, student protests, campus policies, rankings, etc.
+            DO NOT assign a 1 if the article merely mentions a university or college in passing (e.g., "Harvard researchers found...", or "a professor from Yale University said...") but the core topic is UNRELATED to higher education.
+
+            Do NOT assign label 1 based on vague references to students, siblings moving out, or any other generic life events that are not clearly about higher education.
+            Return your answer in a **compact and valid JSON object**, properly escaped, without explanations:
             {{
                 "Title":"same title",
                 "Content":"same content",
                 "University Label": 1
             }}
             Else, set "University Label" to 0
-            Only label an article as "University Label: 1" if it clearly discusses topics related to higher education, university policies, research funding in higher education, or lawsuits involving universities.
-
-            Do NOT assign label 1 based on vague references to students, siblings moving out, or any other generic life events that are not clearly about higher education.
             """
 
             response = await asyncio.to_thread(call_gemini, prompt)
