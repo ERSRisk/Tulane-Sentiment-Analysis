@@ -864,6 +864,7 @@ if selection == "Article Risk Review":
     #articles = articles[articles['Published']> start_date.strftime('%Y-%m-%d')]
     #articles = articles[articles['Published']< end_date.strftime('%Y-%m-%d')]
     articles = articles[articles['University Label'] == 1]
+    articles = articles.drop_duplicates(subset=['Title', 'Link'])
     with open('Model_training/risks.json', 'r') as f:
         data = json.load(f)
     risks = data['risks']
