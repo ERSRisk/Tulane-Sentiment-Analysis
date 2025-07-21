@@ -31,15 +31,15 @@ async def process_article(article, sem, batch_number=None, total_batches=None, a
             if batch_number is not None:
                 print(f"📦 Batch {batch_number}/{total_batches} | Article {article_index}", flush=True)
 
-            content = article['Content']
-            if pd.isna(content) or pd.isna(title):
+            title = article['Title']
+            if pd.isna(title):
                 return None
 
             prompt = f"""
             Read the following title from the following article: 
             Title: {title}
             You are a content labeling assistant.
-            Check each article Title and Content for news regarding higher education, university news, or
+            Check each article Title for news regarding higher education, university news, or
             university funding. If the article refers to higher education or university news, 
             return a 1
             Only assign a label of 1 if the *main topic* of the article is centered on universties or higher education -- such as issues of funding, lawsuits, admissions, faculty, student protests, campus policies, rankings, etc.
@@ -48,7 +48,7 @@ async def process_article(article, sem, batch_number=None, total_batches=None, a
             Do NOT assign label 1 based on vague references to students, siblings moving out, or any other generic life events that are not clearly about higher education.
             Return your answer in a **compact and valid JSON object**, properly escaped, without explanations:
             {{
-                "Title":"same title",,
+                "Title":"same title",
                 "University Label": 1
             }}
             Else, set "University Label" to 0
