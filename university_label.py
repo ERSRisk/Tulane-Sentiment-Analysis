@@ -109,14 +109,15 @@ def load_university_label(new_label):
         combined = new_df
     return combined
 
-def combine_into_dataframe(combined):
+def combine_into_dataframe():
     all_articles = pd.read_csv('Model_training/BERTopic_results.csv')
     labeled_df = pd.read.csv('BERTopic_before.csv')
     merged = pd.merge(all_articles, labeled_df[['Title', 'University Label']], on = 'Title', how = 'left')
     merged['University Label'] = merged['University Label'].fillna(0).astype(int)
     merged.to_csv('BERTopic_results_test.csv', index = False)
     
-results = asyncio.run(university_label_async(articles))
-results_df = pd.DataFrame(results)
+results_df = load_university_label(df)
 results_df.to_csv('BERTopic_before.csv', index=False)
 print("✅ Done! Saved as BERTopic_before.csv", flush=True)
+combine_into_dataframe()
+
