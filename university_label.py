@@ -70,24 +70,24 @@ def university_label(articles, batch_size = 5, delay =5):
                 return None
 
     # 🚀 Async batch runner
-    async def university_label_async(articles, batch_size=15, concurrency=10):
-        sem = asyncio.Semaphore(concurrency)
-        tasks = []
+async def university_label_async(articles, batch_size=15, concurrency=10):
+    sem = asyncio.Semaphore(concurrency)
+    tasks = []
+
+    total_articles = len(articles)
+    total_batches = (total_articles + batch_size - 1) // batch_size
+    for start in range(0, total_articles, batch_size):
+        batch_number = (start // batch_size) + 1
+        print(f"🚚 Starting Batch {batch_number} of {total_batches}", flush=True)
+        batch = articles.iloc[start:start+batch_size]
+        for i, (_, row) in enumerate(batch.iterrows()):
+            tasks.append(process_article(row, sem,
+                                         batch_number=batch_number,
+                                         total_batches=total_batches,
+                                         article_index=i+1))
     
-        total_articles = len(articles)
-        total_batches = (total_articles + batch_size - 1) // batch_size
-        for start in range(0, total_articles, batch_size):
-            batch_number = (start // batch_size) + 1
-            print(f"🚚 Starting Batch {batch_number} of {total_batches}", flush=True)
-            batch = articles.iloc[start:start+batch_size]
-            for i, (_, row) in enumerate(batch.iterrows()):
-                tasks.append(process_article(row, sem,
-                                             batch_number=batch_number,
-                                             total_batches=total_batches,
-                                             article_index=i+1))
-        
-        results = await asyncio.gather(*tasks)
-        return [r for r in results if r is not None]
+    results = await asyncio.gather(*tasks)
+    return [r for r in results if r is not None]
 
 def load_university_label():
     all_articles = pd.read_csv('Model_training/BERTopic_results.csv')
