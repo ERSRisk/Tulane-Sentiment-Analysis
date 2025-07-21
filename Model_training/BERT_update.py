@@ -536,9 +536,8 @@ if new_articles:
 df = predict_risks(df)
 print("✅ Applying risk_weights...", flush=True)
 df = risk_weights(df)
-results = university_label(df)
-labeled_df = pd.DataFrame(results)
-labeled_df.rename(columns = {"University Label": "University_Label"}, inplace = True)
-df.to_csv('Model_training/BERTopic_results1.csv', index =False)
+results = asyncio.run(university_label_async(articles))
+results_df = pd.DataFrame(results)
+results_df.to_csv('BERTopic_before.csv', index=False)
 #Show the articles over time
 track_over_time(df)
