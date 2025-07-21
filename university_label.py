@@ -39,8 +39,9 @@ async def process_article(article, sem, batch_number=None, total_batches=None, a
             prompt = f"""
             Read the following title and content from the following article: 
             Title: {title}
-            Article: {" ".join(str(content).split()[:200])}
-            If the article refers to higher education, university lawsuits, or research funding in higher education, 
+            Content: {" ".join(str(content).split()[:200])}
+            Check each article Title and Content for news regarding higher education, university news, or
+            university funding. If the article refers to higher education or university news, 
             return a **compact and valid JSON object**, properly escaped, without explanations:
             {{
                 "Title":"same title",
