@@ -890,5 +890,5 @@ if selection == "Article Risk Review":
                 if st.button("Save Correction", key=f"save_{idx}"):
                     # Save the correction
                     articles.at[idx, 'Predicted_Risks'] = selected_risks
-                    articles.to_csv('Model_training/BERTopic_results.csv', index=False)
+                    articles.to_csv('BERTopic_results_test.csv', index=False)
                     st.success("Correction saved.")
