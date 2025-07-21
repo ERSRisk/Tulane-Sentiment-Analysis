@@ -32,12 +32,11 @@ async def process_article(article, sem, batch_number=None, total_batches=None, a
                 print(f"📦 Batch {batch_number}/{total_batches} | Article {article_index}", flush=True)
 
             content = article['Content']
-            title = article['Title']
             if pd.isna(content) or pd.isna(title):
                 return None
 
             prompt = f"""
-            Read the following title and content from the following article: 
+            Read the following title from the following article: 
             Title: {title}
             You are a content labeling assistant.
             Check each article Title and Content for news regarding higher education, university news, or
@@ -49,8 +48,7 @@ async def process_article(article, sem, batch_number=None, total_batches=None, a
             Do NOT assign label 1 based on vague references to students, siblings moving out, or any other generic life events that are not clearly about higher education.
             Return your answer in a **compact and valid JSON object**, properly escaped, without explanations:
             {{
-                "Title":"same title",
-                "Content":"same content",
+                "Title":"same title",,
                 "University Label": 1
             }}
             Else, set "University Label" to 0
