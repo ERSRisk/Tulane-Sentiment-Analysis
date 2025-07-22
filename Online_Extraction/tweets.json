@@ -5548,5 +5548,145 @@
     "summary": "Neutral sentiment; the reference to Tulane is sarcastic and doesn't reflect a positive or negative opinion on the institution itself.",
     "is_sport": 0,
     "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-21T23:58:06+00:00",
+    "text": "@AAC_FB What’s the big deal about a Jewish guy transferring to Tulane or is there something I’m missing?",
+    "link": "https://twitter.com/None/status/1947446016032313558",
+    "description": "A question regarding a Jewish student transferring to Tulane, potentially implying suspicion.",
+    "sentiment": -0.7,
+    "summary": "Negative sentiment due to the potential undertone of antisemitism, which is highly negative when related to Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-21T23:56:11+00:00",
+    "text": "@TulaneAthletics @American_Conf THEY GOT TULANE https://t.co/5RgFJX8sFC",
+    "link": "https://twitter.com/None/status/1947445531824828625",
+    "description": "A tweet celebrating Tulane's achievement (context unclear).",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment. Celebratory tone towards Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-21T23:52:16+00:00",
+    "text": "Holy shit that's brutal lmao. At this point just stick around until the ACC eventually lose FL State &amp; Clemson. You can try convincing Tulane plus maybe UTSA to bolt with you to the Pac12 but that's a hard sell because it's not a better deal RE revenue minus travel costs. https://t.co/AkK6W1mS3N",
+    "link": "https://twitter.com/None/status/1947444548738691133",
+    "description": "Analysis of Tulane's conference situation and potential move to the Pac-12.",
+    "sentiment": -0.3,
+    "summary": "Slightly negative. The tweet expresses concern about the current conference and suggests a difficult transition to another conference.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-21T23:51:56+00:00",
+    "text": "@TulaneAthletics @American_Conf I don’t want Tulane in the same conference as Soar The Eagle. The new conference mascot is so cringe worthy. Please get Tulane out of this God forsaken conference and get us in a P4 conference where we rightfully belong.",
+    "link": "https://twitter.com/None/status/1947444464597012785",
+    "description": "A user expressing their dislike of Tulane's current conference and advocating for a move to a Power 4 conference.",
+    "sentiment": -0.5,
+    "summary": "Negative. The user's tone is critical of the current conference and expresses dissatisfaction with Tulane's position.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-21T23:50:56+00:00",
+    "text": "Memphis just needs to cut the shit and join the Sun Belt. Bring ECU too. Grab Tulane and WKU as well:\n\nWest\nUSM\nLT\nULL\nULM\nASU\nTulane\nMemphis\nTroy\nUSA\n\nEast\nApp St\nECU\nMarshall\nJMU\nCCU\nGaSo\nGaSt\nODU\nWKU",
+    "link": "https://twitter.com/None/status/1947444211525292528",
+    "description": "Suggestion for conference realignment involving Tulane.",
+    "sentiment": 0.0,
+    "summary": "Neutral.The tweet presents a proposal for conference realignment, without expressing positive or negative sentiment towards Tulane itself.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-21T23:46:59+00:00",
+    "text": "@jsnopewzzu @brycetacoma @ImmaculateView Well for starters, FSU &amp; Clemson are going to announce they’re leaving in the next 2-3 yrs. Tulane and Memphis would be the highest two G5. So there’s",
+    "link": "https://twitter.com/None/status/1947443215684276444",
+    "description": "A tweet discussing potential conference realignment and mentioning Tulane and Memphis as top G5 schools.",
+    "sentiment": 0.5,
+    "summary": "Positive sentiment.Tulane is highlighted as a top G5 school, suggesting high standing within college football.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-21T23:44:39+00:00",
+    "text": "RT @slmandel: I guess Brendan Sullivan was not the answer for Tulane.",
+    "link": "https://twitter.com/None/status/1947442630083940683",
+    "description": "Tweet suggesting Brendan Sullivan was not a successful coach for Tulane.",
+    "sentiment": -0.4,
+    "summary": "Negative sentiment; implies a negative assessment of a Tulane coach's performance.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-21T23:41:37+00:00",
+    "text": "RT @ralphDrussoATH: Tulane had a case as the favorite in the American even with a murky QB situation. Interesting addition.",
+    "link": "https://twitter.com/None/status/1947441868670980213",
+    "description": "Tweet expressing a positive opinion about Tulane as a potential acquisition.",
+    "sentiment": 1.0,
+    "summary": "Very positive sentiment; clearly expresses strong approval of Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-21T23:33:52+00:00",
+    "text": "Tulane has a weirdly solid NIL bag lol https://t.co/3TkkCt7PGT",
+    "link": "https://twitter.com/None/status/1947439915442053130",
+    "description": "A user suggests Tulane be included in a deal (likely a conference realignment deal).",
+    "sentiment": 0.5,
+    "summary": "Neutral to slightly positive. The suggestion implies potential positive opportunities for Tulane, but the outcome is uncertain.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-21T23:31:13+00:00",
+    "text": "@LOBig12 Can we get Tulane as part of the deal?",
+    "link": "https://twitter.com/None/status/1947439248556134712",
+    "description": "A sarcastic tweet mentioning Tulane in a list of schools that didn't tweet something (unspecified).Also mentions Tulane getting a Jewish QB.",
+    "sentiment": -0.2,
+    "summary": "Slightly negative due to the sarcastic and seemingly dismissive tone, potentially implying some negative perception of the school. The mention of a Jewish QB, while neutral on its own, is presented within the context of a humorous, somewhat undermining tweet.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-21T23:28:53+00:00",
+    "text": "RT @ScootBarley: Getting data for forthcoming Tulane article…\n\nAdd Tulane to ACC?",
+    "link": "https://twitter.com/None/status/1947438663794610460",
+    "description": "Tweet mentioning gathering data for an upcoming article about Tulane.",
+    "sentiment": 0.0,
+    "summary": "Neutral sentiment.The tweet itself doesn't express any opinion about Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-21T23:28:43+00:00",
+    "text": "@couz206 @coalcountrywvu I disagree actually and if they do look to expand what school outside of Tulane can they get from a G5 school? Memphis has been as consistent as they come in the last decade for football and is a strong brand for hoops. I’d argue their brand is bigger than Cincinnati",
+    "link": "https://twitter.com/None/status/1947438620627120336",
+    "description": "Tweet discussing the possibility of adding Tulane to the ACC and comparing its brand to other schools.",
+    "sentiment": 0.0,
+    "summary": "Neutral sentiment.It's a discussion about conference realignment, not an evaluation of Tulane itself.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-21T23:26:42+00:00",
+    "text": "RT @travasu008: @MrBeavv Your last 2 additions were Utah st &amp; Texas St (after you missed on Memphis, Tulane, UNLV, AF, UNT, &amp; UTSA). Our la…",
+    "link": "https://twitter.com/None/status/1947438114815021079",
+    "description": "Tweet mentioning Tulane in a list of schools.",
+    "sentiment": 0.0,
+    "summary": "Neutral; Tulane is mentioned briefly in a list, no opinion expressed.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-21T23:13:11+00:00",
+    "text": "RT @hnhypnotoad: In light of the Memphis news, I will now be pushing Tulane to the Big12 propaganda. https://t.co/04kjnkNBbj",
+    "link": "https://twitter.com/None/status/1947434713439998191",
+    "description": "Promoting Tulane to the Big 12 in light of Memphis's failed attempt.",
+    "sentiment": 0.2,
+    "summary": "Slightly positive; it's a promotional statement based on a competitor's setback.Doesn't directly impact Tulane's reputation though.",
+    "is_sport": 0,
+    "affiliation": 1
   }
 ]
