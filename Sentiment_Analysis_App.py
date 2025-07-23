@@ -871,27 +871,40 @@ if selection == "Article Risk Review":
     risks = data['risks']
     all_possible_risks = [risk['name'] for risk in risks]
 
-    all_possible_risks = [r.lower() for r in all_possible_risks if isinstance(r, str)]
+    all_possible_risks = [r for r in all_possible_risks if isinstance(r, str)]
     filter_risks = [r for r in all_possible_risks if r != "no risk"]
 
     filtered_risks = st.multiselect("Select Risks to Filter Articles", options = all_possible_risks, default=filter_risks, key="risk_filter")
     for idx, article in articles.iterrows():
         if pd.isna(article.get('Title')) or pd.isna(article.get('Content')):
             continue
-        if not any(risk.lower() in article.get('Predicted_Risks', []) for risk in filtered_risks):
+    
+        raw = article.get("Predicted_Risks", "[]")
+        try:
+            predicted = ast.literal_eval(raw) if isinstance(raw, str) else raw
+        except:
+            predicted = []
+    
+        # Filter articles by sidebar multiselect
+        if not any(risk.lower() in [r.lower() for r in predicted] for risk in filtered_risks):
             continue
+    
         title = str(article.get("Title", ""))[:100]
-        if title != "":
+        if title:
             with st.expander(f"{title}..."):
                 st.markdown(f"[Read full article]({article['Link']})")
                 st.write(article['Content'][:1000])
-                
-                predicted = article.get("Predicted_Risks", [])
+    
                 st.markdown("**Predicted Risks:**")
-                selected_risks = st.multiselect("Edit risks if necessary:", all_possible_risks, default=predicted, key=f"edit_{idx}")
-                
+                valid_defaults = [opt for opt in all_possible_risks if any(opt.lower() == p.lower() for p in predicted)]
+                selected_risks = st.multiselect(
+                    "Edit risks if necessary:",
+                    options=all_possible_risks,
+                    default=valid_defaults,
+                    key=f"edit_{idx}"
+                )
+    
                 if st.button("Save Correction", key=f"save_{idx}"):
-                    # Save the correction
                     articles.at[idx, 'Predicted_Risks'] = selected_risks
                     articles.to_csv('BERTopic_results_test.csv', index=False)
                     st.success("Correction saved.")
