@@ -889,13 +889,19 @@ if selection == "Article Risk Review":
             continue
     
         raw = article.get("Predicted_Risks", "[]")
-        if isinstance(raw, str) and raw.startswith("[") and raw.endswith("]"):
-            try:
-                predicted = ast.literal_eval(raw)
-            except:
-                predicted = []
-        elif isinstance(raw, list):
+        if isinstance(raw, list):
             predicted = raw
+        elif isinstance(raw, str):
+            raw = raw.strip()
+            if raw.startswith("[") and raw.endswith("]"):
+                try:
+                    predicted = ast.literal_eval(raw)
+                except:
+                    predicted = []
+            elif raw.lower() in ("no risk", "none", ""):
+                predicted = []
+            else:
+                predicted = [raw]  # single risk string gets wrapped in a list
         else:
             predicted = []
 
