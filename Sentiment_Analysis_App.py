@@ -905,9 +905,6 @@ if selection == "Article Risk Review":
         else:
             predicted = []
 
-        st.write(f"📦 Raw Predicted_Risks value (row {idx}):", raw)
-        st.write(f"✅ Parsed Predicted_Risks (row {idx}):", predicted)
-
     
         if not match_any(predicted, filtered_risks):
             continue
