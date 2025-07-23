@@ -885,6 +885,7 @@ if selection == "Article Risk Review":
         except:
             predicted = []
     
+        # Filter articles by sidebar multiselect
         if not any(risk.lower() in [r.lower() for r in predicted] for risk in filtered_risks):
             continue
     
@@ -895,13 +896,7 @@ if selection == "Article Risk Review":
                 st.write(article['Content'][:1000])
     
                 st.markdown("**Predicted Risks:**")
-                valid_defaults = []
-                for p in predicted:
-                    for opt in all_possible_risks:
-                        if opt.lower() == p.lower():
-                            valid_defaults.append(opt)
-                            break
-    
+                valid_defaults = [opt for opt in all_possible_risks if any(opt.lower() == p.lower() for p in predicted)]
                 selected_risks = st.multiselect(
                     "Edit risks if necessary:",
                     options=all_possible_risks,
