@@ -871,10 +871,10 @@ if selection == "Article Risk Review":
     all_possible_risks = [risk['name'] for risk in risks]
     filter_risks = [r for r in all_possible_risks if r.lower() != "no risk"]
     raw = article.get("Predicted_Risks", "[]")
-        try:
-            predicted = ast.literal_eval(raw) if isinstance(raw, str) else raw
-        except:
-            predicted = []
+    try:
+        predicted = ast.literal_eval(raw) if isinstance(raw, str) else raw
+    except:
+        predicted = []
     
     valid_defaults = [r for r in predicted if r in all_possible_risks]
     filtered_risks = st.multiselect("Edit risks if necessary:", all_possible_risks, default=valid_defaults, key=f"edit_{idx}")
