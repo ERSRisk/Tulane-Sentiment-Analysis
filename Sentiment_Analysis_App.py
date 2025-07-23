@@ -871,8 +871,7 @@ if selection == "Article Risk Review":
     all_possible_risks = [risk['name'] for risk in risks]
     filter_risks = [r for r in all_possible_risks if r.lower() != "no risk"]
     
-    valid_defaults = [opt for opt in all_possible_risks if any(opt.lower() == p.lower() for p in predicted)]
-    filtered_risks = st.multiselect("Edit risks if necessary:", all_possible_risks, default=valid_defaults, key=f"edit_{idx}")
+    filtered_risks = st.sidebar.multiselect("Select Risks to Filter Articles", options=all_possible_risks, default=filter_risks)
     for idx, article in articles.iterrows():
         
         if pd.isna(article.get('Title')) or pd.isna(article.get('Content')):
