@@ -870,12 +870,18 @@ if selection == "Article Risk Review":
     risks = data['risks']
     all_possible_risks = [risk['name'] for risk in risks]
     filter_risks = [r for r in all_possible_risks if r.lower() != "no risk"]
+    raw = article.get("Predicted_Risks", "[]")
+        try:
+            predicted = ast.literal_eval(raw) if isinstance(raw, str) else raw
+        except:
+            predicted = []
     
-    filtered_risks = st.multiselect("Select Risks to Filter Articles", options = all_possible_risks, default=filter_risks, key="risk_filter")
+    valid_defaults = [r for r in predicted if r in all_possible_risks]
+    filtered_risks = st.multiselect("Edit risks if necessary:", all_possible_risks, default=valid_defaults, key=f"edit_{idx}")
     for idx, article in articles.iterrows():
         if pd.isna(article.get('Title')) or pd.isna(article.get('Content')):
             continue
-        if not any(risk.lower() in [r.lower() for r in article.get('Predicted_Risks', [])] for risk in filtered_risks):
+        if not any(risk.lower() in [r.lower() for r in predicted] for risk in filtered_risks):
             continue
         title = str(article.get("Title", ""))[:100]
         if title != "":
