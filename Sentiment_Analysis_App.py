@@ -867,22 +867,18 @@ if selection == "Article Risk Review":
     articles = articles.drop_duplicates(subset=['Title', 'Link'])
     with open('Model_training/risks.json', 'r') as f:
         data = json.load(f)
+
     risks = data['risks']
     all_possible_risks = [risk['name'] for risk in risks]
-    filter_risks = [r for r in all_possible_risks if r.lower() != "no risk"]
-    
-    filtered_risks = st.sidebar.multiselect("Select Risks to Filter Articles", options=all_possible_risks, default=filter_risks)
+
+    all_possible_risks = [r.lower() for r in all_possible_risks if isinstance(r, str)]
+    filter_risks = [r for r in all_possible_risks if r != "no risk"]
+
+    filtered_risks = st.multiselect("Select Risks to Filter Articles", options = all_possible_risks, default=filter_risks, key="risk_filter")
     for idx, article in articles.iterrows():
-        
         if pd.isna(article.get('Title')) or pd.isna(article.get('Content')):
             continue
-        raw = article.get("Predicted_Risks", "[]")
-        try:
-            predicted = ast.literal_eval(raw) if isinstance(raw, str) else raw
-        except:
-            predicted = []
-
-        if not any(risk.lower() in [r.lower() for r in predicted] for risk in filtered_risks):
+        if not any(risk.lower() in article.get('Predicted_Risks', []) for risk in filtered_risks):
             continue
         title = str(article.get("Title", ""))[:100]
         if title != "":
