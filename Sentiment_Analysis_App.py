@@ -883,19 +883,22 @@ if selection == "Article Risk Review":
         selected = [s.strip().lower() for s in selected]
         return any(p in selected for p in predicted)
     
-    st.write("✅ Loaded articles after filters:", len(articles))
     
     for idx, article in articles.iterrows():
         if pd.isna(article.get('Title')) or pd.isna(article.get('Content')):
             continue
     
         raw = article.get("Predicted_Risks", "[]")
-        try:
-            predicted = ast.literal_eval(raw) if isinstance(raw, str) else raw
-        except:
+        if isinstance(raw, str) and raw.startswith("[") and raw.endswith("]"):
+            try:
+                predicted = ast.literal_eval(raw)
+            except:
+                predicted = []
+        elif isinstance(raw, list):
+            predicted = raw
+        else:
             predicted = []
-    
-        st.write(f"🔎 Article {idx} predicted risks:", predicted)
+
     
         if not match_any(predicted, filtered_risks):
             continue
