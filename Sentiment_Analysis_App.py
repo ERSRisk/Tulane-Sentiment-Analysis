@@ -875,6 +875,16 @@ if selection == "Article Risk Review":
     filter_risks = [r for r in all_possible_risks if r != "no risk"]
 
     filtered_risks = st.multiselect("Select Risks to Filter Articles", options = all_possible_risks, default=filter_risks, key="risk_filter")
+
+    def match_any(predicted, selected):
+        if not isinstance(predicted, list) or not predicted:
+            return False
+        predicted = [str(p).strip().lower() for p in predicted if isinstance(p, str)]
+        selected = [s.strip().lower() for s in selected]
+        return any(p in selected for p in predicted)
+    
+    st.write("✅ Loaded articles after filters:", len(articles))
+    
     for idx, article in articles.iterrows():
         if pd.isna(article.get('Title')) or pd.isna(article.get('Content')):
             continue
@@ -885,11 +895,9 @@ if selection == "Article Risk Review":
         except:
             predicted = []
     
-        # Filter articles by sidebar multiselect
-        predicted_lower = [p.lower() for p in predicted if isinstance(p, str)]
-        filtered_risks_lower = [frisk.lower() for frisk in filtered_risks]
-        filter_match = any(p in filtered_risks_lower for p in predicted_lower)
-        if not filter_match:
+        st.write(f"🔎 Article {idx} predicted risks:", predicted)
+    
+        if not match_any(predicted, filtered_risks):
             continue
     
         title = str(article.get("Title", ""))[:100]
@@ -899,7 +907,7 @@ if selection == "Article Risk Review":
                 st.write(article['Content'][:1000])
     
                 st.markdown("**Predicted Risks:**")
-                valid_defaults = [opt for opt in all_possible_risks if any(opt.lower() == p.lower() for p in predicted if isinstance(p, str))]
+                valid_defaults = [opt for opt in all_possible_risks if any(opt.lower() == str(p).lower() for p in predicted if isinstance(p, str))]
                 selected_risks = st.multiselect(
                     "Edit risks if necessary:",
                     options=all_possible_risks,
