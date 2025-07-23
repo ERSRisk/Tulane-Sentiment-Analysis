@@ -887,7 +887,8 @@ if selection == "Article Risk Review":
     
         # Filter articles by sidebar multiselect
         predicted_lower = [p.lower() for p in predicted if isinstance(p, str)]
-        filter_match = any(frisk.lower() in predicted_lower for frisk in filtered_risks)
+        filtered_risks_lower = [frisk.lower() for frisk in filtered_risks]
+        filter_match = any(p in filtered_risks_lower for p in predicted_lower)
         if not filter_match:
             continue
     
