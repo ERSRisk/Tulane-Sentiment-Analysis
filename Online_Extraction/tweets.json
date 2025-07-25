@@ -6278,5 +6278,255 @@
     "summary": "The sentiment is slightly positive due to Tulane being ranked first, but the ranking itself is subjective and potentially offensive, thus lowering the overall score.",
     "is_sport": 0,
     "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-24T23:56:39+00:00",
+    "text": "RT @xAIMemphis: In mid-February we broke ground at our new data center at Tulane in Shelby County, Tennessee. We have begun deploying the i…",
+    "link": "https://twitter.com/None/status/1948532815412474039",
+    "description": "Announcement of a new data center at Tulane.",
+    "sentiment": 0.8,
+    "summary": "Positive sentiment.The tweet announces a new development at Tulane, indicating growth and investment in the university, which reflects well on its reputation.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-24T23:46:41+00:00",
+    "text": "RT @xAIMemphis: In mid-February we broke ground at our new data center at Tulane in Shelby County, Tennessee. We have begun deploying the i…",
+    "link": "https://twitter.com/None/status/1948530305570406763",
+    "description": "Announcement of a new data center at Tulane.",
+    "sentiment": 0.8,
+    "summary": "Positive sentiment.The tweet announces a new development at Tulane, indicating growth and investment in the university, which reflects well on its reputation.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-24T23:40:43+00:00",
+    "text": "RT @xAIMemphis: In mid-February we broke ground at our new data center at Tulane in Shelby County, Tennessee. We have begun deploying the i…",
+    "link": "https://twitter.com/None/status/1948528805196562503",
+    "description": "xAIMemphis announces groundbreaking on a new data center at Tulane.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment.The tweet reports positive news about a new data center and investment at Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-24T23:36:29+00:00",
+    "text": "RT @xAIMemphis: In mid-February we broke ground at our new data center at Tulane in Shelby County, Tennessee. We have begun deploying the i…",
+    "link": "https://twitter.com/None/status/1948527738199179308",
+    "description": "xAIMemphis announces groundbreaking on a new data center at Tulane.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment. The tweet reports positive news about a new data center and investment at Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-24T22:55:45+00:00",
+    "text": "RT @TheOffSeasonCFB: When I asked Tulane Football HC @CoachJonSumrall which games he was looking forward to the most this season, he replie…",
+    "link": "https://twitter.com/None/status/1948517487135379890",
+    "description": "Announcement of a new data center being built at Tulane.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment; signifies investment and growth at Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-24T22:38:42+00:00",
+    "text": "RT @Tulane: Could the nose be the key to stopping pneumonia?\n\nWith a $7.5M grant from the National Heart, Lung, and Blood Institute, Tulane…",
+    "link": "https://twitter.com/None/status/1948513197826474465",
+    "description": "Tulane receives a $7.5M grant from the National Heart, Lung, and Blood Institute for pneumonia research.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment due to the significant grant received by Tulane for medical research, showcasing academic achievement and positive impact.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-24T22:33:16+00:00",
+    "text": "@KFordRatings Tulane's defense is expected to be outstanding, and better than last year. You had Tulane's defense at #46 end of '24 regular season, #61 preseason '25.\n\nVery bullish for Tulane, especially after adding Retzlaff.",
+    "link": "https://twitter.com/None/status/1948511828621099353",
+    "description": "Speculation about which schools might join the ACC, including Tulane.",
+    "sentiment": 0.5,
+    "summary": "Neutral to slightly positive sentiment; Tulane is mentioned as a potential addition to the ACC, but this is speculative.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-24T22:28:05+00:00",
+    "text": "@NutmegStOfMind @willgtg901 USF, Memphis,  Tulane, App State and Coastal Carolina or Liberty",
+    "link": "https://twitter.com/None/status/1948510525329158537",
+    "description": "Speculation about which schools might join the ACC, including Tulane.",
+    "sentiment": 0.5,
+    "summary": "Neutral to slightly positive sentiment; Tulane is mentioned as a potential addition to the ACC, but this is speculative.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-24T22:26:58+00:00",
+    "text": "@MrBeavv I saw that being thrown around...\n\nI really think the ACC will try to get USF, UConn, Tulane, and Memphis. \n\nI really think PAC should consider going after like UTSA &amp; Rice. Grow that Texas presence and maybe getting Rice could get Calford to come home.",
+    "link": "https://twitter.com/None/status/1948510244360843570",
+    "description": "Expression of pride in two Tulane students.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment expressing pride and support for Tulane students.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-24T22:26:40+00:00",
+    "text": "RT @TheOffSeasonCFB: When I asked Tulane Football HC @CoachJonSumrall which games he was looking forward to the most this season, he replie…",
+    "link": "https://twitter.com/None/status/1948510168926327153",
+    "description": "Discussion of conference realignment, including Tulane's potential move to the ACC.",
+    "sentiment": 0.5,
+    "summary": "Neutral sentiment; Tulane's inclusion is part of a larger discussion about conference realignment.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-24T22:19:45+00:00",
+    "text": "@RepJuliaLetlow @Tulane Appreciate all you do to support Tulane and all of Louisiana’s universities! 💚🌊",
+    "link": "https://twitter.com/None/status/1948508428806099064",
+    "description": "Expresses appreciation for Tulane and its support of Louisiana universities.",
+    "sentiment": 0.8,
+    "summary": "Positive sentiment due to expressing gratitude towards Tulane and its contributions to Louisiana's higher education system.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-24T22:03:03+00:00",
+    "text": "RT @Tulane: Could the nose be the key to stopping pneumonia?\n\nWith a $7.5M grant from the National Heart, Lung, and Blood Institute, Tulane…",
+    "link": "https://twitter.com/None/status/1948504227640152513",
+    "description": "Tweet announces a $7.5M grant to Tulane for pneumonia research.",
+    "sentiment": 0.8,
+    "summary": "Highly positive sentiment.The tweet highlights a significant grant received by Tulane for important research, boosting the university's reputation and research capabilities.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-24T22:02:01+00:00",
+    "text": "Could the nose be the key to stopping pneumonia?\n\nWith a $7.5M grant from the National Heart, Lung, and Blood Institute, Tulane is exploring how immune cells in the nose could help protect against one of the world’s deadliest infections.\n\nLearn more ⤵️\nhttps://t.co/jtynZ0hu62",
+    "link": "https://twitter.com/None/status/1948503963747176862",
+    "description": "Tweet describes Tulane's research on using immune cells in the nose to fight pneumonia, funded by a $7.5M grant.",
+    "sentiment": 0.8,
+    "summary": "Highly positive sentiment.This tweet highlights significant research funding and positive contributions to medical science, significantly enhancing Tulane's reputation.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-24T21:52:21+00:00",
+    "text": "@JayhawkTakeover BIG \nUNC \nUVA \n\nB12 \nUCONN fulltime \nND full time \nLville\nMiami \nFSU \nClem \nPitt\nGT\nNCSU \nVa Tech \n\nPAC \nSaint Marys \nNorth Texas \nMemphis fball \n\nACC \nUTSA\nUAB\nTulane \nSouth Florida(BIG in 2031 w new stadium) \nRice \nTulsa \nArmy fball \nNavy fball",
+    "link": "https://twitter.com/None/status/1948501530971378141",
+    "description": "Speculation about Tulane joining the ACC Magnolia League.",
+    "sentiment": 0.6,
+    "summary": "Positive sentiment; joining a prestigious league would be a significant accomplishment for Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-24T21:52:16+00:00",
+    "text": "BIG \nUNC \nUVA \n\nB12 \nUCONN fulltime \nND full time \nLville\nMiami \nFSU \nClem \nPitt\nGT\nNCSU \nVa Tech \n\nPAC \nSaint Marys \nNorth Texas \nMemphis fball \n\nACC \nUTSA\nUAB\nTulane \nSouth Florida(BIG in 2031 w new stadium) \nRice \nTulsa \nArmy fball \nNavy fball https://t.co/fZzrw41yhd",
+    "link": "https://twitter.com/None/status/1948501509806731438",
+    "description": "List of universities including Tulane, possibly related to conference realignment.",
+    "sentiment": 0.2,
+    "summary": "Weakly positive sentiment; Tulane's inclusion suggests potential future opportunities, but it's not explicitly positive.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-24T21:50:40+00:00",
+    "text": "@tiktok_us @sinnfeinireland @Harvard @MIT @UPennEM @Tulane @IndianaUniv @uarizona @calstate @FBI @CIA @MCIWPendletonCA @DefenceHQ @StandUpX2 @mattletiss7 @TruthBeTold @GBNEWS @LincsPolice @nottspolice @HMCTSgovuk @CEOofHMCTS @Yale @BrownUniversity",
+    "link": "https://twitter.com/None/status/1948501110530183435",
+    "description": "Duplicate of the previous tweet.",
+    "sentiment": 0.2,
+    "summary": "Same as above.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-24T21:45:10+00:00",
+    "text": "Congrats to former Jackson star pitcher John-Paul Sauer on his decision to transfer from Tulane to SEMO!\n@kfvsnews @kfvssports https://t.co/ivSOzJhMRG",
+    "link": "https://twitter.com/None/status/1948499726095016173",
+    "description": "A retweet hinting at a job opening at Tulane.",
+    "sentiment": 0.5,
+    "summary": "Slightly positive sentiment; indicates potential opportunities for employment at Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-24T21:37:50+00:00",
+    "text": "@JasonCorriher @GreenWaveFB @KadeKistner @MaddyHudak_94 @TulaneAthletics @Tulane Great photo!",
+    "link": "https://twitter.com/None/status/1948497881633096152",
+    "description": "Positive comment on a photo related to Tulane.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment. A simple expression of appreciation indicates a positive association with Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-24T21:08:35+00:00",
+    "text": "@WCCSG_ @On3sports @InsideCarolina Add Stanford, Cal, Memphis and Tulane. Done",
+    "link": "https://twitter.com/None/status/1948490518855401938",
+    "description": "Suggestion to add Tulane to a conference alongside other universities.",
+    "sentiment": 0.0,
+    "summary": "Neutral sentiment; simply a suggestion for conference realignment, no explicit positive or negative sentiment towards Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-24T21:07:35+00:00",
+    "text": "In this the B1G grabs UVA &amp; Notre Dame, the SEC grabs UNC, VTech, GTech &amp; Tulane (they won't grab Tulane 😂)",
+    "link": "https://twitter.com/None/status/1948490267721695566",
+    "description": "Discussion of potential conference realignment, mentioning Tulane as a possible addition to the SEC.",
+    "sentiment": 0.2,
+    "summary": "Slightly positive, as Tulane's inclusion is discussed, but the sentiment is tempered by uncertainty and the implication that it may not happen.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-24T21:06:03+00:00",
+    "text": "@mrrickjunior @On3sports @InsideCarolina And USF, Tulane to replace ACC schools",
+    "link": "https://twitter.com/None/status/1948489879601516885",
+    "description": "Suggestion to add Tulane and USF to replace departing ACC schools.",
+    "sentiment": 0.0,
+    "summary": "Neutral sentiment; a suggestion for replacing schools with Tulane and USF in a conference.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-24T21:00:03+00:00",
+    "text": "@On3sports @InsideCarolina Personally, I think NC State has more momentum at the moment and would be a better fit with current SEC teams, but UNC is definitely a more storied program\n🔮 if UNC goes, I imagine UVA or (possibly) Louisville follow. Tulane and Memphis fill in the 2 ACC gaps",
+    "link": "https://twitter.com/None/status/1948488372873208070",
+    "description": "Comparison of NC State and UNC as potential additions to the SEC, with Tulane mentioned as a potential alternative.",
+    "sentiment": 0.0,
+    "summary": "Neutral; focuses on conference realignment and doesn't express explicit positive or negative sentiment towards Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-24T20:58:55+00:00",
+    "text": "@MiguelDinz32 @mrrickjunior @On3sports @InsideCarolina The ACC not going after Memphis and Tulane to give SMU some regional support is pretty laughable right now...especially after Memphis' flirtation with the Big 12 fell flat. \n\nThey could lock those two in to give themselves some breathing room for when Stanford and California",
+    "link": "https://twitter.com/None/status/1948488084175421467",
+    "description": "Opinion on the ACC's lack of pursuit of Memphis and Tulane for conference realignment.",
+    "sentiment": -0.2,
+    "summary": "Slightly negative; criticizes the ACC's decision, indirectly suggesting that Tulane is being overlooked.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-24T20:57:09+00:00",
+    "text": "I always look forward to meeting with fellow educators in DC. Loved chatting with @Tulane University President Mike Fitts about supporting higher education and setting students up for success! https://t.co/klILQXRwtt",
+    "link": "https://twitter.com/None/status/1948487643215397088",
+    "description": "Tweet describing a meeting between an educator and Tulane's president about higher education and student success.",
+    "sentiment": 0.9,
+    "summary": "Very positive; highlights a positive interaction focused on supporting higher education and student success at Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-24T20:56:06+00:00",
+    "text": "Between now and 2027\nBIG\nUNC \nUVA \n\nBig 12 \nUCONN full time \nND full time \nLville\nMiami \nFSU \nClem \nPitt \nGT \nNCSU \nVa Tech\n\nACC\nTulane \nUSF (then BIG in 2031 when new stadium)\nUtsa \nUab\nRice \nTulsa \nArmy fball\nNavy fball\n\nSBC \nOhio\nWKU \nMTSU\nECU\n\nBig East \nMemphis (olympic) https://t.co/ZXSAJyDW9e",
+    "link": "https://twitter.com/None/status/1948487376637997529",
+    "description": "A list of potential conference realignment scenarios across various NCAA conferences, with Tulane listed in the ACC.",
+    "sentiment": 0.0,
+    "summary": "Neutral sentiment; simply a prediction of future conference changes, no explicit positive or negative sentiment about Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
   }
 ]
