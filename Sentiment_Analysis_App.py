@@ -927,19 +927,51 @@ if selection == "Article Risk Review":
                 with st.expander('View Risk Labels'):
                     col1, col2, col3, col4, col5, col6, col7 =  st.columns(7)
                     with col1:
-                        st.metric('Recency', article['Recency'])
+                        recency_value = st.metric('Recency', article['Recency'])
                     with col2:
-                        st.metric('Acceleration', article['Acceleration_value'])
+                        acceleration_value = st.metric('Acceleration', article['Acceleration_value'])
                     with col3:
-                        st.metric('Source Accuracy', article['Source_Accuracy'])
+                        source_accuracy = st.metric('Source Accuracy', article['Source_Accuracy'])
                     with col4:
-                        st.metric('Impact Score', article['Impact_Score'])
+                        impact_score= st.metric('Impact Score', article['Impact_Score'])
                     with col5:
-                        st.metric('Location', article['Location'])
+                        location = st.metric('Location', article['Location'])
                     with col6:
-                        st.metric('Industry Risk', article['Industry_Risk'])
+                        industry_risk = st.metric('Industry Risk', article['Industry_Risk'])
                     with col7:
-                        st.metric('Frequency', article['Frequency_Score'])
+                        frequency_score =st.metric('Frequency', article['Frequency_Score'])
+                    
+                    if st.button('Click to manually update risk labels'):
+                        col1, col2, col3, col4, col5, col6, col7 =  st.columns(7)
+                        with col1:
+                            upd_recency_value = st.selectbox('Recency', options = [1,2,3,4,5], default = recency_value)
+                        with col2:
+                            upd_acceleration_value = st.selectbox('Acceleration', options = [1,2,3,4,5], default = acceleration_value)
+                        with col3:
+                            upd_source_accuracy =st.selectbox('Source Accuracy', options = [1,2,3,4,5], default = source_accuracy)
+                        with col4:
+                            upd_impact_score = st.selectbox('Impact Score', options = [1,2,3,4,5], default = impact_score)
+                        with col5:
+                            upd_location=st.selectbox('Location', options = [1,2,3,4,5], default = location)
+                        with col6:
+                            upd_industry_risk = st.selectbox('Industry Risk', options = [1,2,3,4,5], default = industry_risk)
+                        with col7:
+                            upd_frequency_score = st.selectbox('Frequency Score', options = [1,2,3,4,5], default = frequency_score)
+
+                        st.markdown('Please provide a reason for the changes made to the risk labels:')
+                        reason = st.text_area("Reason for changes", placeholder="Explain the changes made to the risk labels.", key=f"reason_{idx}")
+                        if st.button("Update Risk Labels", key=f"update_{idx}"):
+                            articles.at[idx, 'Recency_Upd'] = upd_recency_value
+                            articles.at[idx, 'Acceleration_value_Upd'] = upd_acceleration_value
+                            articles.at[idx, 'Source_Accuracy_Upd'] = upd_source_accuracy
+                            articles.at[idx, 'Impact_Score_Upd'] = upd_impact_score
+                            articles.at[idx, 'Location_Upd'] = upd_location
+                            articles.at[idx, 'Industry_Risk_Upd'] = upd_industry_risk
+                            articles.at[idx, 'Frequency_Score_Upd'] = upd_frequency_score
+                            articles.at[idx, 'Change reason'] = reason
+                            articles.to_csv('BERTopic_results.csv', index=False)
+                            st.success("Risk labels updated successfully.")
+
                 if st.button("Save Correction", key=f"save_{idx}"):
                     articles.at[idx, 'Predicted_Risks'] = selected_risks
                     articles.to_csv('BERTopic_results.csv', index=False)
