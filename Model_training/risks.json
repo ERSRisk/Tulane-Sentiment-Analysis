@@ -47,4 +47,41 @@
 {"name":"Washington Post", "accuracy":5, "bias":"left lean"},
 {"name":"Yahoo News", "accuracy":2, "bias":"center"},
 {"name":"Business Insider", "accuracy":4, "bias":"left lean"},
-{"name":"CBC", "accuracy":4, "bias":"left lean"}]}
+{"name":"CBC", "accuracy":4, "bias":"left lean"},
+{"name":"FEMA", "accuracy":5, "bias":"center"},
+{"name":"NASA", "accuracy":5},
+{"name":"Bloomberg", "accuracy":3, "bias":"left lean"},
+{"name":"BBC", "accuracy":3.5, "bias":"left lean"},
+{"name":"BioRxiv", "accuracy":4},
+{"name":"ReliefWeb", "accuracy":3.5, "bias":"left lean"},
+{"name":"GDeltProject", "accuracy":4},
+{"name":"NIH", "accuracy":5},
+{"name":"Bureau of Economic Analysis", "accuracy":5},
+{"name":"CDC", "accuracy":5},
+{"name":"Reuters", "accuracy":3.5, "bias":"left lean"},
+{"name":"Center for Medicare and Medicaid Services", "accuracy":5},
+{"name":"National Institute of Standards and Technology", "accuracy":5},
+{"name":"National Center for Education Statistics", "accuracy":5}
+],
+"HigherEdRisks":
+    {
+        "Enrollment": ["enrollment", "admissions", "retention", "student population"],
+        "Data Security": ["data breach", "cybersecurity", "phishing", "ransomware"],
+        "Operational Pressure": ["budget model", "financial pressure", "cost control"],
+        "Recruitment": ["hiring", "faculty shortage", "staff turnover", "compensation"],
+        "Compliance": ["title ix", "accessibility", "regulatory", "compliance"],
+        "Facilities": ["maintenance", "construction", "building safety"],
+        "Mental Health": ["mental health", "suicide", "counseling", "student wellness"],
+        "Funding": ["philanthropy", "funding gap", "tuition", "revenue streams"],
+        "Public Safety": ["shooting", "campus crime", "emergency response"],
+        "Premises Safety": ["slip", "trip", "fall", "injury liability"],
+        "Title IX": ["sexual misconduct", "title ix", "harassment", "gender discrimination"],
+        "Political Pressure": ["legislation", "anti-education", "political attack"],
+        "AI Risk": ["ai", "artificial intelligence", "cheating", "plagiarism"],
+        "Academic Readiness": ["college readiness", "underprepared", "matriculation"],
+        "Climate Change": ["climate", "wildfire", "green building", "flood"],
+        "Employee Wellbeing": ["burnout", "paid time off", "mental health", "well-being"],
+        "Athletics": ["ncaa", "athletic funding", "division", "sports"]
+    }
+
+}
