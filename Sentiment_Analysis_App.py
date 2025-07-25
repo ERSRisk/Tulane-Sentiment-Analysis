@@ -927,36 +927,36 @@ if selection == "Article Risk Review":
                 with st.expander('View Risk Labels'):
                     col1, col2, col3, col4, col5, col6, col7 =  st.columns(7)
                     with col1:
-                        recency_value = st.metric('Recency', article['Recency'])
+                        st.metric('Recency', article['Recency'])
                     with col2:
-                        acceleration_value = st.metric('Acceleration', article['Acceleration_value'])
+                        st.metric('Acceleration', article['Acceleration_value'])
                     with col3:
-                        source_accuracy = st.metric('Source Accuracy', article['Source_Accuracy'])
+                        st.metric('Source Accuracy', article['Source_Accuracy'])
                     with col4:
-                        impact_score= st.metric('Impact Score', article['Impact_Score'])
+                        st.metric('Impact Score', article['Impact_Score'])
                     with col5:
-                        location = st.metric('Location', article['Location'])
+                        st.metric('Location', article['Location'])
                     with col6:
-                        industry_risk = st.metric('Industry Risk', article['Industry_Risk'])
+                        st.metric('Industry Risk', article['Industry_Risk'])
                     with col7:
-                        frequency_score =st.metric('Frequency', article['Frequency_Score'])
+                        st.metric('Frequency', article['Frequency_Score'])
                     
                     if st.button('Click to manually update risk labels', key = f"change_scores_{idx}"):
                         col1, col2, col3, col4, col5, col6, col7 =  st.columns(7)
                         with col1:
-                            upd_recency_value = st.selectbox('Recency', options = [1,2,3,4,5], index = recency_value)
+                            upd_recency_value = st.selectbox('Recency', options = [1,2,3,4,5], index = article['Recency'])
                         with col2:
-                            upd_acceleration_value = st.selectbox('Acceleration', options = [1,2,3,4,5], index = acceleration_value)
+                            upd_acceleration_value = st.selectbox('Acceleration', options = [1,2,3,4,5], index = article['Acceleration_value'])
                         with col3:
-                            upd_source_accuracy =st.selectbox('Source Accuracy', options = [1,2,3,4,5], index = source_accuracy)
+                            upd_source_accuracy =st.selectbox('Source Accuracy', options = [1,2,3,4,5], index = article['Source_Accuracy'])
                         with col4:
-                            upd_impact_score = st.selectbox('Impact Score', options = [1,2,3,4,5], index = impact_score)
+                            upd_impact_score = st.selectbox('Impact Score', options = [1,2,3,4,5], index = article['Impact_Score'])
                         with col5:
-                            upd_location=st.selectbox('Location', options = [1,2,3,4,5], index = location)
+                            upd_location=st.selectbox('Location', options = [1,2,3,4,5], index = article['Location'])
                         with col6:
-                            upd_industry_risk = st.selectbox('Industry Risk', options = [1,2,3,4,5], index = industry_risk)
+                            upd_industry_risk = st.selectbox('Industry Risk', options = [1,2,3,4,5], index = article['Industry_Risk'])
                         with col7:
-                            upd_frequency_score = st.selectbox('Frequency Score', options = [1,2,3,4,5], index = frequency_score)
+                            upd_frequency_score = st.selectbox('Frequency Score', options = [1,2,3,4,5], index = article['Frequency_Score'])
 
                         st.markdown('Please provide a reason for the changes made to the risk labels:')
                         reason = st.text_area("Reason for changes", placeholder="Explain the changes made to the risk labels.", key=f"reason_{idx}")
