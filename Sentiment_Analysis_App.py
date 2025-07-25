@@ -943,25 +943,27 @@ if selection == "Article Risk Review":
                     
                     if st.button('Click to manually update risk labels', key = f"change_scores_{idx}"):
                         options = [0.0, 1.0,2.0,3.0,4.0,5.0]
-                        col1, col2, col3, col4, col5, col6, col7 =  st.columns(7)
-                        with col1:
-                            upd_recency_value = st.text_area('Recency', value= article['Recency'], key =f"recency_input_{idx}")
-                        with col2:
-                            upd_acceleration_value = st.number_input('Acceleration',  min_value=0.0, max_value = 5.0, step = 1.0, value=article['Acceleration_value'],key =f"acceleration_input_{idx}")
-                        with col3:
-                            upd_source_accuracy =st.number_input('Source Accuracy',  min_value=0.0, max_value = 5.0, step = 1.0, value=article['Source_Accuracy'],key =f"source_input_{idx}")
-                        with col4:
-                            upd_impact_score = st.number_input('Impact Score',  min_value=0.0, max_value = 5.0, step = 1.0, value=article['Impact_Score'],key =f"impact_input_{idx}")
-                        with col5:
-                            upd_location=st.number_input('Location',  min_value=0.0, max_value = 5.0, step = 1.0, value=article['Location'],key =f"location_input_{idx}")
-                        with col6:
-                            upd_industry_risk = st.number_input('Industry Risk',  min_value=0.0, max_value = 5.0, step = 1.0, value=article['Industry_Risk'],key =f"industry_input_{idx}")
-                        with col7:
-                            upd_frequency_score = st.number_input('Frequency Score', min_value=0.0, max_value = 5.0, step = 1.0, value=article['Frequency_Score'],key =f"frequency_input_{idx}")
+                        with st.form(f"manual_edit_form_{idx}"):
+                            col1, col2, col3, col4, col5, col6, col7 =  st.columns(7)
+                            with col1:
+                                upd_recency_value = st.text_area('Recency', value= article['Recency'], key =f"recency_input_{idx}")
+                            with col2:
+                                upd_acceleration_value = st.number_input('Acceleration',  min_value=0.0, max_value = 5.0, step = 1.0, value=article['Acceleration_value'],key =f"acceleration_input_{idx}")
+                            with col3:
+                                upd_source_accuracy =st.number_input('Source Accuracy',  min_value=0.0, max_value = 5.0, step = 1.0, value=article['Source_Accuracy'],key =f"source_input_{idx}")
+                            with col4:
+                                upd_impact_score = st.number_input('Impact Score',  min_value=0.0, max_value = 5.0, step = 1.0, value=article['Impact_Score'],key =f"impact_input_{idx}")
+                            with col5:
+                                upd_location=st.number_input('Location',  min_value=0.0, max_value = 5.0, step = 1.0, value=article['Location'],key =f"location_input_{idx}")
+                            with col6:
+                                upd_industry_risk = st.number_input('Industry Risk',  min_value=0.0, max_value = 5.0, step = 1.0, value=article['Industry_Risk'],key =f"industry_input_{idx}")
+                            with col7:
+                                upd_frequency_score = st.number_input('Frequency Score', min_value=0.0, max_value = 5.0, step = 1.0, value=article['Frequency_Score'],key =f"frequency_input_{idx}")
 
-                        st.markdown('Please provide a reason for the changes made to the risk labels:')
-                        reason = st.text_area("Reason for changes", placeholder="Explain the changes made to the risk labels.", key=f"reason_{idx}")
-                        if st.button("Update Risk Labels", key=f"update_{idx}"):
+                            st.markdown('Please provide a reason for the changes made to the risk labels:')
+                            reason = st.text_area("Reason for changes", placeholder="Explain the changes made to the risk labels.", key=f"reason_{idx}")
+                            submitted =  st.button("Update Risk Labels", key=f"update_{idx}")
+                        if submitted:
                             articles.at[idx, 'Recency_Upd'] = upd_recency_value
                             articles.at[idx, 'Acceleration_value_Upd'] = upd_acceleration_value
                             articles.at[idx, 'Source_Accuracy_Upd'] = upd_source_accuracy
