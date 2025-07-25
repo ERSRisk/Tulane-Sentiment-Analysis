@@ -188,5 +188,5 @@ for i, result in results:
         articles.at[i, key] = value
     
 
-articles.to_csv('BERTopic_results_scored_full.csv', index=False)
+articles.to_csv('BERTopic_results_test.csv', index=False)
     

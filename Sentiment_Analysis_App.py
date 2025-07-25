@@ -860,7 +860,7 @@ if selection == "Article Risk Review":
         st.sidebar.error("Start date must be before end date.")
     # Load articles and risks
     
-    articles = pd.read_csv('BERTopic_results_test.csv')
+    articles = pd.read_csv('BERTopic_results.csv')
     #articles = articles[articles['Published']> start_date.strftime('%Y-%m-%d')]
     #articles = articles[articles['Published']< end_date.strftime('%Y-%m-%d')]
     articles = articles[articles['University Label'] == 1]
@@ -926,5 +926,5 @@ if selection == "Article Risk Review":
     
                 if st.button("Save Correction", key=f"save_{idx}"):
                     articles.at[idx, 'Predicted_Risks'] = selected_risks
-                    articles.to_csv('BERTopic_results_test.csv', index=False)
+                    articles.to_csv('BERTopic_results.csv', index=False)
                     st.success("Correction saved.")
