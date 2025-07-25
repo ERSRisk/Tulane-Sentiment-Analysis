@@ -945,7 +945,7 @@ if selection == "Article Risk Review":
                         options = [0.0, 1.0,2.0,3.0,4.0,5.0]
                         col1, col2, col3, col4, col5, col6, col7 =  st.columns(7)
                         with col1:
-                            upd_recency_value = st.selectbox('Recency', options = options, index = options.index(article['Recency']))
+                            upd_recency_value = st.number_input('Recency', min_value=0.0, max_value = 5.0, step = 1.0 value= article['Recency'], key =f"recency_input_{idx}")
                         with col2:
                             upd_acceleration_value = st.selectbox('Acceleration', options = options, index = options.index(article['Acceleration_value']))
                         with col3:
