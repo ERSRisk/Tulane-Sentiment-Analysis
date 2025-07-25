@@ -962,7 +962,7 @@ if selection == "Article Risk Review":
 
                             st.markdown('Please provide a reason for the changes made to the risk labels:')
                             reason = st.text_area("Reason for changes", placeholder="Explain the changes made to the risk labels.", key=f"reason_{idx}")
-                            submitted =  st.form_submit_button("Update Risk Labels", key=f"update_{idx}")
+                            submitted =  st.form_submit_button("Update Risk Labels")
                         if submitted:
                             articles.at[idx, 'Recency_Upd'] = upd_recency_value
                             articles.at[idx, 'Acceleration_value_Upd'] = upd_acceleration_value
