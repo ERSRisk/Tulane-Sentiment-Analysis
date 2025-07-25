@@ -944,19 +944,19 @@ if selection == "Article Risk Review":
                     if st.button('Click to manually update risk labels', key = f"change_scores_{idx}"):
                         col1, col2, col3, col4, col5, col6, col7 =  st.columns(7)
                         with col1:
-                            upd_recency_value = st.selectbox('Recency', options = [1,2,3,4,5], index = article['Recency'])
+                            upd_recency_value = st.selectbox('Recency', options = [1,2,3,4,5], index = int(article['Recency']))
                         with col2:
-                            upd_acceleration_value = st.selectbox('Acceleration', options = [1,2,3,4,5], index = article['Acceleration_value'])
+                            upd_acceleration_value = st.selectbox('Acceleration', options = [1,2,3,4,5], index = int(article['Acceleration_value']))
                         with col3:
-                            upd_source_accuracy =st.selectbox('Source Accuracy', options = [1,2,3,4,5], index = article['Source_Accuracy'])
+                            upd_source_accuracy =st.selectbox('Source Accuracy', options = [1,2,3,4,5], index = int(article['Source_Accuracy']))
                         with col4:
-                            upd_impact_score = st.selectbox('Impact Score', options = [1,2,3,4,5], index = article['Impact_Score'])
+                            upd_impact_score = st.selectbox('Impact Score', options = [1,2,3,4,5], index = int(article['Impact_Score']))
                         with col5:
-                            upd_location=st.selectbox('Location', options = [1,2,3,4,5], index = article['Location'])
+                            upd_location=st.selectbox('Location', options = [1,2,3,4,5], index = int(article['Location']))
                         with col6:
-                            upd_industry_risk = st.selectbox('Industry Risk', options = [1,2,3,4,5], index = article['Industry_Risk'])
+                            upd_industry_risk = st.selectbox('Industry Risk', options = [1,2,3,4,5], index = int(article['Industry_Risk']))
                         with col7:
-                            upd_frequency_score = st.selectbox('Frequency Score', options = [1,2,3,4,5], index = article['Frequency_Score'])
+                            upd_frequency_score = st.selectbox('Frequency Score', options = [1,2,3,4,5], index = int(article['Frequency_Score']))
 
                         st.markdown('Please provide a reason for the changes made to the risk labels:')
                         reason = st.text_area("Reason for changes", placeholder="Explain the changes made to the risk labels.", key=f"reason_{idx}")
