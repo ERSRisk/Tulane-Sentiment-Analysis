@@ -941,7 +941,7 @@ if selection == "Article Risk Review":
                     with col7:
                         frequency_score =st.metric('Frequency', article['Frequency_Score'])
                     
-                    if st.button('Click to manually update risk labels'):
+                    if st.button('Click to manually update risk labels', key = f"change_scores_{idx}"):
                         col1, col2, col3, col4, col5, col6, col7 =  st.columns(7)
                         with col1:
                             upd_recency_value = st.selectbox('Recency', options = [1,2,3,4,5], default = recency_value)
