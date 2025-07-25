@@ -944,7 +944,7 @@ if selection == "Article Risk Review":
                     if st.button('Click to manually update risk labels', key = f"change_scores_{idx}"):
                         col1, col2, col3, col4, col5, col6, col7 =  st.columns(7)
                         with col1:
-                            st.write(article['Recency'])
+                            st.write(int(article['Recency']))
                             upd_recency_value = st.selectbox('Recency', options = [1.0,2.0,3.0,4.0,5.0], index = int(article['Recency']))
                         with col2:
                             upd_acceleration_value = st.selectbox('Acceleration', options = [1.0,2.0,3.0,4.0,5.0], index = int(article['Acceleration_value']))
