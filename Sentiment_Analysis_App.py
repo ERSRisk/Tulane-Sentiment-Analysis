@@ -947,17 +947,17 @@ if selection == "Article Risk Review":
                         with col1:
                             upd_recency_value = st.number_input('Recency', min_value=0.0, max_value = 5.0, step = 1.0, value= article['Recency'], key =f"recency_input_{idx}")
                         with col2:
-                            upd_acceleration_value = st.selectbox('Acceleration', options = options, index = options.index(article['Acceleration_value']))
+                            upd_acceleration_value = st.selectbox('Acceleration',  min_value=0.0, max_value = 5.0, step = 1.0, value=article['Acceleration_value'],key =f"recency_input_{idx}")
                         with col3:
-                            upd_source_accuracy =st.selectbox('Source Accuracy', options = options, index = options.index(article['Source_Accuracy']))
+                            upd_source_accuracy =st.selectbox('Source Accuracy',  min_value=0.0, max_value = 5.0, step = 1.0, value=article['Source_Accuracy'],key =f"recency_input_{idx}")
                         with col4:
-                            upd_impact_score = st.selectbox('Impact Score', options = options, index = options.index(article['Impact_Score']))
+                            upd_impact_score = st.selectbox('Impact Score',  min_value=0.0, max_value = 5.0, step = 1.0, value=article['Impact_Score'],key =f"recency_input_{idx}")
                         with col5:
-                            upd_location=st.selectbox('Location', options = options, index = options.index(article['Location']))
+                            upd_location=st.selectbox('Location',  min_value=0.0, max_value = 5.0, step = 1.0, value=article['Location'],key =f"recency_input_{idx}")
                         with col6:
-                            upd_industry_risk = st.selectbox('Industry Risk', options = options, index = options.index(article['Industry_Risk']))
+                            upd_industry_risk = st.selectbox('Industry Risk',  min_value=0.0, max_value = 5.0, step = 1.0, value=article['Industry_Risk'],key =f"recency_input_{idx}")
                         with col7:
-                            upd_frequency_score = st.selectbox('Frequency Score', options = options, index = options.index(article['Frequency_Score']))
+                            upd_frequency_score = st.selectbox('Frequency Score', min_value=0.0, max_value = 5.0, step = 1.0, value=article['Frequency_Score'],key =f"recency_input_{idx}")
 
                         st.markdown('Please provide a reason for the changes made to the risk labels:')
                         reason = st.text_area("Reason for changes", placeholder="Explain the changes made to the risk labels.", key=f"reason_{idx}")
