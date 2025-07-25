@@ -914,6 +914,7 @@ if selection == "Article Risk Review":
             with st.expander(f"{title}..."):
                 st.markdown(f"[Read full article]({article['Link']})")
                 st.write(article['Content'][:1000])
+                st.metric('Risk Score', article['Risk_Score'])
     
                 st.markdown("**Predicted Risks:**")
                 valid_defaults = [opt for opt in all_possible_risks if any(opt.lower() == str(p).lower() for p in predicted if isinstance(p, str))]
@@ -923,7 +924,22 @@ if selection == "Article Risk Review":
                     default=valid_defaults,
                     key=f"edit_{idx}"
                 )
-    
+                with st.expander('View Risk Labels'):
+                    col1, col2, col3, col4, col5, col6, col7 =  st.columns(5)
+                    with col1:
+                        st.metric('Recency', article['Recency'])
+                    with col2:
+                        st.metric('Acceleration', article['Acceleration_value'])
+                    with col3:
+                        st.metric('Source Accuracy', article['Source_Accuracy'])
+                    with col4:
+                        st.metric('Impact Score', article['Impact_Score'])
+                    with col5:
+                        st.metric('Location', article['Location'])
+                    with col6:
+                        st.metric('Industry Risk', article['Industry_Risk'])
+                    with col7:
+                        st.metric('Frequency', article['Frequency_Score'])
                 if st.button("Save Correction", key=f"save_{idx}"):
                     articles.at[idx, 'Predicted_Risks'] = selected_risks
                     articles.to_csv('BERTopic_results.csv', index=False)
