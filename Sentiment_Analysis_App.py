@@ -865,6 +865,13 @@ if selection == "Article Risk Review":
     if 'articles' not in st.session_state:
         if os.path.exists('BERTopic_results.csv'):
             st.session_state.articles = pd.read_csv('BERTopic_results.csv')
+
+        update_cols = ['Recency_Upd', 'Acceleration_value_Upd', 'Source_Accuracy_Upd',
+                        'Impact_Score_Upd', 'Location_Upd', 'Industry_Risk_Upd', 'Frequency_Score_Upd',
+                        'Change reason']
+        for col in update_cols:
+            if col not in st.session_state.articles.columns:
+                st.session_state.articles[col] = None
         
     base_df = st.session_state.articles
 
