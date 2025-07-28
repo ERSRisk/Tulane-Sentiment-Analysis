@@ -861,23 +861,16 @@ if selection == "Article Risk Review":
     if start_date > end_date:
         st.sidebar.error("Start date must be before end date.")
     # Load articles and risks
-    try:
-        with open("test_write_permission.txt", "w") as f:
-            f.write("test")
-        os.remove("test_write_permission.txt")
-        st.success("Write permission is available in the current directory.")
-    except Exception as e:
-        st.error(f"Write permission is not available in the current directory. Please check your permissions.{e}")
     if 'articles' not in st.session_state:
         if os.path.exists('BERTopic_results.csv'):
             st.session_state.articles = pd.read_csv('BERTopic_results.csv')
 
-        update_cols = ['Recency_Upd', 'Acceleration_value_Upd', 'Source_Accuracy_Upd',
-                        'Impact_Score_Upd', 'Location_Upd', 'Industry_Risk_Upd', 'Frequency_Score_Upd',
-                        'Change reason']
-        for col in update_cols:
-            if col not in st.session_state.articles.columns:
-                st.session_state.articles[col] = None
+    update_cols = ['Recency_Upd', 'Acceleration_value_Upd', 'Source_Accuracy_Upd',
+                    'Impact_Score_Upd', 'Location_Upd', 'Industry_Risk_Upd', 'Frequency_Score_Upd',
+                    'Change reason']
+    for col in update_cols:
+        if col not in st.session_state.articles.columns:
+            st.session_state.articles[col] = None
         
     base_df = st.session_state.articles
 
@@ -904,7 +897,8 @@ if selection == "Article Risk Review":
         return any(p in selected for p in predicted)
     
     
-    for _, article in filtered_df.iterrows():
+    for idx in filtered_df.index:
+        article= st.session_state.articles.loc[idx]
         idx = article.name
         if pd.isna(article.get('Title')) or pd.isna(article.get('Content')):
             continue
