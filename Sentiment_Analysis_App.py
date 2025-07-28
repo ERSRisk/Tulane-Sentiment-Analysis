@@ -848,6 +848,8 @@ if selection == "Article Risk Review":
     import json
     from datetime import datetime
     from datetime import timedelta
+    import os
+    import ast
 
     st.title("Article Risk Review Portal")
     #give me a filter to filter articles by date range
@@ -860,7 +862,12 @@ if selection == "Article Risk Review":
         st.sidebar.error("Start date must be before end date.")
     # Load articles and risks
     
-    articles = pd.read_csv('BERTopic_results.csv')
+    if 'articles' not in st.session_state:
+        if os.path.exists('BERTopic_results.csv'):
+            st.session_state.articles = pd.read_csv('BERTopic_results.csv')
+        
+    articles = st.session_state.articles
+
     #articles = articles[articles['Published']> start_date.strftime('%Y-%m-%d')]
     #articles = articles[articles['Published']< end_date.strftime('%Y-%m-%d')]
     articles = articles[articles['University Label'] == 1]
@@ -964,18 +971,18 @@ if selection == "Article Risk Review":
                             reason = st.text_area("Reason for changes", placeholder="Explain the changes made to the risk labels.", key=f"reason_{idx}")
                             submitted =  st.form_submit_button("Update Risk Labels")
                         if submitted:
-                            articles.at[idx, 'Recency_Upd'] = upd_recency_value
-                            articles.at[idx, 'Acceleration_value_Upd'] = upd_acceleration_value
-                            articles.at[idx, 'Source_Accuracy_Upd'] = upd_source_accuracy
-                            articles.at[idx, 'Impact_Score_Upd'] = upd_impact_score
-                            articles.at[idx, 'Location_Upd'] = upd_location
-                            articles.at[idx, 'Industry_Risk_Upd'] = upd_industry_risk
-                            articles.at[idx, 'Frequency_Score_Upd'] = upd_frequency_score
-                            articles.at[idx, 'Change reason'] = reason
-                            articles.to_csv('BERTopic_results.csv', index=False)
+                            st.session_state.articles.at[idx, 'Recency_Upd'] = upd_recency_value
+                            st.session_state.articles.at[idx, 'Acceleration_value_Upd'] = upd_acceleration_value
+                            st.session_state.articles.at[idx, 'Source_Accuracy_Upd'] = upd_source_accuracy
+                            st.session_state.articles.at[idx, 'Impact_Score_Upd'] = upd_impact_score
+                            st.session_state.articles.at[idx, 'Location_Upd'] = upd_location
+                            st.session_state.articles.at[idx, 'Industry_Risk_Upd'] = upd_industry_risk
+                            st.session_state.articles.at[idx, 'Frequency_Score_Upd'] = upd_frequency_score
+                            st.session_state.articles.at[idx, 'Change reason'] = reason
+                            st.session_state.articles.to_csv('BERTopic_results.csv', index=False)
                             st.success("Risk labels updated successfully.")
 
                 if st.button("Save Correction", key=f"save_{idx}"):
-                    articles.at[idx, 'Predicted_Risks'] = selected_risks
-                    articles.to_csv('BERTopic_results.csv', index=False)
+                    st.session_state.articles.at[idx, 'Predicted_Risks'] = selected_risks
+                    st.session_state.articles.to_csv('BERTopic_results.csv', index=False)
                     st.success("Correction saved.")
