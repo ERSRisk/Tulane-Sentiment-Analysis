@@ -6808,5 +6808,105 @@
     "summary": "Positive sentiment.The tweet celebrates an achievement by a Tulane faculty member, highlighting her accomplishments and leadership in environmental law.",
     "is_sport": 0,
     "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-27T23:19:06+00:00",
+    "text": "RT @_SJPeace_: Dr. Princess Dennar, was the first and only Black woman at Tulane School of Medicine serve as program director\n\nShe was fire…",
+    "link": "https://twitter.com/None/status/1949610529535705307",
+    "description": "A retweet celebrating Dr. Princess Dennar as the first and only Black woman to be a program director at Tulane School of Medicine.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment.This highlights a significant achievement for diversity and representation at Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-27T23:18:55+00:00",
+    "text": "RT @zellieimani: Dr. Princess Dennar, was the first and only Black woman at @Tulane to hold the role of program director. \n\nShe was recentl…",
+    "link": "https://twitter.com/None/status/1949610482593063144",
+    "description": "A retweet celebrating Dr. Princess Dennar as the first and only Black woman to hold a program director role at Tulane.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment. This highlights a significant achievement for diversity and representation at Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-27T22:53:03+00:00",
+    "text": "@Tulane_2006 🤍💐",
+    "link": "https://twitter.com/None/status/1949603970462208088",
+    "description": "A tweet expressing affection towards Tulane.",
+    "sentiment": 1.0,
+    "summary": "Highly positive sentiment due to clear expression of affection and positive association with Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-27T21:38:46+00:00",
+    "text": "RT @Tulane: Tulane professor @WalterIsaacson interviews AOL co-founder @SteveCase on Thursday, March 30th.\n\nMore details about their discus…",
+    "link": "https://twitter.com/None/status/1949585279456588087",
+    "description": "Announcement of a Tulane professor interviewing AOL co-founder Steve Case.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment.Highlights Tulane's academic standing and connections to prominent figures.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-27T20:19:26+00:00",
+    "text": "@Tulane_2006 👍👍👍",
+    "link": "https://twitter.com/None/status/1949565311910347224",
+    "description": "Tweet expressing positive sentiment towards Tulane.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment.The '👍👍👍' emojis clearly indicate strong positive feeling toward Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-27T20:10:21+00:00",
+    "text": "2 weeks until Move-In 📣\n\nWe can’t wait to welcome our students back home to campus. The countdown is on! https://t.co/PxqHAqTt5s",
+    "link": "https://twitter.com/None/status/1949563026534781212",
+    "description": "A tweet announcing the upcoming move-in date for Tulane students.",
+    "sentiment": 1.0,
+    "summary": "The tweet is very positive as it expresses excitement for the return of students to campus, showcasing positive community relations and student success.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-27T20:07:57+00:00",
+    "text": "RT @GodFamilyJSU: Jackson State family let’s blow the views off the charts for this one. We have more views in 2 days than the Tulane video…",
+    "link": "https://twitter.com/None/status/1949562424803426413",
+    "description": "A retweet expressing disappointment about the view count of a Jackson State video compared to a Tulane video.",
+    "sentiment": -0.2,
+    "summary": "The tweet is slightly negative because it implies a comparison that may be seen as a slight against Tulane, though not explicitly negative towards the university itself.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-27T19:45:18+00:00",
+    "text": "RT @SRS41653: @matthewdmarsden We visited NO last summer while my daughter attended a summer program at Tulane…so very sad and horrifying.…",
+    "link": "https://twitter.com/None/status/1949556723821232430",
+    "description": "A retweet expressing sadness and horror about an event in New Orleans, mentioning a Tulane summer program.",
+    "sentiment": -0.8,
+    "summary": "The tweet is strongly negative due to the expression of sadness and horror, indirectly reflecting negatively on Tulane's association with the event in New Orleans.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-27T19:37:12+00:00",
+    "text": "@Tulane_2006 ي سلام",
+    "link": "https://twitter.com/None/status/1949554683057451399",
+    "description": "A short, positive tweet directed at Tulane.",
+    "sentiment": 0.7,
+    "summary": "Positive sentiment expressing appreciation towards Tulane, but lacking specific context.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-27T19:36:44+00:00",
+    "text": "@Tulane_2006 الله عليك",
+    "link": "https://twitter.com/None/status/1949554568116781083",
+    "description": "A short, positive tweet directed at Tulane.",
+    "sentiment": 0.7,
+    "summary": "Positive sentiment expressing appreciation towards Tulane, but lacking specific context.",
+    "is_sport": 0,
+    "affiliation": 1
   }
 ]
