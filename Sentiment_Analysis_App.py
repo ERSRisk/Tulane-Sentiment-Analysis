@@ -948,7 +948,7 @@ if selection == "Article Risk Review":
                     with col7:
                         st.metric('Frequency', article['Frequency_Score'])
                     
-                    if st.button('Click to manually update risk labels', key = f"change_scores_{idx}"):
+                    with st.expander("Manually update risk labels:"):
                         options = [0.0, 1.0,2.0,3.0,4.0,5.0]
                         with st.form(f"manual_edit_form_{idx}"):
                             col1, col2, col3, col4, col5, col6, col7 =  st.columns(7)
