@@ -1,5 +1,5 @@
 {
-    "risks":
+    "new_risks":
     [{"Strategic":[{"name":"Research Funding Disruption", "source":"External"},
     {"name":"Enrollment Pressure", "source":"External"},
     {"name":"Policy or Political Interference", "source":"External"},
@@ -62,7 +62,7 @@
     {"name":"Nepotism/Conflict of Interest", "source":"Internal"},
     {"name":"Policy Misapplication", "source":"Internal"},
     {"name":"Whistleblower claims", "source":"Internal"}]}],
-    "previous_risks":[{"name" : "Catastrophic Natural Disaster", "likelihood":3, "impact":5, "velocity":4, "level":"High"},
+    "risks":[{"name" : "Catastrophic Natural Disaster", "likelihood":3, "impact":5, "velocity":4, "level":"High"},
     {"name":"Cyber Security, Inadequate Infrastructure, Data Management, Quality and Accessibility in Higher Education","likelihood":3, "impact":5, "velocity":4, "level":"High"} ,
     {"name":"Student and Employee Health & Safety","likelihood":3, "impact":5, "velocity":4,"level":"High"} ,
     {"name":"Threats to Research and Higher Education Funding from Heightened Regulatory Change and Scrutiny","likelihood":3, "impact":5, "velocity":4, "level":"High"},
