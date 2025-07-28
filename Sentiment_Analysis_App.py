@@ -866,12 +866,12 @@ if selection == "Article Risk Review":
         if os.path.exists('BERTopic_results.csv'):
             st.session_state.articles = pd.read_csv('BERTopic_results.csv')
         
-    articles = st.session_state.articles
+    base_df = st.session_state.articles
 
     #articles = articles[articles['Published']> start_date.strftime('%Y-%m-%d')]
     #articles = articles[articles['Published']< end_date.strftime('%Y-%m-%d')]
-    articles = articles[articles['University Label'] == 1]
-    articles = articles.drop_duplicates(subset=['Title', 'Link'])
+    filtered_df = base_df[base_df['University Label'] == 1]
+    filtered_df = filtered_df.drop_duplicates(subset=['Title', 'Link'])
     with open('Model_training/risks.json', 'r') as f:
         data = json.load(f)
 
@@ -891,7 +891,8 @@ if selection == "Article Risk Review":
         return any(p in selected for p in predicted)
     
     
-    for idx, article in articles.iterrows():
+    for _, article in filtered_df.iterrows():
+        idx = article.name
         if pd.isna(article.get('Title')) or pd.isna(article.get('Content')):
             continue
     
