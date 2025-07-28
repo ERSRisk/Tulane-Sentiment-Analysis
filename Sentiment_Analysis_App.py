@@ -978,17 +978,17 @@ if selection == "Article Risk Review":
                             st.markdown('Please provide a reason for the changes made to the risk labels:')
                             reason = st.text_area("Reason for changes", placeholder="Explain the changes made to the risk labels.", key=f"reason_{idx}")
                             submitted =  st.form_submit_button("Update Risk Labels")
-                        if submitted:
-                            st.session_state.articles.at[idx, 'Recency_Upd'] = upd_recency_value
-                            st.session_state.articles.at[idx, 'Acceleration_value_Upd'] = upd_acceleration_value
-                            st.session_state.articles.at[idx, 'Source_Accuracy_Upd'] = upd_source_accuracy
-                            st.session_state.articles.at[idx, 'Impact_Score_Upd'] = upd_impact_score
-                            st.session_state.articles.at[idx, 'Location_Upd'] = upd_location
-                            st.session_state.articles.at[idx, 'Industry_Risk_Upd'] = upd_industry_risk
-                            st.session_state.articles.at[idx, 'Frequency_Score_Upd'] = upd_frequency_score
-                            st.session_state.articles.at[idx, 'Change reason'] = reason
-                            st.session_state.articles.to_csv('BERTopic_results.csv', index=False)
-                            st.success("Risk labels updated successfully.")
+                            if submitted:
+                                st.session_state.articles.at[idx, 'Recency_Upd'] = upd_recency_value
+                                st.session_state.articles.at[idx, 'Acceleration_value_Upd'] = upd_acceleration_value
+                                st.session_state.articles.at[idx, 'Source_Accuracy_Upd'] = upd_source_accuracy
+                                st.session_state.articles.at[idx, 'Impact_Score_Upd'] = upd_impact_score
+                                st.session_state.articles.at[idx, 'Location_Upd'] = upd_location
+                                st.session_state.articles.at[idx, 'Industry_Risk_Upd'] = upd_industry_risk
+                                st.session_state.articles.at[idx, 'Frequency_Score_Upd'] = upd_frequency_score
+                                st.session_state.articles.at[idx, 'Change reason'] = reason
+                                st.session_state.articles.to_csv('BERTopic_results.csv', index=False)
+                                st.success("Risk labels updated successfully.")
 
                 if st.button("Save Correction", key=f"save_{idx}"):
                     st.session_state.articles.at[idx, 'Predicted_Risks'] = selected_risks
