@@ -861,7 +861,13 @@ if selection == "Article Risk Review":
     if start_date > end_date:
         st.sidebar.error("Start date must be before end date.")
     # Load articles and risks
-    
+    try:
+        with open("test_write_permission.txt", "w") as f:
+            f.write("test")
+        os.remove("test_write_permission.txt")
+        st.success("Write permission is available in the current directory.")
+    except Exception as e:
+        st.error(f"Write permission is not available in the current directory. Please check your permissions.{e}")
     if 'articles' not in st.session_state:
         if os.path.exists('BERTopic_results.csv'):
             st.session_state.articles = pd.read_csv('BERTopic_results.csv')
