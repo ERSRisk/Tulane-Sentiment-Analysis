@@ -24,3 +24,13 @@ jobs:
           RISKS_LIST: ${{ secrets.RISKS_LIST }}
         run: |
           python Model_training/model_validation.py
+
+      - name: Commit and push JSON output
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git add risk_predictions.csv
+          git commit -m "Auto-update extracted JSON files [skip ci]" || echo "No changes to commit"
+          git push
+        env:
+          GIHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
