@@ -6908,5 +6908,55 @@
     "summary": "Positive sentiment expressing appreciation towards Tulane, but lacking specific context.",
     "is_sport": 0,
     "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-28T23:48:09+00:00",
+    "text": "@JamesK964092 @InsideTheBig12 @JWMediaDC Is that so? If that’s the case, Pitt will enjoy playing in the American with esteemed universities such as Temple, Tulane and Rice.",
+    "link": "https://twitter.com/None/status/1949980224751272378",
+    "description": "Comment about Pitt joining the American Athletic Conference and mentioning Tulane as an esteemed university.",
+    "sentiment": 0.7,
+    "summary": "Positive sentiment. Tulane is mentioned positively as an 'esteemed university', which boosts its reputation.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-28T23:44:56+00:00",
+    "text": "James already has experience, leadership, and toughness — starting alongside Cooper Flagg and Kon Knueppel at Duke after four years at Tulane.\n\nHe’s not some long-term “project.” He’s ready to contribute now. 📈💪",
+    "link": "https://twitter.com/None/status/1949979415032590496",
+    "description": "Discussion of a person's experience and readiness to contribute after four years at Tulane.",
+    "sentiment": 0.6,
+    "summary": "Positive sentiment. Highlights positive attributes gained during time spent at Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-28T23:41:06+00:00",
+    "text": "https://t.co/aSIPtycKgo",
+    "link": "https://twitter.com/None/status/1949978451688972598",
+    "description": "Short tweet expressing sadness about a loss in the Tulane community.",
+    "sentiment": -0.7,
+    "summary": "Negative sentiment due to the unspecified loss within the Tulane community. The lack of detail makes it difficult to determine the specific cause, but the tone suggests a negative event.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-28T22:46:24+00:00",
+    "text": "@RyanMcMaho88273 @BrodyFoxx A board certified Medical Doctor who received her BS from Harvard University and MD from Tulane University.",
+    "link": "https://twitter.com/None/status/1949964686876696773",
+    "description": "Mentioning a medical doctor who received her MD from Tulane University.",
+    "sentiment": 0.8,
+    "summary": "Positive sentiment.This tweet highlights a successful alumna of Tulane's medical program, reflecting positively on the university's reputation.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-28T21:55:13+00:00",
+    "text": "Week 2 of LLM Orientation is in full swing! This year’s class includes students from around the world, including Russia, Germany, the Netherlands, Spain, Colombia, Afghanistan, Peru, and Panama.\n\nWe’re so excited to welcome them to the Tulane Law community! 💚⚖️ https://t.co/h3pnIuiHQ3",
+    "link": "https://twitter.com/None/status/1949951804654932291",
+    "description": "Announcement of diverse student body in Tulane Law's LLM program.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment. Highlights the international diversity of Tulane Law's program, showcasing its global reach and inclusivity (related to Diversity, Equity, and Inclusion, but in a positive light).",
+    "is_sport": 0,
+    "affiliation": 1
   }
 ]
