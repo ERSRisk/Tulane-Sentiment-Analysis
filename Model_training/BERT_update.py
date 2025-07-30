@@ -388,9 +388,8 @@ def predict_risks(df):
     # Assign risks based on threshold
     threshold = 0.55  # you can tune this
     predicted_risks = []
-    for i in range(len(df)):
-        if pd.notna(df.at[i, "Predicted_Risks_new"]) and str(df.at[i, "Predicted_Risks_new"]).strip() != "":
-            predicted_risks.append(df.at[i,"Predicted_Risks_new"].split('; '))
+    for idx in df.index:
+        if pd.notna(df.at[idx, "Predicted_Risks_new"]) and str(df.at[idx, "Predicted_Risks_new"]).strip() != "":
             continue
         scores = cosine_scores[i]
         matched_risks = [all_risks[j] for j, score in enumerate(scores) if score >= threshold]
