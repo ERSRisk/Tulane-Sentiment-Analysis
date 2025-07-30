@@ -29,10 +29,7 @@ with open(rss_local_path, "w", encoding="utf-8") as f:
 print(f"✅ Downloaded and saved to {rss_local_path}", flush=True)
 
 # Now load it
-with open(rss_local_path, 'r', encoding = 'utf-8') as f:
-    articles = json.load(f)
-
-df = pd.DataFrame(articles)
+df = pd.read_csv("risk_predictions.csv")
 
 def download_model_if_exists():
     try:
