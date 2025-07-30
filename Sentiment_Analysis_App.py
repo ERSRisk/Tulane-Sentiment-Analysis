@@ -1010,7 +1010,7 @@ if selection == "Risk/Event Detector":
     # --- Load the model and risk definitions ---
     @st.cache_data
     def load_risk_definitions():
-        with open("risks.json", "r") as f:
+        with open("Model_training/risks.json", "r") as f:
             raw_data = json.load(f)
         reformatted = {}
         for category_entry in raw_data["new_risks"]:
