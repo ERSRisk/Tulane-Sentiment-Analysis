@@ -369,38 +369,37 @@ def risk_weights(df):
     return df
 
 def predict_risks(df):
-    import torch
-    import joblib
-    from sentence_transformers import SentenceTransformer, util
 
-    # Load saved components
-    clf = joblib.load("Model_training/risk_mlp_model.pkl")
-    mlb = joblib.load("Model_training/risk_mlb.pkl")
-    selector = joblib.load("Model_training/risk_selector.pkl")
-    risk_embeddings = torch.load("Model_training/risk_embeddings.pt")
-
-    # Text preparation
-    df['Text'] = df['Title'].fillna('') + '. ' + df['Content'].fillna('')
+    df['Title'] = df['Title'].fillna('').str.strip()
+    
+    df['Content'] = df['Content'].fillna('').str.strip()
+    
+    article_text = df['Title'] + '. ' + df['Content']
+    with open('Model_training/risks.json', 'r') as f:
+        risks_data = json.load(f)
+    
+    all_risks = [risk['name'] for group in risks_data['new_risks'] for risks in group.values() for risk in risks]
+    
     model = SentenceTransformer('all-mpnet-base-v2')
-    X = model.encode(df['Text'].tolist(), show_progress_bar=True)
-
-    # Predict probabilities
-    y_proba = clf.predict_proba(X)
-
-    # Blending logic
-    def blend_scores(X_array, embeddings, y_proba_array, alpha):
-        X_tensor = torch.tensor(X_array)
-        cosine_sim = util.cos_sim(X_tensor, embeddings).cpu().numpy()
-        return alpha * y_proba_array + (1 - alpha) * cosine_sim
-
-    scores = blend_scores(X, risk_embeddings, y_proba, alpha=0.6)
-    y_pred = (scores >= 0.5).astype(int)
-
-    # Get risk names back
-    predicted_risks = mlb.inverse_transform(y_pred)
-    df['Predicted_Risks'] = ['; '.join(risks) if risks else 'No Risk' for risks in predicted_risks]
-
-    return df
+    # Encode articles and risks
+    article_embeddings = model.encode(df['Text'].tolist(), show_progress_bar=True, convert_to_tensor=True)
+    risk_embeddings = model.encode(all_risks, convert_to_tensor=True)
+    
+    # Calculate cosine similarity
+    cosine_scores = util.cos_sim(article_embeddings, risk_embeddings)
+    
+    # Assign risks based on threshold
+    threshold = 0.55  # you can tune this
+    predicted_risks = []
+    for i in range(len(df)):
+        if pd.notna(df.at[i, "Predicted_Risks_new"]) and str(df.at[i, "Predicted_Risks_new"]).strip() != "":
+            predicted_risks.append(df.at[i,"Predicted_Risks_new"].split('; '))
+            continue
+        scores = cosine_scores[i]
+        matched_risks = [all_risks[j] for j, score in enumerate(scores) if score >= threshold]
+        predicted_risks.append(matched_risks if matched_risks else ["No Risk"])
+    
+    df['Predicted_Risks_new'] = ['; '.join(risks) for risks in predicted_risks]
 
 def track_over_time(df):
     df['Published'] = pd.to_datetime(df['Published'], errors = 'coerce')
