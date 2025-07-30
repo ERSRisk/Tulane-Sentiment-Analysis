@@ -16,7 +16,8 @@ df['Title'] = df['Title'].fillna('').str.strip()
 
 df['Content'] = df['Content'].fillna('').str.strip()
 
-article_text = df['Title'] + '. ' + df['Content']
+article_text = (df['Title'].fillna('') + '. ' + df['Content'].fillna('')).str.strip()
+df['Text'] = article_text
 with open('Model_training/risks.json', 'r') as f:
     risks_data = json.load(f)
 
