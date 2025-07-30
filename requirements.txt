@@ -28,3 +28,6 @@ datasets
 transformers[torch]
 scikit-learn
 playwright
+pdfplumber
+python-docx
+sentence-transformers
