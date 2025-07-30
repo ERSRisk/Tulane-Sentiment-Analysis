@@ -26,7 +26,7 @@ import matplotlib.pyplot as plt
 st.set_page_config(page_title="Tulane Risk Dashboard")
 st.sidebar.title("Navigation")
 st.sidebar.markdown("Select a tool:")
-selection = st.sidebar.selectbox("Choose a tool:", ["News Sentiment", "X Sentiment", "Article Risk Review", "Unmatched Topic Analysis"])
+selection = st.sidebar.selectbox("Choose a tool:", ["News Sentiment", "X Sentiment", "Article Risk Review", "Unmatched Topic Analysis", "Risk/Event Detector"])
 
 if "current_tab" not in st.session_state:
     st.session_state.current_tab = selection
@@ -1004,17 +1004,14 @@ if selection == "Risk/Event Detector":
     from collections import defaultdict
     from sentence_transformers import SentenceTransformer, util
     import pandas as pd
-    # --- Load Sentence Transformer Model ---
-    if "risk_sentence_model" not in st.session_state:
-        st.session_state["risk_sentence_model"] = SentenceTransformer("all-MiniLM-L6-v2")
-    model = st.session_state["risk_sentence_model"]
 
-    # --- Load Risk Definitions ---
+    st.title("📄 Risk/Event Detector")
+
+    # --- Load the model and risk definitions ---
     @st.cache_data
     def load_risk_definitions():
         with open("risks.json", "r") as f:
             raw_data = json.load(f)
-
         reformatted = {}
         for category_entry in raw_data["new_risks"]:
             for category, items in category_entry.items():
@@ -1024,91 +1021,84 @@ if selection == "Risk/Event Detector":
                 }
         return reformatted
 
+    model = SentenceTransformer("all-MiniLM-L6-v2")
     risk_event_definitions = load_risk_definitions()
 
-    # --- Text Extraction ---
-def extract_text_from_pdf(file):
-    with pdfplumber.open(file) as pdf:
-        text = ''
-        for page in pdf.pages:
-            page_text = page.extract_text()
-            if page_text:
-                text += page_text + '\n'
-    return text
+    # --- Text extraction helpers ---
+    def extract_text_from_pdf(file):
+        with pdfplumber.open(file) as pdf:
+            text = ''
+            for page in pdf.pages:
+                page_text = page.extract_text()
+                if page_text:
+                    text += page_text + '\n'
+        return text
 
-def extract_text_from_docx(file):
-    doc = docx.Document(file)
-    return '\n'.join([para.text for para in doc.paragraphs])
+    def extract_text_from_docx(file):
+        doc = docx.Document(file)
+        return '\n'.join([para.text for para in doc.paragraphs])
 
-def extract_text_from_txt(file):
-    return file.read().decode('utf-8')
+    def extract_text_from_txt(file):
+        return file.read().decode('utf-8')
 
-# --- Semantic Matching ---
-def extract_semantic_risk_sentences(text, definitions, threshold=0.5):
-    sentences = re.split(r'(?<=[.!?])\s+', text)
-    sentence_embeddings = model.encode(sentences, convert_to_tensor=True)
+    # --- Semantic similarity ---
+    def extract_semantic_risk_sentences(text, definitions, threshold=0.5):
+        sentences = re.split(r'(?<=[.!?])\s+', text)
+        sentence_embeddings = model.encode(sentences, convert_to_tensor=True)
+        risk_labels = list(definitions.keys())
+        risk_descriptions = [definitions[label]["description"] for label in risk_labels]
+        risk_embeddings = model.encode(risk_descriptions, convert_to_tensor=True)
+        matches = defaultdict(list)
+        for i, sentence in enumerate(sentences):
+            scores = util.cos_sim(sentence_embeddings[i], risk_embeddings)[0]
+            for j, score in enumerate(scores):
+                if score >= threshold:
+                    matches[risk_labels[j]].append((sentence.strip(), round(score.item(), 3)))
+        return dict(matches)
 
-    risk_labels = list(definitions.keys())
-    risk_descriptions = [definitions[label]["description"] for label in risk_labels]
-    risk_embeddings = model.encode(risk_descriptions, convert_to_tensor=True)
+    # --- Streamlit UI ---
+    st.header("Upload a document to extract risk/event mentions (PDF, DOCX, or TXT)")
+    uploaded_file = st.file_uploader("Upload Document", type=["pdf", "docx", "txt"])
 
-    matches = defaultdict(list)
-
-    for i, sentence in enumerate(sentences):
-        scores = util.cos_sim(sentence_embeddings[i], risk_embeddings)[0]
-        for j, score in enumerate(scores):
-            if score >= threshold:
-                matches[risk_labels[j]].append((sentence.strip(), round(score.item(), 3)))
-    return dict(matches)
-
-# --- Streamlit App ---
-st.title("📄 Upload Document: Extract Risk/Event Mentions")
-
-uploaded_file = st.file_uploader("Upload a document", type=["pdf", "docx", "txt"])
-
-if uploaded_file:
-    file_type = uploaded_file.type
-    if file_type == "application/pdf":
-        text = extract_text_from_pdf(uploaded_file)
-    elif file_type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
-        text = extract_text_from_docx(uploaded_file)
-    elif file_type == "text/plain":
-        text = extract_text_from_txt(uploaded_file)
-    else:
-        st.error("Unsupported file type.")
-        text = ""
-
-    if text:
-        st.header("🔎 Risks and Events Found in Document")
-
-        risk_event_matches = extract_semantic_risk_sentences(text, risk_event_definitions)
-
-        if risk_event_matches:
-            # --- Summary Table ---
-            st.subheader("📊 Summary of Detected Risks/Events")
-            summary_data = [
-                {
-                    "Category": category,
-                    "Description": risk_event_definitions[category]["description"],
-                    "Mentions": len(mentions)
-                }
-                for category, mentions in risk_event_matches.items()
-            ]
-            summary_df = pd.DataFrame(summary_data).sort_values(by="Mentions", ascending=False)
-            st.dataframe(summary_df, use_container_width=True)
-
-            st.markdown("---")
-
-            # --- Detailed Mentions ---
-            st.subheader("📝 Detailed Mentions by Category")
-            for category, mentions in risk_event_matches.items():
-                st.markdown(f"### ✅ {category}")
-                st.write(f"*{risk_event_definitions[category]['description']}*")
-                st.markdown("**Top Matches:**")
-                for sent, score in sorted(mentions, key=lambda x: -x[1])[:5]:
-                    st.markdown(f"- `{score}`: {sent}")
-                st.markdown("---")
+    if uploaded_file:
+        file_type = uploaded_file.type
+        if file_type == "application/pdf":
+            text = extract_text_from_pdf(uploaded_file)
+        elif file_type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+            text = extract_text_from_docx(uploaded_file)
+        elif file_type == "text/plain":
+            text = extract_text_from_txt(uploaded_file)
         else:
-            st.info("No risk-related sentences matched semantically.")
-    else:
-        st.warning("No extractable text found in the document.")
+            st.error("Unsupported file type.")
+            text = ""
+
+        if text:
+            st.header("🔎 Risks and Events Found in Document")
+            risk_event_matches = extract_semantic_risk_sentences(text, risk_event_definitions)
+
+            if risk_event_matches:
+                st.subheader("📊 Summary of Detected Risks/Events")
+                summary_data = [
+                    {
+                        "Category": category,
+                        "Description": risk_event_definitions[category]["description"],
+                        "Mentions": len(mentions)
+                    }
+                    for category, mentions in risk_event_matches.items()
+                ]
+                summary_df = pd.DataFrame(summary_data).sort_values(by="Mentions", ascending=False)
+                st.dataframe(summary_df, use_container_width=True)
+                st.markdown("---")
+                st.subheader("📝 Detailed Mentions by Category")
+                for category, mentions in risk_event_matches.items():
+                    st.markdown(f"### ✅ {category}")
+                    st.write(f"*{risk_event_definitions[category]['description']}*")
+                    st.markdown("**Top Matches:**")
+                    for sent, score in sorted(mentions, key=lambda x: -x[1])[:5]:
+                        st.markdown(f"- `{score}`: {sent}")
+                    st.markdown("---")
+            else:
+                st.info("No risk-related sentences matched semantically.")
+        else:
+            st.warning("No extractable text found in the document.")
+
