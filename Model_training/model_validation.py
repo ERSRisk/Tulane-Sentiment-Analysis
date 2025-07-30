@@ -9,7 +9,7 @@ from sklearn.metrics import classification_report, accuracy_score, f1_score
 import json
 import joblib
 
-df = pd.read_csv('Model_training/BERTopic_results.csv')
+df = pd.read_csv('BERTopic_results.csv')
 
 
 df['Title'] = df['Title'].fillna('').str.strip()
