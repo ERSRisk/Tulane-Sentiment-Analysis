@@ -7068,5 +7068,165 @@
     "summary": "Very positive sentiment expressing satisfaction with a new facility at Tulane. This directly reflects positively on the university.",
     "is_sport": 0,
     "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-31T23:38:20+00:00",
+    "text": "RT @DavidMora: Enjoying a beautiful summer morning at @Tulane! 🩵💚 #NewOrleans #RollWave https://t.co/CedRMiktKO",
+    "link": "https://twitter.com/None/status/1951064917592911930",
+    "description": "A retweet expressing enjoyment of a summer morning at Tulane.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment. Expressing enjoyment of the university implies a positive view.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-31T23:30:32+00:00",
+    "text": "@realnikohouse LMFAO THEY BEEN DOING THIS- that's why Tulane is called JEWLANE",
+    "link": "https://twitter.com/None/status/1951062956831015097",
+    "description": "A tweet using an antisemitic slur against Tulane.",
+    "sentiment": -1.0,
+    "summary": "Extremely negative sentiment due to the use of a hateful antisemitic slur targeting Tulane. This directly attacks the university's reputation and incites prejudice.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-31T22:59:01+00:00",
+    "text": "Tulane University questioned whether Kimberly Terrell’s research on racial disparities was relevant to the law clinic’s mission—despite it being cited in legal arguments for the clinic’s clients. https://t.co/9HBgFQynHu",
+    "link": "https://twitter.com/None/status/1951055023552549043",
+    "description": "A news article questioning Tulane University's assessment of a research project on racial disparities.",
+    "sentiment": -0.7,
+    "summary": "Negative sentiment.The tweet describes a situation where Tulane questioned the relevance of research on racial disparities, suggesting a potential issue with the university's commitment to diversity and inclusion.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-31T22:58:50+00:00",
+    "text": "@KevinAdams26 Omar the Cap 🧢 Genius putting his Tulane degree to work \n\nMajor need filler with the former Buckeye\n\nIf he could make this happen…..",
+    "link": "https://twitter.com/None/status/1951054977667047603",
+    "description": "A tweet praising a Tulane graduate's success.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment. The tweet celebrates a Tulane graduate's achievements, reflecting positively on the university.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-31T22:39:54+00:00",
+    "text": "RT @Coach_Hall7: Blessed to be around these great leaders of men!  Coach Bobby April, Coach Sumrall, Coach O, and the secret weapon of Tula…",
+    "link": "https://twitter.com/None/status/1951050215974199515",
+    "description": "Tweet expressing skepticism about Tulane's ranking above Alabama in a particular context.",
+    "sentiment": -0.2,
+    "summary": "Slightly negative sentiment due to the implied doubt about Tulane's competitiveness compared to Alabama. This is not a major negative, but it reflects a less positive comparison.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-31T22:38:51+00:00",
+    "text": "RT @DavidMora: At @Tulane https://t.co/kn0y1IgdQ1",
+    "link": "https://twitter.com/None/status/1951049949334086047",
+    "description": "Tweet expressing gratitude for Tulane coaching staff.",
+    "sentiment": 0.8,
+    "summary": "Highly positive sentiment expressing appreciation for Tulane's coaching staff. This reflects positively on the university and its athletics program.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-31T22:32:53+00:00",
+    "text": "RT @Brett_McMurphy: Costco selling discounted 2 ticket packages for South Carolina, Purdue, Louisville, Virginia, Baylor, Oklahoma State, T…",
+    "link": "https://twitter.com/None/status/1951048450017206748",
+    "description": "Retweet mentioning being at Tulane.",
+    "sentiment": 0.2,
+    "summary": "Weakly positive sentiment; a simple mention of being at Tulane. Doesn't have a significant impact.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-31T22:11:13+00:00",
+    "text": "RT @Brett_McMurphy: Costco selling discounted 2 ticket packages for South Carolina, Purdue, Louisville, Virginia, Baylor, Oklahoma State, T…",
+    "link": "https://twitter.com/None/status/1951042994859049185",
+    "description": "A tweet expressing enjoyment of a summer morning at Tulane University.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment. The tweet expresses positive feelings towards Tulane University.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-31T21:50:48+00:00",
+    "text": "@BenOnSports How did you get that Tulane helmet and where can i get one",
+    "link": "https://twitter.com/None/status/1951037859483308196",
+    "description": "Inquiry about a Tulane helmet.",
+    "sentiment": 0.5,
+    "summary": "Positive sentiment. Shows interest in Tulane merchandise, suggesting a positive association.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-31T21:49:24+00:00",
+    "text": "@SarasotaUSF @sohowistexas This is Tulane's last season. They don't have the revenue for facilities or payroll. G8 Forever.",
+    "link": "https://twitter.com/None/status/1951037506914586850",
+    "description": "Negative comment about Tulane's financial situation and future.",
+    "sentiment": -0.8,
+    "summary": "Highly negative sentiment.The tweet expresses concern about Tulane's financial stability and predicts its demise, directly impacting its reputation.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-31T21:46:25+00:00",
+    "text": "👀 @RandyR358 Poverty programs like Tulane, LMAO. https://t.co/NngYnYrM5c",
+    "link": "https://twitter.com/None/status/1951036756406767617",
+    "description": "Derogatory comment referring to Tulane as a 'poverty program'.",
+    "sentiment": -0.9,
+    "summary": "Highly negative sentiment. The tweet uses insulting language to belittle Tulane, causing significant reputational damage.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-31T21:42:10+00:00",
+    "text": "RT @DavidMora: At @Tulane https://t.co/kn0y1IgdQ1",
+    "link": "https://twitter.com/None/status/1951035683784581191",
+    "description": "Simple mention of Tulane.",
+    "sentiment": 0.0,
+    "summary": "Neutral sentiment. The tweet is simply a mention of the university, no explicit sentiment towards it.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-31T21:40:09+00:00",
+    "text": "RT @DavidMora: Enjoying a beautiful summer morning at @Tulane! 🩵💚 #NewOrleans #RollWave https://t.co/CedRMiktKO",
+    "link": "https://twitter.com/None/status/1951035179239096650",
+    "description": "Positive comment about a morning at Tulane.",
+    "sentiment": 0.8,
+    "summary": "Positive sentiment.The tweet expresses enjoyment of the Tulane campus, creating a positive image of the university.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-31T21:15:35+00:00",
+    "text": "RT @richiemills: @WaveaftergWave @Tshack13 Thank you, and we love being out there! For more Tulane coverage, check out @JonSokoloff, @Meaga…",
+    "link": "https://twitter.com/None/status/1951028995891593485",
+    "description": "Positive tweet mentioning Tulane coaches.",
+    "sentiment": 0.8,
+    "summary": "This tweet expresses gratitude for being around great leaders, including Tulane coaches. The sentiment is positive due to the positive praise of the institution.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-31T21:04:43+00:00",
+    "text": "RT @richiemills: @WaveaftergWave @Tshack13 Thank you, and we love being out there! For more Tulane coverage, check out @JonSokoloff, @Meaga…",
+    "link": "https://twitter.com/None/status/1951026262442647813",
+    "description": "Retweet thanking someone and promoting Tulane coverage on Twitter.",
+    "sentiment": 0.5,
+    "summary": "Slightly positive; it's a thank you and promotion of Tulane-related content, suggesting a positive association.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-07-31T21:03:38+00:00",
+    "text": "I will be on at my usual time of 4:15 talking Tulane. https://t.co/LjVncH2pY2",
+    "link": "https://twitter.com/None/status/1951025986117706041",
+    "description": "A tweet announcing a discussion about Tulane at a specific time.",
+    "sentiment": 0.0,
+    "summary": "Neutral; simply an announcement without any positive or negative connotations.",
+    "is_sport": 0,
+    "affiliation": 1
   }
 ]
