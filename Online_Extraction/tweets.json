@@ -7378,5 +7378,75 @@
     "summary": "Positive sentiment; it's a celebratory announcement of a significant event within Tulane's medical school.",
     "is_sport": 0,
     "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-02T23:04:43+00:00",
+    "text": "While we may be ass this year, I don't think we are the worst in the conference. Also, Tulane or Navy should be the best team in the AAC https://t.co/HFhopq4xYE",
+    "link": "https://twitter.com/None/status/1951781235014947153",
+    "description": "A description of a book by a Tulane geographer.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment. This highlights academic achievement and recognition of a Tulane faculty member.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-02T21:12:34+00:00",
+    "text": "@Tulane @FreemanSchool Shame on you for your covid vaccine mandates",
+    "link": "https://twitter.com/None/status/1951753011195269269",
+    "description": "A tweet criticizing Tulane's COVID vaccine mandates.",
+    "sentiment": -0.8,
+    "summary": "Negative sentiment; expresses strong disapproval of Tulane's policies.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-02T20:53:53+00:00",
+    "text": "@TheTexasJuan @CollegeFBonX Tulane era 🌊",
+    "link": "https://twitter.com/None/status/1951748310831960411",
+    "description": "Tweet mentioning Tulane.",
+    "sentiment": 0.0,
+    "summary": "Neutral sentiment; a simple mention of 'Tulane era' without further context.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-02T20:28:11+00:00",
+    "text": "RT @CourtyardBrew: Shout out to the 15-person bachelor party, the high school reunion folks, and the Tulane docs for all stopping by for be…",
+    "link": "https://twitter.com/None/status/1951741842493669604",
+    "description": "Tweet discussing potential PAC-12 membership and comparing Tulane to SDSU.",
+    "sentiment": 0.0,
+    "summary": "Neutral sentiment;the tweet focuses on a different university's potential conference membership and only compares it to Tulane in that context. No direct positive or negative sentiment towards Tulane is expressed.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-02T19:02:35+00:00",
+    "text": "RT @TailgateTulane: Just four more weeks until kickoff — Tulane vs. Northwestern in Yulman Stadium. Season’s almost here. Roll Wave! 🟢🌊 htt…",
+    "link": "https://twitter.com/None/status/1951720300007293437",
+    "description": "A tweet expressing enjoyment of a summer morning at Tulane.",
+    "sentiment": 0.8,
+    "summary": "Positive sentiment; a positive personal experience associated with Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-02T18:56:17+00:00",
+    "text": "RT @jackson5payne: Jake Retzlaff had a lot of positive things to say here about Kalani Sitake and BYU. The new Tulane QB still has plenty o…",
+    "link": "https://twitter.com/None/status/1951718713667068223",
+    "description": "A tweet suggesting that truth is held by a select few, mentioning Tulane and other organizations.",
+    "sentiment": -0.2,
+    "summary": "Slightly negative; cryptic and doesn't directly reflect on Tulane's reputation, but the context suggests potential underlying issues.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-02T18:47:32+00:00",
+    "text": "RT @TulaneSSE: Congratulations to Tulane researcher Dr. Aron Culotta on his groundbreaking work using AI to accelerate ALS drug discovery!…",
+    "link": "https://twitter.com/None/status/1951716513679114294",
+    "description": "Congratulates Tulane researcher Dr. Aron Culotta on his AI work for ALS drug discovery.",
+    "sentiment": 1.0,
+    "summary": "Highly positive sentiment due to recognition of a significant academic achievement by a Tulane researcher.",
+    "is_sport": 0,
+    "affiliation": 1
   }
 ]
