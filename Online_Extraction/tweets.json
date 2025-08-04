@@ -7448,5 +7448,85 @@
     "summary": "Highly positive sentiment due to recognition of a significant academic achievement by a Tulane researcher.",
     "is_sport": 0,
     "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-03T22:40:32+00:00",
+    "text": "@atlanticesque I wonder what Louisiana looks like since they use a different legal system from the rest of us. You have to go to law school at Tulane/LSU to get licensed to practice law in Louisiana. Probably means they aren’t influencing other states much.",
+    "link": "https://twitter.com/None/status/1952137538392424554",
+    "description": "Tweet discussing Louisiana's unique legal system and the role of Tulane Law School.",
+    "sentiment": 0.2,
+    "summary": "Slightly positive sentiment.The tweet highlights Tulane Law School, indirectly associating it with prestige and expertise within a specific legal context. It's not directly related to any negative keywords.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-03T21:06:45+00:00",
+    "text": "RT @CFBKings: Games where a Power 4 team goes on the road to a Group of 5 opponent this fall 👀\n\nStanford at Hawaii (Week 0)\nNorthwestern at…",
+    "link": "https://twitter.com/None/status/1952113935173189820",
+    "description": "Criticism of a repeated action at Tulane.",
+    "sentiment": -0.4,
+    "summary": "Negative sentiment. The tweet expresses frustration and questions the reasons behind a repeated action at Tulane, implying a negative experience.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-03T20:24:29+00:00",
+    "text": "@steelhavengame1 @BK4HOF @WallStreetApes Average State School is $26K a year.  Don’t look at what Tulane costs or some of these schools in CA or NY.  \n\nBig Education shows no mercy.  The more the gov’t subsidizes the higher the price. Combined with Weaponized immigration &amp; misuse of H-1Bs -it’s destroying us.",
+    "link": "https://twitter.com/None/status/1952103299215429694",
+    "description": "Critiques high tuition costs at universities, mentioning Tulane as an example of expensive schools.",
+    "sentiment": -0.5,
+    "summary": "Negative sentiment. While not directly attacking Tulane, it highlights the high cost of tuition, which could be perceived negatively by some.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-03T20:03:19+00:00",
+    "text": "@ChrisSosa @clancynewyork Ikr? It makes my stealing of sorority letters (a common back and forth thing at Tulane) seem like a 3-for-1 felony life sentence triple shot",
+    "link": "https://twitter.com/None/status/1952097970754867544",
+    "description": "A user compares their own past actions at Tulane to a serious crime, suggesting a perceived disproportionate punishment.",
+    "sentiment": -0.5,
+    "summary": "The sentiment is negative due to the user's sarcastic comparison of their actions at Tulane to a felony, implying criticism of the university's disciplinary system or practices.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-03T19:52:11+00:00",
+    "text": "**Fun fact of the day**\n\nAuburn football is behind UNLV, San Diego State, Cincinnati, Colorado State, Maryland AND Tulane in recruiting for 2026 😭\n\nHoly FUCK this is GOLD.",
+    "link": "https://twitter.com/None/status/1952095171820339689",
+    "description": "A retweet celebrating a successful dissertation defense at Tulane's Philosophy department.",
+    "sentiment": 1.0,
+    "summary": "The sentiment is highly positive. This is a direct recognition of academic achievement within the Tulane community.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-03T19:32:38+00:00",
+    "text": "RT @jayCthebull: Best : Tulane\n\nWorst : Tulsa\n\nSleeper : UNT\n\nBest Offense : UNT/UTSA\n\nBest Defense : Army\n\nMost to Prove : Memphis/USF",
+    "link": "https://twitter.com/None/status/1952090249460674724",
+    "description": "A retweet listing Tulane as the 'best' team among several others.",
+    "sentiment": 1.0,
+    "summary": "Highly positive sentiment. Tulane is explicitly ranked as the best, indicating a positive view.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-03T19:32:02+00:00",
+    "text": "@Micro_DarkWave @KaareJohnson NOLA has lots of really serious problems, corruption, crumbling infrastructure, incompetent state and local govt. But the attractions and institutions are among the city’s assets. Tulane and Loyola are among the best universities in the world…",
+    "link": "https://twitter.com/None/status/1952090098725433787",
+    "description": "A tweet discussing New Orleans' problems and assets, mentioning Tulane as one of the city's best universities.",
+    "sentiment": 0.8,
+    "summary": "Highly positive sentiment. Tulane is highlighted as a significant asset to the city, indicating a strong positive association.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-03T19:31:50+00:00",
+    "text": "@pigskinpetey Uab and Tulane are kinda trash",
+    "link": "https://twitter.com/None/status/1952090049731797186",
+    "description": "A tweet calling UAB and Tulane 'kinda trash'.",
+    "sentiment": -0.7,
+    "summary": "Negative sentiment.The tweet expresses a negative opinion of Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
   }
 ]
