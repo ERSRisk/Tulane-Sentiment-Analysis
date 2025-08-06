@@ -7668,5 +7668,185 @@
     "summary": "Neutral sentiment.The tweet provides a factual comparison of endowments and doesn't express a positive or negative opinion about Tulane.",
     "is_sport": 0,
     "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-05T23:44:09+00:00",
+    "text": "@JWMediaDC Let’s do a PAC ACC merger. Then add Tulane and Memphis to east portion",
+    "link": "https://twitter.com/None/status/1952878324675690546",
+    "description": "A tweet comparing sexual harassment statistics in the USA and France, citing Tulane University data for the USA.",
+    "sentiment": -0.5,
+    "summary": "Slightly negative sentiment.While the tweet doesn't directly criticize Tulane, the context is about a serious issue, and the association, even if neutral in intent, could reflect negatively on Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-05T23:41:14+00:00",
+    "text": "RT @Dicention: @B12Mafia @JWMediaDC @theACC @pac12 @NotreDame @AppleTV @espn @MemphisFB @GreenWaveFB @Big12Conference You add 3 AAC teams a…",
+    "link": "https://twitter.com/None/status/1952877589099626548",
+    "description": "Positive mention of Tulane Law Professor Mark Davis's work on Hurricane Katrina.",
+    "sentiment": 0.7,
+    "summary": "The tweet highlights the work of a Tulane Law Professor, suggesting a positive association with academic achievement and insightful analysis of a significant event.The mention of Brookings further adds to the positive reputation.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-05T23:10:01+00:00",
+    "text": "RT @goTULANEt: My contribution.  Tulane fans, comment with some suggested options. https://t.co/zNkWnRgI9w",
+    "link": "https://twitter.com/None/status/1952869730781377017",
+    "description": "A tweet asking Tulane fans for suggestions.",
+    "sentiment": 0.0,
+    "summary": "Neutral sentiment. The tweet is a simple request for suggestions and doesn't express any positive or negative opinions about Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-05T22:57:28+00:00",
+    "text": "@Big12BurnerKU Why would the ACC not just add the best of the G5, even if they’re just left with Cal, Stanford, SMU, Syracuse, BC, &amp; WF. ESPN might renogotiate the deal, but they bsckfill with OSU/WSU, Tulane, etc that’s still worth $25M+ a year. PAC can’t come close to that",
+    "link": "https://twitter.com/None/status/1952866573917798405",
+    "description": "A tweet discussing the ACC's potential expansion and Tulane's role in it.",
+    "sentiment": 0.5,
+    "summary": "Slightly positive sentiment. The tweet suggests Tulane as a valuable addition to the ACC, highlighting potential financial benefits.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-05T22:52:38+00:00",
+    "text": "@JWMediaDC Given the schools you left in the ACC, will they lean into academics and research? Would this mean VT/NC State would join  that echelon? If so, then Tulane and USF would be lead candidates. Where's Miami?",
+    "link": "https://twitter.com/None/status/1952865358974779806",
+    "description": "A tweet discussing the potential academic focus of the ACC and Tulane's candidacy.",
+    "sentiment": 0.5,
+    "summary": "Slightly positive sentiment. The tweet positions Tulane as a strong candidate for ACC membership based on academic strengths.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-05T22:43:36+00:00",
+    "text": "RT @davidfloyd1980: @JWMediaDC Jim, I like you—but ACC schools would be crazy to tie themselves to Memphis, Tulane, USF, or UTEP. If you’re…",
+    "link": "https://twitter.com/None/status/1952863082927276468",
+    "description": "Retweet expressing doubt about the wisdom of ACC schools associating with Tulane and other mentioned universities.",
+    "sentiment": -0.5,
+    "summary": "Negative sentiment. The tweet casts doubt on Tulane's desirability as a partner for ACC schools, potentially impacting Tulane's reputation.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-05T22:42:29+00:00",
+    "text": "@BagCarter69926 Walk around town and get shot (in Nola) or pay 3 extra bucks for a beer (UL) I’ll take my chances on the $5 natty haus. Fuck Tulane",
+    "link": "https://twitter.com/None/status/1952862804140278054",
+    "description": "Tweet expressing negative feelings towards Tulane, comparing it unfavorably to other institutions.",
+    "sentiment": -0.8,
+    "summary": "Negative sentiment.The tweet contains strong negative language towards Tulane and is highly critical.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-05T22:24:07+00:00",
+    "text": "RT @davidfloyd1980: @JWMediaDC Jim, I like you—but ACC schools would be crazy to tie themselves to Memphis, Tulane, USF, or UTEP. If you’re…",
+    "link": "https://twitter.com/None/status/1952858180339249572",
+    "description": "Retweet expressing doubt about the wisdom of ACC schools associating with Tulane and other mentioned universities.",
+    "sentiment": -0.5,
+    "summary": "Negative sentiment. The tweet casts doubt on Tulane's desirability as a partner for ACC schools, potentially impacting Tulane's reputation.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-05T22:20:38+00:00",
+    "text": "@JWMediaDC Jim, I like you—but ACC schools would be crazy to tie themselves to Memphis, Tulane, USF, or UTEP. If you’re not UNC, FSU, or Clemson, the Big 12 is a far better long-term play than hitching your future to that kind of “expansion.”",
+    "link": "https://twitter.com/None/status/1952857303935516887",
+    "description": "Tweet expressing doubt about the wisdom of ACC schools associating with Tulane and other mentioned universities.",
+    "sentiment": -0.5,
+    "summary": "Negative sentiment. The tweet casts doubt on Tulane's desirability as a partner for ACC schools, potentially impacting Tulane's reputation.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-05T22:17:05+00:00",
+    "text": "@CollegeFBonX Tulane",
+    "link": "https://twitter.com/None/status/1952856413119685032",
+    "description": "Retweet of Tulane's congratulations to incoming medical students.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment due to the celebration of new medical students, reflecting positively on Tulane's medical program.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-05T22:15:03+00:00",
+    "text": "Marty on the Tulane campus. Last week of doing this until fall break. https://t.co/ZrlVP8uZyt",
+    "link": "https://twitter.com/None/status/1952855899544142035",
+    "description": "Retweet of Tulane's congratulations to incoming medical students.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment due to the celebration of new medical students, reflecting positively on Tulane's medical program.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-05T21:51:10+00:00",
+    "text": "@LifeondaIllinoi @CFBHome I get that... but he is the ONLY person outside of Wood County who believes it.  Most everyone else has either UNLV, Boise St, Navy, James Madison, or even Tulane.  Also, Toledo's schedule might be too weak even if they went undefeated (which they wont)",
+    "link": "https://twitter.com/None/status/1952849888737472531",
+    "description": "Retweet praising Tulane's research (in contrast to John Hopkins).",
+    "sentiment": 1.0,
+    "summary": "Positive. The retweet highlights Tulane's research in a positive light, suggesting boldness and success.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-05T21:35:14+00:00",
+    "text": "@Holden_Grahmn @GoldnTickit @TyroneBillyJ @sohowistexas The first 3 years of Tulane Football under Willie Fritz. Hmmm... kinda guessing Tulane fans are glad they didn't have a quick hook. https://t.co/IivpEERuVf",
+    "link": "https://twitter.com/None/status/1952845881730068552",
+    "description": "Tweet celebrating Tulane Medical School's White Coat Ceremony.",
+    "sentiment": 1.0,
+    "summary": "Very positive. Celebrates a significant milestone for Tulane medical students, highlighting academic achievement and success.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-05T20:59:34+00:00",
+    "text": "@MemphisHomer @CFBHome It’s not only Memphis or Tulane.",
+    "link": "https://twitter.com/None/status/1952836902329172478",
+    "description": "Tweet comparing Memphis and Tulane's academic progress.",
+    "sentiment": 0.1,
+    "summary": "Slightly positive; acknowledges Tulane's academic improvement.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-05T20:58:32+00:00",
+    "text": "@jacobngy @JWMediaDC @theACC @pac12 @NotreDame @AppleTV @espn @MemphisFB @GreenWaveFB Your Academics have improved but so have Memphis. They’ve moved up to R1 but I don’t think it’s enough to get in.\n\nUS news has y’all 233 vs 265. Every ACC member is in the top 100 except Lville.\n\nUConn, USF and Tulane are all strong candidates. SDSU might be also.",
+    "link": "https://twitter.com/None/status/1952836643288907868",
+    "description": "Tweet discussing Tulane as a potential candidate for a conference.",
+    "sentiment": 0.2,
+    "summary": "Positive; positions Tulane as a strong academic contender.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-05T20:58:23+00:00",
+    "text": "RT @IceDevilCA: @CollegeFBonX Boise State or Tulane",
+    "link": "https://twitter.com/None/status/1952836604067709381",
+    "description": "Retweet suggesting Boise State or Tulane for a partnership.",
+    "sentiment": 0.1,
+    "summary": "Slightly positive; mentions Tulane favorably as a potential partner.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-05T20:58:08+00:00",
+    "text": "RT @Chat_Man217: @CollegeFBonX Tulane would be a good partner team to Texas State for the Pac-12",
+    "link": "https://twitter.com/None/status/1952836543090921550",
+    "description": "Retweet suggesting Tulane as a good partner for Texas State in a conference.",
+    "sentiment": 0.2,
+    "summary": "Positive; highlights Tulane as a desirable partner institution.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-05T20:57:50+00:00",
+    "text": "RT @kristinabugsmom: @CollegeFBonX UNLV and Tulane",
+    "link": "https://twitter.com/None/status/1952836468663304604",
+    "description": "Tweet mentioning Tulane and UNLV together.",
+    "sentiment": 0.0,
+    "summary": "Neutral sentiment.Simple mention without context.",
+    "is_sport": 0,
+    "affiliation": 1
   }
 ]
