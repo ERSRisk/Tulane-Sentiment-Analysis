@@ -7848,5 +7848,125 @@
     "summary": "Neutral sentiment.Simple mention without context.",
     "is_sport": 0,
     "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-06T23:58:38+00:00",
+    "text": "RT @onestpress: #ACTUALNEWS: #POTUS #Biden and the First Lady are participating in a cancer research demonstration at Tulane University\n\nTh…",
+    "link": "https://twitter.com/None/status/1953244355906707476",
+    "description": "Tweet about Biden and the First Lady visiting Tulane University for a cancer research demonstration.",
+    "sentiment": 0.8,
+    "summary": "Positive sentiment due to the positive association with a presidential visit and cancer research, both highly regarded activities.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-06T23:35:32+00:00",
+    "text": "RT @Tulane: Congratulations to the 190 @TulaneMedicine students who celebrated the start of their journey to becoming physicians at this ye…",
+    "link": "https://twitter.com/None/status/1953238543112786142",
+    "description": "Tweet congratulating Tulane Medicine students.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment. The tweet expresses congratulations to Tulane medical students, highlighting a positive aspect of the university.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-06T23:30:36+00:00",
+    "text": "RT @TULNrecruiting: Michael Igbinoghene(24) days until Tulane Football returns!\n\n@Michaeligbo_ \n\n🌊🏈 https://t.co/4xsqImpB0m",
+    "link": "https://twitter.com/None/status/1953237301766529291",
+    "description": "Criticism of Tulane's administration's handling of past issues.",
+    "sentiment": -0.7,
+    "summary": "Negative sentiment. The tweet criticizes Tulane's administration for its handling of unspecified issues, attributing blame to them.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-06T23:14:47+00:00",
+    "text": "@TheHerdBros @SethAWeitz Fair enough. Tulane has long history. Not all of it is great. \n\nI also find it interesting that you highlight Covid as a turning point. I agree. \n\nI’d argue the opportunity allowed Tulane to normalize playing in front of nobody (which unfortunately was a real problem) to recruits",
+    "link": "https://twitter.com/None/status/1953233321296838868",
+    "description": "Acknowledgement of Tulane's history, including both positive and negative aspects.",
+    "sentiment": 0.0,
+    "summary": "Neutral sentiment. The tweet acknowledges that Tulane has a long history with both good and bad parts.The mention of COVID-19 as a turning point is noted but doesn't express a positive or negative view of Tulane's handling of it.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-06T23:14:18+00:00",
+    "text": "@SethAWeitz @irv5k @TheHerdBros Good luck. I will be happy for Tulane if they’re able to maintain their success. I’ve just seen a lot of schools have a good year or two, proclaim their the new Boise State, only to drop off soon after. Maybe you’ll be different",
+    "link": "https://twitter.com/None/status/1953233196440797538",
+    "description": "Expression of hope for Tulane's continued success, but with caution.",
+    "sentiment": 0.5,
+    "summary": "Slightly positive sentiment.The user expresses hope for Tulane's sustained success but also expresses some skepticism, based on past examples of similar schools' short-lived success.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-06T23:04:25+00:00",
+    "text": "@randomjmufan @KatsOnTop Tulane has a fantastic logo 😂",
+    "link": "https://twitter.com/None/status/1953230711156322631",
+    "description": "Positive comment about Tulane's logo.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment. The tweet expresses appreciation for Tulane's logo.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-06T22:51:56+00:00",
+    "text": "@LunalNewport @irv5k @TheHerdBros No, it’s not because it’s irrelevant what happened in the past. Tulane is good now. He might have worded it wrong, but his statement makes no sense.",
+    "link": "https://twitter.com/None/status/1953227571317096838",
+    "description": "A discussion about Tulane's current football success.",
+    "sentiment": 0.5,
+    "summary": "Neutral to slightly positive. While acknowledging past issues, the focus is on Tulane's current positive performance. ",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-06T22:50:16+00:00",
+    "text": "@Degen30677052 @irv5k @TheHerdBros I mean, yeah Tulane is decent every other decade so you better enjoy it while you can. Good for you for being alive during a boom period",
+    "link": "https://twitter.com/None/status/1953227149969907729",
+    "description": "A comment on Tulane's football success in cycles.",
+    "sentiment": 0.2,
+    "summary": "Slightly positive, acknowledging Tulane's periods of success but suggesting they are not consistently strong.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-06T22:48:50+00:00",
+    "text": "@Degen30677052 @irv5k @TheHerdBros Drop your Venmo and I’ll Venmo you 2k if you can post a picture of Tulane finishing the year ranked in back to back seasons since Germany invaded Poland? Hell, the last time you did that Hitler hadn’t even invaded Russia yet",
+    "link": "https://twitter.com/None/status/1953226789326922041",
+    "description": "A sarcastic challenge to prove Tulane's consistent ranking success over a long period.",
+    "sentiment": 0.0,
+    "summary": "Neutral; a sarcastic comment, not a serious evaluation of the university.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-06T22:21:23+00:00",
+    "text": "RT @ProgressPotent1: Smart Polymer Manufacturing - Alex Reed - @alex_w_reed - President &amp; CCO, Yokogawa Fluence Analytics  @FluenceTech @Pr…",
+    "link": "https://twitter.com/None/status/1953219879592497378",
+    "description": "Tweet about a presentation on smart polymer manufacturing by Alex Reed, affiliated with Tulane.",
+    "sentiment": 0.8,
+    "summary": "Positive sentiment. The tweet highlights a presentation by an individual affiliated with Tulane CBE (Chemical and Biomolecular Engineering), suggesting positive academic activity.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-06T22:13:38+00:00",
+    "text": "This is the realest tweet I’ve seen in a long time! Tulane fans are so blind to their past records it’s ridiculous 🤣🤣🤣 https://t.co/Vet8YfEmdC",
+    "link": "https://twitter.com/None/status/1953217931938070933",
+    "description": "Tweet defending Tulane's history, acknowledging the impact of Hurricane Katrina.",
+    "sentiment": 0.2,
+    "summary": "Slightly positive sentiment. While acknowledging a difficult period (post-Katrina), the tweet defends Tulane's overall history and achievements.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-06T21:57:44+00:00",
+    "text": "@Genetics56 Interesting @Genetics56.\nCould this bring Rice into the picture for a post-poach ACC?\nAll of the other former SWC schools have found a home but Rice combined with USF and Tulane give @theACC 3 AAU options.\nIt fits a “Magnolia Conference” vision.\n@flugempire doesn’t mention Rice.",
+    "link": "https://twitter.com/None/status/1953213929553051715",
+    "description": "A discussion about the potential realignment of the ACC and Tulane's role.",
+    "sentiment": 0.5,
+    "summary": "Neutral to slightly positive sentiment. Speculation on conference realignment, Tulane's inclusion mentioned positively as an AAU option.",
+    "is_sport": 0,
+    "affiliation": 1
   }
 ]
