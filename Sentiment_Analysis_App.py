@@ -862,7 +862,11 @@ if selection == "Article Risk Review":
     ##adding to push changes to the Github repo
     def push_file_to_github(local_path:str, repo:str, dest_path:str, branch:str = "main", token:str|None = None):
         token = st.secrets['all_my_api_keys']['GITHUB_TOKEN']
-
+        p = pathlib.Path(local_path)
+        if not p.exists():
+            raise FileNotFoundError(local_path)
+        if p.stat().st_size >= 100 *1024*1024:
+            raise RuntimeError(f"File too big for Contents API: {p.stat().st_size}")
         with open(local_path, "rb") as f:
             content_b64 = base64.b64encode(f.read()).decode("utf-8")
 
