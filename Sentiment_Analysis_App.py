@@ -21,6 +21,8 @@ import json
 import re
 import altair as alt
 import matplotlib.pyplot as plt
+import base64
+
 
 
 st.set_page_config(page_title="Tulane Risk Dashboard")
@@ -862,10 +864,33 @@ if selection == "Article Risk Review":
                     'Impact_Score_Upd', 'Location_Upd', 'Industry_Risk_Upd', 'Frequency_Score_Upd',
                     'Change reason']
             st.session_state.change_log = pd.DataFrame(columns = base_cols + new_cols)
-    def append_changes_to_csv(df_row, path):
-        file_exists = os.path.exists(path)
-        df_row.to_csv(path, mode='a', index = False, header = not file_exists)
-        
+            
+    ##adding to push changes to the Github repo
+    def push_file_to_github(local_patr:str, repo:str, dest_path:str, branch:str = "main",):
+        token = st.secrets['all_my_api_keys']['GITHUB_TOKEN']
+
+        with open(local_path, "rb") as f:
+            contentb64 = base64.b64enconde(f.read()).decode("utf-8")
+
+        api_base = f"https://api.github.com/repos/{repo}/contents/{dest_path}"
+        headers = {"Authorization": f"token {token}", "Accept":"application/vnd.github+json"}
+
+        sha = None
+        r_get = requests.get(api_base, headers = headers, params = {"ref":branch})
+        if r_get.status_code == 200:
+            sha = r_get.json()['sha']
+        payload = {
+            "message": f"Update {dest_path} via Streamlit at {time.strftime('%Y-%m-%d %H:%M:%S')}",
+            "content": content_b64,
+            "branch": branch,
+        }
+        if sha:
+            payload["sha"] = sha
+
+        r_put = requests.put(api_base, headers = headers, data = json.dumps(payload))
+        if r_put.status_code not in (200, 201):
+            raise RuntimeError(f"GitHub push failed: {r_put.status_code} {r_put.text}")
+        return r_put.json()
     st.title("Article Risk Review Portal")
     #give me a filter to filter articles by date range
     st.sidebar.header("Filter Articles")
@@ -1012,7 +1037,13 @@ if selection == "Article Risk Review":
                                 )
 
                                 st.session_state.change_log.to_csv(change_log_path, index = False)
-                                st.success('Saved changes')
+                                try:
+                                    resp = push_file_to_github(change_log_path, repo = 'ERSRisk/Tulane-Sentiment-Analysis',
+                                                              dest_path = 'Model_training/BERTopic_changes.csv', branch = 'main')
+                                    st.success('Saved changes')
+                                except Exception as e:
+                                    st.error(f"Github failed to push: {e}")
+                                
 
                 if st.button("Save Correction", key=f"save_{idx}"):
                     st.session_state.articles.at[idx, 'Predicted_Risks'] = selected_risks
