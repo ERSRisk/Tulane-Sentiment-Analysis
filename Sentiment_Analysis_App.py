@@ -3,7 +3,6 @@ import requests
 from google import genai
 import pandas as pd
 import re
-import pathlib
 from datetime import timedelta
 from streamlit_tags import st_tags
 import plotly.express as px
@@ -46,7 +45,7 @@ if selection == "News Sentiment":
     # Setting up the APIs for News API and Gemini API
     NEWS_API_KEY = st.secrets["all_my_api_keys"]["NEWS_API_KEY"]
     GEMINI_API_KEY = st.secrets["all_my_api_keys"]["GEMINI_API_KEY_X"]
-    
+
 
 
 
@@ -129,7 +128,7 @@ if selection == "News Sentiment":
             """Replace truncated content with full article text and extract formatted date and time"""
             updated_articles = []
             seen_titles = set()
-    
+
             #Determine offset based on selected timezone
             if timezone == "UTC":
                 offset = timedelta(hours=0)
@@ -189,7 +188,7 @@ if selection == "News Sentiment":
                     "adjusted_time": adjusted_time
                 })
             return updated_articles
-        
+
 
 
         # This function formats the articles into a string that can be sent to the Gemini API for sentiment analysis.
@@ -254,7 +253,7 @@ if selection == "News Sentiment":
                         retry_delay_match = re.search(r"'retryDelay': '(\d+)s'", str(e))
                         if retry_delay_match:
                             wait_time = int(retry_delay_match.group(1))  # Use API's recommended delay
-                
+
                         print(f"⚠️ API quota exceeded. Retrying in {wait_time} seconds...")
                         time.sleep(wait_time)
                     else:
@@ -297,7 +296,7 @@ if selection == "News Sentiment":
 
                 task = limited_process(batch_df, search, i // batch_size + 1, total_batches, timezone)
                 batch_tasks.append(task)
-    
+
             all_responses = await asyncio.gather(*batch_tasks)
             return '\n\n'.join(all_responses)
 
@@ -361,7 +360,7 @@ if selection == "News Sentiment":
                         unique_articles.append(article)
                         seen_titles.add(article['title'])
                 articles = unique_articles
-            
+
             if not articles:
                 st.write("No articles found.")
             else:
@@ -369,7 +368,7 @@ if selection == "News Sentiment":
                     gemini_response_text = cached_gemini_response(articles, search, sports, timezone_option)
                 else:
                     gemini_response_text = run_async_batches(articles, search, sports, timezone_option, batch_size=10)
-            
+
                 # This function processes the response from the Gemini API and formats it into a DataFrame.
                 # It extracts the title, sentiment score, summary, and other relevant information from the response.
                 def text_to_dataframe(text, articles):
@@ -409,7 +408,7 @@ if selection == "News Sentiment":
                                 'Adjusted Date': 'Not Found',
                                 'Adjusted Time': 'Not Found'
                                 })
-                
+
 
 
 
@@ -429,7 +428,7 @@ if selection == "News Sentiment":
 
                 df = text_to_dataframe(gemini_response_text, articles)
                 sentiment_counts = df['Sentiment'].value_counts()
-        
+
                 st.header("Sentiment Score Summary")
                 st.write("")
                 # Plot sentiment score summary
@@ -448,14 +447,14 @@ if selection == "News Sentiment":
                     st.write("Overall sentiment is negative.")
                 else:
                     st.write("Overall sentiment is neutral.")
-        
+
                 st.write("---")
                 st.header("News Stories")
 
 
                 st.session_state.slider_shown = True
                 st.session_state.slider_value = st.slider("Sentiment Filter", -1.0, 1.0, (-1.0, 1.0), 0.1,)
-        
+
                 st.write("")
                 filtered_df = df[(df['Sentiment'] >= st.session_state.slider_value[0]) &
                         (df['Sentiment'] <= st.session_state.slider_value[1])]
@@ -467,7 +466,7 @@ if selection == "News Sentiment":
                     st.markdown(f"###  **[{row['Title']}]({row['URL']})**")
                     st.markdown(f"**Date & Time:** {row.get('Adjusted Date', 'N/A')} at {row.get('Adjusted Time', 'N/A')}")
                     st.markdown(f"🔹 **Sentiment Score:** `{row['Sentiment']}`")
-            
+
                     # Grab summary from the original text using the title
                     pattern = rf"Title:\s*{re.escape(row['Title'])}\s*.*?Sentiment:\s*-?\d+\.?\d*\s*Summary:\s*(.*?)(?:\n|$)"
                     match = re.search(pattern, gemini_response_text, re.DOTALL)
@@ -477,7 +476,7 @@ if selection == "News Sentiment":
                     else:
                         st.markdown("⚠️ Summary not found.")
                     st.write("---")
-        
+
                 #format the date range into a MM-DD-YYYY format
                 start_str = start_date.strftime("%m-%d-%Y")
                 end_str = end_date.strftime("%m-%d-%Y")
@@ -521,7 +520,7 @@ if selection == "X Sentiment":
     GEMINI_API_KEY_X = st.secrets["all_my_api_keys"]["GEMINI_API_KEY_X"]
     X_API_KEY = st.secrets["all_my_api_keys"]["X_API_KEY"]
 
-   
+
     #adding this option to run batches
     semaphore = asyncio.Semaphore(3)
 
@@ -542,13 +541,13 @@ if selection == "X Sentiment":
 
                 task = limited_process(batch_df, search, i // batch_size + 1, total_batches)
                 batch_tasks.append(task)
-    
+
             all_responses = await asyncio.gather(*batch_tasks)
             return pd.concat(all_responses)
-    
+
     async def run_async_batches_X(tweets, search, sports, batch_size = 10):
         return asyncio.run(analyze_in_batches_concurrent_X(tweets, search, sports, batch_size = 10))
-    
+
     def process_batch(batch_df, search, i, total_batches):
         print(f"Processing batch {i} of {total_batches}...")
         formatted_tweets = "\n\n".join([f"{tweet.text}" for tweet in batch_df])
@@ -624,14 +623,14 @@ if selection == "X Sentiment":
         for attempt in range(retries): 
             for model in models:
                 try:
-                    
+
                     response = client.models.generate_content(model="gemini-2.0-flash", contents=prompt)
                     if response.candidates and response.candidates[0].content.parts:
                         raw_text = response.candidates[0].content.parts[0].text
                         print(raw_text)
                         cleaned_text = re.sub(r"```json|```|\n|\s{2,}", "", raw_text).strip()
                         return json.loads(cleaned_text)
-                
+
                 except ClientError as e:
                     if "RESOURCE_EXHAUSTED" in str(e):
                         wait_time = 60
@@ -735,10 +734,10 @@ if selection == "X Sentiment":
     if selection == "Unmatched Topic Analysis":
         with open('Online_Extraction/unmatched_topics.json', 'r') as f:
             unmatched = json.load(f)
-        
+
         with open('Online_Extraction/topics_BERT.json', 'r') as f:
             saved_topics = json.load(f)
-        
+
         try:
             with open('Online_Extraction/discarded_topics', 'r') as f:
                 discarded_topics = json.load(f)
@@ -746,14 +745,14 @@ if selection == "X Sentiment":
                     discarded_topics = [discarded_topics]
         except FileNotFoundError:
             discarded_topics = []
-        
+
         st.title('Unmatched Topics Analysis')
-        
+
         for topic in unmatched:
             skip_key = f"skip_{topic['topic']}"
             if st.session_state.get(skip_key):
                 continue
-        
+
             st.subheader(f"Topic {topic['topic']}: {topic['name']}")
             st.markdown(f"**Keywords:** {(topic['keywords'])}")
             with st.expander("**Sample Articles:**"):
@@ -765,8 +764,8 @@ if selection == "X Sentiment":
                     st.markdown(f"{' '.join(words[:40]) + '...' if len(words)>40 else ''}")
             radio_key = str(topic['topic'])
             reset_flag = f"reset_{radio_key}"
-            
-        
+
+
             if st.session_state.get(reset_flag):
                 st.session_state[radio_key] = ''
                 st.session_state[reset_flag] = False
@@ -809,7 +808,7 @@ if selection == "X Sentiment":
                                     if isinstance(t['documents'], str):
                                         t['documents'] = [t['documents']]
                                     t['documents'].extend(topic['documents'])
-        
+
                                 # Ensure keywords are lists
                                     if isinstance(t['keywords'], str):
                                         t['keywords'] = [k.strip() for k in t['keywords'].split(',')]
@@ -826,9 +825,9 @@ if selection == "X Sentiment":
             if decision == 'Discard':
                 st.session_state[reset_flag] = True
                 st.session_state[skip_key] = True
-        
+
                 st.warning(f"Topic {topic['topic']} discarded.")
-        
+
                 discarded_topic = {
                     'topic': topic['topic'],
                     'name': topic['name'],
@@ -838,11 +837,11 @@ if selection == "X Sentiment":
                 discarded_topics.append(discarded_topic)
                 with open('Online_Extraction/discarded_topics', 'w') as f:
                     json.dump(discarded_topic, f)
-        
+
                 unmatched_json = [t for t in unmatched if t['topic'] != topic['topic']]
                 with open('Online_Extraction/unmatched_topics.json', 'w') as f:
                     json.dump(unmatched_json, f)
-                
+
                 st.success(f"Topic {topic['topic']} discarded successfully!")
 
 if selection == "Article Risk Review":
@@ -858,17 +857,26 @@ if selection == "Article Risk Review":
     if 'articles' not in st.session_state:
         if os.path.exists('Model_training/BERTopic_results.csv'):
             st.session_state.articles = pd.read_csv('Model_training/BERTopic_results.csv')
-            
-            
+
+    change_log_path = Path('Model_training') / 'BERTopic_changes.csv'
+    change_log_path.parent.mkdir(parents=True, exist_ok = True)
+    if "change_log" not in st.session_state:
+        if change_log_path.exists():
+            st.session_state.change_log = pd.read_csv(change_log_path)
+        else:
+            base_cols = list(st.session_state.articles.columns)
+            new_cols = ['Recency_Upd', 'Acceleration_value_Upd', 'Source_Accuracy_Upd',
+                    'Impact_Score_Upd', 'Location_Upd', 'Industry_Risk_Upd', 'Frequency_Score_Upd',
+                    'Change reason']
+            st.session_state.change_log = pd.DataFrame(columns = base_cols + new_cols)
+            st.session_state.change_log.to_csv(change_log_path, index = False)
+
     ##adding to push changes to the Github repo
     def push_file_to_github(local_path:str, repo:str, dest_path:str, branch:str = "main", token:str|None = None):
         token = st.secrets['all_my_api_keys']['GITHUB_TOKEN']
-        p = pathlib.Path(local_path)
-        if not p.exists():
-            raise FileNotFoundError(local_path)
-        if p.stat().st_size >= 100 *1024*1024:
-            raise RuntimeError(f"File too big for Contents API: {p.stat().st_size}")
+
         with open(local_path, "rb") as f:
+            content_b64 = base64.b64encode(f.read()).decode("utf-8")
             content_b64 = base64.b64encode(f.read()).decode("utf-8")
 
         api_base = f"https://api.github.com/repos/{repo}/contents/{dest_path}"
@@ -888,20 +896,19 @@ if selection == "Article Risk Review":
 
         r_put = requests.put(api_base, headers = headers, data = json.dumps(payload))
         if r_put.status_code not in (200, 201):
-            req_id = r_put.headers.get("X-GitHub-Request-Id", 'n/a')
-            raise RuntimeError(f"GitHub push failed: {r_put.status_code} (req {req_id}) {r_put.text}")
+            raise RuntimeError(f"GitHub push failed: {r_put.status_code} {r_put.text}")
         return r_put.json()
     st.title("Article Risk Review Portal")
     #give me a filter to filter articles by date range
     st.sidebar.header("Filter Articles")
     start_date = st.sidebar.date_input("Start Date", datetime.now() - timedelta(days=30))
     end_date = st.sidebar.date_input("End Date", datetime.now())
-    
-    
+
+
     if start_date > end_date:
         st.sidebar.error("Start date must be before end date.")
     # Load articles and risks
-    
+
 
     update_cols = ['Recency_Upd', 'Acceleration_value_Upd', 'Source_Accuracy_Upd',
                     'Impact_Score_Upd', 'Location_Upd', 'Industry_Risk_Upd', 'Frequency_Score_Upd',
@@ -909,7 +916,7 @@ if selection == "Article Risk Review":
     for col in update_cols:
         if col not in st.session_state.articles.columns:
             st.session_state.articles[col] = None
-        
+
     base_df = st.session_state.articles
 
     #articles = articles[articles['Published']> start_date.strftime('%Y-%m-%d')]
@@ -933,14 +940,14 @@ if selection == "Article Risk Review":
         predicted = [str(p).strip().lower() for p in predicted if isinstance(p, str)]
         selected = [s.strip().lower() for s in selected]
         return any(p in selected for p in predicted)
-    
-    
+
+
     for idx in filtered_df.index:
         article= st.session_state.articles.loc[idx]
         idx = article.name
         if pd.isna(article.get('Title')) or pd.isna(article.get('Content')):
             continue
-    
+
         raw = article.get("Predicted_Risks", "[]")
         if isinstance(raw, list):
             predicted = raw
@@ -958,17 +965,17 @@ if selection == "Article Risk Review":
         else:
             predicted = []
 
-    
+
         if not match_any(predicted, filtered_risks):
             continue
-    
+
         title = str(article.get("Title", ""))[:100]
         if title:
             with st.expander(f"{title}..."):
                 st.markdown(f"[Read full article]({article['Link']})")
                 st.write(article['Content'][:1000])
                 st.metric('Risk Score', article['Risk_Score'])
-    
+
                 st.markdown("**Predicted Risks:**")
                 valid_defaults = [opt for opt in all_possible_risks if any(opt.lower() == str(p).lower() for p in predicted if isinstance(p, str))]
                 selected_risks = st.multiselect(
@@ -993,7 +1000,7 @@ if selection == "Article Risk Review":
                         st.metric('Industry Risk', article['Industry_Risk'])
                     with col7:
                         st.metric('Frequency', article['Frequency_Score'])
-                    
+
                     with st.expander("Manually update risk labels:"):
                         options = [0.0, 1.0,2.0,3.0,4.0,5.0]
                         with st.form(f"manual_edit_form_{idx}"):
@@ -1017,60 +1024,35 @@ if selection == "Article Risk Review":
                             reason = st.text_area("Reason for changes", placeholder="Explain the changes made to the risk labels.", key=f"reason_{idx}")
                             submitted =  st.form_submit_button("Update Risk Labels")
                             if submitted:
-                                updates = [
-                                    ("Recency_Upd", upd_recency_value),
-                                    ("Acceleration_value_Upd", upd_acceleration_value),
-                                    ("Source_Accuracy_Upd", upd_source_accuracy),
-                                    ("Impact_Score_Upd", upd_impact_score),
-                                    ("Location_Upd", upd_location),
-                                    ("Industry_Risk_Upd", upd_industry_risk),
-                                    ("Frequency_Score_Upd", upd_frequency_score),
-                                    ("Change reason", reason),
-                                ]
-                                def to_float_or_none(v):
-                                    try:
-                                        return float(v)
-                                    except Exception:
-                                        return None
-                                numeric_cols = {
-                                    "Recency_Upd",
-                                    "Acceleration_value_Upd",
-                                    "Source_Accuracy_Upd",
-                                    "Impact_Score_Upd",
-                                    "Location_Upd",
-                                    "Industry_Risk_Upd",
-                                    "Frequency_Score_Upd",
-                                }
-                                for col, val in updates:
-                                    if col in numeric_cols:
-                                        val = to_float_or_none(val)
-                                    st.session_state.articles.loc[idx, col] = val
+                                new_row = article.copy()
+                                new_row = new_row.to_dict()
 
-                                tmp_path = "Model_training/BERTopic_results.csv" + ".tmp"
-                                st.session_state.articles.to_csv(tmp_path, index = False)
-                                os.replace(tmp_path, "Model_training/BERTopic_results.csv")
+                                new_row['Recency_Upd'] = upd_recency_value
+                                new_row['Acceleration_value_Upd'] = upd_acceleration_value
+                                new_row['Source_Accuracy_Upd'] = upd_source_accuracy
+                                new_row['Impact_Score_Upd']= upd_impact_score 
+                                new_row['Location_Upd']= upd_location 
+                                new_row['Industry_Risk_Upd'] = upd_industry_risk 
+                                new_row['Frequency_Score_Upd']= upd_frequency_score
+                                new_row['Change reason'] = reason
 
-                                if "change_log" not in st.session_state:
-                                    st.session_state.change_log = pd.DataFrame(
-                                        columns = list(st.session_state.articles.columns)+ ["changed_at"])
-                                new_row = st.session_state.articles.loc[idx].to_dict()
-                                new_row["changed_at"] = datetime.now().isoformat(timespec='seconds')
                                 st.session_state.change_log = pd.concat(
                                     [st.session_state.change_log, pd.DataFrame([new_row])],
                                     ignore_index = True
                                 )
-                                
+
+                                st.session_state.change_log.to_csv(change_log_path, index = False)
                                 try:
-                                    resp = push_file_to_github("Model_training/BERTopic_results.csv", repo = 'ERSRisk/Tulane-Sentiment-Analysis',
-                                                              dest_path = 'Model_training/BERTopic_results.csv', branch = 'main')
+                                    resp = push_file_to_github(change_log_path, repo = 'ERSRisk/Tulane-Sentiment-Analysis',
+                                                              dest_path = 'Model_training/BERTopic_changes.csv', branch = 'main')
                                     st.success('Saved changes')
                                 except Exception as e:
                                     st.error(f"Github failed to push: {e}")
-                                
+
 
                 if st.button("Save Correction", key=f"save_{idx}"):
                     st.session_state.articles.at[idx, 'Predicted_Risks'] = selected_risks
-                    st.session_state.articles.to_csv('Model_trainin/BERTopic_results.csv', index=False)
+                    st.session_state.articles.to_csv('BERTopic_results.csv', index=False)
                     st.success("Correction saved.")
 
 if selection == "Risk/Event Detector":
@@ -1179,4 +1161,3 @@ if selection == "Risk/Event Detector":
                 st.info("No risk-related sentences matched semantically.")
         else:
             st.warning("No extractable text found in the document.")
-
