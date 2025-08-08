@@ -873,7 +873,7 @@ if selection == "Article Risk Review":
         token = st.secrets['all_my_api_keys']['GITHUB_TOKEN']
 
         with open(local_path, "rb") as f:
-            contentb64 = base64.b64enconde(f.read()).decode("utf-8")
+            contentb64 = base64.b64encode(f.read()).decode("utf-8")
 
         api_base = f"https://api.github.com/repos/{repo}/contents/{dest_path}"
         headers = {"Authorization": f"token {token}", "Accept":"application/vnd.github+json"}
