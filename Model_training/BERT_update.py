@@ -370,8 +370,9 @@ def predict_risks(df):
     df['Title'] = df['Title'].fillna('').str.strip()
     
     df['Content'] = df['Content'].fillna('').str.strip()
-    
-    article_text = df['Title'] + '. ' + df['Content']
+    df['Text'] = (df['Title'] + '. ' + df['Content']).str.strip()
+    df = df.reset_index(drop = True)
+
     with open('Model_training/risks.json', 'r') as f:
         risks_data = json.load(f)
     
@@ -384,19 +385,23 @@ def predict_risks(df):
     
     # Calculate cosine similarity
     cosine_scores = util.cos_sim(article_embeddings, risk_embeddings)
-    
+
+    if 'Predictd_Risks_new' not in df.columns:
+        df['Pedicted_Risks_new'] = ''
     # Assign risks based on threshold
     threshold = 0.55  # you can tune this
-    predicted_risks = []
-    for idx in df.index:
-        if pd.notna(df.at[idx, "Predicted_Risks_new"]) and str(df.at[idx, "Predicted_Risks_new"]).strip() != "":
+    out = [''] * len(df)
+    for pos in range(len(df)):
+        existing = str(df.at[pos, 'Predicted_Risks_new']).strip()
+        if existing:
+            out[pos] = existing
             continue
-        scores = cosine_scores[i]
-        matched_risks = [all_risks[j] for j, score in enumerate(scores) if score >= threshold]
-        predicted_risks.append(matched_risks if matched_risks else ["No Risk"])
-    
-    df['Predicted_Risks_new'] = ['; '.join(risks) for risks in predicted_risks]
+        scores = cosine_scores[pos]
+        matched = [all_risks[j] for j, s in enumerate(scores) if float(s) >= threshold]
+        out[pos] = '; '.join(matched) if matched else 'No Risk'
 
+    df['Predicted_Risks_new'] = out
+    return df
 def track_over_time(df):
     df['Published'] = pd.to_datetime(df['Published'], errors = 'coerce')
     df = df.dropna(subset=['Published'])
