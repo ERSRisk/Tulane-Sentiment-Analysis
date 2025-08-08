@@ -855,21 +855,9 @@ if selection == "Article Risk Review":
     import ast
 
     if 'articles' not in st.session_state:
-        if os.path.exists('BERTopic_results.csv'):
-            st.session_state.articles = pd.read_csv('BERTopic_results.csv')
+        if os.path.exists('Model_training/BERTopic_results.csv'):
+            st.session_state.articles = pd.read_csv('Model_training/BERTopic_results.csv')
             
-    change_log_path = Path('Model_training') / 'BERTopic_changes.csv'
-    change_log_path.parent.mkdir(parents=True, exist_ok = True)
-    if "change_log" not in st.session_state:
-        if change_log_path.exists():
-            st.session_state.change_log = pd.read_csv(change_log_path)
-        else:
-            base_cols = list(st.session_state.articles.columns)
-            new_cols = ['Recency_Upd', 'Acceleration_value_Upd', 'Source_Accuracy_Upd',
-                    'Impact_Score_Upd', 'Location_Upd', 'Industry_Risk_Upd', 'Frequency_Score_Upd',
-                    'Change reason']
-            st.session_state.change_log = pd.DataFrame(columns = base_cols + new_cols)
-            st.session_state.change_log.to_csv(change_log_path, index = False)
             
     ##adding to push changes to the Github repo
     def push_file_to_github(local_path:str, repo:str, dest_path:str, branch:str = "main", token:str|None = None):
@@ -1023,27 +1011,52 @@ if selection == "Article Risk Review":
                             reason = st.text_area("Reason for changes", placeholder="Explain the changes made to the risk labels.", key=f"reason_{idx}")
                             submitted =  st.form_submit_button("Update Risk Labels")
                             if submitted:
-                                new_row = article.copy()
-                                new_row = new_row.to_dict()
+                                updates = [
+                                    ("Recency_Upd", upd_recency_value),
+                                    ("Acceleration_value_Upd", upd_acceleration_value),
+                                    ("Source_Accuracy_Upd", upd_source_accuracy),
+                                    ("Impact_Score_Upd", upd_impact_score),
+                                    ("Location_Upd", upd_location),
+                                    ("Industry_Risk_Upd", upd_industry_risk),
+                                    ("Frequency_Score_Upd", upd_frequency_score),
+                                    ("Change reason", reason),
+                                ]
+                                def to_float_or_none(v):
+                                    try:
+                                        return float(v)
+                                    except Exception:
+                                        return None
+                                numeric_cols = {
+                                    "Recency_Upd",
+                                    "Acceleration_value_Upd",
+                                    "Source_Accuracy_Upd",
+                                    "Impact_Score_Upd",
+                                    "Location_Upd",
+                                    "Industry_Risk_Upd",
+                                    "Frequency_Score_Upd",
+                                }
+                                for col, val in updates:
+                                    if col in numeric_cols:
+                                        val = to_float_or_none(val)
+                                    st.session_state.articles.loc[idx, col] = val
 
-                                new_row['Recency_Upd'] = upd_recency_value
-                                new_row['Acceleration_value_Upd'] = upd_acceleration_value
-                                new_row['Source_Accuracy_Upd'] = upd_source_accuracy
-                                new_row['Impact_Score_Upd']= upd_impact_score 
-                                new_row['Location_Upd']= upd_location 
-                                new_row['Industry_Risk_Upd'] = upd_industry_risk 
-                                new_row['Frequency_Score_Upd']= upd_frequency_score
-                                new_row['Change reason'] = reason
+                                tmp_path = "Model_training/BERTopic_results.csv" + ".tmp"
+                                st.session_state.articles.to_csv(tmp_path, index = False)
+                                os.replace(tmp_path, "Model_training/BERTopic_results.csv")
 
+                                if "change_log" not in st.session_state:
+                                    st.session_state.change_log = pd.DataFrame(
+                                        columns = list(st.session_state.articles.columns)+ ["changed_at"])
+                                new_row = st.session_state.articles.loc[idx].to_dict()
+                                new_row["changed_at"] = datetime.now().isoformat(timespec='seconds')
                                 st.session_state.change_log = pd.concat(
                                     [st.session_state.change_log, pd.DataFrame([new_row])],
                                     ignore_index = True
                                 )
-
-                                st.session_state.change_log.to_csv(change_log_path, index = False)
+                                
                                 try:
-                                    resp = push_file_to_github(change_log_path, repo = 'ERSRisk/Tulane-Sentiment-Analysis',
-                                                              dest_path = 'Model_training/BERTopic_changes.csv', branch = 'main')
+                                    resp = push_file_to_github("Model_training/BERTopic_results.csv", repo = 'ERSRisk/Tulane-Sentiment-Analysis',
+                                                              dest_path = 'Model_training/BERTopic_results.csv', branch = 'main')
                                     st.success('Saved changes')
                                 except Exception as e:
                                     st.error(f"Github failed to push: {e}")
