@@ -355,9 +355,9 @@ def risk_weights(df):
             if risk_name in row['Predicted_Risks']:
                 weight += ((likelihood/5) + (impact/5) + (velocity/5))/3
         for source in sources:
-            source_name = source['name']
-            source_accuracy = source['accuracy']
-            source_bias = source['bias']
+            source_name = source.get('name', '')
+            source_accuracy = source.get('accuracy', '')
+            source_bias = source.get('bias', '')
             if source_name in row['Source']:
                 weight *= 0.85 + 0.15*(source_accuracy/5)
         weights.append(weight *5  if weight >0 else 0)
