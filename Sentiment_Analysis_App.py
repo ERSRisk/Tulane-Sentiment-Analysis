@@ -888,7 +888,8 @@ if selection == "Article Risk Review":
 
         r_put = requests.put(api_base, headers = headers, data = json.dumps(payload))
         if r_put.status_code not in (200, 201):
-            raise RuntimeError(f"GitHub push failed: {r_put.status_code} {r_put.text}")
+            req_id = r_put.headers.get("X-GitHub-Request-Id", 'n/a')
+            raise RuntimeError(f"GitHub push failed: {r_put.status_code} (req {req_id}) {r_put.text}")
         return r_put.json()
     st.title("Article Risk Review Portal")
     #give me a filter to filter articles by date range
@@ -1069,7 +1070,7 @@ if selection == "Article Risk Review":
 
                 if st.button("Save Correction", key=f"save_{idx}"):
                     st.session_state.articles.at[idx, 'Predicted_Risks'] = selected_risks
-                    st.session_state.articles.to_csv('BERTopic_results.csv', index=False)
+                    st.session_state.articles.to_csv('Model_trainin/BERTopic_results.csv', index=False)
                     st.success("Correction saved.")
 
 if selection == "Risk/Event Detector":
