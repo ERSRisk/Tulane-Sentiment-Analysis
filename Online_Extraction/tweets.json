@@ -7968,5 +7968,445 @@
     "summary": "Neutral to slightly positive sentiment. Speculation on conference realignment, Tulane's inclusion mentioned positively as an AAU option.",
     "is_sport": 0,
     "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-07T23:53:45+00:00",
+    "text": "RT @marcorasi1960: Rain puddle reflection, Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/Xc…",
+    "link": "https://twitter.com/None/status/1953605515017408816",
+    "description": "A photo of a rain puddle reflecting Tulane University.",
+    "sentiment": 0.0,
+    "summary": "Neutral sentiment; a simple picture of the campus.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-07T23:53:38+00:00",
+    "text": "RT @marcorasi1960: Rain puddle reflection, Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/Xc…",
+    "link": "https://twitter.com/None/status/1953605486768795890",
+    "description": "A photo of a rain puddle reflecting Tulane University.",
+    "sentiment": 0.0,
+    "summary": "Neutral sentiment; a simple picture of the campus.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-07T23:53:31+00:00",
+    "text": "Podcast of Inside New Orleans with @eric_asher\nPresented by @OceanaGrill @BobbyHebertsCC\n@NOLACookery @mambosnola 4-6pm 106.7 The Ticket \nTopics  @Saints @LSU @Tulane @PelicansNBA\nGuests: @Guersmith @RossJacksonNOLA @OlehKosel\n@ScarboroughMike \nhttps://t.co/QsmjCd42qA",
+    "link": "https://twitter.com/None/status/1953605456615846086",
+    "description": "Podcast promotion featuring Tulane among other New Orleans teams and organizations.",
+    "sentiment": 0.2,
+    "summary": "Slightly positive sentiment as Tulane is included in a podcast about New Orleans.The inclusion is brief and not central to the podcast.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-07T23:52:53+00:00",
+    "text": "RT @marcorasi1960: Rain puddle reflection, Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/Xc…",
+    "link": "https://twitter.com/None/status/1953605296674550143",
+    "description": "A photo of a rain puddle reflecting Tulane University.",
+    "sentiment": 0.0,
+    "summary": "Neutral sentiment; a simple picture of the campus.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-07T23:51:27+00:00",
+    "text": "RT @marcorasi1960: Rain puddle reflection, Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/Xc…",
+    "link": "https://twitter.com/None/status/1953604935767228755",
+    "description": "A photo of a rain puddle reflecting Tulane University.",
+    "sentiment": 0.0,
+    "summary": "Neutral sentiment; a simple picture of the campus.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-07T23:45:02+00:00",
+    "text": "RT @marcorasi1960: Rain puddle reflection, Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/Xc…",
+    "link": "https://twitter.com/None/status/1953603321325064220",
+    "description": "A photo of a rain puddle reflecting Tulane University.",
+    "sentiment": 0.0,
+    "summary": "Neutral sentiment; a simple picture of the campus.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-07T23:43:44+00:00",
+    "text": "RT @marcorasi1960: Rain puddle reflection, Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/Xc…",
+    "link": "https://twitter.com/None/status/1953602993611506031",
+    "description": "A photo of a rain puddle reflecting Tulane University.",
+    "sentiment": 0.0,
+    "summary": "Neutral sentiment; a simple picture of the campus.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-07T23:37:05+00:00",
+    "text": "RT @joshua_g_pincus: #GiveGreenTU\nLink: https://t.co/SRBzS1JJD4",
+    "link": "https://twitter.com/None/status/1953601317924221311",
+    "description": "A retweet promoting a link related to 'Give Green TU'.",
+    "sentiment": 0.5,
+    "summary": "Slightly positive sentiment. The hashtag suggests support for Tulane, which is likely positive.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-07T23:34:18+00:00",
+    "text": "RT @marcorasi1960: Rain puddle reflection, Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/Xc…",
+    "link": "https://twitter.com/None/status/1953600620604330443",
+    "description": "A retweet of a photo of a rain puddle reflection at Tulane University.",
+    "sentiment": 0.2,
+    "summary": "Slightly positive sentiment. The image presents a positive visual of the university.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-07T23:34:07+00:00",
+    "text": "RT @marcorasi1960: Rain puddle reflection, Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/Xc…",
+    "link": "https://twitter.com/None/status/1953600573330346482",
+    "description": "A retweet of a photo of a rain puddle reflection at Tulane University.",
+    "sentiment": 0.2,
+    "summary": "Slightly positive sentiment. The image presents a positive visual of the university.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-07T23:33:40+00:00",
+    "text": "RT @marcorasi1960: Rain puddle reflection, Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/Xc…",
+    "link": "https://twitter.com/None/status/1953600459039814025",
+    "description": "A retweet of a photo of a rain puddle reflection at Tulane University.",
+    "sentiment": 0.2,
+    "summary": "Slightly positive sentiment. The image presents a positive visual of the university.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-07T23:30:23+00:00",
+    "text": "RT @marcorasi1960: Rain puddle reflection, Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/Xc…",
+    "link": "https://twitter.com/None/status/1953599633696964645",
+    "description": "A retweet of a photo of a rain puddle reflection at Tulane University.",
+    "sentiment": 0.2,
+    "summary": "Slightly positive sentiment. The image presents a positive visual of the university.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-07T23:27:09+00:00",
+    "text": "RT @marcorasi1960: Rain puddle reflection, Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/Xc…",
+    "link": "https://twitter.com/None/status/1953598820740477058",
+    "description": "A retweet of a photo of a rain puddle reflection at Tulane University.",
+    "sentiment": 0.2,
+    "summary": "Slightly positive sentiment. The image presents a positive visual of the university.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-07T23:10:42+00:00",
+    "text": "RT @marcorasi1960: Rain puddle reflection, Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/Xc…",
+    "link": "https://twitter.com/None/status/1953594681373364525",
+    "description": "A tweet with a picture of a rain puddle reflecting Tulane University.",
+    "sentiment": 0.3,
+    "summary": "A neutral tweet showcasing a picture of Tulane University; it conveys no strongly positive or negative sentiment.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-07T23:10:10+00:00",
+    "text": "RT @marcorasi1960: Rain puddle reflection, Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/Xc…",
+    "link": "https://twitter.com/None/status/1953594546417545641",
+    "description": "Same as above.",
+    "sentiment": 0.3,
+    "summary": "A neutral tweet showcasing a picture of Tulane University; it conveys no strongly positive or negative sentiment.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-07T23:06:31+00:00",
+    "text": "RT @marcorasi1960: Rain puddle reflection, Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/Xc…",
+    "link": "https://twitter.com/None/status/1953593628741582903",
+    "description": "Same as tweet 7.",
+    "sentiment": 0.3,
+    "summary": "A neutral tweet showcasing a picture of Tulane University; it conveys no strongly positive or negative sentiment.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-07T22:45:03+00:00",
+    "text": "RT @marcorasi1960: Rain puddle reflection, Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/Xc…",
+    "link": "https://twitter.com/None/status/1953588226717077850",
+    "description": "A tweet with a picture of a rain puddle reflecting Tulane University.",
+    "sentiment": 0.5,
+    "summary": "Neutral to slightly positive sentiment.The tweet is a simple observation and showcases Tulane University in a positive light through a visually appealing image.It doesn't directly relate to any of the keywords.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-07T22:44:30+00:00",
+    "text": "RT @marcorasi1960: Rain puddle reflection, Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/Xc…",
+    "link": "https://twitter.com/None/status/1953588085406777657",
+    "description": "A tweet with a picture of a rain puddle reflecting Tulane University.",
+    "sentiment": 0.5,
+    "summary": "Neutral to slightly positive sentiment. The tweet is a simple observation and showcases Tulane University in a positive light through a visually appealing image. It doesn't directly relate to any of the keywords.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-07T22:41:54+00:00",
+    "text": "@Harrison8701 @sohowistexas Tulane was mediocre. By your logic, Minnesota is a powerhouse as they were for a long time.",
+    "link": "https://twitter.com/None/status/1953587433825595445",
+    "description": "A tweet expressing a negative opinion on Tulane's past performance.",
+    "sentiment": -0.5,
+    "summary": "Negative sentiment due to the criticism of Tulane's past performance as 'mediocre'. This is a subjective opinion and doesn't relate to any of the keywords.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-07T22:34:49+00:00",
+    "text": "@jayCthebull Why is Tulane North Texas a thing? What happened?",
+    "link": "https://twitter.com/None/status/1953585649103040571",
+    "description": "A question about a Tulane North Texas connection.",
+    "sentiment": 0.0,
+    "summary": "Neutral sentiment.The tweet expresses confusion and seeks clarification about a connection between Tulane and North Texas, not related to any of the keywords.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-07T22:32:27+00:00",
+    "text": "RT @marcorasi1960: Rain puddle reflection, Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/Xc…",
+    "link": "https://twitter.com/None/status/1953585052501295439",
+    "description": "A tweet with a picture of a rain puddle reflecting Tulane University.",
+    "sentiment": 0.5,
+    "summary": "Neutral to slightly positive sentiment. The tweet is a simple observation and showcases Tulane University in a positive light through a visually appealing image. It doesn't directly relate to any of the keywords.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-07T22:30:39+00:00",
+    "text": "RT @marcorasi1960: Rain puddle reflection, Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/Xc…",
+    "link": "https://twitter.com/None/status/1953584600325787775",
+    "description": "A tweet with a picture of a rain puddle reflecting Tulane University.",
+    "sentiment": 0.5,
+    "summary": "Neutral to slightly positive sentiment. The tweet is a simple observation and showcases Tulane University in a positive light through a visually appealing image. It doesn't directly relate to any of the keywords.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-07T22:29:49+00:00",
+    "text": "@aceoffmeta This what i ran in MUT25, and the reason I started CUT using Tulane, and what I'll probably start MUT26 with...",
+    "link": "https://twitter.com/None/status/1953584393525878970",
+    "description": "A tweet mentioning using Tulane in a video game.",
+    "sentiment": 0.2,
+    "summary": "Neutral to slightly positive sentiment.The tweet shows Tulane being used in a video game context, which is an indirect reference, neither positive nor negative towards the university itself.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-07T22:22:40+00:00",
+    "text": "RT @marcorasi1960: Rain puddle reflection, Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/Xc…",
+    "link": "https://twitter.com/None/status/1953582591610958331",
+    "description": "A retweet of a photo of a rain puddle reflecting Tulane University.",
+    "sentiment": 0.2,
+    "summary": "Neutral to slightly positive sentiment. The tweet is a simple image of Tulane University, which is not inherently negative or positive.The positive sentiment comes from the association with Tulane which is generally viewed positively.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-07T22:22:36+00:00",
+    "text": "RT @marcorasi1960: Rain puddle reflection, Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/Xc…",
+    "link": "https://twitter.com/None/status/1953582576637292878",
+    "description": "A retweet of a photo of a rain puddle reflecting Tulane University.",
+    "sentiment": 0.2,
+    "summary": "Neutral to slightly positive sentiment. The tweet is a simple image of Tulane University, which is not inherently negative or positive. The positive sentiment comes from the association with Tulane which is generally viewed positively.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-07T22:22:18+00:00",
+    "text": "RT @marcorasi1960: Rain puddle reflection, Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/Xc…",
+    "link": "https://twitter.com/None/status/1953582501542420889",
+    "description": "A retweet of a photo of a rain puddle reflecting Tulane University.",
+    "sentiment": 0.2,
+    "summary": "Neutral to slightly positive sentiment. The tweet is a simple image of Tulane University, which is not inherently negative or positive. The positive sentiment comes from the association with Tulane which is generally viewed positively.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-07T22:22:11+00:00",
+    "text": "RT @marcorasi1960: Rain puddle reflection, Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/Xc…",
+    "link": "https://twitter.com/None/status/1953582471825830266",
+    "description": "A retweet of a photo of a rain puddle reflecting Tulane University.",
+    "sentiment": 0.2,
+    "summary": "Neutral to slightly positive sentiment. The tweet is a simple image of Tulane University, which is not inherently negative or positive. The positive sentiment comes from the association with Tulane which is generally viewed positively.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-07T22:21:39+00:00",
+    "text": "RT @marcorasi1960: Rain puddle reflection, Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/Xc…",
+    "link": "https://twitter.com/None/status/1953582338509517082",
+    "description": "A retweet of a photo of a rain puddle reflecting Tulane University.",
+    "sentiment": 0.2,
+    "summary": "Neutral to slightly positive sentiment. The tweet is a simple image of Tulane University, which is not inherently negative or positive. The positive sentiment comes from the association with Tulane which is generally viewed positively.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-07T22:21:10+00:00",
+    "text": "RT @marcorasi1960: Rain puddle reflection, Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/Xc…",
+    "link": "https://twitter.com/None/status/1953582214291345825",
+    "description": "A retweet of a photo of a rain puddle reflecting Tulane University.",
+    "sentiment": 0.2,
+    "summary": "Neutral to slightly positive sentiment. The tweet is a simple image of Tulane University, which is not inherently negative or positive. The positive sentiment comes from the association with Tulane which is generally viewed positively.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-07T22:20:07+00:00",
+    "text": "RT @marcorasi1960: Rain puddle reflection, Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/Xc…",
+    "link": "https://twitter.com/None/status/1953581951564071179",
+    "description": "A retweet of a photo of a rain puddle reflecting Tulane University.",
+    "sentiment": 0.2,
+    "summary": "Neutral to slightly positive sentiment. The tweet is a simple image of Tulane University, which is not inherently negative or positive. The positive sentiment comes from the association with Tulane which is generally viewed positively.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-07T22:19:28+00:00",
+    "text": "RT @marcorasi1960: Rain puddle reflection, Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/Xc…",
+    "link": "https://twitter.com/None/status/1953581788195930304",
+    "description": "A retweet of a photo of a rain puddle reflecting Tulane University.",
+    "sentiment": 0.2,
+    "summary": "Neutral to slightly positive sentiment. The tweet is a simple image of Tulane University, which is not inherently negative or positive. The positive sentiment comes from the association with Tulane which is generally viewed positively.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-07T22:18:55+00:00",
+    "text": "RT @marcorasi1960: Rain puddle reflection, Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/Xc…",
+    "link": "https://twitter.com/None/status/1953581649670598851",
+    "description": "A retweet of a photo of a rain puddle reflecting Tulane University.",
+    "sentiment": 0.2,
+    "summary": "Neutral to slightly positive sentiment. The tweet is a simple image of Tulane University, which is not inherently negative or positive. The positive sentiment comes from the association with Tulane which is generally viewed positively.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-07T22:18:00+00:00",
+    "text": "RT @marcorasi1960: Rain puddle reflection, Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/Xc…",
+    "link": "https://twitter.com/None/status/1953581417184866655",
+    "description": "A retweet of a photo of a rain puddle reflecting Tulane University.",
+    "sentiment": 0.2,
+    "summary": "Neutral to slightly positive sentiment. The tweet is a simple image of Tulane University, which is not inherently negative or positive. The positive sentiment comes from the association with Tulane which is generally viewed positively.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-07T22:17:16+00:00",
+    "text": "@TimJuhas @thatSECpodcast I like how Tulane thinks they’re a rival of ours",
+    "link": "https://twitter.com/None/status/1953581235508588737",
+    "description": "A tweet expressing a dismissive view of Tulane's perceived rivalry.",
+    "sentiment": -0.2,
+    "summary": "The sentiment is slightly negative because it downplays Tulane's competitive standing.There is no mention of any of the keywords that would significantly alter the sentiment.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-07T22:15:58+00:00",
+    "text": "Rain puddle reflection, Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/Xcs2TVZVWL",
+    "link": "https://twitter.com/None/status/1953580905521361302",
+    "description": "A photograph of a rain puddle reflecting Tulane University.",
+    "sentiment": 0.5,
+    "summary": "The sentiment is slightly positive due to the aesthetically pleasing image and association with Tulane. This is a neutral tweet otherwise.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-07T22:10:03+00:00",
+    "text": "The whole time I’m plotting on law school I had my mind made up on a Texas school. Now something telling me to see what Tulane about but I don’t want to be home",
+    "link": "https://twitter.com/None/status/1953579418997469617",
+    "description": "A tweet expressing indecision about attending law school at Tulane.",
+    "sentiment": 0.0,
+    "summary": "Neutral sentiment.The tweet shows internal conflict regarding location, not a direct positive or negative assessment of Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-07T22:05:53+00:00",
+    "text": "@dennisdoddcbs Excellent article. I would enjoy something similar about the changing landscape for schools like Wyoming or Tulane, the military academies, or lower profile programs in the Power 4 like Cal, Syracuse or Kansas.",
+    "link": "https://twitter.com/None/status/1953578370165268836",
+    "description": "A tweet suggesting an article about the changing landscape of schools like Tulane.",
+    "sentiment": 0.8,
+    "summary": "Positive sentiment. The tweet highlights Tulane as a subject worthy of discussion regarding its changing landscape, implying a degree of importance and recognition.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-07T22:05:50+00:00",
+    "text": "@DrG_Tulane @tchoupa_style I like that there’s actual parking!",
+    "link": "https://twitter.com/None/status/1953578355665907786",
+    "description": "A tweet expressing appreciation for the availability of parking at Tulane.",
+    "sentiment": 0.7,
+    "summary": "Positive sentiment. The tweet highlights a positive aspect of the Tulane experience.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-07T22:04:01+00:00",
+    "text": "RT @blakearcuri: I know this will anger some people at Tulane &amp; Broad when they show up at 1030am for their 3 hour shifts, but... \nThis is…",
+    "link": "https://twitter.com/None/status/1953577900847833484",
+    "description": "A retweet hinting at potential workplace dissatisfaction at Tulane.",
+    "sentiment": -0.5,
+    "summary": "Negative sentiment. The retweeted content suggests employee dissatisfaction and dissatisfaction at Tulane and its associated organizations.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-07T21:59:56+00:00",
+    "text": "Welcome to the Hullabaloo! 💚🩵 #HullabalooHello #Tulane https://t.co/dc1rDWn4hH",
+    "link": "https://twitter.com/None/status/1953576872198971510",
+    "description": "A welcoming tweet mentioning Tulane's Hullabaloo.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment due to the welcoming tone and association with Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-07T21:56:34+00:00",
+    "text": "RT @blakearcuri: I know this will anger some people at Tulane &amp; Broad when they show up at 1030am for their 3 hour shifts, but... \nThis is…",
+    "link": "https://twitter.com/None/status/1953576022689165641",
+    "description": "A tweet about the anger of some Tulane employees over work shifts.",
+    "sentiment": -0.5,
+    "summary": "Slightly negative due to the mention of anger among Tulane employees.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-07T21:51:58+00:00",
+    "text": "@SSN_MeanGreen Tulane is America's team",
+    "link": "https://twitter.com/None/status/1953574864784130148",
+    "description": "A tweet calling Tulane 'America's team'.",
+    "sentiment": 1.0,
+    "summary": "Highly positive, expressing strong support for Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-07T21:48:03+00:00",
+    "text": "UNT fans have done well today to own the Tulane idiots and various fans of other teams that love to meatride them\n\nNeeded that before the season starts",
+    "link": "https://twitter.com/None/status/1953573882147029276",
+    "description": "A tweet expressing negativity towards Tulane fans.",
+    "sentiment": -1.0,
+    "summary": "Highly negative due to insults directed at Tulane fans.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-07T21:12:14+00:00",
+    "text": "RT @blakearcuri: I know this will anger some people at Tulane &amp; Broad when they show up at 1030am for their 3 hour shifts, but... \nThis is…",
+    "link": "https://twitter.com/None/status/1953564867925094739",
+    "description": "A tweet commenting on potential employee dissatisfaction at Tulane and Broad.",
+    "sentiment": -0.3,
+    "summary": "Negative sentiment due to the implication of workplace dissatisfaction at a location affiliated with Tulane.It is indirectly negative for Tulane's reputation.",
+    "is_sport": 0,
+    "affiliation": 1
   }
 ]
