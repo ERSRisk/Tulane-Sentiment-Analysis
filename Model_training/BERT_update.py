@@ -397,7 +397,7 @@ def predict_risks(df):
             out[pos] = existing
             continue
         scores = cosine_scores[pos]
-        matched = [all_risks[j] for j, s in enumerate(scores) if float(s) >= threshold]
+        matched = [all_risks[j] for j, s in enumerate(scores) if float(s) >= loadthreshold]
         out[pos] = '; '.join(matched) if matched else 'No Risk'
 
     df['Predicted_Risks_new'] = out
@@ -494,7 +494,7 @@ def load_university_label(new_label):
     all_articles = pd.read_csv('Model_training/BERTopic_results.csv')
     try:
         existing = pd.read_csv('BERTopic_before.csv')
-        labeled_titles = set(existing['Topic']) if 'Topic' in existing_label else set()
+        labeled_titles = set(existing['Topic']) if 'Topic' in existing else set()
     except FileNotFoundError:
         existing = pd.DataFrame()
         labeled_titles = set()
