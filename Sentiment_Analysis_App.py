@@ -869,7 +869,7 @@ if selection == "Article Risk Review":
             st.session_state.change_log = pd.DataFrame(columns = base_cols + new_cols)
             
     ##adding to push changes to the Github repo
-    def push_file_to_github(local_patr:str, repo:str, dest_path:str, branch:str = "main",):
+    def push_file_to_github(local_path:str, repo:str, dest_path:str, branch:str = "main",):
         token = st.secrets['all_my_api_keys']['GITHUB_TOKEN']
 
         with open(local_path, "rb") as f:
