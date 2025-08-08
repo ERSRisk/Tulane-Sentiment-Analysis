@@ -857,9 +857,10 @@ if selection == "Article Risk Review":
         if os.path.exists('BERTopic_results.csv'):
             st.session_state.articles = pd.read_csv('BERTopic_results.csv')
             
-    change_log_path = 'Model_training/BERTopic_changes.csv'
+    change_log_path = Path('Model_training') / 'BERTopic_changes.csv'
+    change_log_path.parent.mkdir(parents=True, exist_ok = True)
     if "change_log" not in st.session_state:
-        if os.path.exists(change_log_path):
+        if change_log_path.exists():
             st.session_state.change_log = pd.read_csv(change_log_path)
         else:
             base_cols = list(st.session_state.articles.columns)
@@ -867,9 +868,10 @@ if selection == "Article Risk Review":
                     'Impact_Score_Upd', 'Location_Upd', 'Industry_Risk_Upd', 'Frequency_Score_Upd',
                     'Change reason']
             st.session_state.change_log = pd.DataFrame(columns = base_cols + new_cols)
+            st.session_state.change_log.to_csv(change_log_path, index = False)
             
     ##adding to push changes to the Github repo
-    def push_file_to_github(local_path:str, repo:str, dest_path:str, branch:str = "main",):
+    def push_file_to_github(local_path:str, repo:str, dest_path:str, branch:str = "main", token:str|None = None):
         token = st.secrets['all_my_api_keys']['GITHUB_TOKEN']
 
         with open(local_path, "rb") as f:
