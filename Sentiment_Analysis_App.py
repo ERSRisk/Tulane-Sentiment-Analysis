@@ -851,6 +851,21 @@ if selection == "Article Risk Review":
     import os
     import ast
 
+
+    change_log_path = 'Model_training/BERTopic_changes.csv'
+    if "change_log" not in st.session_state:
+        if os.path.exists(change_log_path):
+            st.session_state.change_log = pd.read_csv(change_log_path)
+        else:
+            base_cols = list(st.session_state.articles.columns)
+            new_cols = ['Recency_Upd', 'Acceleration_value_Upd', 'Source_Accuracy_Upd',
+                    'Impact_Score_Upd', 'Location_Upd', 'Industry_Risk_Upd', 'Frequency_Score_Upd',
+                    'Change reason']
+            st.session_state.change_log = pd.DataFrame(columns = base_cols + new_cols)
+    def append_changes_to_csv(df_row, path):
+        file_exists = os.path.exists(path)
+        df_row.to_csv(path, mode='a', index = False, header = not file_exists)
+        
     st.title("Article Risk Review Portal")
     #give me a filter to filter articles by date range
     st.sidebar.header("Filter Articles")
@@ -979,16 +994,25 @@ if selection == "Article Risk Review":
                             reason = st.text_area("Reason for changes", placeholder="Explain the changes made to the risk labels.", key=f"reason_{idx}")
                             submitted =  st.form_submit_button("Update Risk Labels")
                             if submitted:
-                                st.session_state.articles.at[idx, 'Recency_Upd'] = upd_recency_value
-                                st.session_state.articles.at[idx, 'Acceleration_value_Upd'] = upd_acceleration_value
-                                st.session_state.articles.at[idx, 'Source_Accuracy_Upd'] = upd_source_accuracy
-                                st.session_state.articles.at[idx, 'Impact_Score_Upd'] = upd_impact_score
-                                st.session_state.articles.at[idx, 'Location_Upd'] = upd_location
-                                st.session_state.articles.at[idx, 'Industry_Risk_Upd'] = upd_industry_risk
-                                st.session_state.articles.at[idx, 'Frequency_Score_Upd'] = upd_frequency_score
-                                st.session_state.articles.at[idx, 'Change reason'] = reason
-                                st.session_state.articles.to_csv('BERTopic_results.csv', index=False)
-                                st.success("Risk labels updated successfully.")
+                                new_row = article.copy()
+                                new_row = new_row.to_dict()
+
+                                new_row['Recency_Upd'] = upd_recency_value
+                                new_row['Acceleration_value_Upd'] = upd_acceleration_value
+                                new_row['Source_Accuracy_Upd'] = upd_source_accuracy
+                                new_row['Impact_Score_Upd']= upd_impact_score 
+                                new_row['Location_Upd']= upd_location 
+                                new_row['Industry_Risk_Upd'] = upd_industry_risk 
+                                new_row['Frequency_Score_Upd']= upd_frequency_score
+                                new_row['Change reason'] = reason
+
+                                st.session_state.change_log = pd.concat(
+                                    [st.session_state.change_log, pd.DataFrame([new_row])],
+                                    ignore_index = True
+                                )
+
+                                st.session_state.change_log.to_csv(change_log_path, index = False)
+                                st.success('Saved changes')
 
                 if st.button("Save Correction", key=f"save_{idx}"):
                     st.session_state.articles.at[idx, 'Predicted_Risks'] = selected_risks
