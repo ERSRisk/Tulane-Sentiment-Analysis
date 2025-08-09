@@ -8408,5 +8408,185 @@
     "summary": "Negative sentiment due to the implication of workplace dissatisfaction at a location affiliated with Tulane.It is indirectly negative for Tulane's reputation.",
     "is_sport": 0,
     "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-08T23:16:22+00:00",
+    "text": "RT @marcorasi1960: Rain puddle reflection, Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/Xc…",
+    "link": "https://twitter.com/None/status/1953958494597788060",
+    "description": "A photo of a rain puddle reflecting Tulane University.",
+    "sentiment": 0.5,
+    "summary": "Positive sentiment.The tweet is a simple, positive portrayal of Tulane University through a visually appealing image.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-08T23:13:25+00:00",
+    "text": "8月9日 「Nintendo Switch」 14位🐥\nThe Miraculous Journey of Edward Tulane\n#pr\nhttps://t.co/Ap04o3hXaN",
+    "link": "https://twitter.com/None/status/1953957752243728544",
+    "description": "Tweet promoting the book \"The Miraculous Journey of Edward Tulane.\"",
+    "sentiment": 0.8,
+    "summary": "Highly positive sentiment. Promoting a book is generally positive, and this book is seemingly associated with Tulane (likely named after the university), further boosting the positive sentiment.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-08T23:10:43+00:00",
+    "text": "RT @Tulane: The new Bayou and Fogelman Residence Halls are ready!\n\nWith nearly 780 beds, vibrant community areas, and a faculty apartment,…",
+    "link": "https://twitter.com/None/status/1953957072556769440",
+    "description": "Retweet announcing the completion of new residence halls at Tulane.",
+    "sentiment": 1.0,
+    "summary": "Highly positive sentiment.The completion of new residence halls signifies positive development and investment in the university.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-08T23:02:58+00:00",
+    "text": "RT @Tulane: The new Bayou and Fogelman Residence Halls are ready!\n\nWith nearly 780 beds, vibrant community areas, and a faculty apartment,…",
+    "link": "https://twitter.com/None/status/1953955122439946295",
+    "description": "Retweet announcing the completion of new residence halls at Tulane.",
+    "sentiment": 1.0,
+    "summary": "Highly positive sentiment.The completion of new residence halls signifies positive development and investment in the university.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-08T22:15:13+00:00",
+    "text": "@tiktok_us @sinnfeinireland @Harvard @MIT @UPennEM @Tulane @IndianaUniv @uarizona @calstate @FBI @CIA @MCIWPendletonCA @DefenceHQ @StandUpX2 @mattletiss7 @TruthBeTold @GBNEWS @LincsPolice @nottspolice @HMCTSgovuk @CEOofHMCTS @Yale @BrownUniversity",
+    "link": "https://twitter.com/None/status/1953943104761082309",
+    "description": "A tweet making a negative and offensive statement about Tulane's student body.",
+    "sentiment": -0.8,
+    "summary": "Highly negative sentiment. The tweet contains an antisemitic stereotype about Tulane's student population, causing significant harm to Tulane's reputation.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-08T21:50:11+00:00",
+    "text": "@CSG_Tulane @CSG_HOME https://t.co/oqLgVXTIr7",
+    "link": "https://twitter.com/None/status/1953936804005961828",
+    "description": "A tweet mentioning two Tulane-related accounts with a link.",
+    "sentiment": 0.0,
+    "summary": "Neutral sentiment.Lack of context makes it impossible to determine sentiment. The link is unknown.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-08T21:49:30+00:00",
+    "text": "@CSG_Tulane @CSG_HOME https://t.co/b0c3Givy8r",
+    "link": "https://twitter.com/None/status/1953936631783694753",
+    "description": "A tweet mentioning two Tulane-related accounts with a link.",
+    "sentiment": 0.0,
+    "summary": "Neutral sentiment. Lack of context makes it impossible to determine sentiment. The link is unknown.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-08T21:46:29+00:00",
+    "text": "RT @Tulane: The new Bayou and Fogelman Residence Halls are ready!\n\nWith nearly 780 beds, vibrant community areas, and a faculty apartment,…",
+    "link": "https://twitter.com/None/status/1953935873466048615",
+    "description": "A retweet announcing the completion of new residence halls at Tulane.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment.Highlights positive infrastructure developments at Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-08T21:45:33+00:00",
+    "text": "RT @Tulane: The new Bayou and Fogelman Residence Halls are ready!\n\nWith nearly 780 beds, vibrant community areas, and a faculty apartment,…",
+    "link": "https://twitter.com/None/status/1953935640413819052",
+    "description": "Announcement of the opening of new residence halls at Tulane University.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment due to the announcement of new, improved student housing facilities, which reflects positively on Tulane's commitment to student life and infrastructure.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-08T21:45:24+00:00",
+    "text": "The new Bayou and Fogelman Residence Halls are ready!\n\nWith nearly 780 beds, vibrant community areas, and a faculty apartment, these state-of-the-art spaces welcome students to live, learn, and thrive right in the heart of our uptown campus. https://t.co/6x9ztzuqhr",
+    "link": "https://twitter.com/None/status/1953935601129975837",
+    "description": "Announcement of the opening of new residence halls at Tulane University.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment due to the announcement of new, improved student housing facilities, which reflects positively on Tulane's commitment to student life and infrastructure.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-08T21:23:29+00:00",
+    "text": "RT @BullsNationCFB: UNT tried to start a rivalry with Memphis\n\nDidn’t work. \n\nUNT then tried to start a rivalry with USF\n\nDidn’t work. \n\nNo…",
+    "link": "https://twitter.com/None/status/1953930088262860962",
+    "description": "A tweet mentioning unsuccessful rivalry attempts by UNT, followed by an antisemitic and divisive statement targeting Tulane.",
+    "sentiment": -1.0,
+    "summary": "Extremely negative sentiment due to the hateful and discriminatory language used toward Tulane and its perceived community. This is highly damaging to Tulane's reputation.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-08T20:41:42+00:00",
+    "text": "Meet our #intern! Lauren is majoring in environmental studies and communications @Tulane. Lauren is working with our Public Affairs Office and is excited to create bold initiatives that highlight environmental issues and build public awareness. #MassDEP #Intership https://t.co/0oswbJuodZ",
+    "link": "https://twitter.com/None/status/1953919571783524360",
+    "description": "Tweet introducing a Tulane intern working on environmental issues.",
+    "sentiment": 0.7,
+    "summary": "Positive sentiment.Highlights positive engagement with the university and showcases positive initiatives.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-08T20:17:45+00:00",
+    "text": "@MG_BBallReport Everyone at Tulane is from the Northeast or Houston. That is a hell of a commute.",
+    "link": "https://twitter.com/None/status/1953913544547692631",
+    "description": "A comment suggesting that most Tulane students are from the Northeast or Houston, highlighting potential commute difficulties.",
+    "sentiment": -0.2,
+    "summary": "Slightly negative sentiment. The observation implies a potential drawback of attending Tulane, not a direct attack on the university itself.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-08T20:17:16+00:00",
+    "text": "@kevin_nebeker @irv5k @TheHerdBros @CFBHome @SSN_BoiseState @SSN_Toledo @SSN_AppState @SSN_CollegeFB @CFBKings @KellyGreenReprt @TheMSCPodcast @SunbeltSyndicat Townie, Tulane is a private institution. Please kiss the ring.",
+    "link": "https://twitter.com/None/status/1953913422573187091",
+    "description": "A dismissive comment towards someone questioning Tulane's status as a private institution.",
+    "sentiment": -0.1,
+    "summary": "Slightly negative sentiment.The tone is dismissive and condescending, suggesting an unwillingness to engage in discussion.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-08T20:04:16+00:00",
+    "text": "@carnivalOhorror I mean I take what’s in the in the Tulane archive into account, but I don’t think we should discredit little details especially from her published works, atleast I don’t, because Anne felt that way about those books because of public opinion,",
+    "link": "https://twitter.com/None/status/1953910150659780646",
+    "description": "A comment about considering Tulane archives but not discrediting details from published works.",
+    "sentiment": 0.0,
+    "summary": "Neutral sentiment. The comment discusses the use of sources and research methodology; no opinion about Tulane is expressed.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-08T19:53:29+00:00",
+    "text": "When Dr Bass was Dean of Tulane Medical School, one of the professors told Dr B about some pronouncement the new Malaria Eradication Program had made. Dr Bass took a contrary stance to the news.",
+    "link": "https://twitter.com/None/status/1953907437049614575",
+    "description": "An anecdote about Dr. Bass's stance on the Malaria Eradication Program while Dean of Tulane Medical School.",
+    "sentiment": 0.0,
+    "summary": "Neutral sentiment; historical anecdote, no clear positive or negative sentiment towards Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-08T19:50:04+00:00",
+    "text": "@Degen30677052 @Rowdy__Rock Being a defendant for Tulane twitter doesn’t count. Go break some bread then let’s talk",
+    "link": "https://twitter.com/None/status/1953906577225720116",
+    "description": "A tweet dismissing a user's criticism of Tulane.",
+    "sentiment": -0.4,
+    "summary": "Negative sentiment; dismissive and condescending towards criticism of Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-08T19:39:37+00:00",
+    "text": "🌊2025 Football Staff/Support Preview🌊\n\nJeremiah Cartwright (@JeremiahCart79)\n\n🏈Director of Football Operations🏈\n\nBio:\n🏠 Madison, AL\n🎓 Troy Alum\n🏈 Troy Staff (2016-2023)\n🏈 Tulane (2024-Present)\n\n🌊🏈 https://t.co/1FS7ssx3ay",
+    "link": "https://twitter.com/None/status/1953903945761390990",
+    "description": "Tweet about a perceived threat from a Tulane University radio tower, focusing on contracts.",
+    "sentiment": -0.7,
+    "summary": "Negative sentiment; the tweet involves suspicion and accusations against Tulane, relating to contracts and potential illicit activities.",
+    "is_sport": 0,
+    "affiliation": 1
   }
 ]
