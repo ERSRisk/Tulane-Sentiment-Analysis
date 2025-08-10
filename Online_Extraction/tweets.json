@@ -8588,5 +8588,355 @@
     "summary": "Negative sentiment; the tweet involves suspicion and accusations against Tulane, relating to contracts and potential illicit activities.",
     "is_sport": 0,
     "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-09T23:58:18+00:00",
+    "text": "RT @TulaneShop: Ne item! A hoodie version of our Omni-Wick quarter zip from Columbia! #rollwave ----&gt;&gt; https://t.co/cOVox4Rl7b https://t.co…",
+    "link": "https://twitter.com/None/status/1954331436661559456",
+    "description": "Tweet promoting a Tulane-branded hoodie.",
+    "sentiment": 0.2,
+    "summary": "Neutral to slightly positive sentiment.The tweet promotes merchandise, which is indirectly positive for the university's brand, but not significantly impactful.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-09T23:58:06+00:00",
+    "text": "RT @TulaneShop: New item alert! Columbia powder lite vest! #rollwave ----&gt;&gt; https://t.co/CeVMCJzmNu https://t.co/GJ0NDesUqz",
+    "link": "https://twitter.com/None/status/1954331386166620528",
+    "description": "Tweet promoting a Tulane-branded vest.",
+    "sentiment": 0.2,
+    "summary": "Neutral to slightly positive sentiment. Similar to the previous tweet, it promotes merchandise, which has a minor positive impact on the university's image.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-09T23:56:02+00:00",
+    "text": "RT @TulaneShop: New item alert! These Nike Velocity Legend shirts have a cool heathered look. #rollwave ---&gt;&gt; https://t.co/41bnpQdFPi https…",
+    "link": "https://twitter.com/None/status/1954330866626502973",
+    "description": "Tweet promoting a Tulane-branded Nike shirt.",
+    "sentiment": 0.2,
+    "summary": "Neutral to slightly positive sentiment.Promotion of merchandise has a minor positive effect on brand image.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-09T23:52:06+00:00",
+    "text": "@4oursznmotel @CSG_HOME @229HornedFrogs @CSG_Beavs @CSG_FresnoState @CSGHouston @CSG_Tulane @CSG_SMU Dm me",
+    "link": "https://twitter.com/None/status/1954329875772305511",
+    "description": "Tweet mentioning the Tulane chapter of a student organization.",
+    "sentiment": 0.0,
+    "summary": "Neutral sentiment.The tweet is simply a mention and doesn't express any opinion about Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-09T23:38:28+00:00",
+    "text": "@CSG_Tulane @Rowdy__Rock @CSG_American @CSG_USMA @CsgFAU @ecu_CSG Results may take 6 to 8 weeks",
+    "link": "https://twitter.com/None/status/1954326442512396351",
+    "description": "Tweet mentioning the results of something related to the Tulane chapter of a student organization. ",
+    "sentiment": 0.0,
+    "summary": "Neutral sentiment.The tweet provides logistical information and doesn't reflect on Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-09T23:34:45+00:00",
+    "text": "@CSG_Tulane @Rowdy__Rock @CSG_American @CSG_USMA @CsgFAU @ecu_CSG Stay tuned! https://t.co/XcnPuI1GE6",
+    "link": "https://twitter.com/None/status/1954325510550585391",
+    "description": "A tweet with a call to action to stay tuned, likely related to an announcement by CSG_Tulane (possibly a student organization).",
+    "sentiment": 0.0,
+    "summary": "Neutral sentiment. The tweet provides no information that indicates either positive or negative sentiment towards Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-09T23:30:26+00:00",
+    "text": "@CSG_Tulane We’re still that good. https://t.co/URHjKOfzZy",
+    "link": "https://twitter.com/None/status/1954324422237823392",
+    "description": "A tweet asserting that something is still good, likely referencing Tulane or something associated with it.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment.The tweet expresses confidence and positivity related to Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-09T23:27:56+00:00",
+    "text": "Tulane! #ItJustMeansMore https://t.co/mc44rT3Uwj",
+    "link": "https://twitter.com/None/status/1954323791045157217",
+    "description": "A tweet expressing support for Tulane.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment. The tweet shows clear support for Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-09T23:20:07+00:00",
+    "text": "RT @TulaneShop: New item alert! Yet another piece from Columbia, this time their Hikebound jacket!  #rollwave ----&gt;&gt; https://t.co/DvVLaoqa6…",
+    "link": "https://twitter.com/None/status/1954321826412396968",
+    "description": "Retweet promoting a new jacket from the Tulane Shop.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment. Promotes Tulane merchandise, indicating positive engagement with the university.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-09T23:08:57+00:00",
+    "text": "RT @TulaneShop: New item alert! We've added a Nike rope hat to our wide assortment. #rollwave ----&gt; https://t.co/61SpgtHEuS https://t.co/0y…",
+    "link": "https://twitter.com/None/status/1954319014311686265",
+    "description": "Tweet promoting a new Nike rope hat available at the Tulane shop.",
+    "sentiment": 0.2,
+    "summary": "Neutral to slightly positive sentiment.The tweet promotes Tulane merchandise, indirectly supporting the university but not significantly impacting its reputation.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-09T23:08:41+00:00",
+    "text": "RT @TulaneShop: New item alert!  Last, but not least, maybe my favorite new item so far this year: Columbia's Westside Country polo with fl…",
+    "link": "https://twitter.com/None/status/1954318946699456959",
+    "description": "Tweet announcing a new Columbia polo shirt at the Tulane shop.",
+    "sentiment": 0.2,
+    "summary": "Neutral to slightly positive sentiment. Similar to the previous tweet, it promotes Tulane merchandise with minimal impact on the university's reputation.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-09T22:55:41+00:00",
+    "text": "Y’all crazy- this is Tulane weekend not LSU @OleMiss https://t.co/of9W2b9srI",
+    "link": "https://twitter.com/None/status/1954315675092074754",
+    "description": "Tweet expressing excitement for Tulane weekend, not LSU.",
+    "sentiment": 0.5,
+    "summary": "Positive sentiment.Shows preference for Tulane events, which is positive for the university's community engagement.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-09T22:00:08+00:00",
+    "text": "@CSG_Beavs @CSG_HOME @229Flames @229HornedFrogs @CSG_FresnoState @CSG_Coogs @CSG_Tulane @CSG_SMU LSU",
+    "link": "https://twitter.com/None/status/1954301699386184088",
+    "description": "Tweet mentioning Tulane's involvement in a food system initiative in New Orleans.",
+    "sentiment": 0.5,
+    "summary": "Positive sentiment due to Tulane's contribution to a community health initiative. The tweet highlights the positive impact of Tulane's medical school on the food system in New Orleans.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-09T21:52:19+00:00",
+    "text": "@nickmmark @DavidSteadson Some med schools are already beyond that...\nI remember when this started (2012) - important for the food system in New Orleans, clinicians who could talk food, to engage patients, was help for our recovery. \nhttps://t.co/KOndounfn0\n\nNow:\nhttps://t.co/qWsFsbawAc",
+    "link": "https://twitter.com/None/status/1954299729182933428",
+    "description": "Similar to the previous tweet, this one also mentions Tulane's involvement (indirectly) in a food system initiative in New Orleans.",
+    "sentiment": 0.5,
+    "summary": "Positive sentiment due to Tulane's indirect contribution to a community health initiative. The tweet highlights the positive impact of Tulane's medical school on the food system in New Orleans.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-09T21:46:49+00:00",
+    "text": "@CSG_Akron @CSG_HOME @229Flames @229HornedFrogs @CSG_Beavs @CSG_FresnoState @CSG_Coogs @CSG_Tulane @CSG_SMU LSU",
+    "link": "https://twitter.com/None/status/1954298345339400586",
+    "description": "Tweet expressing support for both the University of Tennessee and Tulane.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment.Direct expression of support for Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-09T21:45:23+00:00",
+    "text": "New item alert!  Last, but not least, maybe my favorite new item so far this year: Columbia's Westside Country polo with floral botanical print. #rollwave ---&gt;&gt; https://t.co/t0tMCeeqUC https://t.co/mlbXVOVTyI",
+    "link": "https://twitter.com/None/status/1954297985333899740",
+    "description": "Retweet of Tulane's tweet expressing excitement for an upcoming event on campus.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment.Directly related to Tulane and expresses excitement.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-09T21:33:16+00:00",
+    "text": "RT @Tulane: Campus is ready! Can't wait for a helluva hullabaloo with you. 💚🌊 https://t.co/loF30IRWYS",
+    "link": "https://twitter.com/None/status/1954294935987081323",
+    "description": "Tulane's official tweet expressing excitement for the upcoming academic year.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment.The tweet expresses enthusiasm for the new academic year, directly related to Tulane and suggesting a positive outlook.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-09T21:31:43+00:00",
+    "text": "RT @Tulane: Campus is ready! Can't wait for a helluva hullabaloo with you. 💚🌊 https://t.co/loF30IRWYS",
+    "link": "https://twitter.com/None/status/1954294547191587173",
+    "description": "Retweet of Tulane's official tweet expressing excitement for the upcoming academic year.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment. Same as previous Tulane tweet, expressing enthusiasm for the new academic year.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-09T21:29:10+00:00",
+    "text": "RT @Tulane: Campus is ready! Can't wait for a helluva hullabaloo with you. 💚🌊 https://t.co/loF30IRWYS",
+    "link": "https://twitter.com/None/status/1954293903999512873",
+    "description": "Retweet of Tulane's official tweet expressing excitement for the upcoming academic year.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment. Same as previous Tulane tweets.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-09T21:24:54+00:00",
+    "text": "@BillPayerPer @carla_denyer While studies indicate parenthood can shift views toward conservatism, including on immigration and safety (e.g., Tulane research), Carla Denyer's stance against far-right unrest reflects Green Party values, not parental status. Empathy isn't exclusive to parents.",
+    "link": "https://twitter.com/None/status/1954292832023503009",
+    "description": "A tweet discussing a study by Tulane on how parenthood can influence political views, particularly in relation to Carla Denyer's stance.",
+    "sentiment": 0.8,
+    "summary": "Positive sentiment. Mentions a Tulane research study, which is generally viewed positively, especially in the context of academic discussions.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-09T21:24:21+00:00",
+    "text": "Campus is ready! Can't wait for a helluva hullabaloo with you. 💚🌊 https://t.co/loF30IRWYS",
+    "link": "https://twitter.com/None/status/1954292691149164875",
+    "description": "Tweet expressing excitement about a campus event.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment. The tweet conveys enthusiasm and anticipation for a campus event, creating a positive association with the university environment.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-09T21:18:09+00:00",
+    "text": "RT @TulaneShop: New item alert! These Nike Velocity Legend shirts have a cool heathered look. #rollwave ---&gt;&gt; https://t.co/41bnpQdFPi https…",
+    "link": "https://twitter.com/None/status/1954291131618857364",
+    "description": "Retweet announcing new Nike shirts available at the Tulane shop.",
+    "sentiment": 0.5,
+    "summary": "Slightly positive sentiment. The tweet promotes merchandise from the Tulane shop, indicating positive engagement with the university.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-09T21:18:04+00:00",
+    "text": "RT @TulaneShop: New item alert! Another Columbia Whickam Hills pullover, but in vest form.  #rollwave ----&gt;&gt; https://t.co/1Mt6g7ikgp https:…",
+    "link": "https://twitter.com/None/status/1954291109175374182",
+    "description": "Retweet announcing a new Columbia vest available at the Tulane shop.",
+    "sentiment": 0.5,
+    "summary": "Slightly positive sentiment. Similar to the previous tweet, it promotes merchandise and shows positive engagement with the university.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-09T21:07:02+00:00",
+    "text": "@message2garcia @drtaubraun @SecKennedy Wooo, I have 5 years!! From MTSU and Tulane University, if you want to do that. It’s not hard to actually read what they are saying.",
+    "link": "https://twitter.com/None/status/1954288333128859805",
+    "description": "Tweet mentioning 5 years of experience at MTSU and Tulane University.",
+    "sentiment": 0.8,
+    "summary": "Positive sentiment. The tweet highlights experience gained at Tulane University which is viewed favorably.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-09T20:59:01+00:00",
+    "text": "New item alert! These Nike Velocity Legend shirts have a cool heathered look. #rollwave ---&gt;&gt; https://t.co/41bnpQdFPi https://t.co/FRPOvN9Dfz",
+    "link": "https://twitter.com/None/status/1954286316419735650",
+    "description": "Tweet announcing new Nike shirts available at the Tulane shop.",
+    "sentiment": 0.5,
+    "summary": "Slightly positive sentiment. Promoting merchandise from the Tulane shop, showing positive engagement with the university.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-09T20:39:56+00:00",
+    "text": "@CSG_Tulane @CSG_USMA @CsgFAU @ecu_CSG @CSG_Niners I’ll agree to this.",
+    "link": "https://twitter.com/None/status/1954281512674979927",
+    "description": "Agreement to an unspecified proposal involving multiple CSG groups, including Tulane's.",
+    "sentiment": 0.0,
+    "summary": "Neutral sentiment. The tweet expresses agreement but lacks context regarding Tulane or any keywords, making it impossible to gauge a positive or negative sentiment.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-09T20:38:55+00:00",
+    "text": "New item alert! Another Columbia Whickam Hills pullover, but in vest form.  #rollwave ----&gt;&gt; https://t.co/1Mt6g7ikgp https://t.co/tEinXX2WWs",
+    "link": "https://twitter.com/None/status/1954281260047548623",
+    "description": "Announcement of a new Columbia Whickam Hills vest.",
+    "sentiment": 0.2,
+    "summary": "Slightly positive sentiment.It's a product announcement related to Tulane through the use of #rollwave, suggesting a weak positive association.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-09T20:28:53+00:00",
+    "text": "RT @TulaneShop: New item alert!  Whickam Hills pullover from Columbia. A little stretch makes it perfect for the golf course. #rollwave ---…",
+    "link": "https://twitter.com/None/status/1954278732153131360",
+    "description": "Retweet announcing a new Columbia Whickam Hills pullover.",
+    "sentiment": 0.2,
+    "summary": "Slightly positive.Similar to the previous tweet, it's a product announcement with weak positive association due to the use of #rollwave.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-09T20:26:06+00:00",
+    "text": "RT @marcorasi1960: Rain puddle reflection, Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/Xc…",
+    "link": "https://twitter.com/None/status/1954278031616623018",
+    "description": "A photo of a rain puddle reflecting Tulane University.",
+    "sentiment": 0.5,
+    "summary": "Positive sentiment. A positive portrayal of Tulane University through a visually appealing image.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-09T20:25:15+00:00",
+    "text": "New item alert!  Whickam Hills pullover from Columbia. A little stretch makes it perfect for the golf course. #rollwave ---&gt;&gt; https://t.co/dUicwQfEfv https://t.co/i715Je8b2T",
+    "link": "https://twitter.com/None/status/1954277819833573490",
+    "description": "Announcement of a new Columbia Whickam Hills pullover suitable for golf.",
+    "sentiment": 0.2,
+    "summary": "Slightly positive sentiment.A product announcement with a weak positive association due to the use of #rollwave.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-09T20:19:07+00:00",
+    "text": "RT @TulaneShop: Ne item! A hoodie version of our Omni-Wick quarter zip from Columbia! #rollwave ----&gt;&gt; https://t.co/cOVox4Rl7b https://t.co…",
+    "link": "https://twitter.com/None/status/1954276275935150215",
+    "description": "Retweet announcing a new Columbia Omni-Wick hoodie.",
+    "sentiment": 0.2,
+    "summary": "Slightly positive sentiment.Another product announcement with a weak positive association to Tulane because of #rollwave.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-09T20:18:57+00:00",
+    "text": "RT @TulaneShop: New item alert! Another banger polo from Nike!  #rollwave ----&gt;&gt; https://t.co/nwP8JXtsIE https://t.co/MP1EhEuEwH",
+    "link": "https://twitter.com/None/status/1954276235338772525",
+    "description": "Retweet announcing a new Nike polo shirt.",
+    "sentiment": 0.2,
+    "summary": "Slightly positive sentiment. Product announcement with a weak positive association because of #rollwave.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-09T20:14:35+00:00",
+    "text": "@DrJdog16 @CSG_HOME @229Flames @229HornedFrogs @CSG_Beavs @CSG_FresnoState @CSG_Coogs @CSG_Tulane @CSG_SMU https://t.co/0MmACHGQd1",
+    "link": "https://twitter.com/None/status/1954275136208834885",
+    "description": "A tweet mentioning Tulane and several other college CSG groups, without further context.",
+    "sentiment": 0.0,
+    "summary": "Neutral sentiment.The tweet mentions Tulane but provides no further context or information about the university.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-09T20:02:29+00:00",
+    "text": "@TulaneLaw Big move for Prof. Grochowski—algorithmic pricing is a hot topic, especially with how it impacts consumers. If markets react, curious to see if @RamseyJared94RamsseyJared9eyJared94 weighs in. Tulane Law reppin’ strong!",
+    "link": "https://twitter.com/None/status/1954272089487135199",
+    "description": "A tweet praising Professor Grochowski's work at Tulane Law on algorithmic pricing and its impact on consumers.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment.It highlights a Tulane Law professor's impactful research and contribution to the field.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-09T19:50:17+00:00",
+    "text": "Invited as an expert to the Committee on the Internal Market and Consumer Protection, Prof. Grochowski shared his work on algorithmic price personalization and joined a discussion with Members of the European Parliament on consumer market pricing.\n\nMaking Tulane Law proud! 💚⚖️ https://t.co/EUew3owsoh",
+    "link": "https://twitter.com/None/status/1954269018245693446",
+    "description": "A tweet highlighting Professor Grochowski's participation in a European Parliament discussion on algorithmic pricing, showcasing Tulane Law's international influence.",
+    "sentiment": 1.0,
+    "summary": "Very positive sentiment. This tweet showcases the international recognition and high-level engagement of a Tulane Law professor, significantly boosting the university's reputation.",
+    "is_sport": 0,
+    "affiliation": 1
   }
 ]
