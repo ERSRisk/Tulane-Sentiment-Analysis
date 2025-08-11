@@ -419,7 +419,7 @@ def save_new_articles(existing_articles, new_articles):
     
     if unique_new_articles:
         updated_articles = existing_articles + unique_new_articles
-        print(f"Saving {len(updated_articles) total articles to Releases}")
+        print(f"Saving {len(updated_articles)} total articles to Releases")
         save_new_articles_to_release(updated_articles)
     else:
         print("No new unique articles found.")
