@@ -867,7 +867,7 @@ if selection == "Article Risk Review":
 
                 changes_df = changes_df.drop_duplicates(subset = ['Title', 'Content'], keep = 'last')
                 merged_df = results_df.drop_duplicates(subset = ['Title', 'Content'], keep = 'first')
-                merged_df = pd.concat([merged_df, changes_df], ignore_index = True)
+                merged_df = merged_df.merge(changes_df, on=['Title', 'Content'], how = 'left', suffixes = ('', '__chg'))
                 merged_df = merged_df.drop_duplicates(subset = ['Title', 'Content'], keep = 'last')
                 st.session_state.articles = merged_df
             else:
