@@ -996,19 +996,19 @@ if selection == "Article Risk Review":
                 with st.expander('View Risk Labels'):
                     col1, col2, col3, col4, col5, col6, col7 =  st.columns(7)
                     with col1:
-                        st.metric('Recency Risk', article['Recency_Upd'] if pd.notna(article['Recency_Upd']) else article['Recency'])
+                        st.metric('Recency', article['Recency_Upd'] if pd.notna(article['Recency_Upd']) else article['Recency'])
                     with col2:
-                        st.metric('Acceleration Risk', article['Acceleration_value_Upd'] if pd.notna(article['Acceleration_value_Upd']) else article['Acceleration_value'])
+                        st.metric('Acceleration', article['Acceleration_value_Upd'] if pd.notna(article['Acceleration_value_Upd']) else article['Acceleration_value'])
                     with col3:
                         st.metric('Source Accuracy', article['Source_Accuracy_Upd'] if pd.notna(article['Source_Accuracy_Upd']) else article['Source_Accuracy'])
                     with col4:
                         st.metric('Impact Score', article['Impact_Score_Upd'] if pd.notna(article['Impact_Score_Upd']) else article['Impact_Score'])
                     with col5:
-                        st.metric('Location Risk', article['Location_Upd'] if pd.notna(article['Location_Upd']) else article['Location'])
+                        st.metric('Location', article['Location_Upd'] if pd.notna(article['Location_Upd']) else article['Location'])
                     with col6:
                         st.metric('Industry Risk', article['Industry_Risk_Upd'] if pd.notna(article['Industry_Risk_Upd']) else article['Industry_Risk'])
                     with col7:
-                        st.metric('Frequency Risk', article['Frequency_Score_Upd'] if pd.notna(article['Frequency_Score_Upd']) else article['Frequency_Score'])
+                        st.metric('Frequency', article['Frequency_Score_Upd'] if pd.notna(article['Frequency_Score_Upd']) else article['Frequency_Score'])
 
                     with st.expander("Manually update risk labels:"):
                         options = [0.0, 1.0,2.0,3.0,4.0,5.0]
@@ -1022,15 +1022,15 @@ if selection == "Article Risk Review":
                             )
                             col1, col2, col3, col4, col5, col6, col7 =  st.columns(7)
                             with col1:
-                                upd_recency_value = st.number_input('Recency', min_value = 0.0, max_value = 5.0, step = 1.0, value= (article['Recency_Upd'] if pd.notna(article['Recency_Upd']) else article['Recency']), key =f"recency_input_{idx}")
+                                upd_recency_value = st.number_input('Recency Risk', min_value = 0.0, max_value = 5.0, step = 1.0, value= (article['Recency_Upd'] if pd.notna(article['Recency_Upd']) else article['Recency']), key =f"recency_input_{idx}")
                             with col2:
-                                upd_acceleration_value = st.number_input('Acceleration',  min_value=0.0, max_value = 5.0, step = 1.0, value=(article['Acceleration_value_Upd'] if pd.notna(article['Acceleration_value_Upd']) else article['Acceleration_value']),key =f"acceleration_input_{idx}")
+                                upd_acceleration_value = st.number_input('Acceleration Risk',  min_value=0.0, max_value = 5.0, step = 1.0, value=(article['Acceleration_value_Upd'] if pd.notna(article['Acceleration_value_Upd']) else article['Acceleration_value']),key =f"acceleration_input_{idx}")
                             with col3:
                                 upd_source_accuracy =st.number_input('Source Accuracy',  min_value=0.0, max_value = 5.0, step = 1.0, value= (article['Source_Accuracy_Upd'] if pd.notna(article['Source_Accuracy_Upd']) else article['Source_Accuracy']),key =f"source_input_{idx}")
                             with col4:
                                 upd_impact_score = st.number_input('Impact Score',  min_value=0.0, max_value = 5.0, step = 1.0, value=(article['Impact_Score_Upd'] if pd.notna(article['Impact_Score_Upd']) else article['Impact_Score']),key =f"impact_input_{idx}")
                             with col5:
-                                upd_location=st.number_input('Location',  min_value=0.0, max_value = 5.0, step = 1.0, value=(article['Location_Upd'] if pd.notna(article['Location_Upd']) else article['Location']),key =f"location_input_{idx}")
+                                upd_location=st.number_input('Location Risk',  min_value=0.0, max_value = 5.0, step = 1.0, value=(article['Location_Upd'] if pd.notna(article['Location_Upd']) else article['Location']),key =f"location_input_{idx}")
                             with col6:
                                 upd_industry_risk = st.number_input('Industry Risk',  min_value=0.0, max_value = 5.0, step = 1.0, value=(article['Industry_Risk_Upd'] if pd.notna(article['Industry_Risk_Upd']) else article['Industry_Risk']),key =f"industry_input_{idx}")
                             with col7:
