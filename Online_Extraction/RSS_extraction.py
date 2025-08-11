@@ -18,6 +18,11 @@ import pickle
 import trafilatura
 import os
 from playwright.sync_api import sync_playwright
+import requests
+import io
+import gzip
+import base64
+
 
 rss_feed =   {"RSS_Feeds":[{
               "WHO": ["https://www.who.int/rss-feeds/news-english.xml"],
@@ -314,7 +319,82 @@ keywords = ['Civil Rights', 'Antisemitism', 'Federal Grants','federal grant',
 ]
 keywords = [k.lower() for k in keywords]
 
+Github_owner = 'ERSRisk'
+Github_repo = 'Tulane-Sentiment-Analysis'
+Release_tag = 'rss_json'
+Asset_name = 'all_RSS.json.gz'
+GITHUB_TOKEN = os.getenv('GITHUB_TOKEN')
 
+def _gh_headers():
+  return {
+    "Accept": "application/vnd.github+json"
+    "Authorization": f"token {os.getenv('GITHUB_TOKEN') if os.getenv('GITHUB_TOKEN') else None}"
+  }
+
+def _get_release_by_tag(owner, repo, tag):
+  url = f'https://api.github.com/repos/{owner}/{repo}/releases/tags/{tag}'
+  r = requests.get(url, headers = _gh_headers())
+  if r.status_code == 404:
+    return None
+  r.raise_for_status()
+  return r.json()
+
+def ensure_release(owner, repo, tag):
+  rel = _get_release_by_tag(owner, repo, tag)
+  if rel:
+    return rel
+  url = f"https://api.github.com/repos/{owner}/{repo}/releases"
+  payload = {"tag_name": tag, "name": tag, "prerelease": False, "draft": False}
+  r = requests.post(url, headers = _gh_headers(), json = payload)
+  r.raise_for_status()
+  return r.json()
+
+def upload_asset(owner, repo, release_id, asset_name, data_bytes, content_type = 'application/gzip'):
+  assets_url = f"https://api.github.com/repos/{owner}/{repo}/releases/{release_id}/assets"
+  existing = requests.get(assets_url, headers = _gh_headers())
+  existing.raise_for_status()
+  for a in existing.json():
+    if a["name"] == asset_name:
+      del_url = a["url"]
+      request.delete(del_url, headers = _gh_headers()).raise_for_status()
+      break
+  up_url = f"https://uploads.github.com/repos/{owner}/{repo}/releases/{release_id}/assets"
+  params = {"name":asset_name}
+  headers = dict(_gh_headers())
+  headers['Content_type'] = content_type
+  r = requests.post(up_url, headers = headers, params = params, data = data_bytes)
+  r.raise_for_status()
+  return r.json()
+
+def save_new_articles_to_release(all_articles:list, local_cache_path = 'Online_Extraction/all_RSS.json.gz'):
+  buf = io.BytesIO()
+  with gzip.GzipFile(fileobj = buf, mode = 'wb') as gz:
+    gz.write(json.dumps(all_articles, ensure_ascii = False, indent = 2).encode("utf-8"))
+  gz_bytes = but.getvalue()
+
+  Path(local_cache_path).parent.mkdir(parents=True, exist_ok = True)
+  with open(local_cache_path, 'wb') as f:
+    f.write(gz_bytes)
+
+  rel = ensure_release(Github_owner, Github_repo, Release_tag)
+  upload_asset(Github_owner, Github_repo, rel['id'], Asset_name, gz_bytes)
+
+def load_articles_from_release(local_cache_path = 'Online_Extraction/all_RSS.json.gz'):
+  rel = _get_release_by_tag(Github_owner, Github_repo, Release_tag)
+  if rel:
+    asset = next((a for a in rel.get("assets", []) if a["name"] == Asset_name), None)
+    if asset:
+      r = requests.get(asset["browser_download_url"], timeout = 60)
+      if r.ok:
+        data = gzip.decompress(r.content).decode("utf-8")
+        return json.loads(data)
+
+  p = Path(local_cache_path)
+  if p.exists():
+    with gzip.open(p, "rb") as f:
+      return json.loads(f.read().decode("utf-8"))
+  return = []
+    
 def create_feeds(rss_feed):
     feeds = []
     for group_name, group_list in rss_feed.items():
@@ -328,10 +408,7 @@ def create_feeds(rss_feed):
     return feeds
 
 def load_existing_articles():
-    if os.path.exists('Online_Extraction/all_RSS.json'):
-        with open('Online_Extraction/all_RSS.json', 'r', encoding = 'utf-8') as f:
-            return json.load(f)
-    return []
+    return load_articles_from_release()
 
 def save_new_articles(existing_articles, new_articles):
     existing_urls = {article['Link'] for article in existing_articles}
@@ -342,10 +419,8 @@ def save_new_articles(existing_articles, new_articles):
     
     if unique_new_articles:
         updated_articles = existing_articles + unique_new_articles
-        with open('Online_Extraction/all_RSS.json', 'w', encoding='utf-8') as f:
-            json.dump(updated_articles, f, indent=4)
-        print(f"Saved {len(updated_articles)} articles.")
-        return unique_new_articles
+        print(f"Saving {len(updated_articles) total articles to Releases}")
+        save_new_articles_to_release(updated_articles)
     else:
         print("No new unique articles found.")
     return []
