@@ -393,7 +393,7 @@ def load_articles_from_release(local_cache_path = 'Online_Extraction/all_RSS.jso
   if p.exists():
     with gzip.open(p, "rb") as f:
       return json.loads(f.read().decode("utf-8"))
-  return = []
+  return []
     
 def create_feeds(rss_feed):
     feeds = []
