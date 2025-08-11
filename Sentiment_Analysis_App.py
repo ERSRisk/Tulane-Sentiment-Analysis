@@ -1034,6 +1034,8 @@ if selection == "Article Risk Review":
                                 new_row['Industry_Risk_Upd'] = upd_industry_risk 
                                 new_row['Frequency_Score_Upd']= upd_frequency_score
                                 new_row['Change reason'] = reason
+                                new_row['Changed_at'] = pd.Timestamp.utcnow().isoformat(timespec = 'seconds')
+                                new_row['Changed_at'] = pd.to_datetime(new_row['Changed_at'], errors = 'coerce')
 
                                 st.session_state.change_log = pd.concat(
                                     [st.session_state.change_log, pd.DataFrame([new_row])],
@@ -1044,6 +1046,15 @@ if selection == "Article Risk Review":
                                 try:
                                     resp = push_file_to_github(change_log_path, repo = 'ERSRisk/Tulane-Sentiment-Analysis',
                                                               dest_path = 'Model_training/BERTopic_changes.csv', branch = 'main')
+                                    changes = pd.read_csv('Model_training/BERTopic_changes.csv')
+                                    res = pd.read_csv('Model_training/BERTopic_results.csv')
+                                    Change_timestamp = 'Changed_at'
+                                    changes_sorted = changes.sort_values(Change_timestamp).drop_duplicates(['Title', 'Content'], keep = 'last')
+
+                                    st.session_state.change_merge = res.merge(changes_sorted, on = ['Title', 'Content'], how = 'left')
+                                    st.session_state.change_merge.to_csv('Model_training/BERTopic_results_test.csv', index = False)
+                                    push_file_to_github('Model_training/BERTopic_results_test.csv', repo = 'ERSRisk/Tulane-Sentiment-Analysis',
+                                                        dest_path = 'Model_training/BERTopic_results_test.csv', branch = 'main')
                                     st.success('Saved changes')
                                 except Exception as e:
                                     st.error(f"Github failed to push: {e}")
