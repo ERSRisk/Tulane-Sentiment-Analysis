@@ -976,7 +976,7 @@ if selection == "Article Risk Review":
                 st.metric('Risk Score', article['Risk_Score'])
 
                 st.markdown("**Predicted Risks:**")
-                st.write([opt for opt in all_possible_risks if any(opt.lower() == str(p).lower() for p in predicted if isinstance(p, str))])
+                st.markdown(opt for opt in all_possible_risks if any(opt.lower() == str(p).lower() for p in predicted if isinstance(p, str)))
                 
                 with st.expander('View Risk Labels'):
                     col1, col2, col3, col4, col5, col6, col7 =  st.columns(7)
