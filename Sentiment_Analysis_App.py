@@ -1008,7 +1008,7 @@ if selection == "Article Risk Review":
                     with col6:
                         st.metric('Industry Risk', article['Industry_Risk_Upd'] if pd.notna(article['Industry_Risk_Upd']) else article['Industry_Risk'])
                     with col7:
-                        st.metric('Frequency', article['Industry_Score_Upd'] if pd.notna(article['Industry_Score_Upd']) else article['Industry_Score'])
+                        st.metric('Frequency', article['Frequency_Score_Upd'] if pd.notna(article['Frequency_Score_Upd']) else article['Frequency_Score'])
 
                     with st.expander("Manually update risk labels:"):
                         options = [0.0, 1.0,2.0,3.0,4.0,5.0]
