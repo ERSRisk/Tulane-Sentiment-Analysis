@@ -976,13 +976,8 @@ if selection == "Article Risk Review":
                 st.metric('Risk Score', article['Risk_Score'])
 
                 st.markdown("**Predicted Risks:**")
-                valid_defaults = [opt for opt in all_possible_risks if any(opt.lower() == str(p).lower() for p in predicted if isinstance(p, str))]
-                selected_risks = st.multiselect(
-                    "Edit risks if necessary:",
-                    options=all_possible_risks,
-                    default=valid_defaults,
-                    key=f"edit_{idx}"
-                )
+                st.write([opt for opt in all_possible_risks if any(opt.lower() == str(p).lower() for p in predicted if isinstance(p, str))])
+                
                 with st.expander('View Risk Labels'):
                     col1, col2, col3, col4, col5, col6, col7 =  st.columns(7)
                     with col1:
@@ -1003,6 +998,13 @@ if selection == "Article Risk Review":
                     with st.expander("Manually update risk labels:"):
                         options = [0.0, 1.0,2.0,3.0,4.0,5.0]
                         with st.form(f"manual_edit_form_{idx}"):
+                            valid_defaults = [opt for opt in all_possible_risks if any(opt.lower() == str(p).lower() for p in predicted if isinstance(p, str))]
+                            selected_risks = st.multiselect(
+                                "Edit risks if necessary:",
+                                options=all_possible_risks,
+                                default=valid_defaults,
+                                key=f"edit_{idx}"
+                            )
                             col1, col2, col3, col4, col5, col6, col7 =  st.columns(7)
                             with col1:
                                 upd_recency_value = st.text_area('Recency', value= article['Recency'], key =f"recency_input_{idx}")
