@@ -1052,9 +1052,9 @@ if selection == "Article Risk Review":
                                     changes_sorted = changes.sort_values(Change_timestamp).drop_duplicates(['Title', 'Content'], keep = 'last')
 
                                     st.session_state.change_merge = res.merge(changes_sorted, on = ['Title', 'Content'], how = 'left')
-                                    st.session_state.change_merge.to_csv('Model_training/BERTopic_results_test.csv', index = False)
-                                    push_file_to_github('Model_training/BERTopic_results_test.csv', repo = 'ERSRisk/Tulane-Sentiment-Analysis',
-                                                        dest_path = 'Model_training/BERTopic_results_test.csv', branch = 'main')
+                                    st.session_state.change_merge.to_csv('Model_training/BERTopic_results_tester.csv', index = False)
+                                    push_file_to_github('Model_training/BERTopic_results_tester.csv', repo = 'ERSRisk/Tulane-Sentiment-Analysis',
+                                                        dest_path = 'Model_training/BERTopic_results_tester.csv', branch = 'main')
                                     st.success('Saved changes')
                                 except Exception as e:
                                     st.error(f"Github failed to push: {e}")
