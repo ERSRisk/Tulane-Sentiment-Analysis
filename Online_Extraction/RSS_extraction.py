@@ -323,12 +323,12 @@ Github_owner = 'ERSRisk'
 Github_repo = 'Tulane-Sentiment-Analysis'
 Release_tag = 'rss_json'
 Asset_name = 'all_RSS.json.gz'
-GITHUB_TOKEN = os.getenv('GITHUB_TOKEN')
+GITHUB_TOKEN = os.getenv('TOKEN')
 
 def _gh_headers():
   return {
     "Accept": "application/vnd.github+json",
-    "Authorization": f"token {os.getenv('GITHUB_TOKEN') if os.getenv('GITHUB_TOKEN') else None}"
+    "Authorization": f"token {os.getenv('TOKEN') if os.getenv('TOKEN') else None}"
   }
 
 def _get_release_by_tag(owner, repo, tag):
