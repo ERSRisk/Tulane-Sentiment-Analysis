@@ -12,6 +12,7 @@ from google.genai.errors import APIError
 import requests
 from pathlib import Path
 import joblib
+import asyncio
 
 rss_url = "https://github.com/ERSRisk/Tulane-Sentiment-Analysis/releases/download/rss_json/all_RSS.3.json"
 rss_local_path = "Online_Extraction/all_RSS.json"
