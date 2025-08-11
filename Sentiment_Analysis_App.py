@@ -996,19 +996,19 @@ if selection == "Article Risk Review":
                 with st.expander('View Risk Labels'):
                     col1, col2, col3, col4, col5, col6, col7 =  st.columns(7)
                     with col1:
-                        st.metric('Recency', article['Recency'])
+                        st.metric('Recency', article['Recency_Upd'] if pd.notna(article.get['Recency_Upd']) else article['Recency'])
                     with col2:
-                        st.metric('Acceleration', article['Acceleration_value'])
+                        st.metric('Acceleration', article['Acceleration_value_Upd'] if pd.notna(article.get['Acceleration_value_Upd']) else article['Acceleration_value'])
                     with col3:
-                        st.metric('Source Accuracy', article['Source_Accuracy'])
+                        st.metric('Source Accuracy', article['Source_Accuracy_Upd'] if pd.notna(article.get['Source_Accuracy_Upd']) else article['Source_Accuracy'])
                     with col4:
-                        st.metric('Impact Score', article['Impact_Score'])
+                        st.metric('Impact Score', article['Impact_Score_Upd'] if pd.notna(article.get['Impact_Score_Upd']) else article['Impact_Score'])
                     with col5:
-                        st.metric('Location', article['Location'])
+                        st.metric('Location', article['Location_Upd'] if pd.notna(article.get['Location_Upd']) else article['Location'])
                     with col6:
-                        st.metric('Industry Risk', article['Industry_Risk'])
+                        st.metric('Industry Risk', article['Industry_Risk_Upd'] if pd.notna(article.get['Industry_Risk_Upd']) else article['Industry_Risk'])
                     with col7:
-                        st.metric('Frequency', article['Frequency_Score'])
+                        st.metric('Frequency', article['Industry_Score_Upd'] if pd.notna(article.get['Industry_Score_Upd']) else article['Industry_Score'])
 
                     with st.expander("Manually update risk labels:"):
                         options = [0.0, 1.0,2.0,3.0,4.0,5.0]
