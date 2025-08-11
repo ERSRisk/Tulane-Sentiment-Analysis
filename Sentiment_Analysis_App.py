@@ -856,7 +856,22 @@ if selection == "Article Risk Review":
 
     if 'articles' not in st.session_state:
         if os.path.exists('Model_training/BERTopic_results.csv'):
-            st.session_state.articles = pd.read_csv('Model_training/BERTopic_results.csv')
+            results_df = pd.read_csv('Model_training/BERTopic_results.csv')
+
+            if os.path.exists('Model_training/BERTopic_changes.csv'):
+                changes_df = pd.read_csv('Model_training/BERTopic_changes.csv')
+
+                if 'Changed_at' in changes_df.columns:
+                    changes_df['Changed_at'] = pd.to_datetime(changes_df['Changed_at'], errors='coerce')
+                    changes_df = changes_df.sort_values('Changed_at')
+
+                changes_df = changes_df.drop_duplicates(subset = ['Title', 'Content'], keep = 'last')
+                merged_df = results_df.drop_duplicates(subset = ['Title', 'Content'], keep = 'first')
+                merged_df = pd.concat([merged_df, changes_df], ignore_index = True)
+                merged_df = merged_df.drop_duplicates(subset = ['Title', 'Content'], keep = 'last')
+                st.session_state.articles = merged_df
+            else:
+                st.session_state.articles = results_df
 
     change_log_path = Path('Model_training') / 'BERTopic_changes.csv'
     change_log_path.parent.mkdir(parents=True, exist_ok = True)
