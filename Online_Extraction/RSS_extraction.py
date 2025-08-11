@@ -327,7 +327,7 @@ GITHUB_TOKEN = os.getenv('GITHUB_TOKEN')
 
 def _gh_headers():
   return {
-    "Accept": "application/vnd.github+json"
+    "Accept": "application/vnd.github+json",
     "Authorization": f"token {os.getenv('GITHUB_TOKEN') if os.getenv('GITHUB_TOKEN') else None}"
   }
 
