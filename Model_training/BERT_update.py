@@ -388,7 +388,7 @@ def predict_risks(df):
     cosine_scores = util.cos_sim(article_embeddings, risk_embeddings)
 
     if 'Predicted_Risks_new' not in df.columns:
-        df['Pedicted_Risks_new'] = ''
+        df['Predicted_Risks_new'] = ''
     # Assign risks based on threshold
     threshold = 0.55  # you can tune this
     out = [''] * len(df)
@@ -411,7 +411,7 @@ def track_over_time(df):
     topic_name_map = {topic['topic']: topic['name'] for topic in json.load(open('Model_training/topics_BERT.json'))}
     df['Topic_Name'] = df['Topic'].map(topic_name_map)
     topic_trend = df.groupby(['week', 'Topic_Name']).size().reset_index(name='article_count')
-    topic_trend.to_csv('topic_trend.csv', index = False)
+    topic_trend.to_csv('Model_training/topic_trend.csv', index = False)
 
 
 def call_gemini(prompt):
