@@ -1028,6 +1028,7 @@ if selection == "Article Risk Review":
                                 new_row = article.copy()
                                 new_row = new_row.to_dict()
 
+                                new_row['Predicted_Risks_Upd'] = selected_risks
                                 new_row['Recency_Upd'] = upd_recency_value
                                 new_row['Acceleration_value_Upd'] = upd_acceleration_value
                                 new_row['Source_Accuracy_Upd'] = upd_source_accuracy
@@ -1053,19 +1054,10 @@ if selection == "Article Risk Review":
                                     Change_timestamp = 'Changed_at'
                                     changes_sorted = changes.sort_values(Change_timestamp).drop_duplicates(['Title', 'Content'], keep = 'last')
 
-                                    st.session_state.change_merge = res.merge(changes_sorted, on = ['Title', 'Content'], how = 'left')
-                                    st.session_state.change_merge.to_csv('Model_training/BERTopic_results_tester.csv', index = False)
-                                    push_file_to_github('Model_training/BERTopic_results_tester.csv', repo = 'ERSRisk/Tulane-Sentiment-Analysis',
-                                                        dest_path = 'Model_training/BERTopic_results_tester.csv', branch = 'main')
+                                    
                                     st.success('Saved changes')
                                 except Exception as e:
                                     st.error(f"Github failed to push: {e}")
-
-
-                if st.button("Save Correction", key=f"save_{idx}"):
-                    st.session_state.articles.at[idx, 'Predicted_Risks'] = selected_risks
-                    st.session_state.articles.to_csv('BERTopic_results.csv', index=False)
-                    st.success("Correction saved.")
 
 if selection == "Risk/Event Detector":
     import streamlit as st
