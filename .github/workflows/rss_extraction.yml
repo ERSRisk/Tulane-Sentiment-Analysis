@@ -55,6 +55,7 @@ jobs:
           NEWS_API_KEY: ${{ secrets.NEWS_API_KEY }}
           X_API_KEY: ${{ secrets.X_API_KEY }}
           COOKIE_HEADER: ${{ secrets.COOKIE_HEADER }}
+          TOKEN: ${{ secrets.TOKEN }}
         run: |
           python Online_Extraction/RSS_extraction.py
 
