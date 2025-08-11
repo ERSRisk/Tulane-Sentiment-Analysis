@@ -8938,5 +8938,145 @@
     "summary": "Very positive sentiment. This tweet showcases the international recognition and high-level engagement of a Tulane Law professor, significantly boosting the university's reputation.",
     "is_sport": 0,
     "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-10T23:27:56+00:00",
+    "text": "American: Tulane\nACC: Clemson\nBig 12: Texas Tech\nBig Ten: Penn State\nC-USA: WKU \nMAC: Toledo \nMountain West: UNLV\nSEC: Alabama\nSun Belt: JMU https://t.co/tXHUZtZveF",
+    "link": "https://twitter.com/None/status/1954686179527528540",
+    "description": "A welcoming tweet from the official Tulane account to the incoming class of 2029.",
+    "sentiment": 1.0,
+    "summary": "Very positive.An official, positive message from the university itself.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-10T23:09:07+00:00",
+    "text": "RT @Guersmith: My updated #Tulane scrimmage story, with more quotes from Jon Sumrall plus quotes from Jake Retzlaff, Brendan Sullivan and D…",
+    "link": "https://twitter.com/None/status/1954681444330061950",
+    "description": "Tweet suggesting a podcast or YouTube channel dedicated to Tulane coverage.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment. The tweet expresses interest in more Tulane-related content, indicating positive engagement with the university.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-10T22:27:26+00:00",
+    "text": "@ihatebbls Tulane too",
+    "link": "https://twitter.com/None/status/1954670957001359450",
+    "description": "Negative tweet expressing dislike for Tulane.",
+    "sentiment": -0.5,
+    "summary": "The sentiment is negative due to the clear expression of dislike towards Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-10T22:27:00+00:00",
+    "text": "RT @Tulane: Hullabaloo HELLO! 👋\n\nWelcome to your new home away from home, Class of 2029. We're excited to celebrate these next few days wit…",
+    "link": "https://twitter.com/None/status/1954670848209453147",
+    "description": "Welcoming tweet from Tulane to the Class of 2029.",
+    "sentiment": 1.0,
+    "summary": "The sentiment is positive, conveying excitement and a welcoming message from Tulane University.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-10T22:26:25+00:00",
+    "text": "RT @TulaneLaw: Meet Fahad Qazi, joining us from Orlando, FL! 💚⚖️\n\nDrawn to Tulane Law for its impressive alumni network, rigorous academic…",
+    "link": "https://twitter.com/None/status/1954670699521638890",
+    "description": "Announcement of Fahad Qazi joining Tulane Law School.",
+    "sentiment": 1.0,
+    "summary": "The tweet expresses positive sentiment by announcing a new student at Tulane Law, highlighting the school's reputation.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-10T22:25:06+00:00",
+    "text": "Meet Fahad Qazi, joining us from Orlando, FL! 💚⚖️\n\nDrawn to Tulane Law for its impressive alumni network, rigorous academic tradition, and unbeatable New Orleans location, Fahad is ready to dive into public interest law.\n\nWelcome, Fahad! https://t.co/d4USgRuSOB",
+    "link": "https://twitter.com/None/status/1954670367080927479",
+    "description": "Announcement of Fahad Qazi joining Tulane Law School.",
+    "sentiment": 1.0,
+    "summary": "The tweet expresses positive sentiment by announcing a new student at Tulane Law, highlighting the school's reputation and location.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-10T22:07:00+00:00",
+    "text": "Nooooooo\n\nPrayers to the former Tulane standout. https://t.co/sWKLhEoeDE",
+    "link": "https://twitter.com/None/status/1954665814356877662",
+    "description": "A tweet expressing sadness, possibly related to a former Tulane athlete.",
+    "sentiment": -0.5,
+    "summary": "Negative sentiment due to the expression of sadness; lacks context but implies something negative has happened to a former Tulane athlete.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-10T22:05:07+00:00",
+    "text": "@LucasNavallo @_popin_ @jakeshieldsajj Jennifer PritzkerJewish Heritage Confirmation: Part of the Pritzker family with Ashkenazi roots from the Russian Empire, confirmed by her ancestors’ flight from pogroms and donations to Tulane’s Ratner Jewish Leadership Course and the U.S. Holocaust Memorial Museum (Tulanian,",
+    "link": "https://twitter.com/None/status/1954665341294121057",
+    "description": "A tweet mentioning Jennifer Pritzker's donations to Tulane's Ratner Jewish Leadership Course and the U.S. Holocaust Memorial Museum.",
+    "sentiment": 1.0,
+    "summary": "Highly positive; highlights a positive contribution to Tulane and Jewish heritage.This strengthens the university's reputation.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-10T21:34:24+00:00",
+    "text": "@basedbarnicle @CartoonsHateHer Yes I know Tulane isn’t SEC. It is. Nationally recognized selective school.",
+    "link": "https://twitter.com/None/status/1954657608243306502",
+    "description": "Tweet defending Tulane's status as a nationally recognized selective school.",
+    "sentiment": 0.7,
+    "summary": "Positive sentiment. The tweet defends Tulane's academic reputation against criticism, emphasizing its selectivity and national recognition.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-10T21:28:30+00:00",
+    "text": "@Tommy8788 @CartoonsHateHer Tulane is not in the SEC but yes I never said they were selective. I said plenty of high performing high school kids to go them. Plenty of kids choose to go to Alabama or LSU or whatever over higher end academic schools even when they got in.",
+    "link": "https://twitter.com/None/status/1954656123623182586",
+    "description": "Tweet further discussing Tulane's selectivity and student choices.",
+    "sentiment": 0.5,
+    "summary": "Slightly positive sentiment.The tweet acknowledges that students might choose other schools but still highlights Tulane's attractiveness to high-performing students.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-10T21:22:09+00:00",
+    "text": "@BetterKoli18462 @vedderkj @WildcatReport Northwestern is one of the top universities in the world. Tulane is a degree factory only kept in business by stupid people.",
+    "link": "https://twitter.com/None/status/1954654526885204343",
+    "description": "Tweet criticizing Tulane as a \"degree factory.\"",
+    "sentiment": -0.8,
+    "summary": "Highly negative sentiment. The tweet uses derogatory language to describe Tulane, suggesting a strongly negative opinion.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-10T21:19:36+00:00",
+    "text": "The N-OF-SUM-R PARTY with MIKEY OFFLINE + DJ FTK will closing out the summer with a bang TONIGHT! \n\nTix at https://t.co/rNT4Wu6YcH!\n\nHOSTED BY STAN WILTZ (UNO), LILY TROXLER (SOUTH ALABAMA), CALEB SMITH (ULL), PATRICK ENRIGHT (TULANE), SEAN STEWART (AUBURN), EGAN PRATHER https://t.co/pPnyWBYfJw",
+    "link": "https://twitter.com/None/status/1954653886507037012",
+    "description": "Advertisement for a party featuring a Tulane student as a host.",
+    "sentiment": 0.0,
+    "summary": "Neutral sentiment. The tweet is an advertisement and doesn't express any opinion about Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-10T21:06:41+00:00",
+    "text": "RT @marcorasi1960: Rain puddle reflection, Tulane University, New Orleans\n\n(More New Orleans photos on IG at marcorasi1960) https://t.co/Xc…",
+    "link": "https://twitter.com/None/status/1954650632113279422",
+    "description": "Photo of a rain puddle reflection at Tulane University.",
+    "sentiment": 0.2,
+    "summary": "Weakly positive sentiment.A positive portrayal of the university through a visually appealing photo.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-10T20:22:23+00:00",
+    "text": "RT @velitesgear | Full Text Article: https://t.co/QovN5JR2sJ | Author: @ancientorigins LiDAR Study Shows Maya Population May Have Topped 16 Million \n\nNew research led by Tulane University archaeologists reveals that the ancient Maya civilization was far more populous than previ… https://t.co/6RrFx3pA7P",
+    "link": "https://twitter.com/None/status/1954639487398555696",
+    "description": "RT of an article about a LiDAR study led by Tulane University archaeologists on the Maya population.",
+    "sentiment": 0.8,
+    "summary": "Positive sentiment due to highlighting positive research by Tulane University archaeologists and significant academic achievement.",
+    "is_sport": 0,
+    "affiliation": 1
   }
 ]
