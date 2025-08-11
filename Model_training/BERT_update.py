@@ -362,7 +362,6 @@ def risk_weights(df):
                 weight *= 0.85 + 0.15*(source_accuracy/5)
         weights.append(weight *5  if weight >0 else 0)
     df['Weights'] = weights
-    df['Source_bias'] = df['Source'].apply(lambda src: next((s['bias'] for s in sources if s['name'] == src), ""))
     return df
 
 def predict_risks(df):
