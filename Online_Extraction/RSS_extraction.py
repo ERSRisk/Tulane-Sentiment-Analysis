@@ -351,19 +351,19 @@ def ensure_release(owner, repo, tag):
   r.raise_for_status()
   return r.json()
 
-def upload_asset(owner, repo, release_id, asset_name, data_bytes, content_type = 'application/gzip'):
-  assets_url = f"https://api.github.com/repos/{owner}/{repo}/releases/{release_id}/assets"
+def upload_asset(owner, repo, release, asset_name, data_bytes, content_type = 'application/gzip'):
+  assets_url = release['upload_url'].split("{")[0]
   existing = requests.get(assets_url, headers = _gh_headers())
   existing.raise_for_status()
   for a in existing.json():
     if a["name"] == asset_name:
       del_url = a["url"]
-      request.delete(del_url, headers = _gh_headers()).raise_for_status()
+      requests.delete(del_url, headers = _gh_headers()).raise_for_status()
       break
   up_url = f"https://uploads.github.com/repos/{owner}/{repo}/releases/{release_id}/assets"
   params = {"name":asset_name}
   headers = dict(_gh_headers())
-  headers['Content_type'] = content_type
+  headers['Content-type'] = content_type
   r = requests.post(up_url, headers = headers, params = params, data = data_bytes)
   r.raise_for_status()
   return r.json()
@@ -379,7 +379,7 @@ def save_new_articles_to_release(all_articles:list, local_cache_path = 'Online_E
     f.write(gz_bytes)
 
   rel = ensure_release(Github_owner, Github_repo, Release_tag)
-  upload_asset(Github_owner, Github_repo, rel['id'], Asset_name, gz_bytes)
+  upload_asset(Github_owner, Github_repo, rel, Asset_name, gz_bytes)
 
 def load_articles_from_release(local_cache_path = 'Online_Extraction/all_RSS.json.gz'):
   rel = _get_release_by_tag(Github_owner, Github_repo, Release_tag)
