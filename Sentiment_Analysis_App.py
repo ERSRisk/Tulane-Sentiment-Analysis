@@ -857,7 +857,7 @@ if selection == "Article Risk Review":
     required_keys = {'Title', 'Content'}
     if 'articles' not in st.session_state:
         if os.path.exists('Model_training/BERTopic_results1.csv'):
-            results_df = pd.read_csv('Model_training/BERTopic_results.csv')
+            results_df = pd.read_csv('Model_training/BERTopic_results1.csv')
 
             use_changes = Path('Model_training/BERTopic_changes.csv').is_file() and Path('Model_training/BERTopic_changes.csv').stat().st_size > 0
             changes_df = None
