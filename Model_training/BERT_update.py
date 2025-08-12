@@ -14,25 +14,26 @@ from pathlib import Path
 import joblib
 import asyncio
 import backoff
+import gzip
 
-rss_url = "https://github.com/ERSRisk/Tulane-Sentiment-Analysis/releases/download/rss_json/all_RSS.3.json"
-rss_local_path = "Online_Extraction/all_RSS.json"
+rss_url = "https://github.com/ERSRisk/Tulane-Sentiment-Analysis/releases/download/rss_json/all_RSS.json.gz"
 
 model_url = "https://github.com/ERSRisk/Tulane-Sentiment-Analysis/releases/download/rss_json/BERTopic_model"
 model_path = Path("Model_training/BERTopic_model")
 
 print(f"📥 Downloading all_RSS.json from release link...", flush=True)
-response = requests.get(rss_url)
+response = requests.get(rss_url, timeout = 60)
 response.raise_for_status()
 
-with open(rss_local_path, "w", encoding="utf-8") as f:
-    f.write(response.text)
-
-print(f"✅ Downloaded and saved to {rss_local_path}", flush=True)
-
+data = gzip.decompress(response.content).decode('utf-8')
+articles = json.loads(data)
 # Now load it
-df = pd.read_csv("risk_predictions.csv")
+df = pd.DataFrame(articles)
 
+Path("Online_Extraction").mkdir(parents=True, exist_ok = True)
+with gzip.open('Online_Extraction/all_RSS.json.gz', 'wb') as f:
+    f.write(response.content)
+    
 def download_model_if_exists():
     try:
         print("📦 Checking for model in GitHub release...", flush=True)
