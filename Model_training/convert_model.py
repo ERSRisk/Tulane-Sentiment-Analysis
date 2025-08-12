@@ -3,6 +3,7 @@ from sentence_transformers import SentenceTransformer, util
 import pandas as pd
 
 df = pd.read_csv("Model_training/BERTopic_results.csv")
+df = df[df['University Label'] == 1]
 model = SentenceTransformer('all-mpnet-base-v2')
 
 def predict_risks(df):
