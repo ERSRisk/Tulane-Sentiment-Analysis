@@ -938,7 +938,7 @@ if selection == "Article Risk Review":
     filtered_df = base_df[base_df['University Label'] == 1]
     filtered_df = filtered_df.drop_duplicates(subset=['Title', 'Link'])
     with open('Model_training/risks.json', 'r') as f:
-        risks = json.load(f)
+        risks_data = json.load(f)
 
     all_possible_risks = [risk['name'] for group in risks_data['new_risks'] for risks in group.values() for risk in risks]
 
