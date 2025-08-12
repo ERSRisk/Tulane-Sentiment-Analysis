@@ -29,7 +29,7 @@ def predict_risks(df):
     if 'Predicted_Risks_new' not in df.columns:
         df['Predicted_Risks_new'] = ''
     # Assign risks based on threshold
-    threshold = 0.4  # you can tune this
+    threshold = 0.35  # you can tune this
     out = [''] * len(df)
     for pos in range(len(df)):
         existing = str(df.at[pos, 'Predicted_Risks_new']).strip()
