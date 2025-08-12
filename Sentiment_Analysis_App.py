@@ -952,7 +952,7 @@ if selection == "Article Risk Review":
     all_possible_risks = [risk['name'] for group in risks_data['new_risks'] for risks in group.values() for risk in risks]
 
     all_possible_risks = [r for r in all_possible_risks if isinstance(r, str)]
-    filter_risks = [r for r in all_possible_risks if r != "no risk"]
+    filter_risks = all_possible_risks[:]
 
     filtered_risks = st.multiselect("Select Risks to Filter Articles", options = all_possible_risks, default=filter_risks, key="risk_filter")
 
@@ -981,7 +981,7 @@ if selection == "Article Risk Review":
                 except:
                     predicted = []
             elif raw.lower() in ("no risk", "none", ""):
-                predicted = []
+                predicted = [No Risk]
             else:
                 predicted = [raw]  # single risk string gets wrapped in a list
         else:
