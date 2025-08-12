@@ -857,14 +857,7 @@ if selection == "Article Risk Review":
     if 'articles' not in st.session_state:
         if os.path.exists('Model_training/risk_predictions.csv'):
             results_df = pd.read_csv('Model_training/risk_predictions.csv')
-            results_df.columns = results_df.columns.map(lambda c: str(c).strip())
-            need_promote = not all(col in results_df for col in ['Title', 'Content'])
-            if need_promote:
-                results_df = pd.read_csv('Model_training/risk_predictions.csv', header = None)
-                results_df.columns = results_df.iloc[0].astype(str).str.strip()
-                results_df = results_df.drop(index = 0).reset_index(drop = True)
-            results_df = results_df[:, ~results_df.columns.str.match(r"^Unnamed:")]
-            
+            st.dataframe(results_df)
             if os.path.exists('Model_training/BERTopic_changes.csv'):
                 changes_df = pd.read_csv('Model_training/BERTopic_changes.csv')
 
