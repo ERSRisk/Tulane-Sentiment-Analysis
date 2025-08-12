@@ -328,9 +328,12 @@ Asset_name = 'all_RSS.json.gz'
 GITHUB_TOKEN = os.getenv('TOKEN')
 
 def _gh_headers():
+  token = os.getenv('TOKEN')
+  if not token:
+    raise RuntimeError("Missing token")
   return {
     "Accept": "application/vnd.github+json",
-    "Authorization": f"token {os.getenv('TOKEN') if os.getenv('TOKEN') else None}"
+    "Authorization": f"token {token if tokenn else None}"
   }
 
 def _get_release_by_tag(owner, repo, tag):
@@ -352,21 +355,22 @@ def ensure_release(owner, repo, tag):
   return r.json()
 
 def upload_asset(owner, repo, release, asset_name, data_bytes, content_type = 'application/gzip'):
-  assets_url = release['upload_url'].split("{")[0]
-  existing = requests.get(assets_url, headers = _gh_headers())
-  existing.raise_for_status()
-  for a in existing.json():
-    if a["name"] == asset_name:
-      del_url = a["url"]
-      requests.delete(del_url, headers = _gh_headers()).raise_for_status()
-      break
-  up_url = f"https://uploads.github.com/repos/{owner}/{repo}/releases/{release_id}/assets"
-  params = {"name":asset_name}
-  headers = dict(_gh_headers())
-  headers['Content-type'] = content_type
-  r = requests.post(up_url, headers = headers, params = params, data = data_bytes)
+  assets_api = release['assets_url']
+  r = requests.get(assets_api, headers = _gh_headers())
   r.raise_for_status()
-  return r.json()
+  for a in r.json():
+    if a.get('name') == asset_name:
+      del_r = requests.delete(a['url'], headers = _gh_headers())
+      del_r.raise_for_status()
+      break
+  upload_url = release['upload_url'].split('{')[0]
+  params = {"name":asset_name}
+  headers = _gh_headers()
+  headers['Content-type'] = content_type
+  up = requests.post(upload_url, headers = headers, params = params, data = data_bytes)
+  if not up.ok:
+    raise RuntimeError(f"Upload failed{up.status_code}: {up.text[:500]}")
+  return up.json()
 
 def save_new_articles_to_release(all_articles:list, local_cache_path = 'Online_Extraction/all_RSS.json.gz'):
   buf = io.BytesIO()
