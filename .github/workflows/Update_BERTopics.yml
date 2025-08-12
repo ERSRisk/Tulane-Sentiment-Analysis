@@ -55,6 +55,15 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git fetch origin main
+          for i in 1 2 3; do
+            git pull --rebase origin main || exit 1
+            git add -A
+            git commit -m "Automated update from GitHub Actions" || true
+            git push origin main && break
+            echo "Push race detected; retrying in 5s..."
+            sleep 5
+          done
           git add Model_training/BERTopic_results.csv
           git add Model_training/topics_BERT.json
           git add Model_training/topic_trend.csv
