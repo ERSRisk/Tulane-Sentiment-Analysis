@@ -981,7 +981,7 @@ if selection == "Article Risk Review":
                 except:
                     predicted = []
             elif raw.lower() in ("no risk", "none", ""):
-                predicted = [No Risk]
+                predicted = [No_Risk]
             else:
                 predicted = [raw]  # single risk string gets wrapped in a list
         else:
