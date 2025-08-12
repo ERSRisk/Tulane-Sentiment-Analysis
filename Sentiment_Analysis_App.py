@@ -941,7 +941,6 @@ if selection == "Article Risk Review":
             st.session_state.articles[col] = None
 
     base_df = st.session_state.articles
-    st.dataframe(base_df)
     #articles = articles[articles['Published']> start_date.strftime('%Y-%m-%d')]
     #articles = articles[articles['Published']< end_date.strftime('%Y-%m-%d')]
     filtered_df = base_df[base_df['University Label'] == 1]
@@ -950,7 +949,8 @@ if selection == "Article Risk Review":
         risks_data = json.load(f)
 
     all_possible_risks = [risk['name'] for group in risks_data['new_risks'] for risks in group.values() for risk in risks]
-
+    if "No Risk" not in all_possible_risks:
+        all_possible_risks.append("No Risk")
     all_possible_risks = [r for r in all_possible_risks if isinstance(r, str)]
     filter_risks = all_possible_risks[:]
 
@@ -958,7 +958,8 @@ if selection == "Article Risk Review":
 
     def match_any(predicted, selected):
         if not isinstance(predicted, list) or not predicted:
-            return False
+        # Treat empty as "No Risk"
+            return "no risk" in selected
         predicted = [str(p).strip().lower() for p in predicted if isinstance(p, str)]
         selected = [s.strip().lower() for s in selected]
         return any(p in selected for p in predicted)
@@ -974,16 +975,18 @@ if selection == "Article Risk Review":
         if isinstance(raw, list):
             predicted = raw
         elif isinstance(raw, str):
-            raw = raw.strip()
-            if raw.startswith("[") and raw.endswith("]"):
+            s = raw.strip()
+            if s.startswith("[") and s.endswith("]"):
                 try:
-                    predicted = ast.literal_eval(raw)
+                    predicted = ast.literal_eval(s)
                 except:
-                    predicted = []
+                    predicted = ["No Risk"]
+            elif s.lower() in ("", "none", "no risk"):
+                predicted = ["No Risk"]     # <- ensure explicit label
             else:
-                predicted = [raw]  # single risk string gets wrapped in a list
+                predicted = [s]
         else:
-            predicted = []
+            predicted = ["No Risk"]
 
 
         if not match_any(predicted, filtered_risks):
