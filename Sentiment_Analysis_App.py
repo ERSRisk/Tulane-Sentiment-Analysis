@@ -854,15 +854,22 @@ if selection == "Article Risk Review":
     from pathlib import Path
     import ast
 
-    articles = pd.read_csv('Model_training/risk_predictions.csv')
-    st.dataframe(articles)
+    required_keys = {'Title', 'Content'}
     if 'articles' not in st.session_state:
         if os.path.exists('Model_training/risk_predictions.csv'):
             results_df = pd.read_csv('Model_training/risk_predictions.csv')
-            
-            if os.path.exists('Model_training/BERTopic_changes.csv'):
-                changes_df = pd.read_csv('Model_training/BERTopic_changes.csv')
 
+            use_changes = Path('Model_training/BERTopic_changes.csv').is_file() and Path('Model_training/BERTopic_changes.csv').stat().st_size > 0
+            changes_df = None
+
+            if use_changes:
+                try:
+                    changes_df = pd.read_csv('Model_training/BERTopic_changes.csv')
+                    if changes_df.empty or not required_keys.issubset(changes_df.columns):
+                        changes_df = None
+                except Exception as e:
+                    changes_df = None
+            if changes_df is not None:
                 if 'Changed_at' in changes_df.columns:
                     changes_df['Changed_at'] = pd.to_datetime(changes_df['Changed_at'], errors='coerce')
                     changes_df = changes_df.sort_values('Changed_at')
