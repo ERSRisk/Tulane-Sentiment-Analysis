@@ -853,7 +853,7 @@ if selection == "Article Risk Review":
     import os
     from pathlib import Path
     import ast
-
+    st.dataframe('Model_training/risk_predictions.csv')
     if 'articles' not in st.session_state:
         if os.path.exists('Model_training/risk_predictions.csv'):
             results_df = pd.read_csv('Model_training/risk_predictions.csv')
