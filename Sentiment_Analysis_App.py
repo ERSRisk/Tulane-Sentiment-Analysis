@@ -857,7 +857,7 @@ if selection == "Article Risk Review":
     if 'articles' not in st.session_state:
         if os.path.exists('Model_training/risk_predictions.csv'):
             results_df = pd.read_csv('Model_training/risk_predictions.csv')
-            results_df.columns = results_df.columns.map(lambda cL str(c).strip())
+            results_df.columns = results_df.columns.map(lambda c: str(c).strip())
             need_promote = not all(col in results_df for col in ['Title', 'Content'])
             if need_promote:
                 results_df = pd.read_csv('Model_training/risk_predictions.csv', header = None)
