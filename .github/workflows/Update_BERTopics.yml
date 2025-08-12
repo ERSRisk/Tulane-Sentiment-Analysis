@@ -59,7 +59,6 @@ jobs:
           git add Model_training/topics_BERT.json
           git add Model_training/topic_trend.csv
           git commit -m "Update topic results from GitHub Actions run" || echo "No changes to commit"
-          git pull --rebase origin main
           git push origin main
 
       - name: Upload model to GitHub release
