@@ -932,6 +932,7 @@ if selection == "Article Risk Review":
             st.session_state.articles[col] = None
 
     base_df = st.session_state.articles
+    st.dataframe(base_df)
     #articles = articles[articles['Published']> start_date.strftime('%Y-%m-%d')]
     #articles = articles[articles['Published']< end_date.strftime('%Y-%m-%d')]
     filtered_df = base_df[base_df['University Label'] == 1]
