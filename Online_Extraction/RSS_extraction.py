@@ -333,7 +333,7 @@ def _gh_headers():
     raise RuntimeError("Missing token")
   return {
     "Accept": "application/vnd.github+json",
-    "Authorization": f"token {token if tokenn else None}"
+    "Authorization": f"token {token if token else None}"
   }
 
 def _get_release_by_tag(owner, repo, tag):
