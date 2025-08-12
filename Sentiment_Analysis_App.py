@@ -857,7 +857,7 @@ if selection == "Article Risk Review":
     if 'articles' not in st.session_state:
         if os.path.exists('Model_training/risk_predictions.csv'):
             results_df = pd.read_csv('Model_training/risk_predictions.csv')
-            st.dataframe(results_df)
+            
             if os.path.exists('Model_training/BERTopic_changes.csv'):
                 changes_df = pd.read_csv('Model_training/BERTopic_changes.csv')
 
@@ -923,7 +923,7 @@ if selection == "Article Risk Review":
         st.sidebar.error("Start date must be before end date.")
     # Load articles and risks
 
-
+    st.dataframe(st.session_state.articles)
     update_cols = ['Recency_Upd', 'Acceleration_value_Upd', 'Source_Accuracy_Upd',
                     'Impact_Score_Upd', 'Location_Upd', 'Industry_Risk_Upd', 'Frequency_Score_Upd',
                     'Change reason']
