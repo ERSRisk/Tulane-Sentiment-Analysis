@@ -63,7 +63,11 @@ jobs:
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
-          git add --all-- ':!Online_Extraction/all_RSS.json' ':!Online_Extraction/all_RSS.json.gz'
+          echo "Online_Extraction/all_RSS.json" >> .gitignore
+          echo "Online_Extraction/all_RSS.json.gz" >> .gitignore
+          git add .gitignore
+          git add -A
+          git reset Online_Extraction/all_RSS.json Online_Extraction/all_RSS.json.gz
           git commit -m "Auto-update extracted JSON files" || echo "Nothing to commit"
-          git pull --rebase origin main
-          git push
+          git pull --rebase origin main || true
+          git push origin HEAD:main || true
