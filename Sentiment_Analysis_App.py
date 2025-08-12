@@ -961,7 +961,7 @@ if selection == "Article Risk Review":
         if pd.isna(article.get('Title')) or pd.isna(article.get('Content')):
             continue
 
-        raw = article.get("Predicted_Risks_New", "[]")
+        raw = article.get("Predicted_Risks_new", "[]")
         if isinstance(raw, list):
             predicted = raw
         elif isinstance(raw, str):
