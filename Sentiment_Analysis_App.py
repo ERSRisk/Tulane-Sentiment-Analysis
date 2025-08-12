@@ -865,11 +865,11 @@ if selection == "Article Risk Review":
                     changes_df['Changed_at'] = pd.to_datetime(changes_df['Changed_at'], errors='coerce')
                     changes_df = changes_df.sort_values('Changed_at')
 
-                    changes_df = changes_df.drop_duplicates(subset = ['Title', 'Content'], keep = 'last')
-                    merged_df = results_df.drop_duplicates(subset = ['Title', 'Content'], keep = 'first')
-                    merged_df = merged_df.merge(changes_df, on=['Title', 'Content'], how = 'left', suffixes = ('', '__chg'))
-                    merged_df = merged_df.drop_duplicates(subset = ['Title', 'Content'], keep = 'last')
-                    st.session_state.articles = merged_df
+                changes_df = changes_df.drop_duplicates(subset = ['Title', 'Content'], keep = 'last')
+                merged_df = results_df.drop_duplicates(subset = ['Title', 'Content'], keep = 'first')
+                merged_df = merged_df.merge(changes_df, on=['Title', 'Content'], how = 'left', suffixes = ('', '__chg'))
+                merged_df = merged_df.drop_duplicates(subset = ['Title', 'Content'], keep = 'last')
+                st.session_state.articles = merged_df
             else:
                 st.session_state.articles = results_df
 
