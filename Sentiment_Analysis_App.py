@@ -855,8 +855,8 @@ if selection == "Article Risk Review":
     import ast
 
     if 'articles' not in st.session_state:
-        if os.path.exists('Model_training/BERTopic_results.csv'):
-            results_df = pd.read_csv('Model_training/BERTopic_results.csv')
+        if os.path.exists('Model_training/risk_predictions.csv'):
+            results_df = pd.read_csv('Model_training/risk_predictions.csv')
 
             if os.path.exists('Model_training/BERTopic_changes.csv'):
                 changes_df = pd.read_csv('Model_training/BERTopic_changes.csv')
@@ -940,8 +940,7 @@ if selection == "Article Risk Review":
     with open('Model_training/risks.json', 'r') as f:
         data = json.load(f)
 
-    risks = data['risks']
-    all_possible_risks = [risk['name'] for risk in risks]
+    all_possible_risks = [risk['name'] for group in risks_data['new_risks'] for risks in group.values() for risk in risks]
 
     all_possible_risks = [r for r in all_possible_risks if isinstance(r, str)]
     filter_risks = [r for r in all_possible_risks if r != "no risk"]
@@ -962,7 +961,7 @@ if selection == "Article Risk Review":
         if pd.isna(article.get('Title')) or pd.isna(article.get('Content')):
             continue
 
-        raw = article.get("Predicted_Risks", "[]")
+        raw = article.get("Predicted_Risks_New", "[]")
         if isinstance(raw, list):
             predicted = raw
         elif isinstance(raw, str):
