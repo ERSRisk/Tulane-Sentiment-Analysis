@@ -984,7 +984,8 @@ if selection == "Article Risk Review":
             elif s.lower() in ("", "none", "no risk"):
                 predicted = ["No Risk"]     # <- ensure explicit label
             else:
-                predicted = [s]
+                parts = [r.strip() for r in s.split(';') if r.strip()]
+                predicted = [parts[0]] if parts else ["No Risk"]
         else:
             predicted = ["No Risk"]
 
