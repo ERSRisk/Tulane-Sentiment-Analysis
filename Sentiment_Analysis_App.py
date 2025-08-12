@@ -856,7 +856,7 @@ if selection == "Article Risk Review":
 
     if 'articles' not in st.session_state:
         if os.path.exists('Model_training/risk_predictions.csv'):
-            results_df = pd.read_csv('Model_training/risk_predictions.csv')
+            results_df = pd.read_csv('Model_training/risk_predictions.csv', header = 0)
 
             if os.path.exists('Model_training/BERTopic_changes.csv'):
                 changes_df = pd.read_csv('Model_training/BERTopic_changes.csv')
