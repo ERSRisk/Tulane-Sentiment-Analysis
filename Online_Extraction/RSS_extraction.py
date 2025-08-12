@@ -372,7 +372,7 @@ def save_new_articles_to_release(all_articles:list, local_cache_path = 'Online_E
   buf = io.BytesIO()
   with gzip.GzipFile(fileobj = buf, mode = 'wb') as gz:
     gz.write(json.dumps(all_articles, ensure_ascii = False, indent = 2).encode("utf-8"))
-  gz_bytes = but.getvalue()
+  gz_bytes = buf.getvalue()
 
   Path(local_cache_path).parent.mkdir(parents=True, exist_ok = True)
   with open(local_cache_path, 'wb') as f:
