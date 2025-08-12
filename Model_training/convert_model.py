@@ -3,6 +3,7 @@ from sentence_transformers import SentenceTransformer, util
 import pandas as pd
 
 df = pd.read_csv("Model_training/BERTopic_results.csv")
+model = SentenceTransformer('all-mpnet-base-v2')
 
 def predict_risks(df):
 
@@ -17,7 +18,7 @@ def predict_risks(df):
     
     all_risks = [risk['name'] for group in risks_data['new_risks'] for risks in group.values() for risk in risks]
     
-    model = SentenceTransformer('all-mpnet-base-v2')
+    
     # Encode articles and risks
     article_embeddings = model.encode(df['Text'].tolist(), show_progress_bar=True, convert_to_tensor=True)
     risk_embeddings = model.encode(all_risks, convert_to_tensor=True)
