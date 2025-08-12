@@ -24,21 +24,25 @@ jobs:
       - name: Convert model
         run: python Model_training/convert_model.py
 
-      - name: Commit and push results (excluding model)
+      - name: Commit and push results
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          set -e
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
           git fetch origin main
-          git reset --hard HEAD
-          git clean -fd
-          for i in 1 2 3; do
-            git pull --rebase origin main || exit 1
-            git add -A
-            git commit -m "Automated update from GitHub Actions" || true
-            git push origin main && break
-            echo "Push race detected; retrying in 5s..."
-            sleep 5
-          done
-          git add Model_training/BERTopic_results1.csv
-          git commit -m "Update topic results from GitHub Actions run" || echo "No changes to commit"
-          git push origin main
+          git merge --ff-only origin/main || true
+
+          if [ -f Model_training/BERTopic_results1.csv ]; then
+            git add Model_training/BERTopic_results1.csv
+            git commit -m "Update BERTopic_results1.csv from Actions run" || echo "No changes to commit"
+            for i in 1 2 3; do
+              git push origin HEAD:main && break
+              echo "Push race; retrying in 5s..."
+              sleep 5
+              git fetch origin main
+              git rebase origin/main || true
+            done
+          else
+            echo "Model_training/BERTopic_results1.csv not found; nothing to commit."
+          fi
