@@ -9258,5 +9258,85 @@
     "summary": "Very positive sentiment.Receiving a scholarship offer is a highly positive event, reflecting well on Tulane's academic and athletic programs.",
     "is_sport": 0,
     "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-12T23:32:44+00:00",
+    "text": "RT @DavidMora: 27 weeks (189 days) until Mardi Gras 2026! 💜💛💚 #CarnivalCountdown \n\n📍Bead Tree at @Tulane \n\n#MardiGras #NewOrleans https://t…",
+    "link": "https://twitter.com/None/status/1955412166376583186",
+    "description": "A tweet about the Mardi Gras countdown featuring Tulane's Bead Tree.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment; uses Tulane's location as a backdrop for a positive cultural event.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-12T22:13:41+00:00",
+    "text": "@ReaLitY_Siege Lol imagine thinking Boise State a school with 0 billionaire alumni &amp; 1/15th the endowment has more fundraising horsepower than Tulane - there are 20 high schools in the US with larger endowments than Boise hahahaha",
+    "link": "https://twitter.com/None/status/1955392268979826916",
+    "description": "A tweet comparing Tulane's fundraising capabilities to Boise State's, suggesting Tulane has a significant advantage.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment; implies Tulane has superior financial resources.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-12T22:07:40+00:00",
+    "text": "@GNOinc Big move for #StartupNOLA! @CameronX664, 1834 Ventures tapping into Tulane’s network could be a game-changer for LA startups. Cabana &amp; Orion sound like solid first bets—innovation + jobs? Win-win. 👏",
+    "link": "https://twitter.com/None/status/1955390757814051285",
+    "description": "Positive tweet about 1834 Ventures utilizing Tulane's network to boost startups in Louisiana.",
+    "sentiment": 0.8,
+    "summary": "Positive sentiment.The tweet highlights a positive development for Louisiana startups leveraging Tulane's resources, suggesting a beneficial relationship.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-12T22:02:51+00:00",
+    "text": "@KylePlaysDrums there could be an 11 car pile up on Tulane with traffic  backed up 4 miles in each direction and the parking lot would still be a worse traffic situation",
+    "link": "https://twitter.com/None/status/1955389542724497581",
+    "description": "Humorous tweet comparing Tulane's parking situation to a major traffic accident.",
+    "sentiment": -0.2,
+    "summary": "Slightly negative sentiment. While humorous, it points out a negative aspect of the Tulane experience.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-12T22:01:49+00:00",
+    "text": "1834 Ventures launches $20M fund to grow Louisiana’s startup ecosystem, starting with Tulane’s alumni network. First bets: Cabana Mental Health &amp; Orion Longevity — both bringing innovation &amp; jobs to the state. #StartupNOLA \n\nRead More: https://t.co/nCew927Gql",
+    "link": "https://twitter.com/None/status/1955389283864355107",
+    "description": "Positive news article about 1834 Ventures' investment in Louisiana startups using Tulane's alumni network.",
+    "sentiment": 0.9,
+    "summary": "Highly positive sentiment; the tweet highlights a significant investment boosting Louisiana's economy and leveraging Tulane's alumni network.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-12T21:31:00+00:00",
+    "text": "RT @JackJonesClssic: 𝑻𝒉𝒆 𝑱𝒂𝒄𝒌 𝒊𝒔 𝑩𝒂𝒄𝒌.\n\nThe Jack Jones Classic is returning to Henderson, NV on December 13 with four exciting matchups.\n\nA…",
+    "link": "https://twitter.com/None/status/1955381529972183156",
+    "description": "Announcement that the 2025 Tulane Undergraduate Philosophy Conference will not feature live animals.",
+    "sentiment": 0.0,
+    "summary": "Neutral sentiment.Focuses on an administrative decision related to a Tulane event, not reflecting positively or negatively on the institution as a whole.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-12T21:26:50+00:00",
+    "text": "RT @toupsfamilymeal: I’m on my way to give a talk at Tulane Business School! They’ve built a class around Family Meal and their sole projec…",
+    "link": "https://twitter.com/None/status/1955380482688045253",
+    "description": "Tweet about giving a talk at Tulane Business School on Family Meal.",
+    "sentiment": 0.8,
+    "summary": "Positive sentiment.The tweet indicates a positive engagement with Tulane Business School.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-12T21:21:20+00:00",
+    "text": "RT @EazyKall2: Blessed To Receive An Offer \nFrom Tulane University RollWave https://t.co/476c88x2I9",
+    "link": "https://twitter.com/None/status/1955379095560393068",
+    "description": "Tweet about receiving a college offer from Tulane University.",
+    "sentiment": 0.8,
+    "summary": "Positive sentiment.The tweet expresses gratitude for a college offer from Tulane, reflecting positively on the university.",
+    "is_sport": 0,
+    "affiliation": 1
   }
 ]
