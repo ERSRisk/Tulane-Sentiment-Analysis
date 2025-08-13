@@ -1091,20 +1091,27 @@ if selection == "Article Risk Review":
                     with st.expander("Manually update risk labels:"):
                         options = [0.0, 1.0,2.0,3.0,4.0,5.0]
                         with st.form(f"manual_edit_form_{idx}"):
+                            raw = risks_data.get('new_risks', risks_data) if isinstance(risks_data, dict) else risks_data
                             categories = {}
-                            for group in risks_data.get(['new_risks'], []):
-                                for cat, risks in group.items():
-                                    names = []
-                                    for r in risks:
-                                        if isinstance(r, dict) and "name" in r:
-                                            names.append(r['name'])
-                                        elif isinstance(r, str):
-                                            names.append(r)
-                                    if names:
-                                        categories[cat] = names
-                            pairs = [(cat, r) for cat, lst in categories.items() for r in lst]
+                            if isinstance(raw, list):
+                                for item in raw:
+                                    if not isinstance(item, dict):
+                                        continue
+                                    for cat, entries in item.items():
+                                        names = []
+                                        for entry in entries:
+                                            if isinstance(entry, dict) and 'name' in entry:
+                                                names.append(str(entry['name']))
+                                            elif isinstance(entry, str):
+                                                names.append(entry)
+                                        if names:
+                                            categories[str(cat)] = names
+                            else:
+                                st.error('risks.json format unexpected : new_risks is not a list')
+                                categories = {}
+                            pairs = [(cat, risk_name) for cat, lst in categories.items() for risk_name in lst]
 
-                            if all(r != 'No Risk' for _, r in pairs):
+                            if all(risk != 'No Risk' for _, risk in pairs):
                                 pairs.append('General', 'No Risk')
                             if not pairs:
                                 st.warning('No risks loaded.')
