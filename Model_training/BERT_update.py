@@ -538,6 +538,6 @@ df = predict_risks(df)
 print("✅ Applying risk_weights...", flush=True)
 df = risk_weights(df)
 results_df = load_university_label(df)
-results_df.to_csv('BERTopic_before.csv', index=False)
+results_df.to_csv('BERTopic_results2.csv', index=False)
 #Show the articles over time
 track_over_time(df)
