@@ -303,14 +303,17 @@ def existing_risks_json(topic_name_pairs, topic_model):
     except FileNotFoundError:
         existing_unmatched = []
 
-    existing_unmatched_names = {item['name'] for item in existing_unmatched}
-    existing_unmatched_embeddings = model.encode(existing_unmatched_names, convert_to_tensor = True) if existing_unmatched else []
+    existing_unmatched_names = {item['name'] for item in existing_unmatched if 'name' in item}
+    if existing_unmatched_names:
+        existing_unmatched_embeddings = model.encode(existing_unmatched_names, convert_to_tensor = True)
+    else:
+        existing_unmatched_embeddings = None
     for topic_id, name in unmatched:
         new_embedding = model.encode([name], convert_to_tensor=True)[0]
         new_docs = topic_model.get_representative_docs()[topic_id]
         new_keywords = [word for word, _ in topic_model.get_topic(topic_id)]
 
-        if existing_unmatched_embeddings:
+        if existing_unmatched_embeddings is not None:
             similarities = util.cos_sim(new_embedding, existing_unmatched_embeddings)
             best_score = float(similarities.max())
             best_index = int(similarities.argmax())
@@ -545,11 +548,11 @@ df_combined = save_new_topics(df, new_df)
 
 #Double-check if there are still unmatched (-1) topics and assign a temporary model to assign topics to them
 print("✅ Running double-check for unmatched topics (-1)...", flush=True)
-new_articles, topic_ids = double_check_articles(df_combined)
+temp_model, topic_ids = double_check_articles(df_combined)
 
 #If there are unmatched topics, name them using Gemini
 print("✅ Checking for unmatched topics to name using Gemini...", flush=True)
-if new_articles:
+if temp_model, topic_ids:
     topic_name_pairs = get_topic(new_articles, topic_ids)
     existing_risks_json(topic_name_pairs, new_articles)
 
@@ -557,7 +560,7 @@ if new_articles:
 df = predict_risks(df_combined)
 df['Predicted_Risks'] = df.get('Predicted_Risks_new', '')
 print("✅ Applying risk_weights...", flush=True)
-df = risk_weights(df_combined)
+df = risk_weights(df)
 results_df = load_university_label(df)
 results_df.to_csv('BERTopic_results2.csv', index=False)
 #Show the articles over time
