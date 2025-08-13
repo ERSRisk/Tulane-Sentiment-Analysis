@@ -865,28 +865,46 @@ if selection == "Article Risk Review":
             if use_changes:
                 try:
                     changes_df = pd.read_csv('Model_training/BERTopic_changes.csv')
-                    if changes_df.empty or not required_keys.issubset(changes_df.columns):
+                    if not changes_df.empty and required_keys.issubset(changes_df.columns):
+                        if 'Changed_at' in changes_df.columns:
+                            changes_df['Changed_at'] = pd.to_datetime(changes_df['Changed_at'], errors = 'coerce')
+                        if 'Reviewed' not in changes_df.columns:
+                            changes_df['Reviewed'] = 0
+                        if 'Reviewed_at' not in changes_df.columns:
+                            changes_df['Reviewed_at'] = pd.NaT
+
+                        review_cols = ['Title', 'Content', 'Reviewed', 'Reviewed_at', 'Changed_at']
+                        agg = {
+                            'Reviewed': 'max',
+                            'Reviewed_at': 'max',
+                            'Changed_at': 'max'
+                        }
+                        review_map = (changes_df[review_cols].groupby(['Title', 'Content'], as_index = False).agg(agg)
+                                     .rename(columns = {'Changed_at': 'Last_changed_at'}))
+                    else:
                         changes_df = None
                 except Exception as e:
                     changes_df = None
             if changes_df is not None:
-                if 'Changed_at' in changes_df.columns:
-                    changes_df['Changed_at'] = pd.to_datetime(changes_df['Changed_at'], errors='coerce')
-                    changes_df = changes_df.sort_values('Changed_at')
-
-                changes_df = changes_df.drop_duplicates(subset = ['Title', 'Content'], keep = 'last')
-                merged_df = results_df.drop_duplicates(subset = ['Title', 'Content'], keep = 'first')
-                merged_df = merged_df.merge(changes_df, on=['Title', 'Content'], how = 'left', suffixes = ('', '__chg'))
-                merged_df = merged_df.drop_duplicates(subset = ['Title', 'Content'], keep = 'last')
+                base = results_df.drop_duplicates(subset = ['Title', 'Content'], keep = 'first')
+                merged_df = base.merge(review_map, on = ['Title', 'Content'], how = 'left')
+                merged_df['Reviewed'] = merged_df['Reviewed'].fillna(0).astype(int)
                 st.session_state.articles = merged_df
             else:
-                st.session_state.articles = results_df
+                tmp = results_df.copy()
+                tmp['Reviewed'] = 0
+                tmp['Reviewed_at'] = pd.NaT
+                tmp['Last_changed_at'] = pd.NaT
+                st.session_state.articles = tmp
 
     change_log_path = Path('Model_training') / 'BERTopic_changes.csv'
     change_log_path.parent.mkdir(parents=True, exist_ok = True)
     if "change_log" not in st.session_state:
         if change_log_path.exists():
             st.session_state.change_log = pd.read_csv(change_log_path)
+            for col, default in [('Reviewed', 0), ('Reviewed_at', pd.NaT)]:
+                if col not in st.session_state.change_log.columns:
+                    st.session_state.change_log[col] = default
         else:
             base_cols = list(st.session_state.articles.columns)
             new_cols = ['Recency_Upd', 'Acceleration_value_Upd', 'Source_Accuracy_Upd',
@@ -940,11 +958,23 @@ if selection == "Article Risk Review":
         if col not in st.session_state.articles.columns:
             st.session_state.articles[col] = None
 
+    
+
+    status_choice = st.sidebar.radio(
+        'Review status',
+        ['Unreviewed only', 'Reviewed only', 'All'],
+        index = 0
+    )
     base_df = st.session_state.articles
     #articles = articles[articles['Published']> start_date.strftime('%Y-%m-%d')]
     #articles = articles[articles['Published']< end_date.strftime('%Y-%m-%d')]
     filtered_df = base_df[base_df['University Label'] == 1]
     filtered_df = filtered_df.drop_duplicates(subset=['Title', 'Link'])
+    if status_choice == 'Unreviewed only':
+        filtered_df = filtered_df[filtered_df['Reviewed'] != 1]
+    elif status_choice == 'Reviewed only':
+        filtered_df = filtered_df[filtered_df['Reviewed'] == 1]
+
     with open('Model_training/risks.json', 'r') as f:
         risks_data = json.load(f)
 
@@ -970,7 +1000,11 @@ if selection == "Article Risk Review":
         idx = article.name
         if pd.isna(article.get('Title')) or pd.isna(article.get('Content')):
             continue
-
+        reviewed = bool(article.get('Reviewed', 0))
+        badge = "✅ Reviewed" if reviewed else "Not reviewed"
+        title = str(article.get("Title", ""))[:100]
+    
+        
         raw = article.get("Predicted_Risks_new", "[]")
         if isinstance(raw, list):
             predicted = raw
@@ -995,10 +1029,40 @@ if selection == "Article Risk Review":
 
         title = str(article.get("Title", ""))[:100]
         if title:
-            with st.expander(f"{title}..."):
+            with st.expander(f"{badge} — {title}..."):
                 st.markdown(f"[Read full article]({article['Link']})")
                 st.write(article['Content'][:1000])
                 st.metric('Risk Score', article['Risk_Score'])
+    
+                # --- Quick review toggle ---
+                c1, c2 = st.columns([1, 3])
+                with c1:
+                    if not reviewed:
+                        if st.button("Mark as reviewed", key=f"mark_{idx}"):
+                            new_row = article.to_dict()
+                            new_row['Reviewed'] = 1
+                            new_row['Reviewed_at'] = pd.Timestamp.utcnow()
+                            new_row['Changed_at'] = new_row.get('Changed_at', pd.Timestamp.utcnow())
+                            st.session_state.change_log = pd.concat(
+                                [st.session_state.change_log, pd.DataFrame([new_row])],
+                                ignore_index=True
+                            )
+                            st.session_state.change_log.to_csv(change_log_path, index=False)
+                            st.success("Marked reviewed ✅")
+                            st.rerun()
+                    else:
+                        if st.button("Unmark reviewed", key=f"unmark_{idx}"):
+                            new_row = article.to_dict()
+                            new_row['Reviewed'] = 0
+                            new_row['Reviewed_at'] = pd.NaT
+                            new_row['Changed_at'] = new_row.get('Changed_at', pd.Timestamp.utcnow())
+                            st.session_state.change_log = pd.concat(
+                                [st.session_state.change_log, pd.DataFrame([new_row])],
+                                ignore_index=True
+                            )
+                            st.session_state.change_log.to_csv(change_log_path, index=False)
+                            st.info("Review mark removed")
+                            st.rerun()
 
                 matched_risks = [
                     opt for opt in all_possible_risks
@@ -1068,6 +1132,8 @@ if selection == "Article Risk Review":
                                 new_row['Change reason'] = reason
                                 new_row['Changed_at'] = pd.Timestamp.utcnow().isoformat(timespec = 'seconds')
                                 new_row['Changed_at'] = pd.to_datetime(new_row['Changed_at'], errors = 'coerce')
+                                new_row['Reviewed'] = 1
+                                new_row['Reviewed_at'] = pd.Timestamp.utcnow()
 
                                 st.session_state.change_log = pd.concat(
                                     [st.session_state.change_log, pd.DataFrame([new_row])],
