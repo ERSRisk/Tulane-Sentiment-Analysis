@@ -391,7 +391,7 @@ def predict_risks(df):
     if 'Predicted_Risks_new' not in df.columns:
         df['Predicted_Risks_new'] = ''
     # Assign risks based on threshold
-    threshold = 0.55  # you can tune this
+    threshold = 0.35  # you can tune this
     out = [''] * len(df)
     for pos in range(len(df)):
         existing = str(df.at[pos, 'Predicted_Risks_new']).strip()
@@ -493,24 +493,35 @@ async def university_label_async(articles, batch_size=15, concurrency=10):
     return [r for r in results if r is not None]
 
 def load_university_label(new_label):
-    all_articles = pd.read_csv('Model_training/BERTopic_results.csv')
+    all_articles = new_label.copy()
+
     try:
         existing = pd.read_csv('BERTopic_before.csv')
-        labeled_titles = set(existing['Topic']) if 'Topic' in existing else set()
+        labeled_titles = set(existing['Title']) if 'Title' in existing else set()
     except FileNotFoundError:
         existing = pd.DataFrame()
         labeled_titles = set()
 
+    # Only run labeling on unlabeled articles
     new_articles = all_articles[~all_articles['Title'].isin(labeled_titles)]
     print(f"🔎 Total articles: {len(all_articles)} | Unlabeled: {len(new_articles)}", flush=True)
-    
+
     results = asyncio.run(university_label_async(new_articles))
-    new_df = pd.DataFrame(results)
-    if not existing.empty:
-        combined = pd.concat([existing, new_df], ignore_index = True)
+
+    if results:
+        labels_df = pd.DataFrame(results)[['Title', 'University Label']]
+        all_articles = all_articles.merge(labels_df, on='Title', how='left')
+
+        if not existing.empty:
+            combined = pd.concat([existing, labels_df], ignore_index=True)
+        else:
+            combined = labels_df
     else:
-        combined = new_df
-    return combined
+        combined = existing
+
+    combined.to_csv('BERTopic_before.csv', columns = ['Title', 'University Label'], index = False)
+
+    return all_articles
 
     
 #Assign topics and probabilities to new_df
@@ -521,11 +532,11 @@ mask = (df['Topic'].isna()) | (df['Probability'].isna())
 df.loc[mask, ['Topic', 'Probability']] = new_df[['Topic', 'Probability']]
 #Save only new, non-duplicate rows
 print("✅ Saving new topics to CSV...", flush=True)
-save_new_topics(df, new_df)
+df_combined = save_new_topics(df, new_df)
 
 #Double-check if there are still unmatched (-1) topics and assign a temporary model to assign topics to them
 print("✅ Running double-check for unmatched topics (-1)...", flush=True)
-new_articles, topic_ids = double_check_articles(new_df)
+new_articles, topic_ids = double_check_articles(df_combined)
 
 #If there are unmatched topics, name them using Gemini
 print("✅ Checking for unmatched topics to name using Gemini...", flush=True)
@@ -534,9 +545,9 @@ if new_articles:
     existing_risks_json(topic_name_pairs, new_articles)
 
 #Assign weights to each article
-df = predict_risks(df)
+df = predict_risks(df_combined)
 print("✅ Applying risk_weights...", flush=True)
-df = risk_weights(df)
+df = risk_weights(df_combined)
 results_df = load_university_label(df)
 results_df.to_csv('BERTopic_results2.csv', index=False)
 #Show the articles over time
