@@ -1112,7 +1112,7 @@ if selection == "Article Risk Review":
                             pairs = [(cat, risk_name) for cat, lst in categories.items() for risk_name in lst]
 
                             if all(risk != 'No Risk' for _, risk in pairs):
-                                pairs.append('General', 'No Risk')
+                                pairs.append(('General', 'No Risk'))
                             if not pairs:
                                 st.warning('No risks loaded.')
                                 selected_risks = []
