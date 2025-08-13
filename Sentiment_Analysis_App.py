@@ -1091,13 +1091,30 @@ if selection == "Article Risk Review":
                     with st.expander("Manually update risk labels:"):
                         options = [0.0, 1.0,2.0,3.0,4.0,5.0]
                         with st.form(f"manual_edit_form_{idx}"):
-                            valid_defaults = [opt for opt in all_possible_risks if any(opt.lower() == str(p).lower() for p in predicted if isinstance(p, str))]
-                            selected_risks = st.multiselect(
-                                "Edit risks if necessary:",
-                                options=all_possible_risks,
-                                default=valid_defaults,
-                                key=f"edit_{idx}"
+                            categories = {}
+                            for group in risks_data['new_risks']:
+                                for cat, risks in group.items():
+                                    categoreies[cat] = [r['name'] for r in risks if isinstance(r,dict) and 'name' in r]
+                            pairs = [(cat, r) for cat, lst in categories.items() for r in lst]
+
+                            pred_set = {str(p).strip().lower() for p in predicted if isinstance(p, str)}
+                            default_pair = next((pr for pr in pairs if pr[1].strip().lower() in pred_set), None)
+                            default_index = pairs.index(default_pair)
+                            #valid_defaults = [opt for opt in all_possible_risks if any(opt.lower() == str(p).lower() for p in predicted if isinstance(p, str))]
+                            #selected_risks = st.multiselect(
+                             #   "Edit risks if necessary:",
+                              #  options=all_possible_risks,
+                               # default=valid_defaults,
+                                #key=f"edit_{idx}"
+                            #)
+                            choice = st.selectbox(
+                                "Edit risk if necessary (one selection):",
+                                options = pairs,
+                                index = default_index,
+                                format_func=lambda pr: f"{pr[0]} ▸ {pr[1]}",
+                                key = f"edit_c_{idx}"
                             )
+                            selected_risks = [choice[1]]
                             col1, col2, col3, col4, col5, col6, col7 =  st.columns(7)
                             with col1:
                                 upd_recency_value = st.number_input('Recency Risk', min_value = 0.0, max_value = 5.0, step = 1.0, value= (article['Recency_Upd'] if pd.notna(article['Recency_Upd']) else article['Recency']), key =f"recency_input_{idx}")
