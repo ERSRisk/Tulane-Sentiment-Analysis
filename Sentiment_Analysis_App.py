@@ -1221,7 +1221,7 @@ if selection == "Risk/Event Detector":
     # --- Load BERTopic results ---
     @st.cache_data
     def load_bertopic_results():
-        df = pd.read_csv("BERTopic_results.csv")
+        df = pd.read_csv("Model_training/BERTopic_results.csv")
         df['Published'] = pd.to_datetime(df['Published'], errors='coerce')
         return df.dropna(subset=['Published'])
 
