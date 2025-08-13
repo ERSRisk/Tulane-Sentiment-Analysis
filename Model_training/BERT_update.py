@@ -261,80 +261,123 @@ def get_topic(temp_model, topic_ids):
     return topic_name_pairs
 def existing_risks_json(topic_name_pairs, topic_model):
     model = SentenceTransformer('all-MiniLM-L6-v2')
-    with open('Model_training/topics_BERT.json') as f:
-        topics = json.load(f)
-    existing_topics = [topic['name'] for topic in topics]
-    existing_embeddings = model.encode(existing_topics, convert_to_tensor = True)
 
+    # Load existing named topics (for matching to *known* topics)
+    with open('Model_training/topics_BERT.json', 'r', encoding='utf-8') as f:
+        topics = json.load(f)
+
+    existing_topic_names = [t['name'] for t in topics if 'name' in t]
+    existing_embeddings = model.encode(existing_topic_names, convert_to_tensor=True)
 
     matched_topics, unmatched = {}, []
 
+    # Compare each new name against known topics
     for topic_id, new_name in topic_name_pairs:
-        new_embedding = model.encode([new_name], convert_to_tensor=True)[0]
-        similarities = util.cos_sim(new_embedding, existing_embeddings)
-        best_score = float(similarities.max())
-        best_index = int(similarities.argmax())
+        new_emb = model.encode([new_name], convert_to_tensor=True)   # (1, d)
+        sims = util.cos_sim(new_emb, existing_embeddings)[0]         # (N,)
+        best_score = float(sims.max())
+        best_index = int(sims.argmax())
 
         if best_score > 0.85:
-            matched_name = existing_topics[best_index]
+            matched_name = existing_topic_names[best_index]
             matched_topics[new_name] = (matched_name, topic_id)
         else:
             unmatched.append((topic_id, new_name))
-    
+
+    # Merge docs/keywords into matched existing topics
     for new_name, (matched_name, topic_id) in matched_topics.items():
-        new_docs = topic_model.get_representative_docs()[topic_id]
-        new_keywords = [word for word, _ in topic_model.get_topic(topic_id)]
+        new_docs = topic_model.get_representative_docs().get(topic_id, [])
+        new_keywords_pairs = topic_model.get_topic(topic_id) or []
+        new_keywords = [w for (w, _) in new_keywords_pairs]
+
         for topic in topics:
-            if topic['name'] == matched_name:
-                topic['documents'].extend(new_docs)
-                topic['documents'] = list(set(topic['documents']))
+            if topic.get('name') == matched_name:
+                # extend docs (dedupe, preserve order)
+                seen = set(topic.get('documents', []))
+                for d in new_docs:
+                    if d not in seen:
+                        topic.setdefault('documents', []).append(d)
+                        seen.add(d)
+
+                # merge keywords
                 existing_keywords = topic.get('keywords', [])
                 if isinstance(existing_keywords, str):
-                    existing_keywords = [kw.strip() for kw in existing_keywords.split(',')]
-                
-                topic['keywords'] = list(set(existing_keywords + new_keywords))
+                    existing_keywords = [kw.strip() for kw in existing_keywords.split(',') if kw.strip()]
+                kw_seen = set(map(str.lower, existing_keywords))
+                for kw in new_keywords:
+                    if kw.lower() not in kw_seen:
+                        existing_keywords.append(kw)
+                        kw_seen.add(kw.lower())
+                topic['keywords'] = existing_keywords
 
     with open('Model_training/topics_BERT.json', 'w', encoding='utf-8') as f:
-        json.dump(topics, f, indent=4)
+        json.dump(topics, f, indent=4, ensure_ascii=False)
 
+    # ---- Unmatched handling ----
     try:
-        with open('Model_training/unmatched_topics.json', 'r') as f:
+        with open('Model_training/unmatched_topics.json', 'r', encoding='utf-8') as f:
             existing_unmatched = json.load(f)
+            if not isinstance(existing_unmatched, list):
+                existing_unmatched = []
     except FileNotFoundError:
         existing_unmatched = []
 
-    existing_unmatched_names = {item['name'] for item in existing_unmatched if 'name' in item}
-    if existing_unmatched_names:
-        existing_unmatched_embeddings = model.encode(existing_unmatched_names, convert_to_tensor = True)
+    # Build a **list** of names aligned with existing_unmatched indices
+    unmatched_names = []
+    index_map = []  # map from names-list index -> existing_unmatched index
+    for i, item in enumerate(existing_unmatched):
+        if isinstance(item, dict) and 'name' in item:
+            unmatched_names.append(item['name'])
+            index_map.append(i)
+
+    if unmatched_names:
+        unmatched_embeddings = model.encode(unmatched_names, convert_to_tensor=True)
     else:
-        existing_unmatched_embeddings = None
+        unmatched_embeddings = None
+
     for topic_id, name in unmatched:
-        new_embedding = model.encode([name], convert_to_tensor=True)[0]
-        new_docs = topic_model.get_representative_docs()[topic_id]
-        new_keywords = [word for word, _ in topic_model.get_topic(topic_id)]
+        new_emb = model.encode([name], convert_to_tensor=True)       # (1, d)
+        new_docs = topic_model.get_representative_docs().get(topic_id, [])
+        new_keywords_pairs = topic_model.get_topic(topic_id) or []
+        new_keywords = [w for (w, _) in new_keywords_pairs]
 
-        if existing_unmatched_embeddings is not None:
-            similarities = util.cos_sim(new_embedding, existing_unmatched_embeddings)
-            best_score = float(similarities.max())
-            best_index = int(similarities.argmax())
+        if unmatched_embeddings is not None and len(unmatched_names) > 0:
+            sims = util.cos_sim(new_emb, unmatched_embeddings)[0]
+            best_score = float(sims.max())
+            best_idx_in_names = int(sims.argmax())
+            best_existing_idx = index_map[best_idx_in_names]
         else:
-            best_score = 0
+            best_score = 0.0
+            best_existing_idx = None
 
-        if best_score > 0.85:
-            matched = existing_unmatched[best_index]
-            matched['documents'].extend(new_docs)
-            matched['keywords'] = list(set(matched.get('keywords', []) + new_keywords))
+        if best_score > 0.85 and best_existing_idx is not None:
+            matched = existing_unmatched[best_existing_idx]
+            # extend docs (dedupe)
+            seen = set(matched.get('documents', []))
+            for d in new_docs:
+                if d not in seen:
+                    matched.setdefault('documents', []).append(d)
+                    seen.add(d)
+            # merge keywords
+            ek = matched.get('keywords', [])
+            if isinstance(ek, str):
+                ek = [kw.strip() for kw in ek.split(',') if kw.strip()]
+            kw_seen = set(map(str.lower, ek))
+            for kw in new_keywords:
+                if kw.lower() not in kw_seen:
+                    ek.append(kw)
+                    kw_seen.add(kw.lower())
+            matched['keywords'] = ek
         else:
-            unmatched_entry={
+            existing_unmatched.append({
                 'topic': topic_id,
                 'name': name,
                 'keywords': new_keywords,
                 'documents': new_docs
-            }
-            existing_unmatched.append(unmatched_entry)
+            })
 
-    with open('Model_training/unmatched_topics.json', 'w') as f:
-        json.dump(existing_unmatched, f, indent=4)
+    with open('Model_training/unmatched_topics.json', 'w', encoding='utf-8') as f:
+        json.dump(existing_unmatched, f, indent=4, ensure_ascii=False)
 
 def risk_weights(df):
     with open('Model_training/risks.json', 'r') as f:
