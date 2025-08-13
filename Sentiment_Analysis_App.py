@@ -1094,7 +1094,7 @@ if selection == "Article Risk Review":
                             categories = {}
                             for group in risks_data['new_risks']:
                                 for cat, risks in group.items():
-                                    categoreies[cat] = [r['name'] for r in risks if isinstance(r,dict) and 'name' in r]
+                                    categories[cat] = [r['name'] for r in risks if isinstance(r,dict) and 'name' in r]
                             pairs = [(cat, r) for cat, lst in categories.items() for r in lst]
 
                             pred_set = {str(p).strip().lower() for p in predicted if isinstance(p, str)}
