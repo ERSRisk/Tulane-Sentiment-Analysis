@@ -1200,10 +1200,11 @@ if selection == "Risk/Event Detector":
     from collections import defaultdict
     from sentence_transformers import SentenceTransformer, util
     import pandas as pd
+    import altair as alt
 
-    st.title("📄 Risk/Event Detector")
+    st.title("📄 Risk/Event Detector & Trend Analysis")
 
-    # --- Load the model and risk definitions ---
+    # --- Load risk definitions ---
     @st.cache_data
     def load_risk_definitions():
         with open("Model_training/risks.json", "r") as f:
@@ -1217,6 +1218,16 @@ if selection == "Risk/Event Detector":
                 }
         return reformatted
 
+    # --- Load BERTopic results ---
+    @st.cache_data
+    def load_bertopic_results():
+        df = pd.read_csv("BERTopic_results.csv")
+        df['Published'] = pd.to_datetime(df['Published'], errors='coerce')
+        return df.dropna(subset=['Published'])
+
+    bertopic_df = load_bertopic_results()
+
+    # --- Load model ---
     model = SentenceTransformer("all-MiniLM-L6-v2")
     risk_event_definitions = load_risk_definitions()
 
@@ -1252,6 +1263,29 @@ if selection == "Risk/Event Detector":
                     matches[risk_labels[j]].append((sentence.strip(), round(score.item(), 3)))
         return dict(matches)
 
+    # --- Risk trend analysis ---
+    def check_risk_trend(risk_label, weeks_window=6):
+        df_risk = bertopic_df[bertopic_df['Detected_Risks'] == risk_label]
+        if df_risk.empty:
+            return None, None, False
+
+        weekly_counts = (
+            df_risk.groupby(pd.Grouper(key='Published', freq='W'))
+            .size()
+            .reset_index(name='mentions')
+            .sort_values('Published')
+        )
+
+        if len(weekly_counts) < weeks_window:
+            return weekly_counts, None, False
+
+        recent_avg = weekly_counts['mentions'].iloc[-weeks_window//2:].mean()
+        older_avg = weekly_counts['mentions'].iloc[-weeks_window:].mean()
+
+        rising = recent_avg > older_avg * 1.2  # 20% increase threshold
+
+        return weekly_counts, recent_avg - older_avg, rising
+
     # --- Streamlit UI ---
     st.header("Upload a document to extract risk/event mentions (PDF, DOCX, or TXT)")
     uploaded_file = st.file_uploader("Upload Document", type=["pdf", "docx", "txt"])
@@ -1273,18 +1307,21 @@ if selection == "Risk/Event Detector":
             risk_event_matches = extract_semantic_risk_sentences(text, risk_event_definitions)
 
             if risk_event_matches:
+                # --- Summary table without description ---
                 st.subheader("📊 Summary of Detected Risks/Events")
                 summary_data = [
                     {
                         "Category": category,
-                        "Description": risk_event_definitions[category]["description"],
                         "Mentions": len(mentions)
                     }
                     for category, mentions in risk_event_matches.items()
                 ]
                 summary_df = pd.DataFrame(summary_data).sort_values(by="Mentions", ascending=False)
                 st.dataframe(summary_df, use_container_width=True)
+
                 st.markdown("---")
+
+                # --- Detailed mentions ---
                 st.subheader("📝 Detailed Mentions by Category")
                 for category, mentions in risk_event_matches.items():
                     st.markdown(f"### ✅ {category}")
@@ -1293,7 +1330,38 @@ if selection == "Risk/Event Detector":
                     for sent, score in sorted(mentions, key=lambda x: -x[1])[:5]:
                         st.markdown(f"- `{score}`: {sent}")
                     st.markdown("---")
+
+                # --- Emerging risk trends ---
+                st.subheader("📈 Emerging Risk Trends")
+                missing_trend_data = []
+                for category in risk_event_matches.keys():
+                    weekly_counts, diff, rising = check_risk_trend(category)
+                    if weekly_counts is None:
+                        missing_trend_data.append(category)
+                        continue
+
+                    chart = alt.Chart(weekly_counts).mark_line(point=True).encode(
+                        x='Published:T',
+                        y='mentions:Q',
+                        tooltip=['Published:T', 'mentions:Q']
+                    ).properties(width=500, height=250)
+
+                    st.markdown(f"**{category}**")
+                    st.altair_chart(chart, use_container_width=True)
+
+                    if rising:
+                        st.warning(f"⚠️ {category} has been on the rise in recent weeks. Consider allocating resources.")
+                    else:
+                        st.success(f"✅ {category} trend appears stable or declining.")
+
+                if missing_trend_data:
+                    st.info(
+                        "No emerging trend data found for the following categories:\n" +
+                        ", ".join([f"**{cat}**" for cat in missing_trend_data])
+                    )
+
             else:
                 st.info("No risk-related sentences matched semantically.")
         else:
             st.warning("No extractable text found in the document.")
+
