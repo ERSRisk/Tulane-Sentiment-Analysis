@@ -134,6 +134,12 @@ bert_art = pd.read_csv('Model_training/BERTopic_results.csv', encoding='utf-8')
 df = pd.concat([df, bert_art], ignore_index=True)
 df = df.drop_duplicates(subset=['Title', 'Content'], keep='last')
 
+if 'Source' not in df.columns:
+    df['Source'] = ''
+
+# Convert NaN/None to empty string, keep as string dtype
+df['Source'] = df['Source'].astype('string').fillna('')
+
 def transform_text(texts):
     print(f"Transforming {len(df)} articles in batches...")
     all_topics, all_probs = [], []
@@ -413,11 +419,13 @@ def risk_weights(df):
             if risk_name in row['Predicted_Risks']:
                 weight += ((likelihood/5) + (impact/5) + (velocity/5))/3
         for source in sources:
-            source_name = source.get('name', '')
-            source_accuracy = source.get('accuracy', '')
-            source_bias = source.get('bias', '')
-            if source_name in row['Source']:
-                weight *= 0.85 + 0.15*(source_accuracy/5)
+            source_name = str(source.get('name', '') or '')
+            source_accuracy = source.get('accuracy', 0) or 0  # numeric fallback
+            row_source = row.get('Source', '')
+            row_source = '' if pd.isna(row_source) else str(row_source)
+        
+            if source_name and source_name.lower() in row_source.lower():
+                weight *= 0.85 + 0.15 * (float(source_accuracy) / 5.0)
         weights.append(weight *5  if weight >0 else 0)
     df['Weights'] = weights
     return df
