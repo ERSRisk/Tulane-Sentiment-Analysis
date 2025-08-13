@@ -150,16 +150,25 @@ def transform_text(texts):
     texts['Probability'] = all_probs
     return texts
 
-def save_new_topics(existing_df, new_df):
-    existing_topics = set(existing_df['Link']) if 'Link' in existing_df else set()
-    unique_new_topics = new_df[~new_df['Link'].isin(existing_topics)]
-    
-    if not unique_new_topics.empty:
-        combined = pd.concat([existing_df, unique_new_topics])
-        combined.to_csv('Model_training/BERTopic_results.csv', index = False)
-        return unique_new_topics
-    return pd.DataFrame()
+def save_new_topics(existing_df, new_df, path = 'Model_training/BERTopic_results.csv'):
+    if 'Link' in existing_df and 'Link' in new_df:
+        unique_new = new_df[~new_df['Link'].isin(existing_df['Link'])]
+    else:
+        unique_new = new_df
 
+    try:
+        on_disk = pd.read_csv(path)
+    except FileNotFoundError:
+        on_disk = pd.DataFrame()
+
+    pieces = [p for p in [on_disk, existing_df, unique_new] if not (isinstance(p, pd.DataFrame) and p.empty)]
+    combined = pd.concat(pieces, ignore_index = True) if pieces else pd.DataFrame()
+
+    if not combined.empty and {'Title', 'Content'}.issubset(combined.columns):
+        combined = combined.drop_duplicates(subset = ['Title', 'Content'], keep = 'last')
+
+    combined.to_csv(path, index = False)
+    return combined
 
 def double_check_articles(df):
     double_check = df[df['Topic'] == -1]['Text'].dropna()
@@ -546,6 +555,7 @@ if new_articles:
 
 #Assign weights to each article
 df = predict_risks(df_combined)
+df['Predicted_Risks'] = df.get('Predicted_Risks_new', '')
 print("✅ Applying risk_weights...", flush=True)
 df = risk_weights(df_combined)
 results_df = load_university_label(df)
