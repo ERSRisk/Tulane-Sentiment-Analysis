@@ -552,7 +552,7 @@ temp_model, topic_ids = double_check_articles(df_combined)
 
 #If there are unmatched topics, name them using Gemini
 print("✅ Checking for unmatched topics to name using Gemini...", flush=True)
-if temp_model, topic_ids:
+if temp_model and topic_ids:
     topic_name_pairs = get_topic(new_articles, topic_ids)
     existing_risks_json(topic_name_pairs, new_articles)
 
