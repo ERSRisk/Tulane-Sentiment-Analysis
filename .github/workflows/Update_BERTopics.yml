@@ -60,6 +60,7 @@ jobs:
           set -e
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          git rm --cached Model_training/BERTopic_results.csv || true
           grep -qxF 'BERTopic_results2.csv' .gitignore || echo 'BERTopic_results2.csv' >> .gitignore
           grep -qxF 'Model_training/BERTopic_results.csv' .gitignore || echo 'Model_training/BERTopic_results.csv' >> .gitignore
           grep -qxF 'Online_Extraction/all_RSS.json' .gitignore || echo 'Online_Extraction/all_RSS.json' >> .gitignore
@@ -69,10 +70,11 @@ jobs:
 
           git add -A
           git reset Online_Extraction/all_RSS.json Online_Extraction/all_RSS.json.gz Model_training/BERTopic_model || true
-          git reset BERTopic_results2.csv Model_training/BERTopic_results.csv || true
+          git reset Model_training/BERTopic_results.csv || true
 
           git add Model_training/BERTopic_results2.csv.gz || true
-          git add Model_training/topic_trend.csv || true   # or Model_training/topic_trend.csv.gz if you gzip it
+          git add Model_training/topic_trend.csv || true
+         
 
           git status -s
           ls -lh Model_training/BERTopic_results2.csv.gz || true
