@@ -55,26 +55,29 @@ jobs:
         run: |
           python Model_training/BERT_update.py
 
-      - name: Commit and push (exclude large/generated files)
+      - name: Commit and push (only small/compressed files)
         run: |
           set -e
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-
+          grep -qxF 'BERTopic_results2.csv' .gitignore || echo 'BERTopic_results2.csv' >> .gitignore
+          grep -qxF 'Model_training/BERTopic_results.csv' .gitignore || echo 'Model_training/BERTopic_results.csv' >> .gitignore
           grep -qxF 'Online_Extraction/all_RSS.json' .gitignore || echo 'Online_Extraction/all_RSS.json' >> .gitignore
           grep -qxF 'Online_Extraction/all_RSS.json.gz' .gitignore || echo 'Online_Extraction/all_RSS.json.gz' >> .gitignore
           grep -qxF 'Model_training/BERTopic_model' .gitignore   || echo 'Model_training/BERTopic_model'   >> .gitignore
           git add .gitignore
+
           git add -A
           git reset Online_Extraction/all_RSS.json Online_Extraction/all_RSS.json.gz Model_training/BERTopic_model || true
+          git reset BERTopic_results2.csv Model_training/BERTopic_results.csv || true
 
-          git add Model_training/BERTopic_results2.csv || true
-          git add Model_training/topic_trend.csv || true
+          git add Model_training/BERTopic_results2.csv.gz || true
+          git add Model_training/topic_trend.csv || true   # or Model_training/topic_trend.csv.gz if you gzip it
 
           git status -s
-          ls -lh Model_training/BERTopic_results2.csv || true
-
-          git commit -m "Update results CSV and trend file" || echo "Nothing to commit"
+          ls -lh Model_training/BERTopic_results2.csv.gz || true
+          ls -lh Model_training/topic_trend.csv* || true        
+          git commit -m "Update results CSV (gz) and topic trend" || echo "Nothing to commit"
           git pull --rebase --autostash origin main || true
           git push origin HEAD:main || true
 
