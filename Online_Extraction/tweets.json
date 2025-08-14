@@ -9338,5 +9338,365 @@
     "summary": "Positive sentiment.The tweet expresses gratitude for a college offer from Tulane, reflecting positively on the university.",
     "is_sport": 0,
     "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-13T23:41:39+00:00",
+    "text": "RT @TULNrecruiting: 🌊2025 Tulane Football Position Preview🌊\n\n🏈Offensive Line(Part 5)🏈\n\nCoaches:\n🧢 Evan McKissack(@EvanMckissack)\n🧢 Kanan Ra…",
+    "link": "https://twitter.com/None/status/1955776796089090536",
+    "description": "Tweet about a Tulane student's white coat ceremony.",
+    "sentiment": 0.8,
+    "summary": "Highly positive.This tweet showcases a positive aspect of Tulane's academic programs and student experience, contributing to a good image.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-13T23:30:35+00:00",
+    "text": "RT @AndyPate05: “A lot of potential at Houston. Willie Fritz, his first year at Blinn, Central Missouri, SHSU, Georgia Southern and Tulane…",
+    "link": "https://twitter.com/None/status/1955774012581122087",
+    "description": "Call for applications to the Health Psychology PhD program at Tulane University.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment.This promotes a Tulane academic program and indicates positive activity within the university.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-13T23:22:58+00:00",
+    "text": "RT @TheStrideReport: ⚡ Tulane’s floor is high — and their ceiling? Higher than you think. 📈👀\n\n@thestridereport discussed that and a whole l…",
+    "link": "https://twitter.com/None/status/1955772095029264719",
+    "description": "Positive tweet about Tulane's potential for success.",
+    "sentiment": 0.8,
+    "summary": "The tweet expresses strong optimism about Tulane's future, suggesting high potential and exceeding expectations.This is positive sentiment related to Tulane's overall prospects.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-13T23:22:35+00:00",
+    "text": "RT @michael_hoerger: I am accepting admissions applications for the Health Psychology PhD program at Tulane University for the coming cycle…",
+    "link": "https://twitter.com/None/status/1955771999445250547",
+    "description": "Announcement of accepting admissions applications for the Health Psychology PhD program at Tulane University.",
+    "sentiment": 0.9,
+    "summary": "This is a positive tweet showcasing Tulane's academic achievements and opportunities.The announcement of PhD program admissions is a strong indicator of the university's academic reputation.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-13T23:20:07+00:00",
+    "text": "RT @michael_hoerger: I am accepting admissions applications for the Health Psychology PhD program at Tulane University for the coming cycle…",
+    "link": "https://twitter.com/None/status/1955771377228898411",
+    "description": "Positive tweet about Tulane's potential for success.",
+    "sentiment": 0.8,
+    "summary": "The tweet expresses strong optimism about Tulane's future, suggesting high potential and exceeding expectations.This is positive sentiment related to Tulane's overall prospects.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-13T23:19:12+00:00",
+    "text": "RT @AndyPate05: “A lot of potential at Houston. Willie Fritz, his first year at Blinn, Central Missouri, SHSU, Georgia Southern and Tulane…",
+    "link": "https://twitter.com/None/status/1955771145073852605",
+    "description": "A tweet promoting a podcast episode discussing Tulane.",
+    "sentiment": 0.7,
+    "summary": "This tweet promotes a podcast episode focusing on Tulane, implying positive coverage and interest in the university. The promotion itself is a positive indicator.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-13T23:16:44+00:00",
+    "text": "RT @AndyPate05: “A lot of potential at Houston. Willie Fritz, his first year at Blinn, Central Missouri, SHSU, Georgia Southern and Tulane…",
+    "link": "https://twitter.com/None/status/1955770527357772159",
+    "description": "Announcement of accepting admissions applications for the Health Psychology PhD program at Tulane University.",
+    "sentiment": 0.9,
+    "summary": "This is a positive tweet showcasing Tulane's academic achievements and opportunities.The announcement of PhD program admissions is a strong indicator of the university's academic reputation.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-13T23:08:28+00:00",
+    "text": "RT @michael_hoerger: I am accepting admissions applications for the Health Psychology PhD program at Tulane University for the coming cycle…",
+    "link": "https://twitter.com/None/status/1955768444873310573",
+    "description": "Professor Michael Hoerger is accepting applications for the Health Psychology PhD program at Tulane University.",
+    "sentiment": 0.8,
+    "summary": "Positive sentiment because it highlights a positive aspect of Tulane – its academic programs.This shows the university is actively recruiting and educating students.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-13T23:07:31+00:00",
+    "text": "RT @michael_hoerger: I am accepting admissions applications for the Health Psychology PhD program at Tulane University for the coming cycle…",
+    "link": "https://twitter.com/None/status/1955768208390066661",
+    "description": "Professor Michael Hoerger is accepting applications for the Health Psychology PhD program at Tulane University.",
+    "sentiment": 0.8,
+    "summary": "Positive sentiment because it highlights a positive aspect of Tulane – its academic programs.This shows the university is actively recruiting and educating students.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-13T23:05:32+00:00",
+    "text": "RT @michael_hoerger: I am accepting admissions applications for the Health Psychology PhD program at Tulane University for the coming cycle…",
+    "link": "https://twitter.com/None/status/1955767707149766709",
+    "description": "Professor Michael Hoerger is accepting applications for the Health Psychology PhD program at Tulane University.",
+    "sentiment": 0.8,
+    "summary": "Positive sentiment because it highlights a positive aspect of Tulane – its academic programs.This shows the university is actively recruiting and educating students.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-13T22:59:05+00:00",
+    "text": "RT @michael_hoerger: I am accepting admissions applications for the Health Psychology PhD program at Tulane University for the coming cycle…",
+    "link": "https://twitter.com/None/status/1955766085820801250",
+    "description": "Professor Michael Hoerger is accepting applications for the Health Psychology PhD program at Tulane University.",
+    "sentiment": 0.8,
+    "summary": "Positive sentiment because it highlights a positive aspect of Tulane – its academic programs.This shows the university is actively recruiting and educating students.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-13T22:55:10+00:00",
+    "text": "RT @michael_hoerger: I am accepting admissions applications for the Health Psychology PhD program at Tulane University for the coming cycle…",
+    "link": "https://twitter.com/None/status/1955765098477391970",
+    "description": "Professor Michael Hoerger is accepting applications for the Health Psychology PhD program at Tulane University.",
+    "sentiment": 0.8,
+    "summary": "Positive sentiment because it highlights a positive aspect of Tulane – its academic programs.This shows the university is actively recruiting and educating students.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-13T22:55:08+00:00",
+    "text": "RT @michael_hoerger: I am accepting admissions applications for the Health Psychology PhD program at Tulane University for the coming cycle…",
+    "link": "https://twitter.com/None/status/1955765089753075789",
+    "description": "Professor Michael Hoerger is accepting applications for the Health Psychology PhD program at Tulane University.",
+    "sentiment": 0.8,
+    "summary": "Positive sentiment because it highlights a positive aspect of Tulane – its academic programs.This shows the university is actively recruiting and educating students.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-13T22:48:47+00:00",
+    "text": "@CSG_Tulane UTSA..TULSA..RICE..UNT..WHERE TF YOU AT?",
+    "link": "https://twitter.com/None/status/1955763493191442813",
+    "description": "Tweet expresses frustration or confusion about the absence of certain teams (UTSA, Tulsa, Rice, UNT) from an unspecified context.",
+    "sentiment": -0.2,
+    "summary": "Slightly negative sentiment due to the implied disappointment or confusion.Relevance to Tulane is limited, as it is mentioned in passing within a larger context.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-13T22:47:54+00:00",
+    "text": "RT @toupsfamilymeal: I’m on my way to give a talk at Tulane Business School! They’ve built a class around Family Meal and their sole projec…",
+    "link": "https://twitter.com/None/status/1955763268204814761",
+    "description": "Tweet mentions giving a talk at Tulane Business School about Family Meal.",
+    "sentiment": 0.8,
+    "summary": "Highly positive sentiment as it highlights Tulane Business School's academic activities and engagement with external experts.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-13T22:43:51+00:00",
+    "text": "RT @michael_hoerger: I am accepting admissions applications for the Health Psychology PhD program at Tulane University for the coming cycle…",
+    "link": "https://twitter.com/None/status/1955762249861357862",
+    "description": "Tweet announces the acceptance of applications for the Health Psychology PhD program at Tulane University.",
+    "sentiment": 1.0,
+    "summary": "Very positive sentiment as it showcases Tulane's strong graduate program and academic excellence.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-13T22:38:39+00:00",
+    "text": "RT @michael_hoerger: I am accepting admissions applications for the Health Psychology PhD program at Tulane University for the coming cycle…",
+    "link": "https://twitter.com/None/status/1955760943251775963",
+    "description": "Tweet announces the acceptance of applications for the Health Psychology PhD program at Tulane University.",
+    "sentiment": 1.0,
+    "summary": "Very positive sentiment as it showcases Tulane's strong graduate program and academic excellence.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-13T22:38:09+00:00",
+    "text": "RT @michael_hoerger: I am accepting admissions applications for the Health Psychology PhD program at Tulane University for the coming cycle…",
+    "link": "https://twitter.com/None/status/1955760815551787370",
+    "description": "Tweet announces the acceptance of applications for the Health Psychology PhD program at Tulane University.",
+    "sentiment": 1.0,
+    "summary": "Very positive sentiment as it showcases Tulane's strong graduate program and academic excellence.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-13T22:05:29+00:00",
+    "text": "RT @michael_hoerger: I am accepting admissions applications for the Health Psychology PhD program at Tulane University for the coming cycle…",
+    "link": "https://twitter.com/None/status/1955752593403338786",
+    "description": "A tweet announcing the acceptance of applications for the Health Psychology PhD program at Tulane University.",
+    "sentiment": 1.0,
+    "summary": "Highly positive sentiment.This tweet promotes a prestigious academic program at Tulane, reflecting positively on the university's academic standing.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-13T22:00:03+00:00",
+    "text": "RT @michael_hoerger: I am accepting admissions applications for the Health Psychology PhD program at Tulane University for the coming cycle…",
+    "link": "https://twitter.com/None/status/1955751226622271519",
+    "description": "A tweet announcing the acceptance of applications for the Health Psychology PhD program at Tulane University.",
+    "sentiment": 1.0,
+    "summary": "Highly positive sentiment.This tweet promotes a prestigious academic program at Tulane, reflecting positively on the university's academic standing.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-13T21:56:56+00:00",
+    "text": "RT @michael_hoerger: I am accepting admissions applications for the Health Psychology PhD program at Tulane University for the coming cycle…",
+    "link": "https://twitter.com/None/status/1955750445294457247",
+    "description": "Announcing admissions for the Health Psychology PhD program at Tulane University.",
+    "sentiment": 0.8,
+    "summary": "Positive sentiment due to the announcement of admissions for a PhD program, showcasing Tulane's academic strengths.This directly relates to Tulane's reputation and is a positive contribution.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-13T21:49:25+00:00",
+    "text": "RT @michael_hoerger: I am accepting admissions applications for the Health Psychology PhD program at Tulane University for the coming cycle…",
+    "link": "https://twitter.com/None/status/1955748550035542407",
+    "description": "Announcing admissions for the Health Psychology PhD program at Tulane University.",
+    "sentiment": 0.8,
+    "summary": "Positive sentiment due to the announcement of admissions for a PhD program, showcasing Tulane's academic strengths. This directly relates to Tulane's reputation and is a positive contribution.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-13T21:37:50+00:00",
+    "text": "RT @michael_hoerger: I am accepting admissions applications for the Health Psychology PhD program at Tulane University for the coming cycle…",
+    "link": "https://twitter.com/None/status/1955745638584606983",
+    "description": "Announcing admissions for the Health Psychology PhD program at Tulane University.",
+    "sentiment": 0.8,
+    "summary": "Positive sentiment due to the announcement of admissions for a PhD program, showcasing Tulane's academic strengths. This directly relates to Tulane's reputation and is a positive contribution.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-13T21:25:23+00:00",
+    "text": "RT @michael_hoerger: I am accepting admissions applications for the Health Psychology PhD program at Tulane University for the coming cycle…",
+    "link": "https://twitter.com/None/status/1955742504869093666",
+    "description": "Announcing admissions for the Health Psychology PhD program at Tulane University.",
+    "sentiment": 0.8,
+    "summary": "Positive sentiment due to the announcement of admissions for a PhD program, showcasing Tulane's academic strengths. This directly relates to Tulane's reputation and is a positive contribution.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-13T21:24:01+00:00",
+    "text": "@TeladocHealth That’s a solid win—virtual care cutting ER trips without skimping on actual care. Reminds me of @EdwardWNYK’s point on how tech can ease strain on systems. Smart move, Tulane. #VirtualCare",
+    "link": "https://twitter.com/None/status/1955742158775894118",
+    "description": "Positive tweet mentioning Tulane's smart move in utilizing virtual care.",
+    "sentiment": 0.8,
+    "summary": "The tweet expresses positive sentiment towards Tulane's use of technology to improve healthcare, highlighting its innovative approach.No negative keywords are present.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-13T21:20:31+00:00",
+    "text": "RT @michael_hoerger: I am accepting admissions applications for the Health Psychology PhD program at Tulane University for the coming cycle…",
+    "link": "https://twitter.com/None/status/1955741278639153301",
+    "description": "Tweet announcing the acceptance of applications for the Health Psychology PhD program at Tulane University.",
+    "sentiment": 1.0,
+    "summary": "Highly positive sentiment; it promotes a prestigious academic program at Tulane, reflecting positively on the university's academic reputation.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-13T21:18:13+00:00",
+    "text": "RT @michael_hoerger: I am accepting admissions applications for the Health Psychology PhD program at Tulane University for the coming cycle…",
+    "link": "https://twitter.com/None/status/1955740702098513990",
+    "description": "Tweet announcing the acceptance of applications for the Health Psychology PhD program at Tulane University.",
+    "sentiment": 1.0,
+    "summary": "Highly positive sentiment; it promotes a prestigious academic program at Tulane, reflecting positively on the university's academic reputation.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-13T21:17:53+00:00",
+    "text": "RT @michael_hoerger: I am accepting admissions applications for the Health Psychology PhD program at Tulane University for the coming cycle…",
+    "link": "https://twitter.com/None/status/1955740615821680847",
+    "description": "Tweet announcing the acceptance of applications for the Health Psychology PhD program at Tulane University.",
+    "sentiment": 1.0,
+    "summary": "Highly positive sentiment; it promotes a prestigious academic program at Tulane, reflecting positively on the university's academic reputation.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-13T21:15:53+00:00",
+    "text": "RT @DavidMora: 27 weeks (189 days) until Mardi Gras 2026! 💜💛💚 #CarnivalCountdown \n\n📍Bead Tree at @Tulane \n\n#MardiGras #NewOrleans https://t…",
+    "link": "https://twitter.com/None/status/1955740113637662881",
+    "description": "Tweet about Mardi Gras countdown mentioning Tulane's Bead Tree.",
+    "sentiment": 0.5,
+    "summary": "Slightly positive sentiment; it connects Tulane to a positive community event, enhancing its image.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-13T21:14:03+00:00",
+    "text": "For the third year in a row, MSJE has welcomed @Tulane freshmen during their Orientation Week. May this be the first of many visits over your next four years (and maybe even an internship). Welcome to New Orleans! @tulanealumni @dddneworleans @neworleansandco https://t.co/F7o7HSE072",
+    "link": "https://twitter.com/None/status/1955739650816971144",
+    "description": "Tweet about MSJE welcoming Tulane freshmen during orientation week.",
+    "sentiment": 1.0,
+    "summary": "Highly positive; shows positive community relations and engagement with Tulane students.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-13T21:13:31+00:00",
+    "text": "RT @michael_hoerger: I am accepting admissions applications for the Health Psychology PhD program at Tulane University for the coming cycle…",
+    "link": "https://twitter.com/None/status/1955739515865456797",
+    "description": "Tweet announcing the acceptance of applications for the Health Psychology PhD program at Tulane University.",
+    "sentiment": 1.0,
+    "summary": "Highly positive sentiment; it promotes a prestigious academic program at Tulane, reflecting positively on the university's academic reputation.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-13T21:07:57+00:00",
+    "text": "RT @michael_hoerger: I am accepting admissions applications for the Health Psychology PhD program at Tulane University for the coming cycle…",
+    "link": "https://twitter.com/None/status/1955738115718418550",
+    "description": "Announcement of open admissions for the Health Psychology PhD program at Tulane University.",
+    "sentiment": 0.8,
+    "summary": "Positive sentiment.This tweet promotes a positive aspect of Tulane (academic program) and reflects well on the university.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-13T21:05:29+00:00",
+    "text": "RT @michael_hoerger: I am accepting admissions applications for the Health Psychology PhD program at Tulane University for the coming cycle…",
+    "link": "https://twitter.com/None/status/1955737496069005361",
+    "description": "Announcement of open admissions for the Health Psychology PhD program at Tulane University.",
+    "sentiment": 0.8,
+    "summary": "Positive sentiment. This tweet promotes a positive aspect of Tulane (academic program) and reflects well on the university.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-13T21:04:44+00:00",
+    "text": "@CSG_Tulane Very creative.",
+    "link": "https://twitter.com/None/status/1955737306759147764",
+    "description": "A positive comment on something creative related to Tulane.",
+    "sentiment": 0.5,
+    "summary": "Positive sentiment. The tweet expresses appreciation for something creative related to Tulane, indirectly reflecting well on the university.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-13T21:03:57+00:00",
+    "text": "@tulanetalk Maybe I’m just old lol.\nI was there with Joe Kemp and Ryan Griffin. I think Nick Montana transferred to Tulane my last semester. Ryan Grant was in the B school with me along with Cairo Santos.",
+    "link": "https://twitter.com/None/status/1955737112009170967",
+    "description": "Nostalgic reflection on Tulane, mentioning several individuals associated with the university.",
+    "sentiment": 0.5,
+    "summary": "Neutral to slightly positive sentiment.This tweet shares a personal anecdote related to Tulane; it doesn't contain any negative information.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-13T21:03:42+00:00",
+    "text": "RT @michael_hoerger: I am accepting admissions applications for the Health Psychology PhD program at Tulane University for the coming cycle…",
+    "link": "https://twitter.com/None/status/1955737044992602594",
+    "description": "Announcement of open admissions for the Health Psychology PhD program at Tulane University.",
+    "sentiment": 0.8,
+    "summary": "Positive sentiment. This tweet promotes a positive aspect of Tulane (academic program) and reflects well on the university.",
+    "is_sport": 0,
+    "affiliation": 1
   }
 ]
