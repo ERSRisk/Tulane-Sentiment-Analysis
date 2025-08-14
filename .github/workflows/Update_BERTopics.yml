@@ -61,17 +61,20 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          # Add ignore entries once
           grep -qxF 'Online_Extraction/all_RSS.json' .gitignore || echo 'Online_Extraction/all_RSS.json' >> .gitignore
           grep -qxF 'Online_Extraction/all_RSS.json.gz' .gitignore || echo 'Online_Extraction/all_RSS.json.gz' >> .gitignore
           grep -qxF 'Model_training/BERTopic_model' .gitignore   || echo 'Model_training/BERTopic_model'   >> .gitignore
           git add .gitignore
-
-          # Stage everything, then unstage the excluded ones
           git add -A
           git reset Online_Extraction/all_RSS.json Online_Extraction/all_RSS.json.gz Model_training/BERTopic_model || true
 
-          git commit -m "Auto-update extracted JSON files" || echo "Nothing to commit"
+          git add Model_training/BERTopic_results2.csv || true
+          git add Model_training/topic_trend.csv || true
+
+          git status -s
+          ls -lh Model_training/BERTopic_results2.csv || true
+
+          git commit -m "Update results CSV and trend file" || echo "Nothing to commit"
           git pull --rebase --autostash origin main || true
           git push origin HEAD:main || true
 
