@@ -467,15 +467,62 @@ def predict_risks(df):
 
     df['Predicted_Risks_new'] = out
     return df
-def track_over_time(df):
-    df['Published'] = pd.to_datetime(df['Published'], errors = 'coerce')
+def track_over_time(df, week_anchor="W-MON", out_csv="Model_training/topic_trend.csv"):
+
+    if 'Published' not in df.columns:
+        print("⚠️ 'Published' column missing; skipping trend tracking.")
+        return
+
+    df = df.copy()
+
+    # --- 1) Coerce to datetime, handle epoch numbers & strings, keep UTC then strip tz ---
+    def _coerce_pub(x):
+        if pd.isna(x): 
+            return pd.NaT
+        # epoch millis / seconds
+        if isinstance(x, (int, float)):
+            if x > 1e12:   # ms
+                return pd.to_datetime(x, unit='ms', errors='coerce', utc=True)
+            if x > 1e9:    # s
+                return pd.to_datetime(x, unit='s', errors='coerce', utc=True)
+        # general string/datetime
+        return pd.to_datetime(x, errors='coerce', utc=True)
+
+    df['Published'] = df['Published'].apply(_coerce_pub)
     df = df.dropna(subset=['Published'])
 
-    df['week'] = df['Published'].dt.to_period('W').apply(lambda r: r.start_time)
-    topic_name_map = {topic['topic']: topic['name'] for topic in json.load(open('Model_training/topics_BERT.json'))}
-    df['Topic_Name'] = df['Topic'].map(topic_name_map)
-    topic_trend = df.groupby(['week', 'Topic_Name']).size().reset_index(name='article_count')
-    topic_trend.to_csv('Model_training/topic_trend.csv', index = False)
+    # strip tz (Period ops are simplest on naive timestamps)
+    if pd.api.types.is_datetime64tz_dtype(df['Published']):
+        df['Published'] = df['Published'].dt.tz_convert('UTC').dt.tz_localize(None)
+    else:
+        # already naive or non-tz datetime64
+        df['Published'] = df['Published'].dt.tz_localize(None)
+
+    # --- 2) Week bucket (anchor Monday by default) ---
+    # e.g. "W-SUN" if you prefer Sunday starts
+    df['week'] = df['Published'].dt.to_period(week_anchor).apply(lambda p: p.start_time)
+
+    # --- 3) Topic names (safe load) ---
+    topic_name_map = {}
+    try:
+        with open('Model_training/topics_BERT.json', 'r', encoding='utf-8') as f:
+            topics_json = json.load(f)
+            topic_name_map = {t['topic']: t['name'] for t in topics_json if 'topic' in t and 'name' in t}
+    except FileNotFoundError:
+        print("⚠️ topics_BERT.json not found; labeling as 'Unlabeled Topic'.")
+
+    df['Topic_Name'] = df.get('Topic').map(topic_name_map) if 'Topic' in df.columns else "Unlabeled Topic"
+    df['Topic_Name'] = df['Topic_Name'].fillna('Unlabeled Topic')
+
+    # --- 4) Aggregate & save ---
+    topic_trend = (
+        df.groupby(['week', 'Topic_Name'], dropna=False)
+          .size().reset_index(name='article_count')
+          .sort_values(['week', 'article_count'], ascending=[True, False])
+    )
+    os.makedirs(os.path.dirname(out_csv), exist_ok=True)
+    topic_trend.to_csv(out_csv, index=False)
+    print(f"✅ Saved topic trend to {out_csv}")
 
 
 def call_gemini(prompt):
@@ -615,4 +662,4 @@ df = risk_weights(df)
 results_df = load_university_label(df)
 results_df.to_csv('BERTopic_results2.csv', index=False)
 #Show the articles over time
-track_over_time(df)
+track_over_time(df_combined)
