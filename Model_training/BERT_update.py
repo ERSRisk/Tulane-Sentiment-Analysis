@@ -34,6 +34,17 @@ df = pd.DataFrame(articles)
 Path("Online_Extraction").mkdir(parents=True, exist_ok = True)
 with gzip.open('Online_Extraction/all_RSS.json.gz', 'wb') as f:
     f.write(response.content)
+
+def atomic_write_csv(path: str, df, compress: bool = False):
+    p = Path(path)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    tmp = p.with_suffix(p.suffix + ".tmp")
+    if compress:
+        df.to_csv(tmp, index=False, compression="gzip")
+    else:
+        df.to_csv(tmp, index=False)
+    os.replace(tmp, p)
+    print(f"✅ Wrote {p} ({p.stat().st_size/1e6:.2f} MB)")
     
 def download_model_if_exists():
     try:
@@ -850,6 +861,6 @@ df['Predicted_Risks'] = df.get('Predicted_Risks_new', '')
 print("✅ Applying risk_weights...", flush=True)
 df = risk_weights(df)
 results_df = load_university_label(df)
-results_df.to_csv('BERTopic_results2.csv', index=False)
+atomic_write_csv("Model_training/BERTopic_results2.csv.gz", results_df, compress=True)
 #Show the articles over time
 track_over_time(df_combined)
