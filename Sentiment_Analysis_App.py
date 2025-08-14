@@ -856,8 +856,8 @@ if selection == "Article Risk Review":
 
     required_keys = {'Title', 'Content'}
     if 'articles' not in st.session_state:
-        if os.path.exists('Model_training/BERTopic_results1.csv'):
-            results_df = pd.read_csv('Model_training/BERTopic_results1.csv')
+        if os.path.exists('Model_training/BERTopic_results2.csv.gz'):
+            results_df = pd.read_csv('Model_training/BERTopic_results2.csv.gz', compression = 'gzip')
 
             use_changes = Path('Model_training/BERTopic_changes.csv').is_file() and Path('Model_training/BERTopic_changes.csv').stat().st_size > 0
             changes_df = None
@@ -968,7 +968,7 @@ if selection == "Article Risk Review":
     base_df = st.session_state.articles
     #articles = articles[articles['Published']> start_date.strftime('%Y-%m-%d')]
     #articles = articles[articles['Published']< end_date.strftime('%Y-%m-%d')]
-    filtered_df = base_df[base_df['University Label'] == 1]
+    filtered_df = base_df[base_df['University Label_y'] == 1]
     filtered_df = filtered_df.drop_duplicates(subset=['Title', 'Link'])
     if status_choice == 'Unreviewed only':
         filtered_df = filtered_df[filtered_df['Reviewed'] != 1]
@@ -1005,7 +1005,7 @@ if selection == "Article Risk Review":
         title = str(article.get("Title", ""))[:100]
     
         
-        raw = article.get("Predicted_Risks_new", "[]")
+        raw = article.get("Predicted_Risk_Single", "[]")
         if isinstance(raw, list):
             predicted = raw
         elif isinstance(raw, str):
