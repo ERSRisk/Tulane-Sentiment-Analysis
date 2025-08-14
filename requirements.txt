@@ -1,6 +1,6 @@
 bertopic
-streamlit
-pandas
+streamlit>=1.35
+pandas>=2.2
 altair
 nest_asyncio
 google-generativeai
@@ -19,7 +19,6 @@ protobuf==3.20.3
 aiohttp
 feedparser
 spacy
-undetected_chromedriver
 selenium
 trafilatura
 sentence-transformers
@@ -30,4 +29,3 @@ scikit-learn
 playwright
 pdfplumber
 python-docx
-sentence-transformers
