@@ -386,49 +386,238 @@ def existing_risks_json(topic_name_pairs, topic_model):
         json.dump(existing_unmatched, f, indent=4, ensure_ascii=False)
 
 def risk_weights(df):
-    with open('Model_training/risks.json', 'r') as f:
-        data = json.load(f)
-    df['Weights'] = ""
-    df['Predicted_Risks'] = df['Predicted_Risks'].fillna('').str.strip().str.lower()
-    label_correctio = {
-    "declining student enrollment": "declining student enrollment",
 
-    "geopolitical shifts, regional conflicts, and governmental instability": "geopolitical instability",
 
-    "geopolitical shifts, regional conflicts, and governmental instability": "geopolitical instability",
+    # ---------- Load config ----------
+    with open('Model_training/risks.json', 'r', encoding='utf-8') as f:
+        risks_cfg = json.load(f)
 
-    "failure to comply with or change in legal or regulatory requirements": "regulatory compliance failure"}
+    # Sources accuracy map (string name -> numeric 0..5)
+    accuracy_map = {}
+    for s in risks_cfg.get('sources', []):
+        name = str(s.get('name', '') or '')
+        acc = s.get('accuracy', 0) or 0
+        accuracy_map[name] = acc
 
-    for k, v in label_correctio.items():
-        df['Predicted_Risks'] = df['Predicted_Risks'].str.replace(v, k, regex=False)
-    df['Predicted_Risks'] = df['Predicted_Risks'].astype(str).str.strip().str.split(';')
-    df = df.explode('Predicted_Risks')
-    df['Predicted_Risks'] = df['Predicted_Risks'].str.strip()
-    df = df[df['Predicted_Risks'] != '']
-    risk_list = data['risks']
-    sources = data['sources']
-    weights = []
-    for i, row in df.iterrows():
-        weight = 0
-        for risk in risk_list:
-            risk_name = risk['name'].lower()
-            level = risk['level']
-            likelihood = risk['likelihood']
-            impact = risk['impact']
-            velocity = risk['velocity']
-            if risk_name in row['Predicted_Risks']:
-                weight += ((likelihood/5) + (impact/5) + (velocity/5))/3
-        for source in sources:
-            source_name = str(source.get('name', '') or '')
-            source_accuracy = source.get('accuracy', 0) or 0  # numeric fallback
-            row_source = row.get('Source', '')
-            row_source = '' if pd.isna(row_source) else str(row_source)
-        
-            if source_name and source_name.lower() in row_source.lower():
-                weight *= 0.85 + 0.15 * (float(source_accuracy) / 5.0)
-        weights.append(weight *5  if weight >0 else 0)
-    df['Weights'] = weights
-    return df
+    # Risk level map (risk name -> level 0..5), supports string levels too
+    level_name_map = {"low":1, "medium low":2, "medium":3, "medium high":4, "high":5}
+    risks_map = {}
+    for r in risks_cfg.get('risks', []):
+        nm = (r.get('name') or '').strip().lower()
+        lvl = r.get('level', 0)
+        if isinstance(lvl, str):
+            lvl = level_name_map.get(lvl.strip().lower(), 0)
+        try:
+            lvl = float(lvl)
+        except Exception:
+            lvl = 0.0
+        if nm:
+            risks_map[nm] = lvl
+
+    higher_ed_dict = risks_cfg.get('HigherEdRisks', None)  # optional spaCy phrase dict
+
+    # ---------- Base sanitation ----------
+    base = df.copy()
+
+    for col in ['Title','Content','Source']:
+        if col not in base.columns:
+            base[col] = ''
+    base['Title'] = base['Title'].fillna('').astype(str)
+    base['Content'] = base['Content'].fillna('').astype(str)
+    base['Source'] = base['Source'].fillna('').astype(str)
+
+    # Published -> datetime (robust coercion)
+    def _coerce_pub(x):
+        if pd.isna(x):
+            return pd.NaT
+        if isinstance(x, (int, float)):
+            if x > 1e12:  # epoch ms
+                return pd.to_datetime(x, unit='ms', errors='coerce', utc=True)
+            if x > 1e9:   # epoch s
+                return pd.to_datetime(x, unit='s', errors='coerce', utc=True)
+        sx = str(x)
+        sx = re.sub(r'\s(EST|EDT|PDT|CDT|MDT|GMT)\b', '', sx, flags=re.I)
+        return pd.to_datetime(sx, errors='coerce', utc=True)
+
+    if 'Published' not in base.columns:
+        base['Published'] = pd.NaT
+
+    base['Published_raw'] = base['Published']
+    base['Published'] = base['Published'].apply(_coerce_pub)
+    if pd.api.types.is_datetime64tz_dtype(base['Published']):
+        base['Published'] = base['Published'].dt.tz_convert('UTC').dt.tz_localize(None)
+
+    # ---------- Per-article features (computed once, broadcast to exploded rows) ----------
+    now_naive = datetime.utcnow()
+    base['Days_Ago'] = (now_naive - base['Published']).dt.days
+    base['Days_Ago'] = base['Days_Ago'].fillna(10_000).astype(int)
+
+    def _recency_bucket(d):
+        if d <= 30: return 5
+        if d <= 60: return 4
+        if d <= 90: return 3
+        if d <= 180: return 2
+        if d <= 365: return 1
+        return 0
+    base['Recency'] = base['Days_Ago'].apply(_recency_bucket)
+
+    if 'Topic' not in base.columns:
+        base['Topic'] = -1
+    base['Topic'] = base['Topic'].fillna(-1)
+
+    def _window_tag(d):
+        if d <= 30: return 'recent'
+        if d <= 60: return 'previous'
+        return 'older'
+    tmp = base[['Topic','Days_Ago']].copy()
+    tmp['Time_Window'] = tmp['Days_Ago'].apply(_window_tag)
+    topic_counts = tmp.groupby(['Topic','Time_Window']).size().unstack(fill_value=0)
+    for c in ['recent','previous']:
+        if c not in topic_counts.columns:
+            topic_counts[c] = 0
+    topic_counts['AccelDelta'] = topic_counts['recent'] - topic_counts['previous']
+    accel_map = topic_counts['AccelDelta'].to_dict()
+    base['Acceleration'] = base['Topic'].map(accel_map).fillna(0).astype(int)
+
+    def _accel_bin(a):
+        a = int(a)
+        if a <= 0: return 0
+        if a <= 2: return 1
+        if a <= 3: return 2
+        if a <= 5: return 3
+        if a <= 10: return 4
+        return 5
+    base['Acceleration_value'] = base['Acceleration'].apply(_accel_bin)
+
+    def _src_acc(src):
+        src = str(src or '')
+        best = 0.0
+        for name, acc in accuracy_map.items():
+            if name and name.lower() in src.lower():
+                try:
+                    v = float(acc)
+                except Exception:
+                    v = 0.0
+                best = max(best, v)
+        return best
+    base['Source_Accuracy'] = base['Source'].apply(_src_acc)
+
+    # Location (entities preferred; fallback text)
+    def _loc_score(row):
+        entities = row.get('Entities', None)
+        text = (row.get('Title','') + ' ' + row.get('Content','')).lower()
+        def any_in(keys): return any(k.lower() in text for k in keys)
+        if isinstance(entities, list):
+            if any(e in ['New Orleans','Louisiana'] for e in entities): return 5
+            if any(e in ['Baton Rouge','Alabama','Texas','Mississippi'] for e in entities): return 1
+            return 0
+        if any_in(['new orleans','louisiana']): return 5
+        if any_in(['baton rouge','alabama','texas','mississippi']): return 1
+        return 0
+    base['Location'] = base.apply(_loc_score, axis=1).astype(int)
+
+    # ---------- Explode to one row per risk ----------
+    pr_col = 'Predicted_Risks'
+    if pr_col not in base.columns:
+        base[pr_col] = ''
+    def _parse_tokens(s):
+        toks = [t.strip() for t in re.split(r'[;,]\s*', str(s or '')) if t.strip()]
+        return [t for t in toks if t.lower() != 'no risk']
+    base['_RiskList'] = base[pr_col].fillna('').astype(str).apply(_parse_tokens)
+
+    exploded = base.explode('_RiskList', ignore_index=False).rename(columns={'_RiskList':'Risk'})
+    exploded = exploded[exploded['Risk'].notna() & (exploded['Risk'].astype(str).str.strip()!='')].copy()
+    exploded['Risk_norm'] = exploded['Risk'].astype(str).str.strip().str.lower()
+
+    # ---------- Frequency_Score per risk (qcut over counts) ----------
+    if exploded.empty:
+        exploded['Frequency_Score'] = 0
+    else:
+        counts = exploded['Risk_norm'].value_counts().rename_axis('Risk_norm').reset_index(name='Count')
+        try:
+            bins = pd.qcut(counts['Count'].rank(method='first'), 5, labels=[1,2,3,4,5])
+            counts['Frequency_Score'] = bins.astype(int)
+        except Exception:
+            mn, mx = counts['Count'].min(), counts['Count'].max()
+            if mx == mn:
+                counts['Frequency_Score'] = 3
+            else:
+                scaled = 1 + 4 * (counts['Count'] - mn) / float(mx - mn)
+                counts['Frequency_Score'] = scaled.round().clip(1,5).astype(int)
+        freq_map = dict(zip(counts['Risk_norm'], counts['Frequency_Score']))
+        exploded['Frequency_Score'] = exploded['Risk_norm'].map(freq_map).fillna(0).astype(int)
+
+    # ---------- Industry_Risk via spaCy matches (per article, then applied per risk) ----------
+    detected_map = {}
+    detected_join_map = {}
+    use_spacy = False
+    if higher_ed_dict and isinstance(higher_ed_dict, dict):
+        try:
+            import spacy
+            from spacy.matcher import PhraseMatcher
+            nlp = spacy.load('en_core_web_sm')
+            matcher = PhraseMatcher(nlp.vocab, attr='LOWER')
+            for risk_name, phrases in higher_ed_dict.items():
+                pats = [nlp(p) for p in phrases if isinstance(p, str) and p.strip()]
+                if pats: matcher.add(risk_name, pats)
+            use_spacy = True
+        except Exception:
+            use_spacy = False
+
+    if use_spacy:
+        texts = (base['Title'].astype(str) + ' ' + base['Content'].astype(str))
+        for idx, txt in texts.items():
+            doc = nlp(txt)
+            matches = matcher(doc)
+            names = sorted(set([nlp.vocab.strings[mid] for (mid,_,_) in matches]))
+            detected_join_map[idx] = ', '.join(names)
+            detected_map[idx] = set(n.lower() for n in names)
+    else:
+        for idx in base.index:
+            detected_join_map[idx] = ''
+            detected_map[idx] = set()
+
+    # Map per exploded row
+    exploded['Detected_Risks'] = exploded.index.map(detected_join_map)
+    exploded['Industry_Risk'] = [
+        5 if r in detected_map.get(idx, set()) else 0
+        for idx, r in zip(exploded.index, exploded['Risk_norm'])
+    ]
+
+    # ---------- Impact_Score per risk ----------
+    exploded['Impact_Score'] = exploded['Risk_norm'].map(risks_map).fillna(0.0).astype(float)
+
+    # ---------- Final blended Risk_Score (0..5) per (article × risk) ----------
+    w = {
+        'Recency': 0.10,
+        'Source_Accuracy': 0.15,
+        'Impact_Score': 0.25,
+        'Acceleration_value': 0.08,
+        'Location': 0.05,
+        'Industry_Risk': 0.20,
+        'Frequency_Score': 0.07
+    }
+    weight_sum = sum(w.values())  # 0.90
+
+    num = (
+        exploded['Recency'] * w['Recency'] +
+        exploded['Source_Accuracy'] * w['Source_Accuracy'] +
+        exploded['Impact_Score'] * w['Impact_Score'] +
+        exploded['Acceleration_value'] * w['Acceleration_value'] +
+        exploded['Location'] * w['Location'] +
+        exploded['Industry_Risk'] * w['Industry_Risk'] +
+        exploded['Frequency_Score'] * w['Frequency_Score']
+    )
+    exploded['Risk_Score'] = (num / weight_sum).clip(0,5).round(3)
+    exploded['Weights'] = exploded['Risk_Score']  # back-compat
+
+    # helpful: keep original full risk list too
+    exploded['Predicted_Risk_Single'] = exploded['Risk']
+
+    # stable ID for joining back if needed
+    exploded = exploded.reset_index().rename(columns={'index':'ArticleID'})
+
+    return exploded
 
 def predict_risks(df):
 
