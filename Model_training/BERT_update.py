@@ -168,14 +168,14 @@ def transform_text(texts):
     texts['Probability'] = all_probs
     return texts
 
-def save_new_topics(existing_df, new_df, path = 'Model_training/BERTopic_results.csv'):
+def save_new_topics(existing_df, new_df, path = 'Model_training/BERTopic_results.csv.gz'):
     if 'Link' in existing_df and 'Link' in new_df:
         unique_new = new_df[~new_df['Link'].isin(existing_df['Link'])]
     else:
         unique_new = new_df
 
     try:
-        on_disk = pd.read_csv(path)
+        on_disk = pd.read_csv(path, compression = 'gzip')
     except FileNotFoundError:
         on_disk = pd.DataFrame()
 
@@ -185,7 +185,7 @@ def save_new_topics(existing_df, new_df, path = 'Model_training/BERTopic_results
     if not combined.empty and {'Title', 'Content'}.issubset(combined.columns):
         combined = combined.drop_duplicates(subset = ['Title', 'Content'], keep = 'last')
 
-    combined.to_csv(path, index = False)
+    combined.to_csv(path, index = False, compression = 'gzip')
     return combined
 
 def double_check_articles(df):
