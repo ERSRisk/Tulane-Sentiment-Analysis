@@ -15,6 +15,7 @@ import joblib
 import asyncio
 import backoff
 import gzip
+from datetime import datetime
 
 rss_url = "https://github.com/ERSRisk/Tulane-Sentiment-Analysis/releases/download/rss_json/all_RSS.json.gz"
 
