@@ -430,15 +430,12 @@ def risk_weights(df):
 
     # ---------- Base sanitation ----------
     base = df.copy()
-
     for col in ['Title','Content','Source']:
         if col not in base.columns:
             base[col] = ''
     base['Title'] = base['Title'].fillna('').astype(str)
     base['Content'] = base['Content'].fillna('').astype(str)
     base['Source'] = base['Source'].fillna('').astype(str)
-
-    # Published -> datetime (robust coercion)
     def _coerce_pub(x):
         if pd.isna(x):
             return pd.NaT
@@ -463,7 +460,6 @@ def risk_weights(df):
     now_naive = datetime.utcnow()
     base['Days_Ago'] = (now_naive - base['Published']).dt.days
     base['Days_Ago'] = base['Days_Ago'].fillna(10_000).astype(int)
-
     def _recency_bucket(d):
         if d <= 30: return 5
         if d <= 60: return 4
@@ -472,6 +468,50 @@ def risk_weights(df):
         if d <= 365: return 1
         return 0
     base['Recency'] = base['Days_Ago'].apply(_recency_bucket)
+
+    def _src_acc(src):
+        src = str(src or '')
+        best = 0.0
+        for name, acc in accuracy_map.items():
+            if name and name.lower() in src.lower():
+                try:
+                    v = float(acc)
+                except Exception:
+                    v = 0.0
+                best = max(best, v)
+        return best
+    base['Source_Accuracy'] = base['Source'].apply(_src_acc)
+
+    def _loc_score(row):
+        entities = row.get('Entities', None)
+        text = (row.get('Title','') + ' ' + row.get('Content','')).lower()
+        def any_in(keys): return any(k.lower() in text for k in keys)
+        if isinstance(entities, list):
+            if any(e in ['New Orleans','Louisiana'] for e in entities): return 5
+            if any(e in ['Baton Rouge','Alabama','Texas','Mississippi'] for e in entities): return 1
+            return 0
+        if any_in(['new orleans','louisiana']): return 5
+        if any_in(['baton rouge','alabama','texas','mississippi']): return 1
+        return 0
+    base['Location'] = base.apply(_loc_score, axis=1).astype(int)
+
+    pr_col = 'Predicted_Risks'
+    if pr_col not in base.columns:
+        base[pr_col] = ''
+    def _parse_tokens(s):
+        toks = [t.strip() for t in re.split(r'[;,]\s*', str(s or '')) if t.strip()]
+        return [t for t in toks if t.lower() != 'no risk']
+    base['_RiskList'] = base[pr_col].fillna('').astype(str).apply(_parse_tokens)
+
+    exploded = base.explode('_RiskList', ignore_index=False).rename(columns={'_RiskList':'Risk'})
+    exploded = exploded[exploded['Risk'].notna() & (exploded['Risk'].astype(str).str.strip()!='')].copy()
+    exploded['Risk_norm'] = exploded['Risk'].astype(str).str.strip().str.lower()
+    
+
+    # Published -> datetime (robust coercion)
+    
+
+    
 
     if 'Topic' not in base.columns:
         base['Topic'] = -1
@@ -487,59 +527,82 @@ def risk_weights(df):
     for c in ['recent','previous']:
         if c not in topic_counts.columns:
             topic_counts[c] = 0
-    topic_counts['AccelDelta'] = topic_counts['recent'] - topic_counts['previous']
-    accel_map = topic_counts['AccelDelta'].to_dict()
-    base['Acceleration'] = base['Topic'].map(accel_map).fillna(0).astype(int)
+    
+    ##acceleration calculation
+    exploded['Week'] = exploded['Published'].dt.to_period('W-MON').apply(lambda p: p.start_time)
+    ts = (
+        exploded.dropna(subset = ['Week'])
+        .groupby(['Risk_norm','Week'])
+        .size().rename('n').reset_index()
+        .sort_values(['Risk_norm','Week'])
+    )
 
-    def _accel_bin(a):
-        a = int(a)
-        if a <= 0: return 0
-        if a <= 2: return 1
-        if a <= 3: return 2
-        if a <= 5: return 3
-        if a <= 10: return 4
+    ts['EMWA'] = ts.groupby('Risk_norm')['n'].transform(
+        lambda s: s.ewm(span = 4, adjust =False).mean()
+    )
+
+    ts['EMWA_Delta'] = ts.groupby('Risk_norm')['EMWA'].diff().fillna(0.0)
+
+    exploded = exploded.merge(ts[['Risk_norm','Week','EMWA_Delta']], on=['Risk_norm','Week'], how='left')
+    exploded['EMWA_Delta'] = exploded['EMWA_Delta'].fillna(0.0)
+
+    import numpy as np
+    def slope(weeks, counts, k=6):
+        out = np.zeros(len(counts), dtype = float)
+        for i in range(len(counts)):
+            lo = max(0, i-k +1)
+            x = np.arange(lo, i+1, dtype = float)
+            y = counts[lo:i+1].astype(float)
+            if len(x) > 2:
+                m, b = np.polyfit(x,y,1)
+                out[i] = m
+            else:
+                out[i] =0.0
+        return out
+    
+    ts['Slope'] = ts.groupby('Risk_norm', group_keys = False) \
+        .apply(lambda g: pd.Series(slope(g['Week'].values, g['n'].values, k=6), index = g.index)) \
+        .astype(float)
+    
+    def normalize(s):
+        s_pos = s.clip(lower = 0)
+        cap = np.nanpercentile(s_pos, 95) if np.isfinite(s_pos).any() else 0.0
+        if cap <= 0:
+            return s_pos * 0.0
+        return (s_pos/cap).clip(0,1)
+
+    ts['emwa_norm'] = normalize(ts['EMWA'])
+    ts['slope_norm'] = normalize(ts['Slope'])
+
+    w_emwa, w_slope = 0.6, 0.4
+    ts['accel_score'] = (w_emwa*ts['emwa_norm'] + w_slope * ts['slope_norm']).clip(0,1)
+
+    
+    def _acc_value(d):
+        if d < 0.1: return 0
+        if d < 0.25: return 1
+        if d < 0.40: return 2
+        if d < 0.60: return 3
+        if d < 0.80: return 4
         return 5
-    base['Acceleration_value'] = base['Acceleration'].apply(_accel_bin)
+    ts['Acceleration_value'] = ts['accel_score'].apply(_acc_value).astype(int)
 
-    def _src_acc(src):
-        src = str(src or '')
-        best = 0.0
-        for name, acc in accuracy_map.items():
-            if name and name.lower() in src.lower():
-                try:
-                    v = float(acc)
-                except Exception:
-                    v = 0.0
-                best = max(best, v)
-        return best
-    base['Source_Accuracy'] = base['Source'].apply(_src_acc)
+    exploded = exploded.merge(
+        ts[['Risk_norm', 'Week', 'Acceleration_value']],
+        on = ['Risk_norm', 'Week'],
+        how = 'left'
+    )
+
+    exploded['Acceleration_value'] =exploded['Acceleration_value'].fillna(0).astype(int)
+
+
+    
 
     # Location (entities preferred; fallback text)
-    def _loc_score(row):
-        entities = row.get('Entities', None)
-        text = (row.get('Title','') + ' ' + row.get('Content','')).lower()
-        def any_in(keys): return any(k.lower() in text for k in keys)
-        if isinstance(entities, list):
-            if any(e in ['New Orleans','Louisiana'] for e in entities): return 5
-            if any(e in ['Baton Rouge','Alabama','Texas','Mississippi'] for e in entities): return 1
-            return 0
-        if any_in(['new orleans','louisiana']): return 5
-        if any_in(['baton rouge','alabama','texas','mississippi']): return 1
-        return 0
-    base['Location'] = base.apply(_loc_score, axis=1).astype(int)
+    
 
     # ---------- Explode to one row per risk ----------
-    pr_col = 'Predicted_Risks'
-    if pr_col not in base.columns:
-        base[pr_col] = ''
-    def _parse_tokens(s):
-        toks = [t.strip() for t in re.split(r'[;,]\s*', str(s or '')) if t.strip()]
-        return [t for t in toks if t.lower() != 'no risk']
-    base['_RiskList'] = base[pr_col].fillna('').astype(str).apply(_parse_tokens)
-
-    exploded = base.explode('_RiskList', ignore_index=False).rename(columns={'_RiskList':'Risk'})
-    exploded = exploded[exploded['Risk'].notna() & (exploded['Risk'].astype(str).str.strip()!='')].copy()
-    exploded['Risk_norm'] = exploded['Risk'].astype(str).str.strip().str.lower()
+    
 
     # ---------- Frequency_Score per risk (qcut over counts) ----------
     if exploded.empty:

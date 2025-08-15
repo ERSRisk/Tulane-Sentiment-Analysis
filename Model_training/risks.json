@@ -24,11 +24,13 @@
     {"name":"Grant Mismanagement","source":"Internal"},
     {"name":"Audit Findings", "source":"Internal"}]},
 
-    {"Cybersecurity and Data Privacy":[{"name":"Ransomware/Malware", "source":"External"},
+    {"Technology, Cyber & Data Privacy":[{"name":"Ransomware/Malware", "source":"External"},
     {"name":"Unauthorized Access/Data Breach", "source":"External"},
     {"name":"Credential Phishing", "source":"External"},
     {"name":"Vendor Cyber Exposure","source":"Hybrid"},
-    {"name":"Cloud misconfiguration", "source":"Internal"}]},
+    {"name":"Cloud misconfiguration", "source":"Internal"}
+    {"name": "Artificial Intelligence Ethics & Governance"},
+    {"name": "Rapid Speed of Disruptive Innovation"}]},
 
     {"Reputational and Social":[{"name":"Controversial Public Incident", "source":"External"},
     {"name":"DEI Program Backlash", "source":"External"},
