@@ -169,3 +169,5 @@ Online_Extraction/all_RSS.json
 Online_Extraction/all_RSS.json.gz
 BERTopic_results2.csv
 Model_training/BERTopic_results.csv
+Online_Extraction/all_RSS.json
+Online_Extraction/all_RSS.json.gz

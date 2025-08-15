@@ -16,6 +16,7 @@ import asyncio
 import backoff
 import gzip
 from datetime import datetime
+import ast
 
 rss_url = "https://github.com/ERSRisk/Tulane-Sentiment-Analysis/releases/download/rss_json/all_RSS.json.gz"
 
@@ -835,13 +836,25 @@ async def process_article(article, sem, batch_number=None, total_batches=None, a
                 raw = json_str.group(1) if json_str else response_text
 
                 try:
-                    return json.loads(raw)
+                    rec = json.loads(raw)
                 except json.JSONDecodeError as e1:
                     try:
-                        return ast.literal_eval(raw)
+                        rec = ast.literal_eval(raw)
                     except Exception as e2:
                         print(f"⚠️ JSON decode fallback error: {e1} | Eval error: {e2}", flush=True)
                         return None
+                title = rec.get('Title') or rec.get('title') or str(title)
+                content = rec.get('Content') or rec.get('content') or str(content)
+
+                ulabel = rec.get('University Label')
+                if ulabel is None:
+                    ulabel = rec.get('university_label') or rec.get('University_label') or rec.get('university label') or 0
+                try:
+                    ulabel = int(ulabel)
+                    ulabel = 1 if ulabel ==1 else 0
+                except Exception:
+                    ulabel = 0
+                return {'Title': str(title), "Content": str(content), 'University Label': ulabel}
         except Exception as e:
             print(f"🔥 Uncaught error in article {article_index} of batch {batch_number}: {e}", flush=True)
             return None
@@ -871,10 +884,17 @@ def load_university_label(new_label):
 
     try:
         existing = pd.read_csv('BERTopic_before.csv')
-        labeled_titles = set(existing['Title']) if 'Title' in existing else set()
+        
     except FileNotFoundError:
-        existing = pd.DataFrame()
+        existing = pd.DataFrame(columns = ['Title', 'University Label'])
         labeled_titles = set()
+
+    if not existing.empty and 'University Label' in existing.columns:
+        all_articles = all_articles.merge(
+            existing[['Title', 'University Label']],
+            on = 'Title', how = 'left'
+        )
+    labeled_titles = set(existing['Title']) if 'Title' in existing else set()
 
     # Only run labeling on unlabeled articles
     new_articles = all_articles[~all_articles['Title'].isin(labeled_titles)]
@@ -884,6 +904,7 @@ def load_university_label(new_label):
 
     if results:
         labels_df = pd.DataFrame(results)[['Title', 'University Label']]
+        all_articles = all_articles.drop(columns = ['University Label'], errors = 'ignore')
         all_articles = all_articles.merge(labels_df, on='Title', how='left')
 
         if not existing.empty:
@@ -892,7 +913,9 @@ def load_university_label(new_label):
             combined = labels_df
     else:
         combined = existing
-
+    if 'University Label' not in all_articles.columns:
+        all_articles['University Label'] = 0
+    all_articles['University Label'] = all_articles['University Label'].fillna(0).astype(int)
     combined.to_csv('BERTopic_before.csv', columns = ['Title', 'University Label'], index = False)
 
     return all_articles
