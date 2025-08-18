@@ -28,7 +28,7 @@
     {"name":"Unauthorized Access/Data Breach", "source":"External"},
     {"name":"Credential Phishing", "source":"External"},
     {"name":"Vendor Cyber Exposure","source":"Hybrid"},
-    {"name":"Cloud misconfiguration", "source":"Internal"}
+    {"name":"Cloud misconfiguration", "source":"Internal"},
     {"name": "Artificial Intelligence Ethics & Governance"},
     {"name": "Rapid Speed of Disruptive Innovation"}]},
 
@@ -150,3 +150,4 @@
     }
 
 }
+
