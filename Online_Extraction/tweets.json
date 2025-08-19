@@ -10328,5 +10328,295 @@
     "summary": "Positive sentiment; highlights a positive association with Tulane through a successful graduate.",
     "is_sport": 0,
     "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-18T23:38:44+00:00",
+    "text": "@JoshPateCFB It's not legit if it's missing Tulane.",
+    "link": "https://twitter.com/None/status/1957588001321619806",
+    "description": "Tweet expresses that a list is incomplete without Tulane.",
+    "sentiment": 0.5,
+    "summary": "Slightly positive sentiment as it implies recognition of Tulane's importance.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-18T23:29:59+00:00",
+    "text": "RT @GreenWaveBSB: First day of school is officially here! Class of 2029...Welcome to @Tulane!\n\n#RollWave 🌊⚾️ https://t.co/yndPTLhYWs",
+    "link": "https://twitter.com/None/status/1957585797881700809",
+    "description": "Tweet welcomes new students to Tulane.",
+    "sentiment": 1.0,
+    "summary": "Highly positive sentiment; welcoming new students reflects positively on Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-18T23:24:43+00:00",
+    "text": "RT @ValentinaForUSA: When God has your back, you fear no one. \n\n✅NCAA Div 1 Swimmer.\n✅Graduated college at 19.\n✅MBA in Finance from Tulane…",
+    "link": "https://twitter.com/None/status/1957584475841257826",
+    "description": "Tweet mentions a Tulane MBA graduate.",
+    "sentiment": 0.9,
+    "summary": "Highly positive; highlights a successful graduate from Tulane, showcasing its academic achievements.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-18T23:24:05+00:00",
+    "text": "@StoneyKeeley Selfishly, I want O at Tulane if Sumrall ends up leaving. Seems like a hoot!",
+    "link": "https://twitter.com/None/status/1957584313995698259",
+    "description": "Tweet expresses a personal desire for someone to coach at Tulane.",
+    "sentiment": 0.6,
+    "summary": "Positive sentiment; indicates a positive view of Tulane's coaching prospects and potential.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-18T23:03:46+00:00",
+    "text": "RT @UnnecRoughness: Tulane is ready https://t.co/zTCTv375Ao",
+    "link": "https://twitter.com/None/status/1957579201164505231",
+    "description": "Retweet stating that Tulane is ready (context unclear).",
+    "sentiment": 0.5,
+    "summary": "Slightly positive; implies readiness, but without specifying for what, making it neutral leaning positive.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-18T23:01:59+00:00",
+    "text": "Did Marty Hurney get a job a Tulane? https://t.co/d2dDtI3Xxo",
+    "link": "https://twitter.com/None/status/1957578751509717136",
+    "description": "Question about Marty Hurney potentially getting a job at Tulane.",
+    "sentiment": 0.0,
+    "summary": "Neutral; a simple inquiry without expressing positive or negative sentiment towards Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-18T22:48:22+00:00",
+    "text": "RT @UnnecRoughness: Tulane is ready https://t.co/zTCTv375Ao",
+    "link": "https://twitter.com/None/status/1957575325052699077",
+    "description": "Retweet stating that Tulane is ready (context unclear).",
+    "sentiment": 0.5,
+    "summary": "Slightly positive; implies readiness, but without specifying for what, making it neutral leaning positive.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-18T22:44:21+00:00",
+    "text": "RT @UnnecRoughness: Tulane is ready https://t.co/zTCTv375Ao",
+    "link": "https://twitter.com/None/status/1957574316578443345",
+    "description": "Retweet stating that Tulane is ready (context unclear).",
+    "sentiment": 0.5,
+    "summary": "Slightly positive; implies readiness, but without specifying for what, making it neutral leaning positive.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-18T22:33:34+00:00",
+    "text": "RT @UnnecRoughness: Tulane is ready https://t.co/zTCTv375Ao",
+    "link": "https://twitter.com/None/status/1957571602788307170",
+    "description": "A tweet stating that Tulane is ready (context unclear without the linked content).",
+    "sentiment": 0.5,
+    "summary": "Slightly positive;'ready' implies preparedness and could be positive, but the context is missing.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-18T22:33:17+00:00",
+    "text": "@TheFoodGator @totheswamp I know it feels cool to say that but Samford, Tulane and the worst Clowntown team in 50 years isnt saying much.",
+    "link": "https://twitter.com/None/status/1957571529669009914",
+    "description": "A tweet downplaying the accomplishments of Samford and Tulane in a less-than-positive light.",
+    "sentiment": -0.5,
+    "summary": "Slightly negative; the tweet diminishes Tulane's achievements by comparing them to other teams perceived as weaker.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-18T22:19:22+00:00",
+    "text": "RT @UnnecRoughness: Tulane is ready https://t.co/zTCTv375Ao",
+    "link": "https://twitter.com/None/status/1957568027286815121",
+    "description": "A retweet stating that Tulane is ready (context unclear without the linked content).",
+    "sentiment": 0.5,
+    "summary": "Slightly positive;'ready' implies preparedness and could be positive, but the context is missing.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-18T22:17:53+00:00",
+    "text": "RT @UnnecRoughness: Tulane is ready https://t.co/zTCTv375Ao",
+    "link": "https://twitter.com/None/status/1957567654061044059",
+    "description": "Tweet expressing excitement for Tulane.",
+    "sentiment": 0.8,
+    "summary": "The tweet expresses positive sentiment towards Tulane.The lack of specific information makes a precise sentiment difficult, but the phrase 'Tulane is ready' suggests anticipation and optimism.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-18T22:16:15+00:00",
+    "text": "RT @UnnecRoughness: Tulane is ready https://t.co/zTCTv375Ao",
+    "link": "https://twitter.com/None/status/1957567242276679758",
+    "description": "Tweet expressing excitement for Tulane.",
+    "sentiment": 0.8,
+    "summary": "The tweet expresses positive sentiment towards Tulane.The lack of specific information makes a precise sentiment difficult, but the phrase 'Tulane is ready' suggests anticipation and optimism.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-18T22:16:07+00:00",
+    "text": "Tulane is ready https://t.co/zTCTv375Ao",
+    "link": "https://twitter.com/None/status/1957567209787584541",
+    "description": "Tweet expressing excitement for Tulane.",
+    "sentiment": 0.8,
+    "summary": "The tweet expresses positive sentiment towards Tulane.The lack of specific information makes a precise sentiment difficult, but the phrase 'Tulane is ready' suggests anticipation and optimism.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-18T22:13:30+00:00",
+    "text": "@zimplemonster @TUptownUpdate God forbid people say that the coach that got Reggie bush to USC and won with LSU would be a good addition to Tulane’s coaching staff",
+    "link": "https://twitter.com/None/status/1957566552204800489",
+    "description": "Tweet questioning a potential coaching hire for Tulane.",
+    "sentiment": 0.0,
+    "summary": "The tweet expresses a neutral sentiment. It raises a question about a coaching candidate's suitability for Tulane but doesn't explicitly express approval or disapproval.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-18T22:02:49+00:00",
+    "text": "Is this why you transferred to Tulane @honestvikingfan ? So you could spend a whole offseason eating balls? https://t.co/fKkpl4gmRV",
+    "link": "https://twitter.com/None/status/1957563862468677644",
+    "description": "Tweet containing a sarcastic and insulting remark directed at someone who transferred to Tulane.",
+    "sentiment": -0.8,
+    "summary": "The tweet is highly negative and insulting.While mentioning Tulane, the overall tone is aggressive and personal, casting a negative light on the recipient, not Tulane itself.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-18T22:01:04+00:00",
+    "text": "@ZachCohenFB my gripe with Tulane (and this is think is an unpopular one), I like the light blue as an accent color with the green, but when they lean into it with the light blue helmets or jerseys, I dont think it looks as good together",
+    "link": "https://twitter.com/None/status/1957563421173453223",
+    "description": "Tweet expressing a personal opinion about Tulane's use of light blue as an accent color.",
+    "sentiment": -0.2,
+    "summary": "The tweet expresses a mildly negative opinion about a specific design choice in Tulane's branding. This is not a significant negative comment that would affect Tulane's reputation.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-18T21:41:43+00:00",
+    "text": "RT @ValentinaForUSA: When God has your back, you fear no one. \n\n✅NCAA Div 1 Swimmer.\n✅Graduated college at 19.\n✅MBA in Finance from Tulane…",
+    "link": "https://twitter.com/None/status/1957558551788110143",
+    "description": "Tweet highlighting a Tulane alumna's accomplishments.",
+    "sentiment": 0.9,
+    "summary": "Highly positive sentiment.Showcases a successful alumna, reflecting positively on Tulane's educational impact.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-18T21:40:41+00:00",
+    "text": "The Tulane Green Wave Internet contains multitudes. https://t.co/Tw9Ts11XHN",
+    "link": "https://twitter.com/None/status/1957558294878511533",
+    "description": "Tweet wishing Tulane students a happy first day of classes.",
+    "sentiment": 0.9,
+    "summary": "Highly positive sentiment.A welcoming and supportive message from the university.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-18T21:21:40+00:00",
+    "text": "RT @Tulane: Happy first day of classes! 📚\n\nTo kick things off, we asked students to share their thoughts on starting or continuing their jo…",
+    "link": "https://twitter.com/None/status/1957553507470336276",
+    "description": "A retweet from the official Tulane account celebrating the start of classes.",
+    "sentiment": 1.0,
+    "summary": "The sentiment is highly positive.It's a positive message from the official Tulane account, promoting the university and contributing to a positive image.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-18T21:19:42+00:00",
+    "text": "RT @TheHerdBros: 𝐎𝐍𝐋𝐘 𝐄𝐈𝐆𝐇𝐓 𝐑𝐄𝐌𝐀𝐈𝐍.\n\nToledo vs. Southern Miss\nNIU vs. Tulane\nJMU vs. WKU\nBoise State vs. Marshall\n\nWinners are crowned regi…",
+    "link": "https://twitter.com/None/status/1957553013415149952",
+    "description": "Speculation on coaching hires, mentioning Tulane.",
+    "sentiment": 0.0,
+    "summary": "Neutral sentiment.Mentions Tulane as a potential coaching destination without expressing positive or negative judgment.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-18T21:18:12+00:00",
+    "text": "@BTF_POD @JakeCrain_ Sumrall to NCST, Orgeron to Tulane",
+    "link": "https://twitter.com/None/status/1957552634157482455",
+    "description": "Comparison of Tulane's football coaching job to another, suggesting Tulane is the better option.",
+    "sentiment": 0.5,
+    "summary": "Slightly positive sentiment. Implies that Tulane is a desirable coaching position compared to another.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-18T21:16:36+00:00",
+    "text": "@FatRichieDays I remember that. Honestly that’s a worse job than Tulane. Pay scale is pretty similar but harder conference with most resources going to basketball",
+    "link": "https://twitter.com/None/status/1957552233320497377",
+    "description": "Announcement of a Tulane Maritime Law Center event commemorating the 20th anniversary of Hurricane Katrina.",
+    "sentiment": 0.8,
+    "summary": "Positive sentiment. Highlights a positive community event and Tulane's involvement in recovery efforts.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-18T21:16:05+00:00",
+    "text": "RT @TUptownUpdate: Tulane has 109 players on the roster. This comes out to almost exactly 100 meatballs/player. If camp lasted 3 weeks (21…",
+    "link": "https://twitter.com/None/status/1957552101883568496",
+    "description": "Tweet reflecting on Tulane Law's recovery from Hurricane Katrina with help from other institutions.",
+    "sentiment": 0.9,
+    "summary": "Very positive sentiment.Showcases resilience and collaboration in the face of adversity.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-18T21:12:04+00:00",
+    "text": "RT @Tulane: Summer may slow the pace on campus, but Tulane graduate students keep their research moving at full speed — from advancing chil…",
+    "link": "https://twitter.com/None/status/1957551092218347924",
+    "description": "Tweet about Tulane graduate students continuing research during summer.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment. The tweet highlights the positive academic activity of Tulane graduate students, showcasing the university's commitment to research.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-18T21:05:54+00:00",
+    "text": "Tulane stock up fortunately https://t.co/huMg9MvkHd",
+    "link": "https://twitter.com/None/status/1957549539780620394",
+    "description": "Positive statement about Tulane's stock.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment.The tweet expresses positive sentiment toward Tulane's stock performance, suggesting financial success.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-18T21:04:28+00:00",
+    "text": "He was tied to Duke before he came to Tulane btw. https://t.co/Y7M8mbmnob",
+    "link": "https://twitter.com/None/status/1957549180118818919",
+    "description": "Mention of someone's past affiliation with Duke before Tulane.",
+    "sentiment": 0.0,
+    "summary": "Neutral sentiment.The tweet provides background information, without expressing positive or negative sentiment towards Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-18T20:58:52+00:00",
+    "text": "RT @ValentinaForUSA: When God has your back, you fear no one. \n\n✅NCAA Div 1 Swimmer.\n✅Graduated college at 19.\n✅MBA in Finance from Tulane…",
+    "link": "https://twitter.com/None/status/1957547771202007553",
+    "description": "A retweet celebrating an individual's accomplishments, including an MBA from Tulane.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment. The retweet showcases a successful Tulane alumna, reflecting positively on the university's academic program.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-18T20:57:51+00:00",
+    "text": "@Empty_America People saying Columbia or any Ivy are delusional. It's schools like Tulane and Northeastern",
+    "link": "https://twitter.com/None/status/1957547512962904179",
+    "description": "Comparison of Tulane and Northeastern to Ivy League schools.",
+    "sentiment": 0.5,
+    "summary": "Slightly positive sentiment. While not explicitly positive, it positions Tulane as a comparable institution to Ivy Leagues, which is a positive comparison.",
+    "is_sport": 0,
+    "affiliation": 1
   }
 ]
