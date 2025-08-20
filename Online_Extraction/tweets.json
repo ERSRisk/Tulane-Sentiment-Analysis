@@ -10618,5 +10618,135 @@
     "summary": "Slightly positive sentiment. While not explicitly positive, it positions Tulane as a comparable institution to Ivy Leagues, which is a positive comparison.",
     "is_sport": 0,
     "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-19T23:51:12+00:00",
+    "text": "RT @Martin91085: Notre Dame friends! Looking for some help. NIU is in a heated battle with Tulane for G6 fan base. We could use your vote t…",
+    "link": "https://twitter.com/None/status/1957953525637607732",
+    "description": "Tweet requests votes for Tulane in a competition against NIU for a fan base.",
+    "sentiment": 0.5,
+    "summary": "Slightly positive sentiment. Shows Tulane is participating in a competition, which is generally neutral, but requesting votes suggests a desire for success, thus the slightly positive sentiment.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-19T23:50:58+00:00",
+    "text": "RT @GreenWaveBSB: First day of school is officially here! Class of 2029...Welcome to @Tulane!\n\n#RollWave 🌊⚾️ https://t.co/yndPTLhYWs",
+    "link": "https://twitter.com/None/status/1957953466523062737",
+    "description": "Tweet welcomes the incoming class of 2029 to Tulane.",
+    "sentiment": 1.0,
+    "summary": "Very positive sentiment.A welcoming message for new students reflects positively on Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-19T23:48:36+00:00",
+    "text": "RT @ValentinaForUSA: When God has your back, you fear no one. \n\n✅NCAA Div 1 Swimmer.\n✅Graduated college at 19.\n✅MBA in Finance from Tulane…",
+    "link": "https://twitter.com/None/status/1957952873880543239",
+    "description": "Tweet mentions a Tulane MBA graduate.",
+    "sentiment": 1.0,
+    "summary": "Very positive sentiment. Highlights a successful alumna, which reflects positively on Tulane's academic programs.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-19T23:44:49+00:00",
+    "text": "@TUptownUpdate Tulane",
+    "link": "https://twitter.com/None/status/1957951920011620519",
+    "description": "Tweet simply mentions Tulane.",
+    "sentiment": 0.0,
+    "summary": "Neutral sentiment.No information is provided about Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-19T23:44:35+00:00",
+    "text": "RT @TUptownUpdate: NIU is pushing hard. Tulane is currently losing, c’mon greenies!! Vote now!",
+    "link": "https://twitter.com/None/status/1957951863346884858",
+    "description": "Tweet expresses concern over Tulane losing a vote to NIU.",
+    "sentiment": -0.5,
+    "summary": "Slightly negative sentiment.Expresses concern over a loss, showing disappointment.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-19T23:26:12+00:00",
+    "text": "1834 Ventures: $20 Million Fund Raised For Tulane University-Associated Startups: 1834 Ventures, an early-stage venture capital firm, has launched its first $20 million fund to invest in startups founded by Tulane University alumni, faculty, and the… https://t.co/qm4QCptNHv https://t.co/33cYmMhaEn",
+    "link": "https://twitter.com/None/status/1957947237314752684",
+    "description": "Announcement of a $20 million fund for Tulane University-associated startups.",
+    "sentiment": 1.0,
+    "summary": "Very positive sentiment.This tweet highlights a significant financial investment in Tulane-affiliated startups, showcasing positive progress and external confidence in the university.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-19T23:07:45+00:00",
+    "text": "RT @TUptownUpdate: NIU is pushing hard. Tulane is currently losing, c’mon greenies!! Vote now!",
+    "link": "https://twitter.com/None/status/1957942590910964016",
+    "description": "A tweet encouraging people to vote for Tulane in a competition, noting they are currently losing.",
+    "sentiment": -0.3,
+    "summary": "Slightly negative sentiment. It indicates Tulane is losing, causing a sense of urgency and mild negativity.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-19T23:02:55+00:00",
+    "text": "RT @WashUMedGMG: Congratulations to our @WashUMedGMG colleague @abbyWUim for being this year's recipient of the Newcomb Alumnae Association…",
+    "link": "https://twitter.com/None/status/1957941375313342516",
+    "description": "A congratulatory tweet for a Tulane alumna receiving an award.",
+    "sentiment": 1.0,
+    "summary": "Very positive sentiment. The tweet highlights a positive accomplishment by a Tulane alumna, reflecting well on the university.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-19T23:00:00+00:00",
+    "text": "Startup alert for August 19, 2025: Innovate Alabama just launched a $20M Venture Studio Fund, backing Tulane alumni and beyond. Amid Q2's AI-driven funding boom, this is your gateway to seed capital—founders, apply fast for high-growth tech launches.",
+    "link": "https://twitter.com/None/status/1957940641574580556",
+    "description": "Announcement of a $20M Venture Studio Fund by Innovate Alabama supporting Tulane alumni.",
+    "sentiment": 0.8,
+    "summary": "Positive sentiment due to the funding opportunity benefiting Tulane alumni, contributing to the university's positive image and fostering innovation.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-19T22:56:13+00:00",
+    "text": "Let’s go Tulane fan’s. Let’s have a last-minute rally.!!! #RollWave #Tulane https://t.co/dRNTMe1taO",
+    "link": "https://twitter.com/None/status/1957939690696286708",
+    "description": "Encouragement for Tulane fans to participate in a rally.",
+    "sentiment": 0.8,
+    "summary": "Positive sentiment expressing support for Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-19T22:30:58+00:00",
+    "text": "The Doris Z. Stone Latin American Library and Research Center de Tulane University en Estados Unidos anuncia el Central American Portal, una guía de investigación con más de 200 enlaces de acceso abierto a información y conocimiento sobre Centroamérica. https://t.co/IBtlJLQ1ZJ",
+    "link": "https://twitter.com/None/status/1957933337093210368",
+    "description": "Announcement of the Central American Portal by Tulane University's Doris Z. Stone Latin American Library and Research Center.",
+    "sentiment": 0.8,
+    "summary": "Highly positive sentiment. This tweet announces a valuable academic resource created by Tulane, showcasing the university's academic contributions.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-19T22:26:46+00:00",
+    "text": "RT @Dandrige12: One of my former interns started Law School this week at Tulane.  I am so proud of him. https://t.co/TievvHu5if",
+    "link": "https://twitter.com/None/status/1957932277255585797",
+    "description": "A tweet expressing pride in a former intern attending Tulane Law School.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment. The tweet expresses pride in someone attending Tulane Law School, reflecting positively on the university's reputation.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-19T22:22:05+00:00",
+    "text": "@miles_commodore I know Tulane Stadium but that’s it",
+    "link": "https://twitter.com/None/status/1957931099964809515",
+    "description": "A tweet mentioning familiarity with Tulane Stadium.",
+    "sentiment": 0.0,
+    "summary": "Neutral sentiment.The tweet simply acknowledges knowing about Tulane Stadium.",
+    "is_sport": 0,
+    "affiliation": 1
   }
 ]
