@@ -609,3 +609,11 @@ except Exception as e:
     print(f"Fatal error {e}") 
 existing_articles = load_existing_articles()
 new_articles = save_new_articles(existing_articles, all_articles)
+
+existing = load_articles_from_release()
+with open('Online_Extraction/higher_education_historical.json', 'r') as f:
+  added = json.load(f)
+
+combined = existing + added
+
+save_new_articles_to_release(combined)
