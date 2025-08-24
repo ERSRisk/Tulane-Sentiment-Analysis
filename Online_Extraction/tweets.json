@@ -11368,5 +11368,45 @@
     "summary": "Very positive sentiment; it highlights positive developments and improvements at Tulane.",
     "is_sport": 0,
     "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-23T23:03:30+00:00",
+    "text": "RT @sminaev2015: Lead-resistant lizards in New Orleans could hold clues to combating lead poisoning | Tulane University News https://t.co/o…",
+    "link": "https://twitter.com/None/status/1959391072406159626",
+    "description": "A retweet sharing a Tulane University News article about lead-resistant lizards in New Orleans.",
+    "sentiment": 0.8,
+    "summary": "Positive sentiment as it highlights research conducted by Tulane University.The research has potential societal benefit.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-23T22:30:05+00:00",
+    "text": "Shrimp Creole is a tasty and quick dinner for those hectic weekdays. Reminds me of New Orleans and my time at Tulane University! Try @Lanas_Cooking's version!\nhttps://t.co/ozA2LVVgzs \n#foodie #foodlovers #NOLA #Tulane https://t.co/OhIji1J7SD",
+    "link": "https://twitter.com/None/status/1959382664391147624",
+    "description": "A positive tweet about a personal experience at Tulane University, reminiscing about New Orleans and its cuisine.",
+    "sentiment": 0.6,
+    "summary": "Positive sentiment. The tweet expresses fondness for Tulane and New Orleans, creating a positive association.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-23T21:49:59+00:00",
+    "text": "@DegenAtLawEsq @kj_shinault Come on up it ought to be a good one bro 🤙 Can’t wait to see what uniform Tulane wears they are my favorites outside my own team",
+    "link": "https://twitter.com/None/status/1959372574049144930",
+    "description": "Tweet expressing excitement about Tulane's uniforms.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment. The tweet expresses admiration for Tulane's apparel, indicating a positive association with the university.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-23T21:35:34+00:00",
+    "text": "RT @sminaev2015: Lead-resistant lizards in New Orleans could hold clues to combating lead poisoning | Tulane University News https://t.co/o…",
+    "link": "https://twitter.com/None/status/1959368944478830971",
+    "description": "A retweet about a Tulane University News article on lead-resistant lizards.",
+    "sentiment": 0.8,
+    "summary": "Highly positive sentiment. This is an academic study by Tulane, which is positively viewed in this context.",
+    "is_sport": 0,
+    "affiliation": 1
   }
 ]
