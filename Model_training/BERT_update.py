@@ -402,7 +402,7 @@ def risk_weights(df):
 
 
     # ---------- Load config ----------
-    with open('risks.json', 'r', encoding='utf-8') as f:
+    with open('Model_training/risks.json', 'r', encoding='utf-8') as f:
         risks_cfg = json.load(f)
 
     # Sources accuracy map (string name -> numeric 0..5)
