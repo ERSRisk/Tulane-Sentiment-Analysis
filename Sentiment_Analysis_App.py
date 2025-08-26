@@ -994,8 +994,23 @@ if selection == "Article Risk Review":
         selected = [s.strip().lower() for s in selected]
         return any(p in selected for p in predicted)
 
+    PAGE_SIZE = st.sidebar.selectbox('Items per Page', [10, 20, 30, 50], index =1)
+    total = len(filtered_df)
+    max_page = max(1, (total + PAGE_SIZE - 1)//PAGE_SIZE)
 
-    for idx in filtered_df.index:
+    if 'page_num' not in st.session_state:
+        st.session_state.page_num = 1
+    st.session_state.page_num = st.sidebar.number_input(
+        'Page', min_value = 1, max_value = max_page, value = st.session_state.page_num, step =1
+    )
+
+    start = (st.session_state.page_num - 1) * PAGE_SIZE
+    end = start + PAGE_SIZE
+    st.caption(f"Showing {start + 1} to {min(end, total)} of {total} articles")
+    page_df = filtered_df.iloc[start:end]
+
+
+    for idx in page_df.index:
         article= st.session_state.articles.loc[idx]
         idx = article.name
         if pd.isna(article.get('Title')) or pd.isna(article.get('Content')):
@@ -1071,7 +1086,8 @@ if selection == "Article Risk Review":
                 
                 st.markdown("**Predicted Risks:** " + (", ".join(matched_risks) if matched_risks else "No Risk"))
                 
-                with st.expander('View Risk Labels'):
+                tab1, tab2 = st.tabs(['View Risk Labels', 'Manually Update Risk Labels'])
+                with tab1:
                     col1, col2, col3, col4, col5, col6, col7 =  st.columns(7)
                     with col1:
                         st.metric('Recency', article['Recency_Upd'] if pd.notna(article['Recency_Upd']) else article['Recency'])
@@ -1088,7 +1104,7 @@ if selection == "Article Risk Review":
                     with col7:
                         st.metric('Frequency', article['Frequency_Score_Upd'] if pd.notna(article['Frequency_Score_Upd']) else article['Frequency_Score'])
 
-                    with st.expander("Manually update risk labels:"):
+                    with tab2:
                         options = [0.0, 1.0,2.0,3.0,4.0,5.0]
                         with st.form(f"manual_edit_form_{idx}"):
                             raw = risks_data.get('new_risks', risks_data) if isinstance(risks_data, dict) else risks_data
