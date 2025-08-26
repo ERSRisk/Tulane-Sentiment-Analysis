@@ -17,6 +17,7 @@ import backoff
 import gzip
 from datetime import datetime
 import ast
+from urllib.parse import urlparse
 
 rss_url = "https://github.com/ERSRisk/Tulane-Sentiment-Analysis/releases/download/rss_json/all_RSS.json.gz"
 
@@ -470,30 +471,43 @@ def risk_weights(df):
         return 0
     base['Recency'] = base['Days_Ago'].apply(_recency_bucket)
 
-    def _src_acc(src):
-        src = str(src or '')
+    def _src_acc(row):
+        src = str(row.get('Source','') or '')
+        link = str(row.get('Link', '') or '')
+        src_l = src.lower()
+        dom = ''
+        if link:
+            try:
+                dom = urlparse(link).netloc.lower()
+            except Exception:
+                dom = ''
+        if dom.endswith('.gov') or dom.endswith('.mil') or dom.endswith('tulane.edu'):
+            return 5
         best = 0.0
         for name, acc in accuracy_map.items():
-            if name and name.lower() in src.lower():
+            if name and name.lower() in src_l:
                 try:
                     v = float(acc)
                 except Exception:
                     v = 0.0
                 best = max(best, v)
-        return best
-    base['Source_Accuracy'] = base['Source'].apply(_src_acc)
+    
+        return min(best, 4.0)
+    base['Source_Accuracy'] = base.apply(_src_acc, axis=1)
 
     def _loc_score(row):
         entities = row.get('Entities', None)
+        entities = [str(e).lower() for e in entities]
         text = (row.get('Title','') + ' ' + row.get('Content','')).lower()
         def any_in(keys): return any(k.lower() in text for k in keys)
-        if isinstance(entities, list):
-            if any(e in ['New Orleans','Louisiana'] for e in entities): return 5
-            if any(e in ['Baton Rouge','Alabama','Texas','Mississippi'] for e in entities): return 1
+        if isinstance(entities, list) or isinstance(text):
+            if any(e in ['tulane','tulane university'] for e in entities) or 'tulane' in text: return 5
+            if any(e in ['new orleans','louisiana','nola'] for e in entities) or 'new orleans' in text: return 4
+            if any(e in ['baton rouge', 'governor landry', 'lafayette', 'LSU'] for e in entities) or 'baton rouge' in text: return 3
+            if any(e in ['gulf coast','mississippi','texas','alabama'] for e in entities) or any(k in text for k in ['gulf coast','mississippi','texas','alabama']): return 2
+            if any(k in text for k in ['u.s.','united states','america','federal','washington dc']): return 1
             return 0
-        if any_in(['new orleans','louisiana']): return 5
-        if any_in(['baton rouge','alabama','texas','mississippi']): return 1
-        return 0
+        
     base['Location'] = base.apply(_loc_score, axis=1).astype(int)
 
     pr_col = 'Predicted_Risks'
@@ -843,6 +857,10 @@ def risk_weights(df):
             return min(4.0, max(4.0, base))
         else:
             return min(base, 3.9)
+    for col in ['Location', 'University Label']:
+        if col not in base.columns:
+            base[col] = 0
+        base[col] = pd.to_numeric(base[col], errors = 'coerce').fillna(0).astype(int)
     base['Impact_Score'] = base.apply(impact_row, axis=1).astype(float)
 
     # ---------- Final blended Risk_Score (0..5) per (article × risk) ----------
