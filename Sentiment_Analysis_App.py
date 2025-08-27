@@ -1061,12 +1061,12 @@ if selection == "Article Risk Review":
 
                 num = (
                     float(article['Recency']) * w['Recency'] +
-                    article['Source_Accuracy'] * w['Source_Accuracy'] +
-                    article['Impact_Score'] * w['Impact_Score'] +
-                    article['Acceleration_value_y'] * w['Acceleration_value'] +
-                    article['Location'] * w['Location'] +
-                    article['Industry_Risk'] * w['Industry_Risk'] +
-                    article['Frequency_Score'] * w['Frequency_Score']
+                    float(article['Source_Accuracy']) * w['Source_Accuracy'] +
+                    float(article['Impact_Score']) * w['Impact_Score'] +
+                    float(article['Acceleration_value_y']) * w['Acceleration_value'] +
+                    float(article['Location']) * w['Location'] +
+                    float(article['Industry_Risk']) * w['Industry_Risk'] +
+                    float(article['Frequency_Score']) * w['Frequency_Score']
                 )
                 article['Risk_Score_y'] = (num / weight_sum).clip(0,5).round(3)
                 st.metric('Risk Score', article['Risk_Score_y'])
