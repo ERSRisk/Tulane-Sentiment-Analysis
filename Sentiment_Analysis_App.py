@@ -731,118 +731,118 @@ if selection == "X Sentiment":
 
         # Full cleaned table
         st.write(df_filtered.drop(columns=["is_sport"]))
-    if selection == "Unmatched Topic Analysis":
-        with open('Online_Extraction/unmatched_topics.json', 'r') as f:
-            unmatched = json.load(f)
+if selection == "Unmatched Topic Analysis":
+    with open('Model_training/unmatched_topics.json', 'r') as f:
+        unmatched = json.load(f)
 
-        with open('Online_Extraction/topics_BERT.json', 'r') as f:
-            saved_topics = json.load(f)
+    with open('Model_training/topics_BERT.json', 'r') as f:
+        saved_topics = json.load(f)
 
-        try:
-            with open('Online_Extraction/discarded_topics', 'r') as f:
-                discarded_topics = json.load(f)
-                if not isinstance(discarded_topics, list):
-                    discarded_topics = [discarded_topics]
-        except FileNotFoundError:
-            discarded_topics = []
+    try:
+        with open('Model_training/discarded_topics', 'r') as f:
+            discarded_topics = json.load(f)
+            if not isinstance(discarded_topics, list):
+                discarded_topics = [discarded_topics]
+    except FileNotFoundError:
+        discarded_topics = []
 
-        st.title('Unmatched Topics Analysis')
+    st.title('Unmatched Topics Analysis')
 
-        for topic in unmatched:
-            skip_key = f"skip_{topic['topic']}"
-            if st.session_state.get(skip_key):
-                continue
+    for topic in unmatched:
+        skip_key = f"skip_{topic['topic']}"
+        if st.session_state.get(skip_key):
+            continue
 
-            st.subheader(f"Topic {topic['topic']}: {topic['name']}")
-            st.markdown(f"**Keywords:** {(topic['keywords'])}")
-            with st.expander("**Sample Articles:**"):
-                docs = topic['documents']
-                random.shuffle(docs)
-                for doc in docs:
-                    words = doc.split()
-                    st.markdown("**Sample Titles:**")
-                    st.markdown(f"{' '.join(words[:40]) + '...' if len(words)>40 else ''}")
-            radio_key = str(topic['topic'])
-            reset_flag = f"reset_{radio_key}"
+        st.subheader(f"Topic {topic['topic']}: {topic['name']}")
+        st.markdown(f"**Keywords:** {(topic['keywords'])}")
+        with st.expander("**Sample Articles:**"):
+            docs = topic['documents']
+            random.shuffle(docs)
+            for doc in docs:
+                words = doc.split()
+                st.markdown("**Sample Titles:**")
+                st.markdown(f"{' '.join(words[:40]) + '...' if len(words)>40 else ''}")
+        radio_key = str(topic['topic'])
+        reset_flag = f"reset_{radio_key}"
 
 
-            if st.session_state.get(reset_flag):
-                st.session_state[radio_key] = ''
-                st.session_state[reset_flag] = False
-            decision = st.radio("What would you like to do with this topic?",['','Keep as new topic', 'Merge with existing topic', 'Discard'],
-                key=radio_key, index = 0)
-            if decision == 'Keep as new topic':
-                st.session_state['confirm_new'] = True
-                if st.session_state.get('confirm_new'):
-                    st.warning("Are you sure you want to create a new topic?")
-                    col1, col2= st.columns(2)
-                    with col1:
-                        if st.button("Yes, create new topic", key=f"create_new_{radio_key}"):
-                            st.session_state['confirm_new'] = False
-                            new_topic = {
-                                'topic': topic['topic'],
-                                'name': topic['name'],
-                                'keywords': topic['keywords'],
-                                'documents': topic['documents']
-                            }
-                            saved_topics.append(new_topic)
-                            with open('topics_BERT.json', 'w') as f:
-                                json.dump(saved_topics, f)
-                            st.success(f"New topic {topic['topic']} created successfully!")
-                    with col2:
-                        if st.button("Cancel", key=f"cancel_new_{radio_key}"):
-                            st.session_state['confirm_new'] = False
-                            st.session_state[reset_flag] = True
-                            st.rerun()
-            if decision == 'Merge with existing topic':
-                st.session_state['confirm_merge'] = True
-                if st.session_state.get('confirm_merge'):
-                    st.warning("Are you sure you want to merge this topic with an existing one?")
-                    col1, col2= st.columns(2)
-                    with col1:
-                        if st.button("Yes, merge topic", key=f"merge_{radio_key}"):
-                            st.session_state['confirm_merge'] = False
-                            existing_topic = st.selectbox("Select existing topic to merge with:", ['--Select a topic--'],[t['name'] for t in saved_topics], key=f"existing_topic_{radio_key}")
-                            for t in saved_topics:
-                                if t['name'] == existing_topic:
-                                    if isinstance(t['documents'], str):
-                                        t['documents'] = [t['documents']]
-                                    t['documents'].extend(topic['documents'])
+        if st.session_state.get(reset_flag):
+            st.session_state[radio_key] = ''
+            st.session_state[reset_flag] = False
+        decision = st.radio("What would you like to do with this topic?",['','Keep as new topic', 'Merge with existing topic', 'Discard'],
+            key=radio_key, index = 0)
+        if decision == 'Keep as new topic':
+            st.session_state['confirm_new'] = True
+            if st.session_state.get('confirm_new'):
+                st.warning("Are you sure you want to create a new topic?")
+                col1, col2= st.columns(2)
+                with col1:
+                    if st.button("Yes, create new topic", key=f"create_new_{radio_key}"):
+                        st.session_state['confirm_new'] = False
+                        new_topic = {
+                            'topic': topic['topic'],
+                            'name': topic['name'],
+                            'keywords': topic['keywords'],
+                            'documents': topic['documents']
+                        }
+                        saved_topics.append(new_topic)
+                        with open('topics_BERT.json', 'w') as f:
+                            json.dump(saved_topics, f)
+                        st.success(f"New topic {topic['topic']} created successfully!")
+                with col2:
+                    if st.button("Cancel", key=f"cancel_new_{radio_key}"):
+                        st.session_state['confirm_new'] = False
+                        st.session_state[reset_flag] = True
+                        st.rerun()
+        if decision == 'Merge with existing topic':
+            st.session_state['confirm_merge'] = True
+            if st.session_state.get('confirm_merge'):
+                st.warning("Are you sure you want to merge this topic with an existing one?")
+                col1, col2= st.columns(2)
+                with col1:
+                    if st.button("Yes, merge topic", key=f"merge_{radio_key}"):
+                        st.session_state['confirm_merge'] = False
+                        existing_topic = st.selectbox("Select existing topic to merge with:", ['--Select a topic--'] + [t['name'] for t in saved_topics], index = 0, key=f"existing_topic_{radio_key}")
+                        for t in saved_topics:
+                            if t['name'] == existing_topic:
+                                if isinstance(t['documents'], str):
+                                    t['documents'] = [t['documents']]
+                                t['documents'].extend(topic['documents'])
 
-                                # Ensure keywords are lists
-                                    if isinstance(t['keywords'], str):
-                                        t['keywords'] = [k.strip() for k in t['keywords'].split(',')]
-                                        new_keywords = [k.strip() for k in topic['keywords'].split(',')] if isinstance(topic['keywords'], str) else topic['keywords']
-                                    t['keywords'].extend(new_keywords)
-                                    with open('topics_BERT.json', 'w') as f:
-                                        json.dump(saved_topics, f)
-                                    st.success(f"Topic {topic['topic']} merged successfully!")
-                    with col2:
-                        if st.button("Cancel", key=f"cancel_merge_{radio_key}"):
-                            st.session_state['confirm_merge'] = False
-                            st.session_state[reset_flag] = True
-                            st.rerun()
-            if decision == 'Discard':
-                st.session_state[reset_flag] = True
-                st.session_state[skip_key] = True
+                            # Ensure keywords are lists
+                                if isinstance(t['keywords'], str):
+                                    t['keywords'] = [k.strip() for k in t['keywords'].split(',')]
+                                    new_keywords = [k.strip() for k in topic['keywords'].split(',')] if isinstance(topic['keywords'], str) else topic['keywords']
+                                t['keywords'].extend(new_keywords)
+                                with open('topics_BERT.json', 'w') as f:
+                                    json.dump(saved_topics, f)
+                                st.success(f"Topic {topic['topic']} merged successfully!")
+                with col2:
+                    if st.button("Cancel", key=f"cancel_merge_{radio_key}"):
+                        st.session_state['confirm_merge'] = False
+                        st.session_state[reset_flag] = True
+                        st.rerun()
+        if decision == 'Discard':
+            st.session_state[reset_flag] = True
+            st.session_state[skip_key] = True
 
-                st.warning(f"Topic {topic['topic']} discarded.")
+            st.warning(f"Topic {topic['topic']} discarded.")
 
-                discarded_topic = {
-                    'topic': topic['topic'],
-                    'name': topic['name'],
-                    'keywords': topic['keywords'],
-                    'documents': topic['documents']
-                }
-                discarded_topics.append(discarded_topic)
-                with open('Online_Extraction/discarded_topics', 'w') as f:
-                    json.dump(discarded_topic, f)
+            discarded_topic = {
+                'topic': topic['topic'],
+                'name': topic['name'],
+                'keywords': topic['keywords'],
+                'documents': topic['documents']
+            }
+            discarded_topics.append(discarded_topic)
+            with open('Model_training/discarded_topics', 'w') as f:
+                json.dump(discarded_topic, f)
 
-                unmatched_json = [t for t in unmatched if t['topic'] != topic['topic']]
-                with open('Online_Extraction/unmatched_topics.json', 'w') as f:
-                    json.dump(unmatched_json, f)
+            unmatched_json = [t for t in unmatched if t['topic'] != topic['topic']]
+            with open('Model_training/unmatched_topics.json', 'w') as f:
+                json.dump(unmatched_json, f)
 
-                st.success(f"Topic {topic['topic']} discarded successfully!")
+            st.success(f"Topic {topic['topic']} discarded successfully!")
 
 if selection == "Article Risk Review":
     import streamlit as st
@@ -994,8 +994,23 @@ if selection == "Article Risk Review":
         selected = [s.strip().lower() for s in selected]
         return any(p in selected for p in predicted)
 
+    PAGE_SIZE = st.sidebar.selectbox('Items per Page', [10, 20, 30, 50], index =1)
+    total = len(filtered_df)
+    max_page = max(1, (total + PAGE_SIZE - 1)//PAGE_SIZE)
 
-    for idx in filtered_df.index:
+    if 'page_num' not in st.session_state:
+        st.session_state.page_num = 1
+    st.session_state.page_num = st.sidebar.number_input(
+        'Page', min_value = 1, max_value = max_page, value = st.session_state.page_num, step =1
+    )
+
+    start = (st.session_state.page_num - 1) * PAGE_SIZE
+    end = start + PAGE_SIZE
+    st.caption(f"Showing {start + 1} to {min(end, total)} of {total} articles")
+    page_df = filtered_df.iloc[start:end]
+
+
+    for idx in page_df.index:
         article= st.session_state.articles.loc[idx]
         idx = article.name
         if pd.isna(article.get('Title')) or pd.isna(article.get('Content')):
@@ -1071,7 +1086,8 @@ if selection == "Article Risk Review":
                 
                 st.markdown("**Predicted Risks:** " + (", ".join(matched_risks) if matched_risks else "No Risk"))
                 
-                with st.expander('View Risk Labels'):
+                tab1, tab2 = st.tabs(['View Risk Labels', 'Manually Update Risk Labels'])
+                with tab1:
                     col1, col2, col3, col4, col5, col6, col7 =  st.columns(7)
                     with col1:
                         st.metric('Recency', article['Recency_Upd'] if pd.notna(article['Recency_Upd']) else article['Recency'])
@@ -1088,7 +1104,7 @@ if selection == "Article Risk Review":
                     with col7:
                         st.metric('Frequency', article['Frequency_Score_Upd'] if pd.notna(article['Frequency_Score_Upd']) else article['Frequency_Score'])
 
-                    with st.expander("Manually update risk labels:"):
+                    with tab2:
                         options = [0.0, 1.0,2.0,3.0,4.0,5.0]
                         with st.form(f"manual_edit_form_{idx}"):
                             raw = risks_data.get('new_risks', risks_data) if isinstance(risks_data, dict) else risks_data

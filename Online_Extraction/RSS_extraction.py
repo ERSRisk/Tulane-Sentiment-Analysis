@@ -609,3 +609,4 @@ except Exception as e:
     print(f"Fatal error {e}") 
 existing_articles = load_existing_articles()
 new_articles = save_new_articles(existing_articles, all_articles)
+
