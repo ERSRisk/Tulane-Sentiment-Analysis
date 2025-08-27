@@ -496,8 +496,9 @@ def risk_weights(df):
     base['Source_Accuracy'] = base.apply(_src_acc, axis=1)
 
     def _loc_score(row):
+        us_sources = ['NIH', 'NOAA', 'FEMA', 'NASA', 'CISA', 'NIST', 'NCES', 'CMS', 'CDC', 'BEA', 'The Advocate', 'LA Illuminator', 'The Hill', 'NBC News', 'PBS', 'StatNews', 'NY Times', 'Washington Post', 'TruthOut', 'Politico', 'Inside Higher Ed', 'CNN', 'Yahoo News', 'FOX News', 'ABC News', 'Huffington Post', 'Business Insider', 'Bloomberg', 'AP News']
         raw = row.get('Entities', None)
-        entities: list[str] = 0
+        entities: list[str] = []
         if isinstance(raw, list):
             entities = [str(e).lower() for e in raw if e is not None]
         elif isinstance(raw, str) and raw.strip():
@@ -507,9 +508,9 @@ def risk_weights(df):
         if isinstance(entities, list):
             if any(e in ['tulane','tulane university'] for e in entities) or 'tulane' in text: return 5
             if any(e in ['new orleans','louisiana','nola'] for e in entities) or 'new orleans' in text: return 4
-            if any(e in ['baton rouge', 'governor landry', 'lafayette', 'LSU'] for e in entities) or 'baton rouge' in text: return 3
+            if any(e in ['baton rouge', 'governor landry', 'lafayette', 'LSU', 'university of louisiana'] for e in entities) or any(k in text for k in ['baton rouge','governor landry', 'lafayette', 'LSU', 'university of louisiana']): return 3
             if any(e in ['gulf coast','mississippi','texas','alabama'] for e in entities) or any(k in text for k in ['gulf coast','mississippi','texas','alabama']): return 2
-            if any(k in text for k in ['u.s.','united states','america','federal','washington dc']): return 1
+            if any(k in text for k in ['u.s.','united states','america','federal','washington dc', 'trump']) or row.get('Source') in us_sources: return 1
             return 0
         
     base['Location'] = base.apply(_loc_score, axis=1)
