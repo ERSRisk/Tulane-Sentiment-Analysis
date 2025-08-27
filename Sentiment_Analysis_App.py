@@ -1060,7 +1060,7 @@ if selection == "Article Risk Review":
                 weight_sum = sum(w.values())
 
                 num = (
-                    article['Recency'].astype(int) * w['Recency'] +
+                    float(article['Recency']) * w['Recency'] +
                     article['Source_Accuracy'] * w['Source_Accuracy'] +
                     article['Impact_Score'] * w['Impact_Score'] +
                     article['Acceleration_value_y'] * w['Acceleration_value'] +
