@@ -504,7 +504,7 @@ def risk_weights(df):
             entities = [raw.strip().lower()]
         text = (row.get('Title','') + ' ' + row.get('Content','')).lower()
         def any_in(keys): return any(k.lower() in text for k in keys)
-        if isinstance(entities, list) or isinstance(text):
+        if isinstance(entities, list):
             if any(e in ['tulane','tulane university'] for e in entities) or 'tulane' in text: return 5
             if any(e in ['new orleans','louisiana','nola'] for e in entities) or 'new orleans' in text: return 4
             if any(e in ['baton rouge', 'governor landry', 'lafayette', 'LSU'] for e in entities) or 'baton rouge' in text: return 3
