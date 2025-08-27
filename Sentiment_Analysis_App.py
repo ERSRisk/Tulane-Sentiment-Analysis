@@ -1068,7 +1068,7 @@ if selection == "Article Risk Review":
                     float(article['Industry_Risk']) * w['Industry_Risk'] +
                     float(article['Frequency_Score']) * w['Frequency_Score']
                 )
-                article['Risk_Score_y'] = (num / weight_sum).clip(0,5).round(3)
+                article['Risk_Score_y'] = (num / weight_sum).astype(int).clip(0,5).round(3)
                 st.metric('Risk Score', article['Risk_Score_y'])
     
                 # --- Quick review toggle ---
