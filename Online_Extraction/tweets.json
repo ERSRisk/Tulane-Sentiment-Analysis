@@ -11558,5 +11558,65 @@
     "summary": "Positive sentiment.Expresses positive experience related to Tulane.",
     "is_sport": 0,
     "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-26T23:32:52+00:00",
+    "text": "RT @WaveaftergWave: I expect a formal announcement in the next 48 hours, but I'll go ahead and spoil the BIG secret. \n\nJake Retzlaff will b…",
+    "link": "https://twitter.com/None/status/1960485626874356105",
+    "description": "Tweet teasing an announcement about Jake Retzlaff joining Tulane.",
+    "sentiment": 0.8,
+    "summary": "Highly positive sentiment.The tweet indicates a positive development for Tulane, suggesting a recruitment or addition of a valued member to the Tulane community.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-26T23:14:01+00:00",
+    "text": "RT @Tulane: After more than 20 years of music, spirit and leadership, @TulaneSLA's Barry Spanier will take his final bow as Director of @tu…",
+    "link": "https://twitter.com/None/status/1960480883812786502",
+    "description": "Tweet announcing the retirement of Tulane's School of Liberal Arts director.",
+    "sentiment": 0.5,
+    "summary": "Slightly positive; acknowledges a long tenure and contribution to the university.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-26T23:04:48+00:00",
+    "text": "RT @FQTulane: 🚨#TULANE TIX GIVEAWAY📷  Want to win 2 lower level seats for the #Greenwave vs Northwestern game on 8/30? #RollWave   Entry:…",
+    "link": "https://twitter.com/None/status/1960478565683622393",
+    "description": "Tweet featuring Matt Forte reflecting on Hurricane Katrina's impact on Tulane.",
+    "sentiment": -0.3,
+    "summary": "Negative sentiment due to the context of tragedy and hardship experienced at Tulane during Katrina.While not directly criticizing Tulane, the context is somber.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-26T22:50:08+00:00",
+    "text": "RT @SickosCommittee: If you're anywhere near New Orleans, you can get into Northwestern at Tulane for only $6. Absolutely worth it. https:/…",
+    "link": "https://twitter.com/None/status/1960474875661050098",
+    "description": "Tweet promoting a cheap Tulane event near New Orleans.",
+    "sentiment": 0.5,
+    "summary": "Positive sentiment. Promotes Tulane in a positive light by highlighting an affordable event.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-26T22:04:00+00:00",
+    "text": "New research finds that brown anole lizards in New Orleans carry the highest blood-lead levels ever recorded in a vertebrate—amounts that would be lethal to most other animals—yet they appear unaffected: \nhttps://t.co/9L1njYoH49\n#Lead #Research @Tulane",
+    "link": "https://twitter.com/None/status/1960463264552239327",
+    "description": "A tweet sharing research on brown anole lizards in New Orleans with high blood-lead levels, conducted by Tulane.",
+    "sentiment": 0.8,
+    "summary": "Positive sentiment.The tweet highlights research conducted by Tulane, which is positive for the university's academic reputation.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-26T21:43:04+00:00",
+    "text": "No surprise here from the day he came to Tulane. I knew he would be the starter. Look at his record he’s got to be a starter. https://t.co/TnFWxZKhby",
+    "link": "https://twitter.com/None/status/1960457997727256661",
+    "description": "A student's successful performance at Tulane was predicted.",
+    "sentiment": 0.5,
+    "summary": "Slightly positive sentiment; reflects confidence in a Tulane student's ability.",
+    "is_sport": 0,
+    "affiliation": 1
   }
 ]
