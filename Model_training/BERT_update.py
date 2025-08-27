@@ -500,7 +500,7 @@ def risk_weights(df):
         entities: list[str] = 0
         if isinstance(raw, list):
             entities = [str(e).lower() for e in raw if e is not None]
-        elif isinstance(raw, star) and raw.strip():
+        elif isinstance(raw, str) and raw.strip():
             entities = [raw.strip().lower()]
         text = (row.get('Title','') + ' ' + row.get('Content','')).lower()
         def any_in(keys): return any(k.lower() in text for k in keys)
