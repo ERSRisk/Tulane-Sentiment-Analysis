@@ -1063,7 +1063,7 @@ if selection == "Article Risk Review":
                     float(article['Recency']) * w['Recency'] +
                     float(article['Source_Accuracy']) * w['Source_Accuracy'] +
                     float(article['Impact_Score']) * w['Impact_Score'] +
-                    float(article['Acceleration_value_y']) * w['Acceleration_value'] +
+                    float(article['Acceleration_value']) * w['Acceleration_value'] +
                     float(article['Location']) * w['Location'] +
                     float(article['Industry_Risk']) * w['Industry_Risk'] +
                     float(article['Frequency_Score']) * w['Frequency_Score']
@@ -1114,7 +1114,7 @@ if selection == "Article Risk Review":
                     with col1:
                         st.metric('Recency', article['Recency_Upd'] if pd.notna(article['Recency_Upd']) else article['Recency'])
                     with col2:
-                        st.metric('Acceleration', article['Acceleration_value_Upd'] if pd.notna(article['Acceleration_value_Upd']) else article['Acceleration_value_y'])
+                        st.metric('Acceleration', article['Acceleration_value_Upd'] if pd.notna(article['Acceleration_value_Upd']) else article['Acceleration_value'])
                     with col3:
                         st.metric('Source Accuracy', article['Source_Accuracy_Upd'] if pd.notna(article['Source_Accuracy_Upd']) else article['Source_Accuracy'])
                     with col4:
