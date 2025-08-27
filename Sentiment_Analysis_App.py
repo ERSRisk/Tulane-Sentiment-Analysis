@@ -732,14 +732,14 @@ if selection == "X Sentiment":
         # Full cleaned table
         st.write(df_filtered.drop(columns=["is_sport"]))
     if selection == "Unmatched Topic Analysis":
-        with open('Online_Extraction/unmatched_topics.json', 'r') as f:
+        with open('Model_training/unmatched_topics.json', 'r') as f:
             unmatched = json.load(f)
 
-        with open('Online_Extraction/topics_BERT.json', 'r') as f:
+        with open('Model_training/topics_BERT.json', 'r') as f:
             saved_topics = json.load(f)
 
         try:
-            with open('Online_Extraction/discarded_topics', 'r') as f:
+            with open('Model_training/discarded_topics', 'r') as f:
                 discarded_topics = json.load(f)
                 if not isinstance(discarded_topics, list):
                     discarded_topics = [discarded_topics]
@@ -835,11 +835,11 @@ if selection == "X Sentiment":
                     'documents': topic['documents']
                 }
                 discarded_topics.append(discarded_topic)
-                with open('Online_Extraction/discarded_topics', 'w') as f:
+                with open('Model_training/discarded_topics', 'w') as f:
                     json.dump(discarded_topic, f)
 
                 unmatched_json = [t for t in unmatched if t['topic'] != topic['topic']]
-                with open('Online_Extraction/unmatched_topics.json', 'w') as f:
+                with open('Model_training/unmatched_topics.json', 'w') as f:
                     json.dump(unmatched_json, f)
 
                 st.success(f"Topic {topic['topic']} discarded successfully!")
