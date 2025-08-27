@@ -1043,11 +1043,33 @@ if selection == "Article Risk Review":
             continue
 
         title = str(article.get("Title", ""))[:100]
+        
         if title:
             with st.expander(f"{badge} — {title}..."):
                 st.markdown(f"[Read full article]({article['Link']})")
                 st.write(article['Content'][:1000])
-                st.metric('Risk Score', article['Risk_Score'])
+                w = {
+                'Recency': 0.15,
+                'Source_Accuracy': 0.10,
+                'Impact_Score': 0.35,
+                'Acceleration_value': 0.25,
+                'Location': 0.05,
+                'Industry_Risk': 0.05,
+                'Frequency_Score': 0.05
+                }
+                weight_sum = sum(w.values())
+
+                num = (
+                    article['Recency'] * w['Recency'] +
+                    article['Source_Accuracy'] * w['Source_Accuracy'] +
+                    article['Impact_Score'] * w['Impact_Score'] +
+                    article['Acceleration_value_y'] * w['Acceleration_value'] +
+                    article['Location'] * w['Location'] +
+                    article['Industry_Risk'] * w['Industry_Risk'] +
+                    article['Frequency_Score'] * w['Frequency_Score']
+                )
+                article['Risk_Score_y'] = (num / weight_sum).clip(0,5).round(3)
+                st.metric('Risk Score', article['Risk_Score_y'])
     
                 # --- Quick review toggle ---
                 c1, c2 = st.columns([1, 3])
