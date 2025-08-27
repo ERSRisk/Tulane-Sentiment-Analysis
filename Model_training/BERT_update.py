@@ -496,8 +496,12 @@ def risk_weights(df):
     base['Source_Accuracy'] = base.apply(_src_acc, axis=1)
 
     def _loc_score(row):
-        entities = row.get('Entities', None)
-        entities = [str(e).lower() for e in entities]
+        raw = row.get('Entities', None)
+        entities: list[str] = 0
+        if isinstance(raw, list):
+            entities = [str(e).lower() for e in raw if e is not None]
+        elif isinstance(raw, star) and raw.strip():
+            entities = [raw.strip().lower()]
         text = (row.get('Title','') + ' ' + row.get('Content','')).lower()
         def any_in(keys): return any(k.lower() in text for k in keys)
         if isinstance(entities, list) or isinstance(text):
@@ -508,7 +512,8 @@ def risk_weights(df):
             if any(k in text for k in ['u.s.','united states','america','federal','washington dc']): return 1
             return 0
         
-    base['Location'] = base.apply(_loc_score, axis=1).astype(int)
+    base['Location'] = base.apply(_loc_score, axis=1)
+    base['Location'] = pd.to_numeric(base['Location'], errors = 'coerce').fillna(0).astype(int)
 
     pr_col = 'Predicted_Risks'
     if pr_col not in base.columns:
