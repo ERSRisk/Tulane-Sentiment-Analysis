@@ -164,7 +164,7 @@ df['Source'] = df['Source'].astype('string').fillna('')
 
 def transform_text(texts):
     print(f"Transforming {len(df)} articles in batches...")
-        texts = texts.copy()
+    texts = texts.copy()
 
     # Ensure columns exist
     if 'Topic' not in texts.columns:
