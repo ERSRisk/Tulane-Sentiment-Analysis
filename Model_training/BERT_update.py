@@ -1199,10 +1199,19 @@ if temp_model and topic_ids:
     existing_risks_json(topic_name_pairs, temp_model)
 
 #Assign weights to each article
-df = predict_risks(df_combined)
-df['Predicted_Risks'] = df.get('Predicted_Risks_new', '')
+if 'Predicted_Risks_new' not in df_combined.columns:
+    df_combined['Predicted_Risks_new'] = ''
+need_risk_map = df_combined.get('Predicted_Risks_new').fillna('').astype(str).eq('')
+df_to_score = df_combined.loc[need_risk_map].copy()
+if not df_to_score.empty:
+    df_scored = predict_risks(df_to_score)          # only new stuff
+    df_combined.loc[need_risk_map, 'Predicted_Risks_new'] = (df_scored['Predicted_Risks_new'].values
+    df = df_combined)
+else:
+    print("✅ No new rows need risk prediction.")
+df_combined['Predicted_Risks'] = df_combined.get('Predicted_Risks_new', '')
 print("✅ Applying risk_weights...", flush=True)
-df = risk_weights(df)
+df = risk_weights(df_combined)
 results_df = load_university_label(df)
 atomic_write_csv("Model_training/BERTopic_results2.csv.gz", results_df, compress=True)
 #Show the articles over time
