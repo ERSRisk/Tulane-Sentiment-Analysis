@@ -968,7 +968,7 @@ if selection == "Article Risk Review":
     base_df = st.session_state.articles
     #articles = articles[articles['Published']> start_date.strftime('%Y-%m-%d')]
     #articles = articles[articles['Published']< end_date.strftime('%Y-%m-%d')]
-    filtered_df = base_df[base_df['University Label_y'] == 1]
+    filtered_df = base_df[base_df['University Label'] == 1]
     filtered_df = filtered_df.drop_duplicates(subset=['Title', 'Link'])
     if status_choice == 'Unreviewed only':
         filtered_df = filtered_df[filtered_df['Reviewed'] != 1]
@@ -1043,11 +1043,33 @@ if selection == "Article Risk Review":
             continue
 
         title = str(article.get("Title", ""))[:100]
+        
         if title:
             with st.expander(f"{badge} — {title}..."):
                 st.markdown(f"[Read full article]({article['Link']})")
                 st.write(article['Content'][:1000])
-                st.metric('Risk Score', article['Risk_Score'])
+                w = {
+                'Recency': 0.15,
+                'Source_Accuracy': 0.10,
+                'Impact_Score': 0.35,
+                'Acceleration_value': 0.25,
+                'Location': 0.05,
+                'Industry_Risk': 0.05,
+                'Frequency_Score': 0.05
+                }
+                weight_sum = sum(w.values())
+
+                num = (
+                    float(article['Recency']) * w['Recency'] +
+                    float(article['Source_Accuracy']) * w['Source_Accuracy'] +
+                    float(article['Impact_Score']) * w['Impact_Score'] +
+                    float(article['Acceleration_value']) * w['Acceleration_value'] +
+                    float(article['Location']) * w['Location'] +
+                    float(article['Industry_Risk']) * w['Industry_Risk'] +
+                    float(article['Frequency_Score']) * w['Frequency_Score']
+                )
+                article['Risk_Score_y'] = (num / weight_sum)
+                st.metric('Risk Score', article['Risk_Score_y'])
     
                 # --- Quick review toggle ---
                 c1, c2 = st.columns([1, 3])

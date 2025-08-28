@@ -17,6 +17,7 @@ import backoff
 import gzip
 from datetime import datetime
 import ast
+from urllib.parse import urlparse
 
 rss_url = "https://github.com/ERSRisk/Tulane-Sentiment-Analysis/releases/download/rss_json/all_RSS.json.gz"
 
@@ -457,57 +458,80 @@ def risk_weights(df):
     if pd.api.types.is_datetime64tz_dtype(base['Published']):
         base['Published'] = base['Published'].dt.tz_convert('UTC').dt.tz_localize(None)
 
-    # ---------- Per-article features (computed once, broadcast to exploded rows) ----------
+    # ---------- Per-article features (computed once, broadcast to base rows) ----------
     now_naive = datetime.utcnow()
     base['Days_Ago'] = (now_naive - base['Published']).dt.days
     base['Days_Ago'] = base['Days_Ago'].fillna(10_000).astype(int)
     def _recency_bucket(d):
-        if d <= 30: return 5
-        if d <= 60: return 4
+        if d <= 2: return 5
+        if d <= 30: return 4
         if d <= 90: return 3
         if d <= 180: return 2
         if d <= 365: return 1
         return 0
     base['Recency'] = base['Days_Ago'].apply(_recency_bucket)
 
-    def _src_acc(src):
-        src = str(src or '')
+    def _src_acc(row):
+        src = str(row.get('Source','') or '')
+        link = str(row.get('Link', '') or '')
+        src_l = src.lower()
+        dom = ''
+        if link:
+            try:
+                dom = urlparse(link).netloc.lower()
+            except Exception:
+                dom = ''
+        if dom.endswith('.gov') or dom.endswith('.mil') or dom.endswith('tulane.edu'):
+            return 5
         best = 0.0
         for name, acc in accuracy_map.items():
-            if name and name.lower() in src.lower():
+            if name and name.lower() in src_l:
                 try:
                     v = float(acc)
                 except Exception:
                     v = 0.0
                 best = max(best, v)
-        return best
-    base['Source_Accuracy'] = base['Source'].apply(_src_acc)
+    
+        return min(best, 4.0)
+    base['Source_Accuracy'] = base.apply(_src_acc, axis=1)
 
     def _loc_score(row):
-        entities = row.get('Entities', None)
+        us_sources = ['NIH', 'NOAA', 'FEMA', 'NASA', 'CISA', 'NIST', 'NCES', 'CMS', 'CDC', 'BEA', 'The Advocate', 'LA Illuminator', 'The Hill', 'NBC News', 'PBS', 'StatNews', 'NY Times', 'Washington Post', 'TruthOut', 'Politico', 'Inside Higher Ed', 'CNN', 'Yahoo News', 'FOX News', 'ABC News', 'Huffington Post', 'Business Insider', 'Bloomberg', 'AP News']
+        raw = row.get('Entities', None)
+        entities: list[str] = []
+        if isinstance(raw, list):
+            entities = [str(e).lower() for e in raw if e is not None]
+        elif isinstance(raw, str) and raw.strip():
+            entities = [raw.strip().lower()]
         text = (row.get('Title','') + ' ' + row.get('Content','')).lower()
         def any_in(keys): return any(k.lower() in text for k in keys)
         if isinstance(entities, list):
-            if any(e in ['New Orleans','Louisiana'] for e in entities): return 5
-            if any(e in ['Baton Rouge','Alabama','Texas','Mississippi'] for e in entities): return 1
+            if any(e in ['tulane','tulane university'] for e in entities) or 'tulane' in text: return 5
+            if any(e in ['new orleans','louisiana','nola'] for e in entities) or 'new orleans' in text: return 4
+            if any(e in ['baton rouge', 'governor landry', 'lafayette', 'LSU', 'university of louisiana'] for e in entities) or any(k in text for k in ['baton rouge','governor landry', 'lafayette', 'LSU', 'university of louisiana']): return 3
+            if any(e in ['gulf coast','mississippi','texas','alabama'] for e in entities) or any(k in text for k in ['gulf coast','mississippi','texas','alabama']): return 2
+            if any(k in text for k in ['u.s.','united states','america','federal','washington dc', 'trump']) or row.get('Source') in us_sources: return 1
             return 0
-        if any_in(['new orleans','louisiana']): return 5
-        if any_in(['baton rouge','alabama','texas','mississippi']): return 1
-        return 0
-    base['Location'] = base.apply(_loc_score, axis=1).astype(int)
+        
+    base['Location'] = base.apply(_loc_score, axis=1)
+    base['Location'] = pd.to_numeric(base['Location'], errors = 'coerce').fillna(0).astype(int)
 
     pr_col = 'Predicted_Risks'
     if pr_col not in base.columns:
         base[pr_col] = ''
     def _parse_tokens(s):
-        toks = [t.strip() for t in re.split(r'[;,]\s*', str(s or '')) if t.strip()]
-        return [t for t in toks if t.lower() != 'no risk']
+        if s is None or pd.isna(s) or str(s).strip() == '':
+            return ""
+        return str(s).split(';', 1)[0].strip()
     base['_RiskList'] = base[pr_col].fillna('').astype(str).apply(_parse_tokens)
 
-    exploded = base.explode('_RiskList', ignore_index=False).rename(columns={'_RiskList':'Risk'})
-    exploded = exploded[exploded['Risk'].notna() & (exploded['Risk'].astype(str).str.strip()!='')].copy()
-    exploded['Risk_norm'] = exploded['Risk'].astype(str).str.strip().str.lower()
-    
+    #base = base.explode('_RiskList', ignore_index=False).rename(columns={'_RiskList':'Risk_item'})
+    #mask = exploded['Risk_item'].notna() & (exploded['Risk_item'].astype(str).str.strip()!='')
+    #exploded = exploded[mask].copy()
+    #exploded['Risk_norm'] = exploded['Risk_item'].astype(str).str.strip().str.lower()
+    base['Risk_item'] = base['Predicted_Risks'].apply(lambda s: str(s).split(';', 1)[0].strip().lower() if pd.notna(s) else '')
+    mask = base['Risk_item'] != ''
+    base = base[mask].copy()
 
     # Published -> datetime (robust coercion)
     
@@ -530,71 +554,153 @@ def risk_weights(df):
             topic_counts[c] = 0
     
     ##acceleration calculation
-    exploded['Week'] = exploded['Published'].dt.to_period('W-MON').apply(lambda p: p.start_time)
+    periods = base['Published'].dt.to_period('W-MON')
+    base['Week'] = periods.dt.to_timestamp(how = 'start')
     ts = (
-        exploded.dropna(subset = ['Week'])
-        .groupby(['Risk_norm','Week'])
+        base.loc[base['Week'].notna()]
+        .groupby(['Risk_item','Week'])
         .size().rename('n').reset_index()
-        .sort_values(['Risk_norm','Week'])
+        .sort_values(['Risk_item','Week'])
     )
+    if not ts.empty:
+        ts['EMWA'] = ts.groupby('Risk_item')['n'].transform(
+            lambda s: s.ewm(span = 4, adjust =False).mean()
+        )
 
-    ts['EMWA'] = ts.groupby('Risk_norm')['n'].transform(
-        lambda s: s.ewm(span = 4, adjust =False).mean()
-    )
+        ts['EMWA_Delta'] = ts.groupby('Risk_item')['EMWA'].diff().fillna(0.0)
+        import numpy as np
+        def slope(counts, k=6):
+            x = np.arange(len(counts), dtype = float)
+            out = np.zeros(len(counts), dtype = float)
+            for i in range(len(counts)):
+                lo = max(0, i-k +1)
+                xi = x[lo:i+1] 
+                yi = counts[lo:i+1].astype(float)
+                if len(xi) > 2:
+                    m, _ = np.polyfit(xi,yi,1)
+                    out[i] = m
+            return out
 
-    ts['EMWA_Delta'] = ts.groupby('Risk_norm')['EMWA'].diff().fillna(0.0)
+        ts['Slope'] = ts.groupby('Risk_item', group_keys = False)['n'].apply(lambda g: pd.Series(slope(g.values, k=6), index = g.index)).astype(float)
 
-    exploded = exploded.merge(ts[['Risk_norm','Week','EMWA_Delta']], on=['Risk_norm','Week'], how='left')
-    exploded['EMWA_Delta'] = exploded['EMWA_Delta'].fillna(0.0)
+        def normalize(s):
+            s_pos = pd.Series(s).clip(lower=0)
+            cap = np.nanpercentile(s_pos, 95) if np.isfinite(s_pos).any() else 0.0
+            return (s_pos/cap).clip(0,1) if cap > 0 else s_pos * 0.0
 
-    import numpy as np
-    def slope(weeks, counts, k=6):
-        out = np.zeros(len(counts), dtype = float)
-        for i in range(len(counts)):
-            lo = max(0, i-k +1)
-            x = np.arange(lo, i+1, dtype = float)
-            y = counts[lo:i+1].astype(float)
-            if len(x) > 2:
-                m, b = np.polyfit(x,y,1)
-                out[i] = m
-            else:
-                out[i] =0.0
-        return out
+        ts['emwa_norm'] = normalize(ts['EMWA'])
+        ts['slope_norm'] = normalize(ts['Slope'])
+        
+        w_emwa, w_slope = 0.6, 0.4
+        ts['accel_score'] = (w_emwa*ts['emwa_norm'] + w_slope * ts['slope_norm']).clip(0,1)
+
+        # ---- Sentiment acceleration (added) ----
+        if 'Sentiment Score' not in base.columns:
+            base['Sentiment Score'] = 0.0
+        ts_sent = (
+            base.loc[base['Week'].notna()]
+            .groupby(['Risk_item','Week'])
+            .agg(sent_mean=('Sentiment Score','mean'))
+            .reset_index()
+            .sort_values(['Risk_item','Week'])
+        )
+        ts_sent['sent_flipped'] = -ts_sent['sent_mean']
+        ts_sent['sent_ewma'] = ts_sent.groupby('Risk_item')['sent_flipped'].transform(
+            lambda s: s.ewm(span=4, adjust=False).mean()
+        )
+        ts_sent['sent_delta'] = ts_sent.groupby('Risk_item')['sent_ewma'].diff().fillna(0.0)
+        ts_sent['sent_slope'] = ts_sent.groupby('Risk_item', group_keys=False)['sent_flipped'] \
+            .apply(lambda g: pd.Series(slope(g.values, k=6), index=g.index)) \
+            .astype(float)
+        ts_sent['sent_delta_norm'] = normalize(ts_sent['sent_delta'])
+        ts_sent['sent_slope_norm'] = normalize(ts_sent['sent_slope'])
+        w_sent_delta, w_sent_slope = 0.6, 0.4
+        ts_sent['accel_score_sent'] = (w_sent_delta*ts_sent['sent_delta_norm'] + w_sent_slope*ts_sent['sent_slope_norm']).clip(0,1)
+
+        ts = ts.merge(ts_sent[['Risk_item','Week','accel_score_sent']], on=['Risk_item','Week'], how='left')
+        ts['accel_score_sent'] = ts['accel_score_sent'].fillna(0.0)
+
+        # blend volume accel with sentiment accel (keep same thresholds below)
+        w_vol, w_sent = 0.7, 0.3
+        ts['accel_score'] = (w_vol*ts['accel_score'] + w_sent*ts['accel_score_sent']).clip(0,1)
+        # ---- end sentiment acceleration (added) ----
+
     
-    ts['Slope'] = ts.groupby('Risk_norm', group_keys = False) \
-        .apply(lambda g: pd.Series(slope(g['Week'].values, g['n'].values, k=6), index = g.index)) \
-        .astype(float)
+        def _acc_value(d):
+            if d < 0.1: return 0
+            if d < 0.25: return 1
+            if d < 0.40: return 2
+            if d < 0.60: return 3
+            if d < 0.80: return 4
+            return 5
+        ts['Acceleration_value'] = ts['accel_score'].apply(_acc_value).astype(int)
+
+        def cue_eta_from_text(t):
+            t = str(t).lower()
+            if re.search(r'\b(today|tonight|tomorrow|immediately|right now)\b', t):
+                return 3
+            if re.search(r'\b(this week|in\s*the\s*coming\s*days)\b', t):
+                return 7
+            # near-term windows
+            if re.search(r'\b(next week|within\s*2\s*weeks|in\s*2\s*weeks)\b', t):
+                return 14
+            if re.search(r'\b(within\s*30\s*days|this month|in\s*\d+\s*days)\b', t):
+                return 30
+            return 45
+        
+        temp = base.loc[base['Week'].notna(), ['Risk_item', 'Week', 'Title','Content', 'Location','University Label']].copy()
+        temp['cue_eta'] = (temp['Title'] + ' ' + temp['Content'].fillna('')).apply(cue_eta_from_text)
+
+        def location_eta(l):
+            try:
+                loc = int(l)
+            except Exception:
+                loc = 0
+            if loc == 5: return 7
+            if loc == 1: return 21
+            return 45
+        temp['loc_eta'] = temp['Location'].apply(location_eta)
+        def tulane_pull(u_label, eta):
+            try:
+                label = int(u_label)
+            except Exception:
+                label = 0
+            return max(1, eta - (7 if label ==1 else 0))
+        
+        temp['eta_article'] = temp.apply(lambda x: tulane_pull(x['University Label'], min(x['cue_eta'], x['loc_eta'])), axis =1)
+
+        eta_by_bucket = (
+            temp.groupby(['Risk_item', 'Week'])['eta_article'].min()
+            .rename('eta_days_proxy').reset_index()
+        )
+
+        ts = ts.merge(eta_by_bucket, on = ['Risk_item', 'Week'], how='left')
+        ts['eta_days_proxy'] = ts['eta_days_proxy'].fillna(45).astype(float)
+
+        ts['eta_days_proxy'] = (ts['eta_days_proxy']- (ts['accel_score'] * 5.0)).clip(lower =1)
+
+        def cap_by_eta(val, eta_days):
+            if eta_days <= 15:
+                return(min(int(val), 5))
+            elif eta_days <= 30:
+                return (min(int(val),4))
+            else: 
+                return min(int(val), 3)
+
+        ts['Acceleration_value'] = ts.apply(
+            lambda r: cap_by_eta(r['Acceleration_value'], r['eta_days_proxy']),
+            axis=1
+        ).astype(int)
+
+        base = base.merge(
+            ts[['Risk_item', 'Week', 'Acceleration_value']],
+            on=['Risk_item', 'Week'], how='left'
+        )
+    if 'Acceleration_value' not in base.columns:
+        base['Acceleration_value'] = 0
     
-    def normalize(s):
-        s_pos = s.clip(lower = 0)
-        cap = np.nanpercentile(s_pos, 95) if np.isfinite(s_pos).any() else 0.0
-        if cap <= 0:
-            return s_pos * 0.0
-        return (s_pos/cap).clip(0,1)
 
-    ts['emwa_norm'] = normalize(ts['EMWA'])
-    ts['slope_norm'] = normalize(ts['Slope'])
-
-    w_emwa, w_slope = 0.6, 0.4
-    ts['accel_score'] = (w_emwa*ts['emwa_norm'] + w_slope * ts['slope_norm']).clip(0,1)
-
-    
-    def _acc_value(d):
-        if d < 0.1: return 0
-        if d < 0.25: return 1
-        if d < 0.40: return 2
-        if d < 0.60: return 3
-        if d < 0.80: return 4
-        return 5
-    ts['Acceleration_value'] = ts['accel_score'].apply(_acc_value).astype(int)
-
-    exploded = exploded.merge(
-        ts[['Risk_norm', 'Week', 'Acceleration_value']],
-        on = ['Risk_norm', 'Week'],
-        how = 'left'
-    )
-
-    exploded['Acceleration_value'] =exploded['Acceleration_value'].fillna(0).astype(int)
+    base['Acceleration_value'] =base['Acceleration_value'].fillna(0).astype(int)
 
 
     
@@ -606,10 +712,10 @@ def risk_weights(df):
     
 
     # ---------- Frequency_Score per risk (qcut over counts) ----------
-    if exploded.empty:
-        exploded['Frequency_Score'] = 0
+    if base.empty:
+        base['Frequency_Score'] = 0
     else:
-        counts = exploded['Risk_norm'].value_counts().rename_axis('Risk_norm').reset_index(name='Count')
+        counts = base['Risk_item'].value_counts().rename_axis('Risk_item').reset_index(name='Count')
         try:
             bins = pd.qcut(counts['Count'].rank(method='first'), 5, labels=[1,2,3,4,5])
             counts['Frequency_Score'] = bins.astype(int)
@@ -620,80 +726,182 @@ def risk_weights(df):
             else:
                 scaled = 1 + 4 * (counts['Count'] - mn) / float(mx - mn)
                 counts['Frequency_Score'] = scaled.round().clip(1,5).astype(int)
-        freq_map = dict(zip(counts['Risk_norm'], counts['Frequency_Score']))
-        exploded['Frequency_Score'] = exploded['Risk_norm'].map(freq_map).fillna(0).astype(int)
+        freq_map = dict(zip(counts['Risk_item'], counts['Frequency_Score']))
+        base['Frequency_Score'] = base['Risk_item'].map(freq_map).fillna(0).astype(int)
 
     # ---------- Industry_Risk via spaCy matches (per article, then applied per risk) ----------
-    detected_map = {}
-    detected_join_map = {}
-    use_spacy = False
-    if higher_ed_dict and isinstance(higher_ed_dict, dict):
-        try:
-            import spacy
-            from spacy.matcher import PhraseMatcher
-            nlp = spacy.load('en_core_web_sm')
-            matcher = PhraseMatcher(nlp.vocab, attr='LOWER')
-            for risk_name, phrases in higher_ed_dict.items():
-                pats = [nlp(p) for p in phrases if isinstance(p, str) and p.strip()]
-                if pats: matcher.add(risk_name, pats)
-            use_spacy = True
-        except Exception:
-            use_spacy = False
+    hed = risks_cfg.get('HigherEdRisks') or {}
+    hed_norm = {
+        str(cat).strip().lower(): [str(p).strip().lower() for p in (phr_list or []) if str(p).strip()]
+        for cat, phr_list in hed.items()
+    }
 
-    if use_spacy:
-        texts = (base['Title'].astype(str) + ' ' + base['Content'].astype(str))
-        for idx, txt in texts.items():
-            doc = nlp(txt)
-            matches = matcher(doc)
-            names = sorted(set([nlp.vocab.strings[mid] for (mid,_,_) in matches]))
-            detected_join_map[idx] = ', '.join(names)
-            detected_map[idx] = set(n.lower() for n in names)
-    else:
-        for idx in base.index:
-            detected_join_map[idx] = ''
-            detected_map[idx] = set()
+    def phrase_to_pattern(phrase:str) -> str:
+        return r'\b' + re.escape(phrase) + r'\b'
+    
+    cat_regex = {}
+    for cat, phrases in hed_norm.items():
+        if not phrases:
+            continue
+        pats = [phrase_to_pattern(p) for p in phrases]
+        pats.append(phrase_to_pattern(cat))
+        cat_regex[cat] = re.compile("(" + "|".join(pats) + ")", flags=re.I)
+    
+    text_all = (base['Title'].fillna('') + ' ' + base['Content'].fillna('')).fillna('').astype(str)
+    detected_cats = []
 
-    # Map per exploded row
-    exploded['Detected_Risks'] = exploded.index.map(detected_join_map)
-    exploded['Industry_Risk'] = [
-        5 if r in detected_map.get(idx, set()) else 0
-        for idx, r in zip(exploded.index, exploded['Risk_norm'])
-    ]
+    for t in text_all:
+        hits = {cat for cat, rx in cat_regex.items() if rx.search(t)}
+        detected_cats.append(hits)
+    
+    base['Detected_HigherEd_Categories'] = detected_cats
+    base['Industry_Risk_Presence'] = np.where(base['Detected_HigherEd_Categories'].apply(len) > 0,3,0).astype(int)
+    peers_list = risks_cfg.get('Peer_Institutions') or []
+    peer_pat = re.compile(r'\b(' + '|'.join([re.escape(p) for p in peers_list]) + r')\b', flags = re.I) if peers_list else None
+
+    moderate_impact = re.compile(r'\b(outage|closure|lawsuit|probation|sanction|breach|evacuation|investigation)\b', re.I)
+    substantial_impact = re.compile(r'\b(widespread|catastrophic|shutdown|bankrupt|insolvenc\w*|fatalit\w*|revocation|accreditation\s+revoked)\b', re.I)
+
+
+    tmp_ind = base.loc[base['Week'].notna(), ['Week', 'Title', 'Content']].copy()
+    tmp_ind['text_all'] = (tmp_ind['Title'] + ' ' + tmp_ind['Content']).fillna('')
+
+    def find_peer(t):
+        if not peer_pat:
+            return ''
+        m = peer_pat.search(t or '')
+        return m.group(0) if m else ''
+
+    def severity(text):
+        if substantial_impact.search(text or ''):
+            return 'substantial'
+        if moderate_impact.search(text or ''):
+            return 'moderate'
+        return ''
+    
+    tmp_ind['peer'] = tmp_ind['text_all'].apply(find_peer)
+    tmp_ind['sev'] = tmp_ind['text_all'].apply(severity)
+    
+    agg = (
+        tmp_ind.groupby(['Week', 'sev'])['peer'].nunique().unstack(fill_value=0).rename(columns={'moderate': 'peers_mod', 'substantial':'peers_sub'})
+    )
+
+    for c in ['peers_mod', 'peers_sub']:
+        if c not in agg.columns: agg[c] = 0
+    
+    agg = agg.reset_index()
+
+    def peer_industry_score(row):
+        if row['peers_sub'] >= 2:
+            return 5
+        if row['peers_mod'] >=1:
+            return 4
+        return 0
+
+    agg['Industry_Risk_Peer'] = agg.apply(peer_industry_score, axis =1).astype(int)
+    # Map per base row
+    base = base.merge(agg[['Week', 'Industry_Risk_Peer']],
+                              on=['Week'], how='left')
+    base['Industry_Risk_Peer'] = base['Industry_Risk_Peer'].fillna(0).astype(int)
+    base['Industry_Risk'] = np.maximum(base['Industry_Risk_Presence'], base['Industry_Risk_Peer']).astype(int)
+
+    
 
     # ---------- Impact_Score per risk ----------
-    exploded['Impact_Score'] = exploded['Risk_norm'].map(risks_map).fillna(0.0).astype(float)
+    impact_weights = {"financial": 0.35, "reputational": 0.15, "academic": 0.25, "operational": 0.25}
+    new_risks = risks_cfg.get('new_risks')
+    risk_dims_map = {}
+    for block in new_risks:
+        for category, items in block.items():
+            for r in items:
+                name = r.get('name', '').strip().lower()
+                dims = r.get('impact dims')
+                risk_dims_map[name] = {
+                    'financial': float(dims.get('financial', 0.0)),
+                    'reputational': float(dims.get('reputational', 0.0)),
+                    'academic': float(dims.get('academic', 0.0)),
+                    'operational': float(dims.get('operational', 0.0))
+                }
+    
+    existential_threat_patterns = [
+    r'\b(permanent\s+closure|cease\s+operations|bankrupt|insolven|shut\s*down\s*permanent|revocation\s+of\s+accreditation)\b',
+    r'\b(catastrophic\s+(damage|failure)|total\s+loss|existential\s+threat)\b'
+]
+    severe_patterns = [
+    r'\b(university[-\s]*wide|campus[-\s]*wide|enterprise[-\s]*wide|entire\s+university|all\s+systems\s+down)\b',
+    r'\b(ransomware|mass\s+evacuation|classes\s+canceled\s+across\s+campus|network\s+outage)\b',
+    r'\b(federal\s+investigation|systemic\s+title\s*ix|major\s+scandal|fatalit(y|ies))\b',
+    r'\b(executive\s+action\b(?:\s\w+){0,100}?\s(college|university|universities))
+    r'\b(regulatory\s+action|regulation\s\b(?:\s\w+){0,100}\s(higher\seducation|university|universities|college|colleges))
+]
+    
+    def find_patterns(text, patterns):
+        for p in patterns:
+            if re.search(p, text, flags=re.I):
+                return True
+        return False
+    
+    def impact_row(row):
+        risk = str(row['Risk_item']).strip().lower()
+        dims = risk_dims_map.get(risk)
+
+        if dims:
+            fin, rep, acad, oper = dims['financial'], dims['reputational'], dims['academic'], dims['operational']
+        else:
+            fin, rep, acad, oper = 1.0, 1.0, 1.0, 1.0
+
+        base = (fin * impact_weights['financial'] +
+                rep * impact_weights['reputational'] +
+                acad * impact_weights['academic'] +
+                oper * impact_weights['operational'])
+        
+        text = (str(row.get('Title','')) + ' ' + str(row.get('Content',''))).lower()
+        existential = find_patterns(text, existential_threat_patterns)
+        severe = find_patterns(text, severe_patterns) or (int(row.get('Location',0))==5 and int(row.get('University Label',0))==1)
+
+        if existential:
+            return min(5.0, max(5.0, base))
+        if severe:
+            return min(4.0, max(4.0, base))
+        else:
+            return min(base, 3.9)
+    for col in ['Location', 'University Label']:
+        if col not in base.columns:
+            base[col] = 0
+        base[col] = pd.to_numeric(base[col], errors = 'coerce').fillna(0).astype(int)
+    base['Impact_Score'] = base.apply(impact_row, axis=1).astype(float)
 
     # ---------- Final blended Risk_Score (0..5) per (article × risk) ----------
     w = {
-        'Recency': 0.10,
-        'Source_Accuracy': 0.15,
-        'Impact_Score': 0.25,
-        'Acceleration_value': 0.08,
+        'Recency': 0.15,
+        'Source_Accuracy': 0.10,
+        'Impact_Score': 0.35,
+        'Acceleration_value': 0.25,
         'Location': 0.05,
-        'Industry_Risk': 0.20,
-        'Frequency_Score': 0.07
+        'Industry_Risk': 0.05,
+        'Frequency_Score': 0.05
     }
     weight_sum = sum(w.values())  # 0.90
 
     num = (
-        exploded['Recency'] * w['Recency'] +
-        exploded['Source_Accuracy'] * w['Source_Accuracy'] +
-        exploded['Impact_Score'] * w['Impact_Score'] +
-        exploded['Acceleration_value'] * w['Acceleration_value'] +
-        exploded['Location'] * w['Location'] +
-        exploded['Industry_Risk'] * w['Industry_Risk'] +
-        exploded['Frequency_Score'] * w['Frequency_Score']
+        base['Recency'] * w['Recency'] +
+        base['Source_Accuracy'] * w['Source_Accuracy'] +
+        base['Impact_Score'] * w['Impact_Score'] +
+        base['Acceleration_value'] * w['Acceleration_value'] +
+        base['Location'] * w['Location'] +
+        base['Industry_Risk'] * w['Industry_Risk'] +
+        base['Frequency_Score'] * w['Frequency_Score']
     )
-    exploded['Risk_Score'] = (num / weight_sum).clip(0,5).round(3)
-    exploded['Weights'] = exploded['Risk_Score']  # back-compat
+    base['Risk_Score'] = (num / weight_sum).clip(0,5).round(3)
+    base['Weights'] = base['Risk_Score']  # back-compat
 
     # helpful: keep original full risk list too
-    exploded['Predicted_Risk_Single'] = exploded['Risk']
+    base['Predicted_Risk_Single'] = base['Risk_item']
 
     # stable ID for joining back if needed
-    exploded = exploded.reset_index().rename(columns={'index':'ArticleID'})
+    base = base.reset_index().rename(columns={'index':'ArticleID'})
 
-    return exploded
+    return base
 
 def predict_risks(df):
 
@@ -818,13 +1026,14 @@ async def process_article(article, sem, batch_number=None, total_batches=None, a
             Read the following title and content from the following article: 
             Title: {title}
             Content: {" ".join(str(content).split()[:200])}
-            Check each article Title and Content for news regarding higher education, university news, or
+            Check each article Title and Content for 1) sentiment score (a float with two decimal spaces in [-1.0, 1.0] (negative = bad, positive= good, neutral =0), e.g. -0.37) and 2) news regarding higher education, university news, or
             university funding. If the article refers to higher education or university news, 
             return a **compact and valid JSON object**, properly escaped, without explanations:
             {{
                 "Title":"same title",
                 "Content":"same content",
-                "University Label": 1
+                "University Label": 1,
+                "Sentiment Score": 0.45
             }}
             Else, set "University Label" to 0
             """
@@ -854,7 +1063,18 @@ async def process_article(article, sem, batch_number=None, total_batches=None, a
                     ulabel = 1 if ulabel ==1 else 0
                 except Exception:
                     ulabel = 0
-                return {'Title': str(title), "Content": str(content), 'University Label': ulabel}
+
+                s_score = rec.get('Sentiment Score') or rec.get('sentiment_score') or 0
+                try:
+                    s_score = float(s_score)
+                    if s_score < -1: s_score = -1.0
+                    if s_score > 1: s_score = 1.0
+                except Exception:
+                    s_score = 0.0
+                
+                
+                
+                return {'Title': str(title), "Content": str(content), 'University Label': ulabel,'Sentiment Score': s_score}
         except Exception as e:
             print(f"🔥 Uncaught error in article {article_index} of batch {batch_number}: {e}", flush=True)
             return None
@@ -891,9 +1111,17 @@ def load_university_label(new_label):
 
     if not existing.empty and 'University Label' in existing.columns:
         all_articles = all_articles.merge(
-            existing[['Title', 'University Label']],
+            existing[['Title', 'University Label']].rename(columns = {'University Label': 'University Label_new'}),
             on = 'Title', how = 'left'
         )
+
+    if 'University label_y' in all_articles.columns:
+        all_articles['University Label'] = all_articles['University Label_new'].fillna(all_articles['University Label_y'])
+    else:
+        all_articles['University Label'] = all_articles['University Label_new'].fillna(0)
+    
+    all_articles = all_articles.drop(columns = ['University Label_new', 'University Label_y'], errors = 'ignore')
+    all_articles['University Label'] = all_articles['University Label'].fillna(0).astype(int)
     labeled_titles = set(existing['Title']) if 'Title' in existing else set()
 
     # Only run labeling on unlabeled articles
@@ -903,8 +1131,8 @@ def load_university_label(new_label):
     results = asyncio.run(university_label_async(new_articles))
 
     if results:
-        labels_df = pd.DataFrame(results)[['Title', 'University Label']]
-        all_articles = all_articles.drop(columns = ['University Label'], errors = 'ignore')
+        labels_df = pd.DataFrame(results)[['Title', 'University Label', 'Sentiment Score']]
+        all_articles = all_articles.drop(columns = ['University Label', 'Sentiment Score'], errors = 'ignore')
         all_articles = all_articles.merge(labels_df, on='Title', how='left')
 
         if not existing.empty:
@@ -916,7 +1144,7 @@ def load_university_label(new_label):
     if 'University Label' not in all_articles.columns:
         all_articles['University Label'] = 0
     all_articles['University Label'] = all_articles['University Label'].fillna(0).astype(int)
-    combined.to_csv('BERTopic_before.csv', columns = ['Title', 'University Label'], index = False)
+    combined.to_csv('BERTopic_before.csv', columns = ['Title', 'University Label','Sentiment Score'], index = False)
 
     return all_articles
 
