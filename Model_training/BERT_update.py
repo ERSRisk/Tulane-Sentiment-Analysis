@@ -162,7 +162,7 @@ if 'Source' not in df.columns:
 # Convert NaN/None to empty string, keep as string dtype
 df['Source'] = df['Source'].astype('string').fillna('')
 
-def transform_text(texts):
+def transform_text(texts, batch_size = 100):
     print(f"Transforming {len(df)} articles in batches...")
     texts = texts.copy()
 
