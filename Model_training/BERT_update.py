@@ -831,8 +831,8 @@ def risk_weights(df):
     r'\b(university[-\s]*wide|campus[-\s]*wide|enterprise[-\s]*wide|entire\s+university|all\s+systems\s+down)\b',
     r'\b(ransomware|mass\s+evacuation|classes\s+canceled\s+across\s+campus|network\s+outage)\b',
     r'\b(federal\s+investigation|systemic\s+title\s*ix|major\s+scandal|fatalit(y|ies))\b',
-    r'\b(executive\s+action\b(?:\s\w+){0,100}?\s(college|university|universities)),
-    r'\b(regulatory\s+action|regulation\s\b(?:\s\w+){0,100}\s(higher\seducation|university|universities|college|colleges))
+    r'\b(executive\s+action\b(?:\s\w+){0,100}?\s(college|university|universities))\b',
+    r'\b(regulatory\s+action|regulation\s\b(?:\s\w+){0,100}\s(higher\seducation|university|universities|college|colleges))\b'
 ]
     
     def find_patterns(text, patterns):
