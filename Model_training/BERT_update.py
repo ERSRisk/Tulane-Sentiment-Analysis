@@ -1205,8 +1205,8 @@ need_risk_map = df_combined.get('Predicted_Risks_new').fillna('').astype(str).eq
 df_to_score = df_combined.loc[need_risk_map].copy()
 if not df_to_score.empty:
     df_scored = predict_risks(df_to_score)          # only new stuff
-    df_combined.loc[need_risk_map, 'Predicted_Risks_new'] = (df_scored['Predicted_Risks_new'].values
-    df = df_combined)
+    df_combined.loc[need_risk_map, 'Predicted_Risks_new'] = (df_scored['Predicted_Risks_new'].values)
+    
 else:
     print("✅ No new rows need risk prediction.")
 df_combined['Predicted_Risks'] = df_combined.get('Predicted_Risks_new', '')
