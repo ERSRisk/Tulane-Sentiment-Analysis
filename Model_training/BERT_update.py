@@ -158,7 +158,7 @@ def transform_text(texts):
     print(f"Transforming {len(df)} articles in batches...")
     all_topics, all_probs = [], []
     batch_size = 100  # or smaller
-    texts_list = df['Text'].tolist()
+    texts_list = df['Text'].fillna('').astype(str).tolist()
     
     for i in range(0, len(texts_list), batch_size):
         batch = texts_list[i:i+batch_size]
