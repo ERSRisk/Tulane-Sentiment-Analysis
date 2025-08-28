@@ -1063,7 +1063,7 @@ if selection == "Article Risk Review":
                     float(article['Recency']) * w['Recency'] +
                     float(article['Source_Accuracy']) * w['Source_Accuracy'] +
                     float(article['Impact_Score']) * w['Impact_Score'] +
-                    float(article['Acceleration_value']) * w['Acceleration_value'] +
+                    float(article['Acceleration_value_y']) * w['Acceleration_value'] +
                     float(article['Location']) * w['Location'] +
                     float(article['Industry_Risk']) * w['Industry_Risk'] +
                     float(article['Frequency_Score']) * w['Frequency_Score']
@@ -1114,7 +1114,7 @@ if selection == "Article Risk Review":
                     with col1:
                         st.metric('Recency', article['Recency_Upd'] if pd.notna(article['Recency_Upd']) else article['Recency'])
                     with col2:
-                        st.metric('Acceleration', article['Acceleration_value_Upd'] if pd.notna(article['Acceleration_value_Upd']) else article['Acceleration_value'])
+                        st.metric('Acceleration', article['Acceleration_value_Upd'] if pd.notna(article['Acceleration_value_Upd']) else article['Acceleration_value_y'])
                     with col3:
                         st.metric('Source Accuracy', article['Source_Accuracy_Upd'] if pd.notna(article['Source_Accuracy_Upd']) else article['Source_Accuracy'])
                     with col4:
@@ -1177,7 +1177,7 @@ if selection == "Article Risk Review":
                             with col1:
                                 upd_recency_value = st.number_input('Recency Risk', min_value = 0.0, max_value = 5.0, step = 1.0, value= float(article['Recency_Upd'] if pd.notna(article['Recency_Upd']) else article['Recency']), key =f"recency_input_{idx}")
                             with col2:
-                                upd_acceleration_value = st.number_input('Acceleration Risk',  min_value=0.0, max_value = 5.0, step = 1.0, value=float(article['Acceleration_value_Upd'] if pd.notna(article['Acceleration_value_Upd']) else article['Acceleration_value']),key =f"acceleration_input_{idx}")
+                                upd_acceleration_value = st.number_input('Acceleration Risk',  min_value=0.0, max_value = 5.0, step = 1.0, value=float(article['Acceleration_value_Upd'] if pd.notna(article['Acceleration_value_Upd']) else article['Acceleration_value_y']),key =f"acceleration_input_{idx}")
                             with col3:
                                 upd_source_accuracy =st.number_input('Source Accuracy',  min_value=0.0, max_value = 5.0, step = 1.0, value= float(article['Source_Accuracy_Upd'] if pd.notna(article['Source_Accuracy_Upd']) else article['Source_Accuracy']),key =f"source_input_{idx}")
                             with col4:
@@ -1402,4 +1402,3 @@ if selection == "Risk/Event Detector":
                 st.info("No risk-related sentences matched semantically.")
         else:
             st.warning("No extractable text found in the document.")
-
