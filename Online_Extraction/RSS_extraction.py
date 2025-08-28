@@ -610,3 +610,6 @@ except Exception as e:
 existing_articles = load_existing_articles()
 new_articles = save_new_articles(existing_articles, all_articles)
 
+existing_articles = load_existing_articles()
+with open(
+
