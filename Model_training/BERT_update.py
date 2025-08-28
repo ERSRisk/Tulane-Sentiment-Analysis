@@ -164,22 +164,39 @@ df['Source'] = df['Source'].astype('string').fillna('')
 
 def transform_text(texts):
     print(f"Transforming {len(df)} articles in batches...")
-    all_topics, all_probs = [], []
-    batch_size = 100  # or smaller
+        texts = texts.copy()
+
+    # Ensure columns exist
+    if 'Topic' not in texts.columns:
+        texts['Topic'] = pd.NA
+    if 'Probability' not in texts.columns:
+        texts['Probability'] = pd.NA
+
     def is_valid_text(x):
         return isinstance(x, str) and x.strip() != ''
-    valid_mask = df['Text'].apply(is_valid_text)
-    valid_idx = df.index[valid_mask].to_list()
-    texts_list = df.loc[valid_mask, 'Text'].to_list()
-    
+
+    valid_mask = texts['Text'].apply(is_valid_text)
+    valid_idx = texts.index[valid_mask]
+    texts_list = texts.loc[valid_idx, 'Text'].tolist()
+
+    all_topics, all_probs = [], []
+
     for i in range(0, len(texts_list), batch_size):
-        batch = texts_list[i:i+batch_size]
-        topics, probs = topic_model.transform(batch)
+        batch = texts_list[i:i + batch_size]
+        topics, probs = topic_model.transform(batch)  # probs is 1D (len == len(batch))
         all_topics.extend(topics)
-        all_probs.extend(probs)
-        print(f"✅ Transformed batch {i//batch_size + 1}/{(len(texts_list) // batch_size) + 1}")
-    texts['Topic'] = all_topics
-    texts['Probability'] = all_probs
+
+        # make sure probs is a flat python list of floats (handles numpy arrays)
+        if hasattr(probs, 'tolist'):
+            probs = probs.tolist()
+        all_probs.extend([float(p) if p is not None else None for p in probs])
+
+        print(f"✅ Transformed batch {i // batch_size + 1}/{(len(texts_list) + batch_size - 1) // batch_size}")
+
+    # Assign back ONLY to valid rows
+    texts.loc[valid_idx, 'Topic'] = all_topics
+    texts.loc[valid_idx, 'Probability'] = all_probs
+
     return texts
 
 def save_new_topics(existing_df, new_df, path = 'Model_training/BERTopic_results.csv.gz'):
