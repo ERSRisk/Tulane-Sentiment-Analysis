@@ -614,5 +614,5 @@ existing_articles = load_existing_articles()
 with open('Online_Extraction/higher_education_news.json', 'r', encoding = 'utf-8') as f:
   new_articles = json.load(f)
 
-
+save_new_articles(existing_articles, all_articles)
 
