@@ -50,7 +50,7 @@ def atomic_write_csv(path: str, df, compress: bool = False):
     os.replace(tmp, p)
     print(f"✅ Wrote {p} ({p.stat().st_size/1e6:.2f} MB)")
     
-os.environ('TOKENIZERS_PARALLELISM') = 'false'
+os.environ['TOKENIZERS_PARALLELISM'] = 'false'
 try:
     torch.set_num_threads(1)
 except Exception:
