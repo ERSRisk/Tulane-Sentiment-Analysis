@@ -18,6 +18,8 @@ import gzip
 from datetime import datetime
 import ast
 from urllib.parse import urlparse
+import torch
+
 
 rss_url = "https://github.com/ERSRisk/Tulane-Sentiment-Analysis/releases/download/rss_json/all_RSS.json.gz"
 
@@ -47,6 +49,12 @@ def atomic_write_csv(path: str, df, compress: bool = False):
         df.to_csv(tmp, index=False)
     os.replace(tmp, p)
     print(f"✅ Wrote {p} ({p.stat().st_size/1e6:.2f} MB)")
+    
+os.environ('TOKENIZERS_PARALLELISM') = 'false'
+try:
+    torch.set_num_threads(1)
+except Exception:
+    pass
     
 def download_model_if_exists():
     try:
@@ -158,7 +166,11 @@ def transform_text(texts):
     print(f"Transforming {len(df)} articles in batches...")
     all_topics, all_probs = [], []
     batch_size = 100  # or smaller
-    texts_list = df['Text'].fillna('').astype(str).tolist()
+    def is_valid_text(x):
+        return isinstance(x, str) and x.strip() != ''
+    valid_mask = df['Text'].apply(is_valid_text)
+    valid_idx = df.index[valid_mask].to_list()
+    texts_list = df.loc[valid_mask, 'Text'].to_list()
     
     for i in range(0, len(texts_list), batch_size):
         batch = texts_list[i:i+batch_size]
