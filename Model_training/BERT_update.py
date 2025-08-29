@@ -791,7 +791,53 @@ def risk_weights(df):
 
     moderate_impact = re.compile(r'\b(outage|closure|lawsuit|probation|sanction|breach|evacuation|investigation)\b', re.I)
     substantial_impact = re.compile(r'\b(widespread|catastrophic|shutdown|bankrupt|insolvenc\w*|fatalit\w*|revocation|accreditation\s+revoked)\b', re.I)
-
+    _text_all = (base['Title'].fillna('') + ' ' + base['Content'].fillna('')).astype(str)
+    base['_tulane_flag'] = (base.get('Location', 0).astype(int).eq(5)) | _text_all.str.contains(r'\btulane\b', case=False, regex=True)
+    
+    def _sev_code(t: str) -> int:
+        t = str(t)
+        if substantial_impact.search(t):  # you already defined these regexes above
+            return 2                      # 2 = substantial
+        if moderate_impact.search(t):
+            return 1                      # 1 = moderate
+        return 0                          # 0 = none/low
+    
+    base['_sev_code'] = _text_all.apply(_sev_code).astype(int)
+    
+    # 2) Use PUBLISHED TIME so we only consider *previous* Tulane events
+    #    If Published is missing, fall back to global history (no time ordering).
+    if 'Published' in base.columns and pd.api.types.is_datetime64_any_dtype(base['Published']):
+        # Fill NaT with very old date so they don't count as "previous"
+        _pub = base['Published'].fillna(pd.Timestamp('1900-01-01'))
+        base['_sev_tul'] = np.where(base['_tulane_flag'], base['_sev_code'], 0)
+        # Sort by time, then compute cumulative "max severity so far" per risk
+        base = base.sort_values(['Risk_item', _pub.name])
+        base['_sev_cummax'] = base.groupby('Risk_item')['_sev_tul'].cummax()
+        # Shift by one so current row does NOT count itself
+        base['_sev_prior'] = base.groupby('Risk_item')['_sev_cummax'].shift(1).fillna(0).astype(int)
+    else:
+        # Fallback: overall max severity for Tulane mentions per risk (no time ordering)
+        _hist = (base.loc[base['_tulane_flag']]
+                    .groupby('Risk_item')['_sev_code'].max()
+                    .rename('_sev_prior'))
+        base = base.merge(_hist, on='Risk_item', how='left')
+        base['_sev_prior'] = base['_sev_prior'].fillna(0).astype(int)
+    
+    # 3) Map prior severity -> allowed maximum for Frequency_Score
+    #    0 -> max 3 (no Tulane history), 1 -> max 4 (moderate), 2 -> max 5 (substantial)
+    _allowed_max_map = {0: 3, 1: 4, 2: 5}
+    base['_freq_allowed_max'] = base['_sev_prior'].map(_allowed_max_map).astype(int)
+    
+    # Apply the cap: you can only show 4/5 if Tulane history justifies it
+    base['Frequency_Score'] = np.minimum(base['Frequency_Score'].astype(int),
+                                         base['_freq_allowed_max'])
+    
+    # (Optional) If you ALSO want to *promote* to 4/5 when history exists even if quantile gave lower:
+    # base['Frequency_Score'] = np.maximum(base['Frequency_Score'], base['_freq_allowed_max'])
+    
+    # Clean up helpers if you like
+    base.drop(columns=['_tulane_flag','_sev_code','_sev_tul','_sev_cummax','_sev_prior','_freq_allowed_max'],
+              errors='ignore', inplace=True)
 
     tmp_ind = base.loc[base['Week'].notna(), ['Week', 'Title', 'Content']].copy()
     tmp_ind['text_all'] = (tmp_ind['Title'] + ' ' + tmp_ind['Content']).fillna('')
