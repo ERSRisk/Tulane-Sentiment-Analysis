@@ -1086,11 +1086,26 @@ async def process_article(article, sem, batch_number=None, total_batches=None, a
             Else, set "University Label" to 0
             """
 
-            response = await asyncio.to_thread(call_gemini, prompt)
+            
+            def extract_json_object(text: str) -> str | None:
+                # Try fenced ```json
+                m = re.search(r"```json\s*({.*?})\s*```", text, flags=re.S)
+                if m: return m.group(1)
+                # Try any fenced block
+                m = re.search(r"```\s*({.*?})\s*```", text, flags=re.S)
+                if m: return m.group(1)
+                # Try first JSON-looking object
+                m = re.search(r"(\{\s*\"Title\"[\s\S]*\})", text, flags=re.S)
+                if m: return m.group(1)
+                return None
+                response = await asyncio.to_thread(call_gemini, prompt)
+
             if hasattr(response, "text") and response.text:
-                response_text = response.text
-                json_str = re.search(r"```json\s*(\{.*\})\s*```", response_text, re.DOTALL)
-                raw = json_str.group(1) if json_str else response_text
+                txt = getattr(response, "text", "") or ""
+                raw = extract_json_object(txt)
+                if not raw:
+    # As a fallback, set label=0 but still return a record so we can see counts
+                    return {'Title': str(title), 'Content': str(content), 'University Label': 0, 'Sentiment Score': 0.0}
 
                 try:
                     rec = json.loads(raw)
@@ -1152,27 +1167,16 @@ def load_university_label(new_label):
 
     try:
         existing = pd.read_csv('BERTopic_before.csv')
-        
     except FileNotFoundError:
-        existing = pd.DataFrame(columns = ['Title', 'University Label'])
-        labeled_titles = set()
-
-    if not existing.empty and 'University Label' in existing.columns:
-        all_articles = all_articles.merge(
-            existing[['Title', 'University Label']].rename(columns = {'University Label': 'University Label_new'}),
-            on = 'Title', how = 'left'
-        )
-
-    if 'University Label_y' in all_articles.columns:
-        all_articles['University Label'] = all_articles['University Label_new'].fillna(all_articles['University Label_y'])
-    else:
-        all_articles['University Label'] = all_articles['University Label_new'].fillna(0)
+        existing = pd.DataFrame(columns=['Title', 'University Label'])
     
-    all_articles = all_articles.drop(columns = ['University Label_new', 'University Label_y'], errors = 'ignore')
-    all_articles['University Label'] = all_articles['University Label'].fillna(0).astype(int)
-    labeled_titles = set(existing['Title']) if 'Title' in existing else set()
-
-    # Only run labeling on unlabeled articles
+    if not existing.empty and 'University Label' in existing.columns:
+        existing['University Label'] = pd.to_numeric(existing['University Label'], errors='coerce').fillna(0).astype(int)
+        # Only keep definitively positive labels as “already labeled”
+        labeled_titles = set(existing.loc[existing['University Label'] == 1, 'Title'])
+    else:
+        labeled_titles = set()
+    
     new_articles = all_articles[~all_articles['Title'].isin(labeled_titles)]
     print(f"🔎 Total articles: {len(all_articles)} | Unlabeled: {len(new_articles)}", flush=True)
 
@@ -1180,8 +1184,15 @@ def load_university_label(new_label):
 
     if results:
         labels_df = pd.DataFrame(results)[['Title', 'University Label', 'Sentiment Score']]
-        all_articles = all_articles.drop(columns = ['University Label', 'Sentiment Score'], errors = 'ignore')
-        all_articles = all_articles.merge(labels_df, on='Title', how='left')
+        # Merge without losing existing 1s
+        all_articles = all_articles.merge(labels_df, on='Title', how='left', suffixes=('', '_new'))
+        all_articles['University Label'] = (
+            all_articles['University Label_new'].combine_first(all_articles['University Label'])
+        ).fillna(0).astype(int)
+        all_articles['Sentiment Score'] = all_articles.get('Sentiment Score_new', all_articles.get('Sentiment Score'))
+        all_articles = all_articles.drop(columns=['University Label_new', 'Sentiment Score_new'], errors='ignore')
+    else:
+        print("⚠️ Labeler returned 0 results; keeping existing labels.")
 
         if not existing.empty:
             combined = pd.concat([existing, labels_df], ignore_index=True)
