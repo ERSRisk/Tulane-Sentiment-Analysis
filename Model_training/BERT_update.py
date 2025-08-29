@@ -91,7 +91,7 @@ def save_to_json(topics, topic_names):
             "keywords": keywords,
             "documents": docs
         })
-    with open('Model_trianing/topics_BERT.json', 'w') as f:
+    with open('Model_training/topics_BERT.json', 'w') as f:
         json.dump(topic_dict, f, indent=4)
 
 topic_blocks = []
@@ -934,38 +934,58 @@ def risk_weights(df):
 
 def predict_risks(df):
     df = df.copy()
-    df['Title']   = df['Title'].fillna('').str.strip()
-    df['Content'] = df['Content'].fillna('').str.strip()
+
+    # Ensure columns exist
+    if 'Predicted_Risks_new' not in df.columns:
+        df['Predicted_Risks_new'] = ''
+
+    df['Title']   = df['Title'].fillna('').astype(str).str.strip()
+    df['Content'] = df['Content'].fillna('').astype(str).str.strip()
     df['Text']    = (df['Title'] + '. ' + df['Content']).str.strip()
 
-    # Only rows with empty Predicted_Risks_new need embeddings
-    need_mask = df.get('Predicted_Risks_new', '').fillna('').astype(str).eq('')
-    texts_to_embed = df.loc[need_mask, 'Text'].tolist()
+    # Only predict for rows that still need it
+    need_mask = df['Predicted_Risks_new'].fillna('').astype(str).eq('')
+    idx_need = df.index[need_mask]
+
+    if len(idx_need) == 0:
+        return df  # nothing to do
+
+    texts_to_embed = df.loc[idx_need, 'Text'].tolist()
 
     with open('Model_training/risks.json', 'r') as f:
         risks_data = json.load(f)
+
     all_risks = [r['name'] for g in risks_data['new_risks'] for v in g.values() for r in v]
 
-    # Faster model + bigger batch + no tqdm
-    model = SentenceTransformer('all-MiniLM-L6-v2')  # was all-mpnet-base-v2
+    # Fast, lightweight model
+    model = SentenceTransformer('all-MiniLM-L6-v2')
+
+    # Encode in batches
     article_emb = model.encode(
         texts_to_embed,
         convert_to_tensor=True,
         show_progress_bar=False,
-        batch_size=128  # tune up if RAM allows
+        batch_size=128
     )
-    risk_emb = model.encode(all_risks, convert_to_tensor=True, show_progress_bar=False, batch_size=128)
+    risk_emb = model.encode(
+        all_risks,
+        convert_to_tensor=True,
+        show_progress_bar=False,
+        batch_size=128
+    )
 
-    sims = util.cos_sim(article_emb, risk_emb)
+    sims = util.cos_sim(article_emb, risk_emb)  # shape: [num_needed, num_risks]
 
-    out = df.get('Predicted_Risks_new', '').astype(str).tolist()
     threshold = 0.35
-    idx_need = df.index[need_mask]
-    for row_i, df_i in enumerate(idx_need):
+    matched_strings = []
+    for row_i in range(sims.size(0)):  # iterate over needed rows (positional)
         scores = sims[row_i]
-        matched = [all_risks[j] for j, s in enumerate(scores) if float(s) >= threshold]
-        out[df_i] = '; '.join(matched) if matched else 'No Risk'
-    df['Predicted_Risks_new'] = out
+        keep = [all_risks[j] for j, s in enumerate(scores) if float(s) >= threshold]
+        matched_strings.append('; '.join(keep) if keep else 'No Risk')
+
+    # Write back by index, not by list position
+    df.loc[idx_need, 'Predicted_Risks_new'] = matched_strings
+
     return df
 def track_over_time(df, week_anchor="W-MON", out_csv="Model_training/topic_trend.csv"):
 
@@ -1142,7 +1162,7 @@ def load_university_label(new_label):
             on = 'Title', how = 'left'
         )
 
-    if 'University label_y' in all_articles.columns:
+    if 'University Label_y' in all_articles.columns:
         all_articles['University Label'] = all_articles['University Label_new'].fillna(all_articles['University Label_y'])
     else:
         all_articles['University Label'] = all_articles['University Label_new'].fillna(0)
