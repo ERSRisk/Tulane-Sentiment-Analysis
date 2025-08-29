@@ -1098,8 +1098,8 @@ async def process_article(article, sem, batch_number=None, total_batches=None, a
                 m = re.search(r"(\{\s*\"Title\"[\s\S]*\})", text, flags=re.S)
                 if m: return m.group(1)
                 return None
-                response = await asyncio.to_thread(call_gemini, prompt)
-
+                
+            response = await asyncio.to_thread(call_gemini, prompt)
             if hasattr(response, "text") and response.text:
                 txt = getattr(response, "text", "") or ""
                 raw = extract_json_object(txt)
