@@ -11688,5 +11688,115 @@
     "summary": "Positive sentiment. This tweet reflects positively on Tulane by highlighting the positive experience of receiving a scholarship offer.",
     "is_sport": 0,
     "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-28T23:46:20+00:00",
+    "text": "RT @GreenWaveWBB: Big thank you to @TUFitts for @AshLangford’s invitation to speak at today’s Tulane Then and Now discussion commemorating…",
+    "link": "https://twitter.com/None/status/1961213792257188137",
+    "description": "Tweet expressing gratitude to Tulane's Fitts for inviting Ash Langford to speak at a Tulane Then and Now discussion.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment due to the tweet highlighting a positive event at Tulane, showcasing its commitment to its history and community.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-28T23:31:55+00:00",
+    "text": "@oneminutemarvin Tulane 🔒",
+    "link": "https://twitter.com/None/status/1961210163374838114",
+    "description": "Tweet expressing strong positive sentiment towards Tulane.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment; shows strong support for Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-28T23:27:49+00:00",
+    "text": "RT @GreenWaveWBB: Big thank you to @TUFitts for @AshLangford’s invitation to speak at today’s Tulane Then and Now discussion commemorating…",
+    "link": "https://twitter.com/None/status/1961209134885261524",
+    "description": "Tweet expressing gratitude to Tulane's Fitts for inviting Ash Langford to speak at a Tulane Then and Now discussion.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment due to the tweet highlighting a positive event at Tulane, showcasing its commitment to its history and community.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-28T22:46:24+00:00",
+    "text": "Week 1\nBaylor +2.5\nGT -4.5\nTexas +1.5\nTulane -4.5\nFSU +13.5\nClemson -4.5\nUtah -5.5\nSouth Carolina -7.5\nND -2.5\nTCU -3.5",
+    "link": "https://twitter.com/None/status/1961198711461106069",
+    "description": "Tweet expressing gratitude for an invitation to speak at a Tulane event commemorating the 20th anniversary of Hurricane Katrina.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment.The tweet highlights a positive community engagement event related to Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-28T22:34:24+00:00",
+    "text": "@BEkidneystone @TulaneMedicine @TulaneUrology @roboraju You are greatly missed in MA.  Tulane is receiving the greatest gift of all time. Congratulations! \nThank you for everything you have done. \nL. Giorgio",
+    "link": "https://twitter.com/None/status/1961195691327598867",
+    "description": "A farewell message to someone leaving Tulane Medicine, expressing gratitude and congratulations.",
+    "sentiment": 1.0,
+    "summary": "Very positive sentiment. The tweet expresses appreciation for the individual's contributions and celebrates their success.This reflects positively on Tulane Medicine.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-28T22:31:13+00:00",
+    "text": "@WalterIsaacson @Tulane Went to Tulane. Love New Orleans",
+    "link": "https://twitter.com/None/status/1961194891335405589",
+    "description": "A person expressing their positive experience with Tulane and New Orleans.",
+    "sentiment": 1.0,
+    "summary": "Very positive sentiment.The tweet shows fondness for Tulane and New Orleans.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-28T22:29:09+00:00",
+    "text": "RT @WalterIsaacson: On the streetcar coming home from ⁦@Tulane⁩ and guess what is back on St. Charles Avenue? The Roman Candy man? Just lik…",
+    "link": "https://twitter.com/None/status/1961194368632864816",
+    "description": "Observation of the return of the Roman Candy man on St. Charles Avenue near Tulane.",
+    "sentiment": 0.5,
+    "summary": "Neutral to slightly positive sentiment. It's a simple observation; the return of the Roman Candy man is neither directly positive or negative for Tulane, but it's a positive local event mentioned in the context of Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-28T22:26:19+00:00",
+    "text": "RT @TulaneShop: New Item Alert!! Tulane canvas/leather belt! Available in 9 sizes. #rollwave https://t.co/rgHVlA3bQQ",
+    "link": "https://twitter.com/None/status/1961193655886397902",
+    "description": "Announcement of a new Tulane-branded belt.",
+    "sentiment": 0.2,
+    "summary": "Slightly positive sentiment due to the promotion of Tulane merchandise, indicating some level of institutional support and brand recognition.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-28T22:25:32+00:00",
+    "text": "RT @tulanebands: The Tulane University Marching Band invites you to join us in the land of Oz this Saturday with our inaugural halftime sho…",
+    "link": "https://twitter.com/None/status/1961193457608687926",
+    "description": "Promotion of Tulane University Marching Band's halftime show.",
+    "sentiment": 0.5,
+    "summary": "Positive sentiment.Promoting a university event showcases positive aspects of the institution.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-28T21:56:53+00:00",
+    "text": "RT @JonSokoloff: Our Sit Down with Sumrall segments are back!\n\nTulane HC Jon Sumrall won't announce a starting QB for the opener against No…",
+    "link": "https://twitter.com/None/status/1961186247218794856",
+    "description": "Tweet announcing a radio appearance discussing Tulane.",
+    "sentiment": 0.2,
+    "summary": "Slightly positive. Mentions Tulane in a positive context, suggesting upcoming discussion.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-08-28T21:35:30+00:00",
+    "text": "@ruminatiins @DaddyCoffee73 @Rylan But Gary’s views were not factually correct and supports a t group Tulane views were very much correct",
+    "link": "https://twitter.com/None/status/1961180869546455484",
+    "description": "A comment on the accuracy of Tulane's views compared to Gary's.",
+    "sentiment": 0.5,
+    "summary": "Slightly positive.It suggests Tulane's views were correct, which is a positive reflection, though context is missing.",
+    "is_sport": 0,
+    "affiliation": 1
   }
 ]
