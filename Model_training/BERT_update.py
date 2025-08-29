@@ -933,40 +933,38 @@ def risk_weights(df):
     return base
 
 def predict_risks(df):
-
-    df['Title'] = df['Title'].fillna('').str.strip()
-    
+    df = df.copy()
+    df['Title']   = df['Title'].fillna('').str.strip()
     df['Content'] = df['Content'].fillna('').str.strip()
-    df['Text'] = (df['Title'] + '. ' + df['Content']).str.strip()
-    df = df.reset_index(drop = True)
+    df['Text']    = (df['Title'] + '. ' + df['Content']).str.strip()
+
+    # Only rows with empty Predicted_Risks_new need embeddings
+    need_mask = df.get('Predicted_Risks_new', '').fillna('').astype(str).eq('')
+    texts_to_embed = df.loc[need_mask, 'Text'].tolist()
 
     with open('Model_training/risks.json', 'r') as f:
         risks_data = json.load(f)
-    
-    all_risks = [risk['name'] for group in risks_data['new_risks'] for risks in group.values() for risk in risks]
-    
-    model = SentenceTransformer('all-mpnet-base-v2')
-    # Encode articles and risks
-    article_embeddings = model.encode(df['Text'].tolist(), show_progress_bar=True, convert_to_tensor=True)
-    risk_embeddings = model.encode(all_risks, convert_to_tensor=True)
-    
-    # Calculate cosine similarity
-    cosine_scores = util.cos_sim(article_embeddings, risk_embeddings)
+    all_risks = [r['name'] for g in risks_data['new_risks'] for v in g.values() for r in v]
 
-    if 'Predicted_Risks_new' not in df.columns:
-        df['Predicted_Risks_new'] = ''
-    # Assign risks based on threshold
-    threshold = 0.35  # you can tune this
-    out = [''] * len(df)
-    for pos in range(len(df)):
-        existing = str(df.at[pos, 'Predicted_Risks_new']).strip()
-        if existing:
-            out[pos] = existing
-            continue
-        scores = cosine_scores[pos]
+    # Faster model + bigger batch + no tqdm
+    model = SentenceTransformer('all-MiniLM-L6-v2')  # was all-mpnet-base-v2
+    article_emb = model.encode(
+        texts_to_embed,
+        convert_to_tensor=True,
+        show_progress_bar=False,
+        batch_size=128  # tune up if RAM allows
+    )
+    risk_emb = model.encode(all_risks, convert_to_tensor=True, show_progress_bar=False, batch_size=128)
+
+    sims = util.cos_sim(article_emb, risk_emb)
+
+    out = df.get('Predicted_Risks_new', '').astype(str).tolist()
+    threshold = 0.35
+    idx_need = df.index[need_mask]
+    for row_i, df_i in enumerate(idx_need):
+        scores = sims[row_i]
         matched = [all_risks[j] for j, s in enumerate(scores) if float(s) >= threshold]
-        out[pos] = '; '.join(matched) if matched else 'No Risk'
-
+        out[df_i] = '; '.join(matched) if matched else 'No Risk'
     df['Predicted_Risks_new'] = out
     return df
 def track_over_time(df, week_anchor="W-MON", out_csv="Model_training/topic_trend.csv"):
