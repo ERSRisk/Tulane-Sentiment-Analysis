@@ -19,6 +19,7 @@ from datetime import datetime
 import ast
 from urllib.parse import urlparse
 import torch
+import numpy as np
 
 
 rss_url = "https://github.com/ERSRisk/Tulane-Sentiment-Analysis/releases/download/rss_json/all_RSS.json.gz"
