@@ -1198,8 +1198,7 @@ def load_university_label(new_label):
             combined = pd.concat([existing, labels_df], ignore_index=True)
         else:
             combined = labels_df
-    else:
-        combined = existing
+
     if 'University Label' not in all_articles.columns:
         all_articles['University Label'] = 0
     all_articles['University Label'] = all_articles['University Label'].fillna(0).astype(int)
