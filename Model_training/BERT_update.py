@@ -1301,8 +1301,7 @@ def load_university_label(scored_df):
     # Prefer labeled columns
     out['University Label'] = pd.to_numeric(out.get('University Label_lbl'), errors='coerce') \
                                   .fillna(out.get('University Label')).fillna(0).astype(int)
-    out['Sentiment Score'] = out.get('Sentiment Score_lbl').combine_first(out.get('Sentiment Score'))
-    out.drop(columns=['University Label_lbl','Sentiment Score_lbl'], errors='ignore', inplace=True)
+
 
     # Quick sanity logs
     pos_prev = (prev_map['University Label'] == 1).sum()
