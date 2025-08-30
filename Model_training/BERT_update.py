@@ -1106,6 +1106,16 @@ def call_gemini(prompt):
                           f"Retrying after error: {details['exception']} (try {details['tries']} after {details['wait']}s)", flush=True)
 )
 async def process_article(article, sem, batch_number=None, total_batches=None, article_index=None):
+    _HE_PAT = re.compile(
+    r'\b(university|universities|college|campus|faculty|provost|dean|tuition|enrollment|'
+    r'higher\s*education|accreditation|title\s*ix|board\s+of\s+regents|'
+    r'financial\s+aid|student\s+loans|registrar|chancellor)\b',
+    flags=re.I
+    )
+    
+    def he_safety_net(title: str, content: str) -> int:
+        txt = f"{title or ''} {content or ''}"
+        return 1 if _HE_PAT.search(txt) else 0
     async with sem:
         try:
             if batch_number is not None and total_batches is not None and article_index is not None:
@@ -1168,8 +1178,7 @@ async def process_article(article, sem, batch_number=None, total_batches=None, a
                 if ulabel is None:
                     ulabel = rec.get('university_label') or rec.get('University_label') or rec.get('university label') or 0
                 try:
-                    ulabel = int(ulabel)
-                    ulabel = 1 if ulabel ==1 else 0
+                    ulabel = 1 if int(ulabel) == 1 else 0
                 except Exception:
                     ulabel = 0
 
@@ -1180,10 +1189,13 @@ async def process_article(article, sem, batch_number=None, total_batches=None, a
                     if s_score > 1: s_score = 1.0
                 except Exception:
                     s_score = 0.0
-                
-                
-                
-                return {'Title': str(title), "Content": str(content), 'University Label': ulabel,'Sentiment Score': s_score}
+
+                # Safety net upgrade if the text screams “higher ed”
+                ulabel = max(ulabel, he_safety_net(title, content))
+
+                return {'Title': str(title), "Content": str(content),
+                        'University Label': ulabel, 'Sentiment Score': s_score}
+
         except Exception as e:
             print(f"🔥 Uncaught error in article {article_index} of batch {batch_number}: {e}", flush=True)
             return None
@@ -1208,74 +1220,96 @@ async def university_label_async(articles, batch_size=15, concurrency=10):
     results = await asyncio.gather(*tasks)
     return [r for r in results if r is not None]
 
-def load_university_label(new_label):
-    # Work on a copy of the scored articles
-    all_articles = new_label.copy()
+def load_university_label(scored_df):
+    # Work off a copy and collapse to unique articles BEFORE labeling
+    base = scored_df.copy()
+    base['Title'] = base['Title'].astype(str)
+    base['Content'] = base['Content'].astype(str)
 
-    # Load existing label store (or create an empty one with the right columns)
+    # One row per article for labeling logic
+    articles_unique = (base[['Title','Content']]
+                       .dropna(subset=['Title','Content'])
+                       .drop_duplicates())
+
+    # ---- Load existing store (now with Content!) ----
     try:
         existing = pd.read_csv('BERTopic_before.csv')
     except FileNotFoundError:
-        existing = pd.DataFrame(columns=['Title', 'University Label', 'Sentiment Score'])
+        existing = pd.DataFrame(columns=['Title','Content','University Label','Sentiment Score'])
 
-    # Ensure required columns exist with correct dtypes
-    for col in ['Title', 'University Label', 'Sentiment Score']:
-        if col not in existing.columns:
-            existing[col] = np.nan
+    # Normalize columns/dtypes
+    for c in ['Title','Content','University Label','Sentiment Score']:
+        if c not in existing.columns:
+            existing[c] = pd.NA
+    existing['Title'] = existing['Title'].astype(str)
+    existing['Content'] = existing['Content'].astype(str)
     existing['University Label'] = pd.to_numeric(existing['University Label'], errors='coerce').fillna(0).astype(int)
 
-    # Titles we’ve already confirmed as University-related (label == 1)
-    labeled_titles = set(existing.loc[existing['University Label'] == 1, 'Title'].astype(str))
+    # ---- Attach previous labels to today's articles (so prior 1s persist) ----
+    prev_map = (existing
+                .dropna(subset=['Title','Content'])
+                .drop_duplicates(subset=['Title','Content'], keep='last'))
+    # Start a working frame with today's unique articles + prior labels
+    work = articles_unique.merge(prev_map[['Title','Content','University Label','Sentiment Score']],
+                                 on=['Title','Content'], how='left',
+                                 suffixes=('', '_prev'))
 
-    # Only send articles to the labeler that are not already confirmed positive
-    new_articles = all_articles[~all_articles['Title'].astype(str).isin(labeled_titles)]
-    print(f"🔎 Total articles: {len(all_articles)} | Unlabeled to process: {len(new_articles)}", flush=True)
+    # Ensure columns exist
+    if 'University Label' not in work.columns:
+        work['University Label'] = 0
+    work['University Label'] = pd.to_numeric(work['University Label'], errors='coerce').fillna(0).astype(int)
+    work['Sentiment Score'] = pd.to_numeric(work.get('Sentiment Score'), errors='coerce')
 
-    # Run the async labeler (can return an empty list)
-    results = asyncio.run(university_label_async(new_articles))
+    # ---- Decide what needs labeling: anything not already 1 ----
+    to_label = work.loc[work['University Label'] != 1, ['Title','Content']].drop_duplicates()
+    print(f"🔎 Unique articles today: {len(articles_unique)} | To (re)label: {len(to_label)}", flush=True)
 
-    # Build a DataFrame of new labels (or an empty one with the right columns)
-    if results:
-        labels_df = pd.DataFrame(results)[['Title', 'University Label', 'Sentiment Score']]
+    # ---- Run the async labeler on that minimal set ----
+    if not to_label.empty:
+        results = asyncio.run(university_label_async(to_label))
+        if results:
+            labels_df = pd.DataFrame(results)[['Title','Content','University Label','Sentiment Score']]
+            labels_df['Title'] = labels_df['Title'].astype(str)
+            labels_df['Content'] = labels_df['Content'].astype(str)
+            labels_df['University Label'] = pd.to_numeric(labels_df['University Label'], errors='coerce').fillna(0).astype(int)
+        else:
+            print("⚠️ Labeler returned 0 results; keeping existing labels.", flush=True)
+            labels_df = pd.DataFrame(columns=['Title','Content','University Label','Sentiment Score'])
     else:
-        print("⚠️ Labeler returned 0 results; keeping existing labels.", flush=True)
-        labels_df = pd.DataFrame(columns=['Title', 'University Label', 'Sentiment Score'])
+        labels_df = pd.DataFrame(columns=['Title','Content','University Label','Sentiment Score'])
 
-    # --- Merge labels into all_articles ---
-    # Prefer existing confirmed 1s; otherwise take newly predicted labels when present
-    all_articles = all_articles.merge(labels_df, on='Title', how='left', suffixes=('', '_new'))
+    # ---- Merge back new labels (Title+Content) ----
+    work = work.merge(labels_df, on=['Title','Content'], how='left', suffixes=('', '_new'))
+    ul_new = pd.to_numeric(work.get('University Label_new'), errors='coerce').fillna(0).astype(int)
+    work['University Label'] = np.where(work['University Label'] == 1, 1, ul_new)
+    work['Sentiment Score'] = work['Sentiment Score'].combine_first(work.get('Sentiment Score_new'))
+    work.drop(columns=['University Label_new','Sentiment Score_new'], errors='ignore', inplace=True)
 
-    # Ensure column exists and is int
-    if 'University Label' not in all_articles.columns:
-        all_articles['University Label'] = 0
-    all_articles['University Label'] = pd.to_numeric(all_articles['University Label'], errors='coerce').fillna(0).astype(int)
+    # ---- Update the on-disk store (Title+Content key) ----
+    store = pd.concat([existing, labels_df], ignore_index=True)
+    store['Title'] = store['Title'].astype(str)
+    store['Content'] = store['Content'].astype(str)
+    store['University Label'] = pd.to_numeric(store['University Label'], errors='coerce').fillna(0).astype(int)
+    store = (store.dropna(subset=['Title','Content'])
+                  .drop_duplicates(subset=['Title','Content'], keep='last')
+                  [['Title','Content','University Label','Sentiment Score']])
+    store.to_csv('BERTopic_before.csv', index=False)
 
-    # If we already had a 1, keep it. Else use the new label when present.
-    ul_new = pd.to_numeric(all_articles.get('University Label_new', 0), errors='coerce').fillna(0).astype(int)
-    all_articles['University Label'] = np.where(all_articles['University Label'] == 1, 1, ul_new)
+    # ---- Broadcast labels from 'work' back to the original scored_df ----
+    out = base.merge(work[['Title','Content','University Label','Sentiment Score']],
+                     on=['Title','Content'], how='left', suffixes=('', '_lbl'))
+    # Prefer labeled columns
+    out['University Label'] = pd.to_numeric(out.get('University Label_lbl'), errors='coerce') \
+                                  .fillna(out.get('University Label')).fillna(0).astype(int)
+    out['Sentiment Score'] = out.get('Sentiment Score_lbl').combine_first(out.get('Sentiment Score'))
+    out.drop(columns=['University Label_lbl','Sentiment Score_lbl'], errors='ignore', inplace=True)
 
-    # Sentiment: prefer existing value; if missing, use new
-    if 'Sentiment Score' not in all_articles.columns:
-        all_articles['Sentiment Score'] = np.nan
-    all_articles['Sentiment Score'] = all_articles['Sentiment Score'].combine_first(all_articles.get('Sentiment Score_new'))
+    # Quick sanity logs
+    pos_prev = (prev_map['University Label'] == 1).sum()
+    pos_now  = (work['University Label'] == 1).sum()
+    print(f"✅ Persisted prior positives: {pos_prev} | Positives after this run: {pos_now}", flush=True)
 
-    # Drop helper cols if they exist
-    all_articles = all_articles.drop(columns=['University Label_new', 'Sentiment Score_new'], errors='ignore')
-
-    # --- Update the on-disk label store (combined) ---
-    combined = pd.concat([existing, labels_df], ignore_index=True)
-
-    # Keep one row per Title; prefer rows with label==1; for ties, keep the last occurrence
-    if not combined.empty:
-        combined['University Label'] = pd.to_numeric(combined['University Label'], errors='coerce').fillna(0).astype(int)
-        combined = (combined.sort_values(['Title', 'University Label'])
-                            .drop_duplicates(subset=['Title'], keep='last'))
-        combined = combined[['Title', 'University Label', 'Sentiment Score']]
-
-    # Always write the file, even if there were no new labels
-    combined.to_csv('BERTopic_before.csv', index=False)
-
-    return all_articles
+    return out
 
     
 #Assign topics and probabilities to new_df
@@ -1312,7 +1346,23 @@ else:
 df_combined['Predicted_Risks'] = df_combined.get('Predicted_Risks_new', '')
 print("✅ Applying risk_weights...", flush=True)
 df = risk_weights(df_combined)
-results_df = load_university_label(df)
+results_df = load_university_label(df_combined)
+label_cols = ['Title', 'Content', 'University Label', 'Sentiment Score']
+df_scored = df_scored.merge(
+    results_df[label_cols].drop_duplicates(),
+    on=['Title', 'Content'],
+    how='left',
+    suffixes=('', '_lbl')
+)
+
+df_scored['University Label'] = (
+    pd.to_numeric(df_scored['University Label'], errors='coerce')
+      .fillna(0).astype(int)
+)
+df_scored['Sentiment Score'] = pd.to_numeric(
+    df_scored.get('Sentiment Score'), errors='coerce'
+)
+
 atomic_write_csv("Model_training/BERTopic_results2.csv.gz", results_df, compress=True)
 #Show the articles over time
 track_over_time(df_combined)
