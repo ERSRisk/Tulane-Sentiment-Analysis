@@ -1041,7 +1041,6 @@ if selection == "Article Risk Review":
 
         if not match_any(predicted, filtered_risks):
             continue
-        hello
 
         title = str(article.get("Title", ""))[:100]
         
