@@ -1166,6 +1166,8 @@ def load_university_label(new_label):
     if results:
         labels_df = pd.DataFrame(results)[['Title', 'University Label']]
         all_articles = all_articles.merge(labels_df, on='Title', how='left', suffixes=('', '_new'))
+        if 'University Label_prev' not in all_articles.columns:
+            all_articles['University Label_prev'] = pd.NA
         all_articles['University Label'].fillna(all_articles['University Label_prev'], inplace=True)
         all_articles.drop(columns=['University Label_prev'], inplace=True)
 
