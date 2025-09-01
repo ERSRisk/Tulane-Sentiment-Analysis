@@ -858,7 +858,6 @@ if selection == "Article Risk Review":
     if 'articles' not in st.session_state:
         if os.path.exists('Model_training/BERTopic_results2.csv.gz'):
             results_df = pd.read_csv('Model_training/BERTopic_results2.csv.gz', compression = 'gzip')
-            results_df = results_df.sort_values('Published', ascending = False).reset_index(drop = True)
             use_changes = Path('Model_training/BERTopic_changes.csv').is_file() and Path('Model_training/BERTopic_changes.csv').stat().st_size > 0
             changes_df = None
 
@@ -1041,7 +1040,6 @@ if selection == "Article Risk Review":
 
         if not match_any(predicted, filtered_risks):
             continue
-        hello
 
         title = str(article.get("Title", ""))[:100]
         
