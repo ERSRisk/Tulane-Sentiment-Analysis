@@ -728,7 +728,7 @@ def track_over_time(df, week_anchor="W-MON", out_csv="Model_training/topic_trend
 
 
 def call_gemini(prompt):
-    GEMINI_API_KEY = os.getenv("PAID_API_KEY")
+    GEMINI_API_KEY = "AIzaSyAKMuQsZAl9Yzps7aCsGCIWXlhqlz0QdAs"
     client = genai.Client(api_key=GEMINI_API_KEY)
     return client.models.generate_content(model="gemini-1.5-flash", contents=[prompt])
 
@@ -738,8 +738,7 @@ def call_gemini(prompt):
                       max_tries=6,
                       jitter=None,
                       on_backoff=lambda details: print(
-                          f"Retrying after error: {details['exception']} (try {details['tries']} after {details['wait']}s)", flush=True)
-)
+                          f"Retrying after error: {details['exception']} (try {details['tries']} after {details['wait']}s)", flush=True))
 async def process_article(article, sem, batch_number=None, total_batches=None, article_index=None):
     async with sem:
         try:
@@ -754,8 +753,8 @@ async def process_article(article, sem, batch_number=None, total_batches=None, a
             prompt = f"""
             Read the following title and content from the following article: 
             Title: {title}
-            Content: {" ".join(str(content).split()[:200])}
-            Check each article Title and Content for news regarding higher education, university news, or
+            Content: {" ".join(str(content).split()[:400])}
+            Check each article Title and Content for news regarding *specifically* about higher education, university news, or
             university funding. If the article refers to higher education or university news, 
             return a **compact and valid JSON object**, properly escaped, without explanations:
             {{
@@ -769,15 +768,16 @@ async def process_article(article, sem, batch_number=None, total_batches=None, a
             response = await asyncio.to_thread(call_gemini, prompt)
             if hasattr(response, "text") and response.text:
                 response_text = response.text
-                json_str = re.search(r"```json\s*(\{.*\})\s*```", response_text, re.DOTALL)
+                json_str = re.search(r"```json\s*(\{.*?\})\s*```", response_text, re.DOTALL)
                 raw = json_str.group(1) if json_str else response_text
 
+
                 try:
-                    return json.loads(raw)
                     rec = json.loads(raw)
+                    print("RAW KEYS:", [repr(k) for k in rec.keys()])
+                    print("KEY CODEPOINTS:", [[hex(ord(c)) for c in k] for k in rec.keys()])
                 except json.JSONDecodeError as e1:
                     try:
-                        return ast.literal_eval(raw)
                         rec = ast.literal_eval(raw)
                     except Exception as e2:
                         print(f"⚠️ JSON decode fallback error: {e1} | Eval error: {e2}", flush=True)
@@ -786,8 +786,10 @@ async def process_article(article, sem, batch_number=None, total_batches=None, a
                 content = rec.get('Content') or rec.get('content') or str(content)
 
                 ulabel = rec.get('University Label')
+                
                 if ulabel is None:
                     ulabel = rec.get('university_label') or rec.get('University_label') or rec.get('university label') or 0
+                    
                 try:
                     ulabel = int(ulabel)
                     ulabel = 1 if ulabel ==1 else 0
@@ -833,8 +835,9 @@ def load_university_label(new_label):
     if not existing.empty and 'University Label' in existing.columns:
         all_articles = all_articles.merge(
             existing[['Title', 'University Label']],
-            on = 'Title', how = 'left'
-        )
+            on = 'Title', how = 'left',
+            suffixes = ('', '_prev')
+        ).rename(columns = {'University Label': 'University Label_prev'})
     labeled_titles = set(existing['Title']) if 'Title' in existing else set()
 
     # Only run labeling on unlabeled articles
@@ -845,8 +848,9 @@ def load_university_label(new_label):
 
     if results:
         labels_df = pd.DataFrame(results)[['Title', 'University Label']]
-        all_articles = all_articles.drop(columns = ['University Label'], errors = 'ignore')
-        all_articles = all_articles.merge(labels_df, on='Title', how='left')
+        all_articles = all_articles.merge(labels_df, on='Title', how='left', suffixes=('', '_new'))
+        all_articles['University Label'].fillna(all_articles['University Label_prev'], inplace=True)
+        all_articles.drop(columns=['University Label_prev'], inplace=True)
 
         if not existing.empty:
             combined = pd.concat([existing, labels_df], ignore_index=True)
@@ -854,10 +858,7 @@ def load_university_label(new_label):
             combined = labels_df
     else:
         combined = existing
-
-    if 'University Label' not in all_articles.columns:
-        all_articles['University Label'] = 0
-    all_articles['University Label'] = all_articles['University Label'].fillna(0).astype(int)
+    
     combined.to_csv('BERTopic_before.csv', columns = ['Title', 'University Label'], index = False)
 
     return all_articles
