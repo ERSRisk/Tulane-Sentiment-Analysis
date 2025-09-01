@@ -17,6 +17,7 @@ import backoff
 import gzip
 from datetime import datetime
 import ast
+from urllib.parse import urlparse
 
 rss_url = "https://github.com/ERSRisk/Tulane-Sentiment-Analysis/releases/download/rss_json/all_RSS.json.gz"
 
@@ -154,10 +155,11 @@ if 'Source' not in df.columns:
 df['Source'] = df['Source'].astype('string').fillna('')
 
 def transform_text(texts):
-    print(f"Transforming {len(df)} articles in batches...")
+    texts = texts.copy()
+    print(f"Transforming {len(texts)} articles in batches...")
     all_topics, all_probs = [], []
     batch_size = 100  # or smaller
-    texts_list = df['Text'].tolist()
+    texts_list = texts['Text'].tolist()
 
     for i in range(0, len(texts_list), batch_size):
         batch = texts_list[i:i+batch_size]
@@ -1043,7 +1045,7 @@ def track_over_time(df, week_anchor="W-MON", out_csv="Model_training/topic_trend
 
 
 def call_gemini(prompt):
-    GEMINI_API_KEY = "AIzaSyAKMuQsZAl9Yzps7aCsGCIWXlhqlz0QdAs"
+    GEMINI_API_KEY = os.getenv('PAID_API_KEY')
     client = genai.Client(api_key=GEMINI_API_KEY)
     return client.models.generate_content(model="gemini-1.5-flash", contents=[prompt])
 
@@ -1205,7 +1207,7 @@ df['Predicted_Risks'] = df.get('Predicted_Risks_new', '')
 print("✅ Applying risk_weights...", flush=True)
 results_df = load_university_label(df)
 df = risk_weights(results_df)
-df = df.drop(columns = ['University Label_x, University Label_y'])
+df = df.drop(columns = ['University Label_x', 'University Label_y'], errors = 'ignore')
 atomic_write_csv("Model_training/BERTopic_results2.csv.gz", df, compress=True)
 #Show the articles over time
 track_over_time(df_combined)
