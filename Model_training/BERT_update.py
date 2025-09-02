@@ -1091,8 +1091,6 @@ async def process_article(article, sem, batch_number=None, total_batches=None, a
 
                 try:
                     rec = json.loads(raw)
-                    print("RAW KEYS:", [repr(k) for k in rec.keys()])
-                    print("KEY CODEPOINTS:", [[hex(ord(c)) for c in k] for k in rec.keys()])
                 except json.JSONDecodeError as e1:
                     try:
                         rec = ast.literal_eval(raw)
