@@ -50,7 +50,16 @@ jobs:
             BERTopic_results2.csv \
             Model_training/BERTopic_results.csv
 
-          add_if_exists () { for f  in "$@"; do [ -f "$f" ] && git add "$f"; done; }
+          add_if_exists () {
+            for f  in "$@"; do 
+              if [ -f "$f" ]; then
+                echo "Adding $f"
+                git add "$f"
+              else 
+                echo "Skip (not found): $f" 
+              fi 
+            done
+          }
 
           add_if_exists \
             Model_training/BERTopic_results2.csv.gz \
