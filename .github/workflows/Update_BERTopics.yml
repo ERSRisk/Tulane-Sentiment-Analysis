@@ -55,33 +55,49 @@ jobs:
         run: |
           python Model_training/BERT_update.py
 
-      - name: Commit and push (only small/compressed files)
+      - name: Commit and push outputs (idempotent)
+        shell: bash
         run: |
-          set -e
-          git config user.name "github-actions[bot]"
+          set -euo pipefail
+
+          git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git rm --cached Model_training/BERTopic_results.csv || true
-          grep -qxF 'BERTopic_results2.csv' .gitignore || echo 'BERTopic_results2.csv' >> .gitignore
-          grep -qxF 'Model_training/BERTopic_results.csv' .gitignore || echo 'Model_training/BERTopic_results.csv' >> .gitignore
-          grep -qxF 'Online_Extraction/all_RSS.json' .gitignore || echo 'Online_Extraction/all_RSS.json' >> .gitignore
-          grep -qxF 'Online_Extraction/all_RSS.json.gz' .gitignore || echo 'Online_Extraction/all_RSS.json.gz' >> .gitignore
-          grep -qxF 'Model_training/BERTopic_model' .gitignore   || echo 'Model_training/BERTopic_model'   >> .gitignore
+          {
+            echo 'BERTopic_results2.csv'
+            echo 'Model_training/BERTopic_results.csv'
+            echo 'Online_Extraction/all_RSS.json'
+            echo 'Model_training/BERTopic_model'
+          } | while read -r p; do
+               grep -qxF "$p" .gitignore || echo "$p" >> .gitignore
+            done
           git add .gitignore
+          
+          add_if_exists () { for f in "$@"; do [ -f "$f" ] && git add "$f"; done; }
+          add_if_exists \
+            Model_training/Step1.csv.gz \
+            Model_training/BERTopic_results2.csv.gz \
+            Model_training/topic_trend.csv \
+            Model_training/topics_BERT.json \
+            Model_training/unmatched_topics.json \
+            BERTopic_before.csv
 
-          git add -A
-          git reset Online_Extraction/all_RSS.json Online_Extraction/all_RSS.json.gz Model_training/BERTopic_model || true
-          git reset Model_training/BERTopic_results.csv || true
+          echo "== git status =="
+          git status -s || true
+          echo "== ls outputs =="
+          ls -lh Model_training/Step1.csv.gz               || true
+          ls -lh Model_training/BERTopic_results2.csv.gz   || true
+          ls -lh Model_training/topic_trend.csv            || true
+          ls -lh Model_training/topics_BERT.json           || true
+          ls -lh Model_training/unmatched_topics.json      || true
+          ls -lh BERTopic_before.csv                       || true
 
-          git add Model_training/BERTopic_results2.csv.gz || true
-          git add Model_training/topic_trend.csv || true
-         
-
-          git status -s
-          ls -lh Model_training/BERTopic_results2.csv.gz || true
-          ls -lh Model_training/topic_trend.csv* || true        
-          git commit -m "Update results CSV (gz) and topic trend" || echo "Nothing to commit"
-          git pull --rebase --autostash origin main || true
-          git push origin HEAD:main || true
+          if ! git diff --cached --quiet; then
+            git commit -m "Update outputs (conditional add)"
+            git pull --rebase --autostash origin "${GITHUB_REF_NAME:-main}" || true
+            git push origin HEAD:"${GITHUB_REF_NAME:-main}" || true
+          else
+            echo "Nothing to commit."
+          fi
 
       - name: Upload model to GitHub release
         env:
