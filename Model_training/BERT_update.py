@@ -130,7 +130,7 @@ else:
     # Save model and results
     model_path.parent.mkdir(exist_ok=True, parents=True)
     joblib.dump(topic_model, model_path)
-    df.to_csv('Model_training/BERTopic_results.csv', index=False)
+    df.to_csv('BERTopic_results.csv', index=False)
     print("✅ Model saved as .joblib and CSV written.", flush=True)
 
 
@@ -143,7 +143,7 @@ client = genai.Client(api_key=GEMINI_API_KEY)
 df['Topic'] = pd.NA
 df['Probability'] = pd.NA
 
-bert_art = pd.read_csv('Model_training/BERTopic_results.csv', encoding='utf-8')
+bert_art = pd.read_csv('BERTopic_results.csv', encoding='utf-8')
 
 df = pd.concat([df, bert_art], ignore_index=True)
 df = df.drop_duplicates(subset=['Title', 'Content'], keep='last')
@@ -1207,10 +1207,10 @@ if temp_model and topic_ids:
 df = predict_risks(df_combined)
 df['Predicted_Risks'] = df.get('Predicted_Risks_new', '')
 print("✅ Applying risk_weights...", flush=True)
-
-results_df = load_university_label(df)
-df = risk_weights(results_df)
-df = df.drop(columns = ['University Label_x', 'University Label_y'], errors = 'ignore')
-atomic_write_csv("Model_training/BERTopic_results2.csv.gz", df, compress=True)
+atomic_write_csv('Model_training/Step2.csv.gz', df, compress = True)
+#results_df = load_university_label(df)
+#df = risk_weights(results_df)
+#df = df.drop(columns = ['University Label_x', 'University Label_y'], errors = 'ignore')
+#atomic_write_csv("Model_training/BERTopic_results2.csv.gz", df, compress=True)
 #Show the articles over time
-track_over_time(df_combined)
+#track_over_time(df_combined)
