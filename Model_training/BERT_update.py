@@ -48,22 +48,22 @@ def atomic_write_csv(path: str, df, compress: bool = False):
     os.replace(tmp, p)
     print(f"✅ Wrote {p} ({p.stat().st_size/1e6:.2f} MB)")
 
-def download_model_if_exists():
-    try:
-        print("📦 Checking for model in GitHub release...", flush=True)
-        response = requests.get(model_url, stream=True)
-        if response.status_code == 200:
-            with open(model_path, 'wb') as f:
-                for chunk in response.iter_content(chunk_size=8192):
-                    f.write(chunk)
-            print("✅ Model downloaded successfully.")
-            return True
-        else:
-            print(f"⚠️ Model not found at {model_url}. Status: {response.status_code}")
-            return False
-    except Exception as e:
-        print(f"❌ Error while downloading model: {e}")
-        return False
+#def download_model_if_exists():
+#    try:
+#       print("📦 Checking for model in GitHub release...", flush=True)
+#        response = requests.get(model_url, stream=True)
+#       if response.status_code == 200:
+#            with open(model_path, 'wb') as f:
+#                for chunk in response.iter_content(chunk_size=8192):
+#                    f.write(chunk)
+#            print("✅ Model downloaded successfully.")
+#            return True
+#        else:
+#            print(f"⚠️ Model not found at {model_url}. Status: {response.status_code}")
+#            return False
+#   except Exception as e:
+ #       print(f"❌ Error while downloading model: {e}")
+#        return False
 
 def estimate_tokens(text):
     # Approx 4 chars per token (rough estimate for English, GPT-like models)
@@ -86,90 +86,90 @@ def save_to_json(topics, topic_names):
     with open('Model_training/topics_BERT.json', 'w') as f:
         json.dump(topic_dict, f, indent=4)
 
-topic_blocks = []
+#topic_blocks = []
+#
+#if model_path.exists() or download_model_if_exists():
+#    print("Loading existing BERTopic model from disk...")
+#    model_loaded = True
+#    GEMINI_API_KEY = os.getenv("PAID_API_KEY")
+#    client = genai.Client(api_key=GEMINI_API_KEY)
+#    topic_model = joblib.load(model_path)
 
-if model_path.exists() or download_model_if_exists():
-    print("Loading existing BERTopic model from disk...")
-    model_loaded = True
-    GEMINI_API_KEY = os.getenv("PAID_API_KEY")
-    client = genai.Client(api_key=GEMINI_API_KEY)
-    topic_model = joblib.load(model_path)
+#else:
+#    print("Training new BERTopic model from scratch...", flush=True)
+#    topic_model = bt.BERTopic(language='english', verbose=True)
+#    topics, probs = topic_model.fit_transform(df['Text'].tolist())
 
-else:
-    print("Training new BERTopic model from scratch...", flush=True)
-    topic_model = bt.BERTopic(language='english', verbose=True)
-    topics, probs = topic_model.fit_transform(df['Text'].tolist())
+#    print(f"✅ BERTopic fit_transform completed. {len(set(topics))} topics found.", flush=True)
+#    df['Topic'] = topics
+#    df['Probability'] = probs
 
-    print(f"✅ BERTopic fit_transform completed. {len(set(topics))} topics found.", flush=True)
-    df['Topic'] = topics
-    df['Probability'] = probs
+#    topic_blocks = []
+#    rep_docs = topic_model.get_representative_docs()
+#    topics = topic_model.get_topic_info()['Topic'].tolist()
+#    valid_topics = [t for t in topics if t in rep_docs]
 
-    topic_blocks = []
-    rep_docs = topic_model.get_representative_docs()
-    topics = topic_model.get_topic_info()['Topic'].tolist()
-    valid_topics = [t for t in topics if t in rep_docs]
+#    print(f"🔹 Preparing topic blocks for {len(valid_topics)} valid topics...", flush=True)
+#    for topic in valid_topics:
+#        words = topic_model.get_topic(topic)
+#        docs = topic_model.get_representative_docs()[topic]
+#        random.shuffle(docs)
+#        docs = docs[:4]
+#        keywords = ', '.join([word for word, _ in words])
 
-    print(f"🔹 Preparing topic blocks for {len(valid_topics)} valid topics...", flush=True)
-    for topic in valid_topics:
-        words = topic_model.get_topic(topic)
-        docs = topic_model.get_representative_docs()[topic]
-        random.shuffle(docs)
-        docs = docs[:4]
-        keywords = ', '.join([word for word, _ in words])
+#        def first_n_words(text, n=300):
+#            words = text.split()
+#            return text if len(words) <= n else ' '.join(words[:n]) + '...'
 
-        def first_n_words(text, n=300):
-            words = text.split()
-            return text if len(words) <= n else ' '.join(words[:n]) + '...'
+#        docs_clean = [first_n_words(doc, 300) for doc in docs]
+#        blocks = f"Topic {topic}: Keywords: {keywords}. Representative Documents: {docs_clean[0]} | {docs_clean[1]}"
+#        topic_blocks.append((topic, blocks))
 
-        docs_clean = [first_n_words(doc, 300) for doc in docs]
-        blocks = f"Topic {topic}: Keywords: {keywords}. Representative Documents: {docs_clean[0]} | {docs_clean[1]}"
-        topic_blocks.append((topic, blocks))
-
-    print(f"✅ Prepared {len(topic_blocks)} topic blocks for Gemini.", flush=True)
+#    print(f"✅ Prepared {len(topic_blocks)} topic blocks for Gemini.", flush=True)
 
     # Save model and results
-    model_path.parent.mkdir(exist_ok=True, parents=True)
-    joblib.dump(topic_model, model_path)
-    df.to_csv('BERTopic_results.csv', index=False)
-    print("✅ Model saved as .joblib and CSV written.", flush=True)
+#    model_path.parent.mkdir(exist_ok=True, parents=True)
+#    joblib.dump(topic_model, model_path)
+#    df.to_csv('BERTopic_results.csv', index=False)
+#    print("✅ Model saved as .joblib and CSV written.", flush=True)
 
 
 
 
 
 
-GEMINI_API_KEY = os.getenv("PAID_API_KEY")
-client = genai.Client(api_key=GEMINI_API_KEY)
-df['Topic'] = pd.NA
-df['Probability'] = pd.NA
+#GEMINI_API_KEY = os.getenv("PAID_API_KEY")
+#client = genai.Client(api_key=GEMINI_API_KEY)
+#df['Topic'] = pd.NA
+#df['Probability'] = pd.NA
 
-bert_art = pd.read_csv('BERTopic_results.csv', encoding='utf-8')
+#bert_art = pd.read_csv('BERTopic_results.csv', encoding='utf-8')
 
-df = pd.concat([df, bert_art], ignore_index=True)
-df = df.drop_duplicates(subset=['Title', 'Content'], keep='last')
+#df = pd.concat([df, bert_art], ignore_index=True)
+#df = df.drop_duplicates(subset=['Title', 'Content'], keep='last')
 
-if 'Source' not in df.columns:
-    df['Source'] = ''
+#if 'Source' not in df.columns:
+#    df['Source'] = ''
 
 # Convert NaN/None to empty string, keep as string dtype
-df['Source'] = df['Source'].astype('string').fillna('')
+#df['Source'] = df['Source'].astype('string').fillna('')
 
-def transform_text(texts):
-    texts = texts.copy()
-    print(f"Transforming {len(texts)} articles in batches...")
-    all_topics, all_probs = [], []
-    batch_size = 100  # or smaller
-    texts_list = texts['Text'].tolist()
+#def transform_text(texts):
+#    texts = texts.copy()
+#    print(f"Transforming {len(texts)} articles in batches...")
+#    all_topics, all_probs = [], []
+#    batch_size = 100  # or smaller
+#    texts_list = texts['Text'].tolist()
 
-    for i in range(0, len(texts_list), batch_size):
-        batch = texts_list[i:i+batch_size]
-        topics, probs = topic_model.transform(batch)
-        all_topics.extend(topics)
-        all_probs.extend(probs)
-        print(f"✅ Transformed batch {i//batch_size + 1}/{(len(texts_list) // batch_size) + 1}")
-    texts['Topic'] = all_topics
-    texts['Probability'] = all_probs
-    return texts
+#    for i in range(0, len(texts_list), batch_size):
+#        batch = texts_list[i:i+batch_size]
+#        topics, probs = topic_model.transform(batch)
+#        all_topics.extend(topics)
+#        all_probs.extend(probs)
+#        print(f"✅ Transformed batch {i//batch_size + 1}/{(len(texts_list) // batch_size) + 1}")
+#    texts['Topic'] = all_topics
+#    texts['Probability'] = all_probs
+#    return texts
 
 def save_new_topics(existing_df, new_df, path = 'Model_training/BERTopic_results2.csv.gz'):
     if 'Link' in existing_df and 'Link' in new_df:
@@ -1184,33 +1184,34 @@ def load_university_label(new_label):
 
 
 #Assign topics and probabilities to new_df
-print("✅ Starting transform_text on new data...", flush=True)
-new_df = transform_text(df)
+#print("✅ Starting transform_text on new data...", flush=True)
+#new_df = transform_text(df)
 #Fill missing topic/probability rows in the original df
-mask = (df['Topic'].isna()) | (df['Probability'].isna())
-df.loc[mask, ['Topic', 'Probability']] = new_df[['Topic', 'Probability']]
+#mask = (df['Topic'].isna()) | (df['Probability'].isna())
+#df.loc[mask, ['Topic', 'Probability']] = new_df[['Topic', 'Probability']]
 #Save only new, non-duplicate rows
-print("✅ Saving new topics to CSV...", flush=True)
-df_combined = save_new_topics(df, new_df)
+#print("✅ Saving new topics to CSV...", flush=True)
+#df_combined = save_new_topics(df, new_df)
 
 #Double-check if there are still unmatched (-1) topics and assign a temporary model to assign topics to them
-print("✅ Running double-check for unmatched topics (-1)...", flush=True)
-temp_model, topic_ids = double_check_articles(df_combined)
+#print("✅ Running double-check for unmatched topics (-1)...", flush=True)
+#temp_model, topic_ids = double_check_articles(df_combined)
 
 #If there are unmatched topics, name them using Gemini
-print("✅ Checking for unmatched topics to name using Gemini...", flush=True)
-if temp_model and topic_ids:
-    topic_name_pairs = get_topic(temp_model, topic_ids)
-    existing_risks_json(topic_name_pairs, temp_model)
+#print("✅ Checking for unmatched topics to name using Gemini...", flush=True)
+#if temp_model and topic_ids:
+#    topic_name_pairs = get_topic(temp_model, topic_ids)
+#    existing_risks_json(topic_name_pairs, temp_model)
 
 #Assign weights to each article
-df = predict_risks(df_combined)
-df['Predicted_Risks'] = df.get('Predicted_Risks_new', '')
-print("✅ Applying risk_weights...", flush=True)
-atomic_write_csv('Model_training/Step1.csv.gz', df, compress = True)
-#results_df = load_university_label(df)
-#df = risk_weights(results_df)
-#df = df.drop(columns = ['University Label_x', 'University Label_y'], errors = 'ignore')
-#atomic_write_csv("Model_training/BERTopic_results2.csv.gz", df, compress=True)
+#df = predict_risks(df_combined)
+#df['Predicted_Risks'] = df.get('Predicted_Risks_new', '')
+#print("✅ Applying risk_weights...", flush=True)
+#atomic_write_csv('Model_training/Step1.csv.gz', df, compress = True)
+df = pd.read_csv('Model_training/Step1.csv.gz', compression = 'gzip')
+results_df = load_university_label(df)
+df = risk_weights(results_df)
+df = df.drop(columns = ['University Label_x', 'University Label_y'], errors = 'ignore')
+atomic_write_csv("Model_training/BERTopic_results2.csv.gz", df, compress=True)
 #Show the articles over time
-#track_over_time(df_combined)
+track_over_time(df_combined)
