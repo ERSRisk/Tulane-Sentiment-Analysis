@@ -1214,4 +1214,4 @@ df = risk_weights(results_df)
 df = df.drop(columns = ['University Label_x', 'University Label_y'], errors = 'ignore')
 atomic_write_csv("Model_training/BERTopic_results2.csv.gz", df, compress=True)
 #Show the articles over time
-track_over_time(df_combined)
+track_over_time(df)
