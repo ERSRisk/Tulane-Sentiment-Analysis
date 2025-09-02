@@ -1207,7 +1207,7 @@ if temp_model and topic_ids:
 df = predict_risks(df_combined)
 df['Predicted_Risks'] = df.get('Predicted_Risks_new', '')
 print("✅ Applying risk_weights...", flush=True)
-atomic_write_csv('Model_training/Step2.csv.gz', df, compress = True)
+atomic_write_csv('Model_training/Step1.csv.gz', df, compress = True)
 #results_df = load_university_label(df)
 #df = risk_weights(results_df)
 #df = df.drop(columns = ['University Label_x', 'University Label_y'], errors = 'ignore')
