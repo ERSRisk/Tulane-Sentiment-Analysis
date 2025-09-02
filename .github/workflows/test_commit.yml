@@ -1,0 +1,25 @@
+name: Test Commit Step
+
+on:
+  workflow_dispatch: {}   # manual trigger in the Actions tab
+
+permissions:
+  contents: write
+
+jobs:
+  commit-step-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Create dummy artifacts
+        run: |
+          mkdir -p Model_training
+          echo "hello" | gzip > Model_training/Step1.csv.gz
+          echo "trend,rows" > Model_training/topic_trend.csv
+          echo '{"topics":[]}' > Model_training/topics_BERT.json
+          # leave BERTopic_results2.csv.gz and unmatched_topics.json absent on purpose
+          # to test conditional adds
