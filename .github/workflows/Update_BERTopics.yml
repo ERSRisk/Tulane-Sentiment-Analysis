@@ -74,12 +74,12 @@ jobs:
           git add .gitignore
 
           rm_cached () { for f in "$@"; do git rm --cached --ignore-unmatch -- "$f" || true; done; }
+          # Model_training/BERTopic_results.csv is intentionally kept tracked
+          # Online_Extraction/all_RSS.json is intentionally kept tracked
           rm_cached \
-            # Online_Extraction/all_RSS.json \
             Online_Extraction/all_RSS.json.gz \
             Model_training/BERTopic_model \
-            BERTopic_results2.csv \
-            # Model_training/BERTopic_results.csv
+            BERTopic_results2.csv
 
           add_if_exists () {
             for f  in "$@"; do 
