@@ -83,7 +83,7 @@ def save_to_json(topics, topic_names):
             "keywords": keywords,
             "documents": docs
         })
-    with open('Model_trianing/topics_BERT.json', 'w') as f:
+    with open('Model_training/topics_BERT.json', 'w') as f:
         json.dump(topic_dict, f, indent=4)
 
 topic_blocks = []
@@ -130,7 +130,7 @@ else:
     # Save model and results
     model_path.parent.mkdir(exist_ok=True, parents=True)
     joblib.dump(topic_model, model_path)
-    df.to_csv('BERTopic_results.csv', index=False)
+    df.to_csv('Model_training/BERTopic_results.csv', index=False)
     print("✅ Model saved as .joblib and CSV written.", flush=True)
 
 
@@ -143,7 +143,7 @@ client = genai.Client(api_key=GEMINI_API_KEY)
 df['Topic'] = pd.NA
 df['Probability'] = pd.NA
 
-bert_art = pd.read_csv('BERTopic_results.csv', encoding='utf-8')
+bert_art = pd.read_csv('Model_training/BERTopic_results.csv', encoding='utf-8')
 
 df = pd.concat([df, bert_art], ignore_index=True)
 df = df.drop_duplicates(subset=['Title', 'Content'], keep='last')
