@@ -130,7 +130,7 @@ else:
     # Save model and results
     model_path.parent.mkdir(exist_ok=True, parents=True)
     joblib.dump(topic_model, model_path)
-    df.to_csv('Model_training/BERTopic_results.csv', index=False)
+    df.to_csv('BERTopic_results.csv', index=False)
     print("✅ Model saved as .joblib and CSV written.", flush=True)
 
 
@@ -143,7 +143,7 @@ client = genai.Client(api_key=GEMINI_API_KEY)
 df['Topic'] = pd.NA
 df['Probability'] = pd.NA
 
-bert_art = pd.read_csv('Model_training/BERTopic_results.csv', encoding='utf-8')
+bert_art = pd.read_csv('BERTopic_results.csv', encoding='utf-8')
 
 df = pd.concat([df, bert_art], ignore_index=True)
 df = df.drop_duplicates(subset=['Title', 'Content'], keep='last')
@@ -171,7 +171,7 @@ def transform_text(texts):
     texts['Probability'] = all_probs
     return texts
 
-def save_new_topics(existing_df, new_df, path = 'Model_training/BERTopic_results.csv.gz'):
+def save_new_topics(existing_df, new_df, path = 'Model_training/BERTopic_results2.csv.gz'):
     if 'Link' in existing_df and 'Link' in new_df:
         unique_new = new_df[~new_df['Link'].isin(existing_df['Link'])]
     else:
