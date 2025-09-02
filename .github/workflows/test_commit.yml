@@ -40,21 +40,24 @@ jobs:
             done
           git add .gitignore
 
-          git add -A
-          git reset Online_Extraction/all_RSS.json Online_Extraction/all_RSS.json.gz Model_training/BERTopic_model || true
-          git reset BERTopic_results2.csv Model_training/BERTopic_results.csv || true
-          git reset Model_training/BERTopic_results.csv || true
+          rm_cached () { for f in "$@"; do git rm --cached --ignore-unmatch -- "$f" || true; done; }
+          rm_cached \
+            Online_Extraction/all_RSS.json \
+            Online_Extraction/all_RSS.json.gz \
+            Model_training/BERTopic_model \
+            BERTopic_results2.csv \
+            Model_training/BERTopic_results.csv
 
-          add_if_exists () { for f  in "$@"; do [ -f "$f" ] %% git add "$f"; done; }
+          add_if_exists () { for f  in "$@"; do [ -f "$f" ] && git add "$f"; done; }
 
           add_if_exists \
-          Model_training/BERTopic_results2.csv.gz \
-          Model_training/topic_trend.csv \
-          Model_training/topic_trend.csv \
-          Model_training/topics_BERT.json \
-          Model_training/unmatched_topics.json \
-          Model_training/Step1.csv.gz \ 
-          BERTopic_before.csv
+            Model_training/BERTopic_results2.csv.gz \
+            Model_training/topic_trend.csv \
+            Model_training/topic_trend.csv \
+            Model_training/topics_BERT.json \
+            Model_training/unmatched_topics.json \
+            Model_training/Step1.csv.gz \
+            BERTopic_before.csv
 
           echo "== git status (porcelain) =="
           git status --porcelain=1 -uall || true
