@@ -99,6 +99,7 @@ jobs:
             Model_training/topics_BERT.json \
             Model_training/unmatched_topics.json \
             Model_training/Step1.csv.gz \
+            Model_training/label_initial.csv.gz\
             BERTopic_before.csv
 
           echo "== git status (porcelain) =="
