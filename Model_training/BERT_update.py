@@ -532,8 +532,12 @@ def risk_weights(df):
     #exploded = exploded[mask].copy()
     #exploded['Risk_norm'] = exploded['Risk_item'].astype(str).str.strip().str.lower()
     base['Risk_item'] = (
-    base['Predicted_Risks'].astype(str).str.split(';', 1).str[0].str.strip().str.lower()
-    .replace({'': 'no risk'})
+    base['Risk_item'] = (
+    base['Predicted_Risks'].astype('string')
+        .str.split(pat=';', n=1, expand=False)
+        .str[0].fillna('')
+        .str.strip().str.lower()
+        .replace({'': 'no risk'})
     )
 
     # Published -> datetime (robust coercion)
