@@ -48,22 +48,22 @@ def atomic_write_csv(path: str, df, compress: bool = False):
     os.replace(tmp, p)
     print(f"✅ Wrote {p} ({p.stat().st_size/1e6:.2f} MB)")
 
-#def download_model_if_exists():
-#    try:
-#       print("📦 Checking for model in GitHub release...", flush=True)
-#        response = requests.get(model_url, stream=True)
-#       if response.status_code == 200:
-#            with open(model_path, 'wb') as f:
-#                for chunk in response.iter_content(chunk_size=8192):
-#                    f.write(chunk)
-#            print("✅ Model downloaded successfully.")
-#            return True
-#        else:
-#            print(f"⚠️ Model not found at {model_url}. Status: {response.status_code}")
-#            return False
-#   except Exception as e:
- #       print(f"❌ Error while downloading model: {e}")
-#        return False
+def download_model_if_exists():
+    try:
+        print("📦 Checking for model in GitHub release...", flush=True)
+        response = requests.get(model_url, stream=True)
+        if response.status_code == 200:
+            with open(model_path, 'wb') as f:
+                for chunk in response.iter_content(chunk_size=8192):
+                    f.write(chunk)
+            print("✅ Model downloaded successfully.")
+            return True
+        else:
+            print(f"⚠️ Model not found at {model_url}. Status: {response.status_code}")
+            return False
+    except Exception as e:
+        print(f"❌ Error while downloading model: {e}")
+        return False
 
 def estimate_tokens(text):
     # Approx 4 chars per token (rough estimate for English, GPT-like models)
@@ -88,50 +88,48 @@ def save_to_json(topics, topic_names):
 
 #topic_blocks = []
 #
-#if model_path.exists() or download_model_if_exists():
-#    print("Loading existing BERTopic model from disk...")
-#    model_loaded = True
-#    GEMINI_API_KEY = os.getenv("PAID_API_KEY")
-#    client = genai.Client(api_key=GEMINI_API_KEY)
-#    topic_model = joblib.load(model_path)
+if model_path.exists() or download_model_if_exists():
+    print("Loading existing BERTopic model from disk...")
+    model_loaded = True
+    GEMINI_API_KEY = os.getenv("PAID_API_KEY")
+    client = genai.Client(api_key=GEMINI_API_KEY)
+    topic_model = joblib.load(model_path)
+else:
+    print("Training new BERTopic model from scratch...", flush=True)
+    topic_model = bt.BERTopic(language='english', verbose=True)
+    topics, probs = topic_model.fit_transform(df['Text'].tolist())
 
-#else:
-#    print("Training new BERTopic model from scratch...", flush=True)
-#    topic_model = bt.BERTopic(language='english', verbose=True)
-#    topics, probs = topic_model.fit_transform(df['Text'].tolist())
+    print(f"✅ BERTopic fit_transform completed. {len(set(topics))} topics found.", flush=True)
+    df['Topic'] = topics
+    df['Probability'] = probs
 
-#    print(f"✅ BERTopic fit_transform completed. {len(set(topics))} topics found.", flush=True)
-#    df['Topic'] = topics
-#    df['Probability'] = probs
+    topic_blocks = []
+    rep_docs = topic_model.get_representative_docs()
+    topics = topic_model.get_topic_info()['Topic'].tolist()
+    valid_topics = [t for t in topics if t in rep_docs]
 
-#    topic_blocks = []
-#    rep_docs = topic_model.get_representative_docs()
-#    topics = topic_model.get_topic_info()['Topic'].tolist()
-#    valid_topics = [t for t in topics if t in rep_docs]
+    print(f"🔹 Preparing topic blocks for {len(valid_topics)} valid topics...", flush=True)
+    for topic in valid_topics:
+        words = topic_model.get_topic(topic)
+        docs = topic_model.get_representative_docs()[topic]
+        random.shuffle(docs)
+        docs = docs[:4]
+        keywords = ', '.join([word for word, _ in words])
 
-#    print(f"🔹 Preparing topic blocks for {len(valid_topics)} valid topics...", flush=True)
-#    for topic in valid_topics:
-#        words = topic_model.get_topic(topic)
-#        docs = topic_model.get_representative_docs()[topic]
-#        random.shuffle(docs)
-#        docs = docs[:4]
-#        keywords = ', '.join([word for word, _ in words])
+        def first_n_words(text, n=300):
+            words = text.split()
+            return text if len(words) <= n else ' '.join(words[:n]) + '...'
+        docs_clean = [first_n_words(doc, 300) for doc in docs]
+        blocks = f"Topic {topic}: Keywords: {keywords}. Representative Documents: {docs_clean[0]} | {docs_clean[1]}"
+        topic_blocks.append((topic, blocks))
 
-#        def first_n_words(text, n=300):
-#            words = text.split()
-#            return text if len(words) <= n else ' '.join(words[:n]) + '...'
-
-#        docs_clean = [first_n_words(doc, 300) for doc in docs]
-#        blocks = f"Topic {topic}: Keywords: {keywords}. Representative Documents: {docs_clean[0]} | {docs_clean[1]}"
-#        topic_blocks.append((topic, blocks))
-
-#    print(f"✅ Prepared {len(topic_blocks)} topic blocks for Gemini.", flush=True)
+    print(f"✅ Prepared {len(topic_blocks)} topic blocks for Gemini.", flush=True)
 
     # Save model and results
-#    model_path.parent.mkdir(exist_ok=True, parents=True)
-#    joblib.dump(topic_model, model_path)
-#    df.to_csv('BERTopic_results.csv', index=False)
-#    print("✅ Model saved as .joblib and CSV written.", flush=True)
+    model_path.parent.mkdir(exist_ok=True, parents=True)
+    joblib.dump(topic_model, model_path)
+    df.to_csv('BERTopic_results.csv', index=False)
+    print("✅ Model saved as .joblib and CSV written.", flush=True)
 
 
 
