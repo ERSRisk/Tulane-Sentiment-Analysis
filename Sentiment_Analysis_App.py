@@ -1020,9 +1020,20 @@ if selection == "Article Risk Review":
     
         
         raw = article.get("Predicted_Risk_Single", "[]")
-        if isinstance(raw, str):
+        if isinstance(raw, list):
             predicted = raw
-        
+        elif isinstance(raw, str):
+            s = raw.strip()
+            if s.startswith("[") and s.endswith("]"):
+                try:
+                    predicted = ast.literal_eval(s)
+                except:
+                    predicted = ["No Risk"]
+            elif s.lower() in ("", "none", "no risk"):
+                predicted = ["No Risk"]     # <- ensure explicit label
+            else:
+                parts = [r.strip() for r in s.split(';') if r.strip()]
+                predicted = [parts[0]] if parts else ["No Risk"]
         else:
             predicted = ["No Risk"]
 
