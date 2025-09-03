@@ -569,26 +569,26 @@ def risk_weights(df):
         ts['EMWA_Delta'] = ts.groupby('Risk_item')['EMWA'].diff().fillna(0.0)
         import numpy as np
         def slope(counts, k=6):
-            x = np.arange(len(counts), dtype = float)
-            out = np.zeros(len(counts), dtype = float)
+            x = np.arange(len(counts), dtype=float)
+            out = np.zeros(len(counts), dtype=float)
             for i in range(len(counts)):
-                lo = max(0, i-k +1)
-                xi = x[lo:i+1] 
-                yi = counts[lo:i+1].astype(float)
-                if len(xi) > 2:
-                    m, _ = np.polyfit(xi,yi,1)
+                lo = max(0, i - min(k, i) + 1)  # smaller early windows allowed
+                xi = x[lo:i+1]; yi = counts[lo:i+1].astype(float)
+                if len(xi) >= 2:  # allow 2 points early
+                    m, _ = np.polyfit(xi, yi, 1)
                     out[i] = m
             return out
 
         ts['Slope'] = ts.groupby('Risk_item', group_keys = False)['n'].apply(lambda g: pd.Series(slope(g.values, k=6), index = g.index)).astype(float)
 
-        def normalize(s):
-            s_pos = pd.Series(s).clip(lower=0)
-            cap = np.nanpercentile(s_pos, 95) if np.isfinite(s_pos).any() else 0.0
-            return (s_pos/cap).clip(0,1) if cap > 0 else s_pos * 0.0
+        def normalize_groupwise(s, by):
+            # per-risk 95th percentile cap
+            return s.groupby(by, group_keys=False).apply(
+                lambda g: ((g.clip(lower=0)) / max(np.nanpercentile(g.clip(lower=0), 95), 1e-9)).clip(0, 1)
+            )
 
-        ts['emwa_norm'] = normalize(ts['EMWA'])
-        ts['slope_norm'] = normalize(ts['Slope'])
+        ts['emwa_norm']  = normalize_groupwise(ts['EMWA'],  ts['Risk_item'])
+        ts['slope_norm'] = normalize_groupwise(ts['Slope'], ts['Risk_item'])
 
         w_emwa, w_slope = 0.6, 0.4
         ts['accel_score'] = (w_emwa*ts['emwa_norm'] + w_slope * ts['slope_norm']).clip(0,1)
@@ -611,8 +611,8 @@ def risk_weights(df):
         ts_sent['sent_slope'] = ts_sent.groupby('Risk_item', group_keys=False)['sent_flipped'] \
             .apply(lambda g: pd.Series(slope(g.values, k=6), index=g.index)) \
             .astype(float)
-        ts_sent['sent_delta_norm'] = normalize(ts_sent['sent_delta'])
-        ts_sent['sent_slope_norm'] = normalize(ts_sent['sent_slope'])
+        ts_sent['sent_delta_norm'] = normalize_groupwise(ts_sent['sent_delta'])
+        ts_sent['sent_slope_norm'] = normalize_groupwise(ts_sent['sent_slope'])
         w_sent_delta, w_sent_slope = 0.6, 0.4
         ts_sent['accel_score_sent'] = (w_sent_delta*ts_sent['sent_delta_norm'] + w_sent_slope*ts_sent['sent_slope_norm']).clip(0,1)
 
@@ -735,8 +735,10 @@ def risk_weights(df):
         for cat, phr_list in hed.items()
     }
 
-    def phrase_to_pattern(phrase:str) -> str:
-        return r'\b' + re.escape(phrase) + r'\b'
+    def phrase_to_pattern(phrase: str) -> str:
+        tokens = re.split(r"\s+", phrase.strip())
+        # allow any non-word chars between tokens; keep word boundaries at ends
+        return r"(?<!\w)" + r"[\W_]+".join(map(re.escape, tokens)) + r"(?!\w)"
 
     cat_regex = {}
     for cat, phrases in hed_norm.items():
@@ -746,15 +748,16 @@ def risk_weights(df):
         pats.append(phrase_to_pattern(cat))
         cat_regex[cat] = re.compile("(" + "|".join(pats) + ")", flags=re.I)
 
-    text_all = (base['Title'].fillna('') + ' ' + base['Content'].fillna('')).fillna('').astype(str)
-    detected_cats = []
-
-    for t in text_all:
-        hits = {cat for cat, rx in cat_regex.items() if rx.search(t)}
-        detected_cats.append(hits)
-
+    text_all = (base['Title'].fillna('') + ' ' + base['Content'].fillna('')).astype(str)
+    detected_cats = [{cat for cat, rx in cat_regex.items() if rx.search(t)} for t in text_all]
     base['Detected_HigherEd_Categories'] = detected_cats
-    base['Industry_Risk_Presence'] = np.where(base['Detected_HigherEd_Categories'].apply(len) > 0,3,0).astype(int)
+
+    ul = base.get('University Label', 0)
+    base['Industry_Risk_Presence'] = np.where(
+        (base['Detected_HigherEd_Categories'].apply(len) > 0) | (pd.to_numeric(ul, errors='coerce').fillna(0).astype(int) == 1),
+        3, 0
+    ).astype(int)
+    
     peers_list = risks_cfg.get('Peer_Institutions') or []
     peer_pat = re.compile(r'\b(' + '|'.join([re.escape(p) for p in peers_list]) + r')\b', flags = re.I) if peers_list else None
 
@@ -860,7 +863,7 @@ def risk_weights(df):
     for block in new_risks:
         for category, items in block.items():
             for r in items:
-                name = r.get('name', '').strip().lower()
+                name = re.sub(r'\s+', ' ', r.get('name', '')).strip().lower()
                 dims = r.get('impact dims')
                 risk_dims_map[name] = {
                     'financial': float(dims.get('financial', 0.0)),
@@ -888,7 +891,7 @@ def risk_weights(df):
         return False
 
     def impact_row(row):
-        risk = str(row['Risk_item']).strip().lower()
+        risk = re.sub(r'\s+', ' ', str(row['Risk_item'])).strip().lower()
         dims = risk_dims_map.get(risk)
 
         if dims:
