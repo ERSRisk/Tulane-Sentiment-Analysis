@@ -1019,23 +1019,29 @@ if selection == "Article Risk Review":
         title = str(article.get("Title", ""))[:100]
     
         
-        raw = article.get("Predicted_Risk_Single", "[]")
-        if isinstance(raw, list):
-            predicted = raw
-        elif isinstance(raw, str):
-            s = raw.strip()
-            if s.startswith("[") and s.endswith("]"):
-                try:
-                    predicted = ast.literal_eval(s)
-                except:
-                    predicted = ["No Risk"]
-            elif s.lower() in ("", "none", "no risk"):
-                predicted = ["No Risk"]     # <- ensure explicit label
-            else:
-                parts = [r.strip() for r in s.split(';') if r.strip()]
-                predicted = [parts[0]] if parts else ["No Risk"]
+        if isinstance(cell, list):
+            labels = [str(x).strip() for x in cell if str(x).strip()]
         else:
-            predicted = ["No Risk"]
+            s = str(cell).strip()
+            if not s or s.lower() in {"none", "no risk", "nan"}:
+                s = str(fallback or "").strip()
+            if not s:
+                return ["No Risk"]
+    
+            # JSON/list-looking?
+            if (s.startswith("[") and s.endswith("]")) or (s.startswith("{") and s.endswith("}")):
+                try:
+                    obj = json.loads(s)
+                    if isinstance(obj, list):
+                        labels = [str(x).strip() for x in obj if str(x).strip()]
+                    else:
+                        labels = [s]  # not a list; treat as one label
+                except Exception:
+                    labels = [s]      # invalid JSON; treat as one label
+            else:
+                # plain string; allow ; or , as delimiters
+                parts = [p.strip() for p in re.split(r"[;,]", s) if p.strip()]
+                labels = parts or ["No Risk"]
 
 
         if not match_any(predicted, filtered_risks):
