@@ -495,22 +495,25 @@ def risk_weights(df):
     base['Source_Accuracy'] = base.apply(_src_acc, axis=1)
 
     def _loc_score(row):
-        us_sources = ['NIH', 'NOAA', 'FEMA', 'NASA', 'CISA', 'NIST', 'NCES', 'CMS', 'CDC', 'BEA', 'The Advocate', 'LA Illuminator', 'The Hill', 'NBC News', 'PBS', 'StatNews', 'NY Times', 'Washington Post', 'TruthOut', 'Politico', 'Inside Higher Ed', 'CNN', 'Yahoo News', 'FOX News', 'ABC News', 'Huffington Post', 'Business Insider', 'Bloomberg', 'AP News']
+        us_sources = ['foxnews','NIH', 'NOAA', 'FEMA', 'NASA', 'CISA', 'NIST', 'NCES', 'CMS', 'CDC', 'BEA', 'The Advocate', 'LA Illuminator', 'The Hill', 'NBC News', 'PBS', 'StatNews', 'NY Times', 'Washington Post', 'TruthOut', 'Politico', 'Inside Higher Ed', 'CNN', 'Yahoo News', 'FOX News', 'ABC News', 'Huffington Post', 'Business Insider', 'Bloomberg', 'AP News']
         raw = row.get('Entities', None)
-        entities: list[str] = []
+        
         if isinstance(raw, list):
             entities = [str(e).lower() for e in raw if e is not None]
         elif isinstance(raw, str) and raw.strip():
             entities = [raw.strip().lower()]
+        else:
+            entities = []
         text = (row.get('Title','') + ' ' + row.get('Content','')).lower()
-        def any_in(keys): return any(k.lower() in text for k in keys)
-        if isinstance(entities, list):
-            if any(e in ['tulane','tulane university'] for e in entities) or 'tulane' in text: return 5
-            if any(e in ['new orleans','louisiana','nola'] for e in entities) or 'new orleans' in text: return 4
-            if any(e in ['baton rouge', 'governor landry', 'lafayette', 'LSU', 'university of louisiana'] for e in entities) or any(k in text for k in ['baton rouge','governor landry', 'lafayette', 'LSU', 'university of louisiana']): return 3
-            if any(e in ['gulf coast','mississippi','texas','alabama'] for e in entities) or any(k in text for k in ['gulf coast','mississippi','texas','alabama']): return 2
-            if any(k in text for k in ['u.s.','united states','america','federal','washington dc', 'trump']) or row.get('Source') in us_sources: return 1
-            return 0
+        def has_any(keys): 
+            lk = [k.lower() for k in keys]
+            return any(k in text for k in lk)
+        if has_any(['tulane','tulane university']): return 5
+        if has_any(['new orleans','louisiana','nola']): return 4
+        if has_any(['baton rouge','governor landry','lafayette','lsu','university of louisiana']): return 3
+        if has_any(['gulf coast','mississippi','texas','alabama']): return 2
+        if has_any(['u.s.','united states','america','federal','washington dc','trump']) or str(row.get('Source','')) in us_sources: return 1
+        return 0
 
     base['Location'] = base.apply(_loc_score, axis=1)
     base['Location'] = pd.to_numeric(base['Location'], errors = 'coerce').fillna(0).astype(int)
@@ -583,15 +586,16 @@ def risk_weights(df):
 
         def normalize_groupwise(s, by):
             # per-risk 95th percentile cap
-            return s.groupby(by, group_keys=False).apply(
-                lambda g: ((g.clip(lower=0)) / max(np.nanpercentile(g.clip(lower=0), 95), 1e-9)).clip(0, 1)
-            )
+            return s.groupby(by, group_keys=False).rank(pct = True).fillna(0.0)
 
-        ts['emwa_norm']  = normalize_groupwise(ts['EMWA'],  ts['Risk_item'])
-        ts['slope_norm'] = normalize_groupwise(ts['Slope'], ts['Risk_item'])
+        ts['emwa_norm']  = normalize_groupwise(ts['EMWA'].clip(lower=0),  ts['Risk_item'])
+        ts['slope_norm'] = normalize_groupwise(ts['Slope'].clip(lower = 0), ts['Risk_item'])
 
         w_emwa, w_slope = 0.6, 0.4
         ts['accel_score'] = (w_emwa*ts['emwa_norm'] + w_slope * ts['slope_norm']).clip(0,1)
+
+        short = ts.groupby('Risk_item')['Week'].transform('count') < 4
+        ts.loc[short, 'accel_score'] *= 0.6
 
         # ---- Sentiment acceleration (added) ----
         if 'Sentiment Score' not in base.columns:
@@ -1213,6 +1217,6 @@ df = pd.read_csv('Model_training/label_initial.csv.gz', compression = 'gzip')
 df = df.drop(columns = ['Acceleration_value_x', 'Acceleration_value_y'], errors = 'ignore')
 df = risk_weights(df)
 df = df.drop(columns = ['University Label_x', 'University Label_y'], errors = 'ignore')
-atomic_write_csv("Model_training/BERTopic_results2.gz", df, compress=True)
+atomic_write_csv("Model_training/BERTopic_results2.csv.gz", df, compress=True)
 #Show the articles over time
 track_over_time(df)
