@@ -611,8 +611,8 @@ def risk_weights(df):
         ts_sent['sent_slope'] = ts_sent.groupby('Risk_item', group_keys=False)['sent_flipped'] \
             .apply(lambda g: pd.Series(slope(g.values, k=6), index=g.index)) \
             .astype(float)
-        ts_sent['sent_delta_norm'] = normalize_groupwise(ts_sent['sent_delta'])
-        ts_sent['sent_slope_norm'] = normalize_groupwise(ts_sent['sent_slope'])
+        ts_sent['sent_delta_norm'] = normalize_groupwise(ts_sent['sent_delta'], ts_sent['Risk_item'])
+        ts_sent['sent_slope_norm'] = normalize_groupwise(ts_sent['sent_slope'], ts_sent['Risk_item'])
         w_sent_delta, w_sent_slope = 0.6, 0.4
         ts_sent['accel_score_sent'] = (w_sent_delta*ts_sent['sent_delta_norm'] + w_sent_slope*ts_sent['sent_slope_norm']).clip(0,1)
 
