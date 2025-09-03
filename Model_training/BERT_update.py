@@ -145,29 +145,28 @@ bert_art = pd.read_csv('BERTopic_results.csv', encoding='utf-8')
 df = pd.concat([df, bert_art], ignore_index=True)
 df = df.drop_duplicates(subset=['Title', 'Content'], keep='last')
 
-#if 'Source' not in df.columns:
-#    df['Source'] = ''
+if 'Source' not in df.columns:
+    df['Source'] = ''
 
 # Convert NaN/None to empty string, keep as string dtype
-#df['Source'] = df['Source'].astype('string').fillna('')
+df['Source'] = df['Source'].astype('string').fillna('')
 
-#def transform_text(texts):
-#    texts = texts.copy()
-#    print(f"Transforming {len(texts)} articles in batches...")
-#    all_topics, all_probs = [], []
-#    batch_size = 100  # or smaller
-#    texts_list = texts['Text'].tolist()
+def transform_text(texts):
+    texts = texts.copy()
+    print(f"Transforming {len(texts)} articles in batches...")
+    all_topics, all_probs = [], []
+    batch_size = 100  # or smaller
+    texts_list = texts['Text'].tolist()
 
-#    for i in range(0, len(texts_list), batch_size):
-#        batch = texts_list[i:i+batch_size]
-#        topics, probs = topic_model.transform(batch)
-#        all_topics.extend(topics)
-#        all_probs.extend(probs)
-#        print(f"✅ Transformed batch {i//batch_size + 1}/{(len(texts_list) // batch_size) + 1}")
-#    texts['Topic'] = all_topics
-#    texts['Probability'] = all_probs
-#    return texts
-
+    for i in range(0, len(texts_list), batch_size):
+        batch = texts_list[i:i+batch_size]
+        topics, probs = topic_model.transform(batch)
+        all_topics.extend(topics)
+        all_probs.extend(probs)
+        print(f"✅ Transformed batch {i//batch_size + 1}/{(len(texts_list) // batch_size) + 1}")
+    texts['Topic'] = all_topics
+    texts['Probability'] = all_probs
+    return texts
 def save_new_topics(existing_df, new_df, path = 'Model_training/BERTopic_results2.csv.gz'):
     if 'Link' in existing_df and 'Link' in new_df:
         unique_new = new_df[~new_df['Link'].isin(existing_df['Link'])]
@@ -530,13 +529,7 @@ def risk_weights(df):
     #mask = exploded['Risk_item'].notna() & (exploded['Risk_item'].astype(str).str.strip()!='')
     #exploded = exploded[mask].copy()
     #exploded['Risk_norm'] = exploded['Risk_item'].astype(str).str.strip().str.lower()
-    base['Risk_item'] = (
-    base['Predicted_Risks'].astype('string')
-        .str.split(pat=';', n=1, expand=False)
-        .str[0].fillna('')
-        .str.strip().str.lower()
-        .replace({'': 'no risk'})
-    )
+    
 
     # Published -> datetime (robust coercion)
 
