@@ -1042,6 +1042,9 @@ if selection == "Article Risk Review":
                 # plain string; allow ; or , as delimiters
                 parts = [p.strip() for p in re.split(r"[;,]", s) if p.strip()]
                 labels = parts or ["No Risk"]
+    
+        # normalize casing of the sentinel only
+        return [("No Risk" if x.lower() == "no risk" else x) for x in labels] or ["No Risk"]
 
 
         if not match_any(predicted, filtered_risks):
