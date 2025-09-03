@@ -531,9 +531,10 @@ def risk_weights(df):
     #mask = exploded['Risk_item'].notna() & (exploded['Risk_item'].astype(str).str.strip()!='')
     #exploded = exploded[mask].copy()
     #exploded['Risk_norm'] = exploded['Risk_item'].astype(str).str.strip().str.lower()
-    base['Risk_item'] = base['Predicted_Risks'].apply(lambda s: str(s).split(';', 1)[0].strip().lower() if pd.notna(s) else '')
-    mask = base['Risk_item'] != ''
-    base = base[mask].copy()
+    base['Risk_item'] = (
+    base['Predicted_Risks'].astype(str).str.split(';', 1).str[0].str.strip().str.lower()
+    .replace({'': 'no risk'})
+    )
 
     # Published -> datetime (robust coercion)
 
@@ -1213,6 +1214,8 @@ def load_university_label(new_label):
 #print("✅ Applying risk_weights...", flush=True)
 #atomic_write_csv('Model_training/Step1.csv.gz', df, compress = True)
 df = pd.read_csv('Model_training/label_initial.csv.gz', compression = 'gzip')
+df = predict_risks(df)
+df['Predicted_Risks'] = df.get('Predicted_Risks_new', '')
 #results_df = load_university_label(df)
 df = df.drop(columns = ['Acceleration_value_x', 'Acceleration_value_y'], errors = 'ignore')
 df = risk_weights(df)
