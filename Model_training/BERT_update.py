@@ -1207,7 +1207,7 @@ def load_university_label(new_label):
 df = pd.read_csv('Model_training/label_initial.csv.gz', compression = 'gzip')
 #results_df = load_university_label(df)
 #results_df = results_df.drop(columns = ['Acceleration_value_x', 'Acceleration_value_y'], errors = 'ignore')
-df = risk_weights(results_df)
+df = risk_weights(df)
 df = df.drop(columns = ['University Label_x', 'University Label_y'], errors = 'ignore')
 atomic_write_csv("Model_training/BERTopic_results2.gz", df, compress=True)
 #Show the articles over time
