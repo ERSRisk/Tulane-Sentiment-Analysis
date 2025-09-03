@@ -532,7 +532,6 @@ def risk_weights(df):
     #exploded = exploded[mask].copy()
     #exploded['Risk_norm'] = exploded['Risk_item'].astype(str).str.strip().str.lower()
     base['Risk_item'] = (
-    base['Risk_item'] = (
     base['Predicted_Risks'].astype('string')
         .str.split(pat=';', n=1, expand=False)
         .str[0].fillna('')
