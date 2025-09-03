@@ -86,7 +86,7 @@ def save_to_json(topics, topic_names):
     with open('Model_training/topics_BERT.json', 'w') as f:
         json.dump(topic_dict, f, indent=4)
 
-#topic_blocks = []
+topic_blocks = []
 #
 if model_path.exists() or download_model_if_exists():
     print("Loading existing BERTopic model from disk...")
@@ -136,15 +136,14 @@ else:
 
 
 
-#GEMINI_API_KEY = os.getenv("PAID_API_KEY")
-#client = genai.Client(api_key=GEMINI_API_KEY)
-#df['Topic'] = pd.NA
-#df['Probability'] = pd.NA
+GEMINI_API_KEY = os.getenv("PAID_API_KEY")
+client = genai.Client(api_key=GEMINI_API_KEY)
+df['Topic'] = pd.NA
+df['Probability'] = pd.NA
 
-#bert_art = pd.read_csv('BERTopic_results.csv', encoding='utf-8')
-
-#df = pd.concat([df, bert_art], ignore_index=True)
-#df = df.drop_duplicates(subset=['Title', 'Content'], keep='last')
+bert_art = pd.read_csv('BERTopic_results.csv', encoding='utf-8')
+df = pd.concat([df, bert_art], ignore_index=True)
+df = df.drop_duplicates(subset=['Title', 'Content'], keep='last')
 
 #if 'Source' not in df.columns:
 #    df['Source'] = ''
