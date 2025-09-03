@@ -845,6 +845,7 @@ def risk_weights(df):
 
     agg['Industry_Risk_Peer'] = agg.apply(peer_industry_score, axis =1).astype(int)
     # Map per base row
+    base = base.drop(columns = ['Industry_Risk_Peer'], errors = 'ignore')
     base = base.merge(agg[['Week', 'Industry_Risk_Peer']],
                               on=['Week'], how='left')
     base['Industry_Risk_Peer'] = base['Industry_Risk_Peer'].fillna(0).astype(int)
