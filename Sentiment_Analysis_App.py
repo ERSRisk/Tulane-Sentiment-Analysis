@@ -1019,21 +1019,16 @@ if selection == "Article Risk Review":
         title = str(article.get("Title", ""))[:100]
     
         
-        raw = article.get("Predicted_Risk_Single", "[]")
+        raw = article.get("_RiskList", "[]")
         if isinstance(raw, list):
             predicted = raw
         elif isinstance(raw, str):
             s = raw.strip()
-            if s.startswith("[") and s.endswith("]"):
-                try:
-                    predicted = ast.literal_eval(s)
-                except:
-                    predicted = ["No Risk"]
-            elif s.lower() in ("", "none", "no risk"):
-                predicted = ["No Risk"]     # <- ensure explicit label
+            if s.lower() in ("", "none", "no risk"):
+                predicted = ["No Risk"]
             else:
                 parts = [r.strip() for r in s.split(';') if r.strip()]
-                predicted = [parts[0]] if parts else ["No Risk"]
+                predicted = parts if parts else ["No Risk"]   # keep all phrases if you ever have "a; b"
         else:
             predicted = ["No Risk"]
 
