@@ -978,10 +978,6 @@ def predict_risks(df):
     threshold = 0.35  # you can tune this
     out = [''] * len(df)
     for pos in range(len(df)):
-        existing = str(df.at[pos, 'Predicted_Risks_new']).strip()
-        if existing:
-            out[pos] = existing
-            continue
         scores = cosine_scores[pos]
         matched = [all_risks[j] for j, s in enumerate(scores) if float(s) >= threshold]
         out[pos] = '; '.join(matched) if matched else 'No Risk'
@@ -1184,36 +1180,35 @@ def load_university_label(new_label):
 
 
 #Assign topics and probabilities to new_df
-#print("✅ Starting transform_text on new data...", flush=True)
-#new_df = transform_text(df)
+print("✅ Starting transform_text on new data...", flush=True)
+new_df = transform_text(df)
 #Fill missing topic/probability rows in the original df
-#mask = (df['Topic'].isna()) | (df['Probability'].isna())
-#df.loc[mask, ['Topic', 'Probability']] = new_df[['Topic', 'Probability']]
+mask = (df['Topic'].isna()) | (df['Probability'].isna())
+df.loc[mask, ['Topic', 'Probability']] = new_df[['Topic', 'Probability']]
 #Save only new, non-duplicate rows
-#print("✅ Saving new topics to CSV...", flush=True)
-#df_combined = save_new_topics(df, new_df)
+print("✅ Saving new topics to CSV...", flush=True)
+df_combined = save_new_topics(df, new_df)
 
 #Double-check if there are still unmatched (-1) topics and assign a temporary model to assign topics to them
-#print("✅ Running double-check for unmatched topics (-1)...", flush=True)
-#temp_model, topic_ids = double_check_articles(df_combined)
+print("✅ Running double-check for unmatched topics (-1)...", flush=True)
+temp_model, topic_ids = double_check_articles(df_combined)
 
 #If there are unmatched topics, name them using Gemini
-#print("✅ Checking for unmatched topics to name using Gemini...", flush=True)
-#if temp_model and topic_ids:
-#    topic_name_pairs = get_topic(temp_model, topic_ids)
-#    existing_risks_json(topic_name_pairs, temp_model)
+print("✅ Checking for unmatched topics to name using Gemini...", flush=True)
+if temp_model and topic_ids:
+    topic_name_pairs = get_topic(temp_model, topic_ids)
+    existing_risks_json(topic_name_pairs, temp_model)
 
 #Assign weights to each article
-#df = predict_risks(df_combined)
-#df['Predicted_Risks'] = df.get('Predicted_Risks_new', '')
-#print("✅ Applying risk_weights...", flush=True)
-#atomic_write_csv('Model_training/Step1.csv.gz', df, compress = True)
-df = pd.read_csv('Model_training/label_initial.csv.gz', compression = 'gzip')
-#df = predict_risks(df)
-#df['Predicted_Risks'] = df.get('Predicted_Risks_new', '')
-#results_df = load_university_label(df)
-df = df.drop(columns = ['Acceleration_value_x', 'Acceleration_value_y'], errors = 'ignore')
-df = risk_weights(df)
+df = predict_risks(df_combined)
+df['Predicted_Risks'] = df.get('Predicted_Risks_new', '')
+print("✅ Applying risk_weights...", flush=True)
+atomic_write_csv('Model_training/Step1.csv.gz', df, compress = True)
+
+results_df = load_university_label(df)
+results_df = results_df.drop(columns = ['Acceleration_value_x', 'Acceleration_value_y'], errors = 'ignore')
+atomic_write_csv('Model_training/initial_label.csv.gz', results_df, compress = True)
+df = risk_weights(results_df)
 df = df.drop(columns = ['University Label_x', 'University Label_y'], errors = 'ignore')
 atomic_write_csv("Model_training/BERTopic_results2.csv.gz", df, compress=True)
 #Show the articles over time
