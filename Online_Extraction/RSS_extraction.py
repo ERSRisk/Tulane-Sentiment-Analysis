@@ -34,7 +34,7 @@ rss_feed =   {"RSS_Feeds":[{
               "NASA": ["https://www.nasa.gov/news-release/feed/"],
   "White House": ['https://www.whitehouse.gov/presidential-actions/feed/'],
   "CISA": ["https://www.cisa.gov/news.xml"],
-  "OSHA": ["https://www.osha.gov/news/newsreleases.xml"]
+  "OSHA": ["https://www.osha.gov/news/newsreleases.xml"],
   "National Institute of Standards and Technology": ["https://www.nist.gov/news-events/news/rss.xml"],
   "National Center for Education Statistics": ["https://nces.ed.gov/whatsnew/whatsnew_rss.asp"],
   "Centers for Medicare & Medicaid Services":["https://www.cms.gov/newsroom/rss-feeds"],
