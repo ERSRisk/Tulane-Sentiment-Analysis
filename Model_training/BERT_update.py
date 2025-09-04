@@ -1148,9 +1148,9 @@ def load_university_label(new_label):
     if not existing.empty and 'University Label' in existing.columns:
         all_articles = all_articles.merge(
             existing[['Title', 'University Label']],
-            on = 'Title', how = 'left',
-            suffixes = ('', '_prev')
-        ).rename(columns = {'University Label': 'University Label_prev'})
+            on='Title', how='left',
+            suffixes=('', '_prev')
+        )
     labeled_titles = set(existing['Title']) if 'Title' in existing else set()
 
     # Only run labeling on unlabeled articles
