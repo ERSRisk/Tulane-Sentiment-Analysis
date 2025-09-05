@@ -24,6 +24,9 @@ import gzip
 import base64
 import ast
 from pathlib import Path
+from bs4 import BeautifulSoup
+from datetime import datetime
+import fitz
 
 
 rss_feed =   {"RSS_Feeds":[{
@@ -415,6 +418,122 @@ def create_feeds(rss_feed):
                     feeds.append({"source": name, "url": url, "group": group_name})
     return feeds
 
+def COGR():
+  url = 'https://www.cogr.edu/categories/cogr-updates'
+  r = requests.get(url)
+  html = r.text
+  
+  soup = BeautifulSoup(html, 'html.parser')
+  
+  div = soup.find_all(class_ = 'barone')
+  div = [d for d in div if d.find('p') and d.find('p').find('strong') and '2025' in d.find('p').find('strong').text]
+  links = [a['href'] for d in div for a in d.find_all('a', href = True)]
+  links = [link for link in links if link.endswith('.pdf')]
+  links = links[0:3]
+  
+  
+  for_rss = []
+  for link in links:
+      r = requests.get(link, headers={"User-Agent": "Mozilla/5.0"}, timeout=60)
+      r.raise_for_status()
+  
+      with open("cogr_update.pdf", "wb") as f:
+          f.write(r.content)
+      doc = fitz.open("cogr_update.pdf")
+  
+      sizes = []
+  
+      for page in doc:
+          d = page.get_text('dict')
+          for b in d['blocks']:
+              for ln in b.get('lines', []):
+                  for sp in ln['spans']:
+                      sizes.append(sp['size'])
+  
+      levels = sorted(set(sizes), reverse = True)
+  
+      H2 = levels[1]
+      #for page in doc:
+          #d = page.get_text('dict')
+          #for b in d['blocks']:
+              #for ln in b.get('lines', []):
+                  #for sp in ln['spans']:
+                      #if sp['size'] == H2:
+                          #print(sp['text'])
+      sections = []
+      current = None
+      pending_header = []
+      skipping = False
+  
+      for pno, page in enumerate(doc):
+          page_h = page.rect.height
+          d = page.get_text('dict')
+          for b in d['blocks']:
+              for ln in b.get('lines', []):
+                  spans = ln.get('spans', [])
+                  line_text = "".join(sp['text'] for sp in spans).strip()
+                  if not line_text:
+                      continue
+                  y0 = min(sp['bbox'][1] for sp in spans) if spans else 0
+                  y1 = max(sp['bbox'][3] for sp in spans) if spans else 0
+                  if line_text.isdigit() and (y1 > page_h - 36 or y0 < 36):
+                      continue
+                  sizes = [sp['size'] for sp in spans]
+                  if H2 in sizes:
+                      if line_text.isdigit():
+                          continue
+                      if 'Reminders' in line_text or "LinkedIn" in line_text:
+                          skipping = True
+                          continue
+                      skipping = False
+                      if current:
+                          current["page_end"] = pno
+                          current["body"] = "\n".join(current["body"])
+                          sections.append(current)
+                          current = None
+                      looks_header = line_text
+                      pending_header.append(looks_header)
+                      continue
+                  if skipping:
+                    continue
+                  if pending_header:
+                      header = " ".join(pending_header)
+                      current = {"header": header, "body": [], "page_start": pno, "page_end": pno}
+                      pending_header = []
+  
+                  if current:
+                      current['page_end'] = pno
+                      current['body'].append(line_text)
+                  
+  
+      if current:
+          current['body'] = "\n".join(current['body'])
+          sections.append(current)
+  
+      
+      for s in sections:
+          title = s['header']
+          content = s['body']
+          
+          # add these 4 lines
+          txt = f"{title}\n{content}"
+          doc = nlp(txt)
+          ents = [ent.text for ent in doc.ents if ent.label_ in ('ORG','PERSON','GPE','LAW','EVENT','MONEY')]
+          kws  = [kw for kw in keywords if kw in txt.lower()]
+          
+          published = datetime.now().strftime("%Y-%m-%d")
+          for_rss.append({
+              "Title": title,
+              "Link": link,
+              "Published": published,
+              "Summary": content[:200],
+              "Content": content,
+              "Source": "COGR",
+              "Entities": ents or None,
+              "Keyword": kws
+          })  
+  return for_rss
+
 def load_existing_articles():
     return load_articles_from_release()
 
@@ -605,6 +724,8 @@ async def batch_process_feeds(feeds, batch_size = 15, concurrent_batches =5):
     return all_articles
 
 feeds = create_feeds(rss_feed)
+cogr = COGR()
+
 try:
     all_articles = asyncio.run(batch_process_feeds(feeds, batch_size=5, concurrent_batches=2))
 except Exception as e:
