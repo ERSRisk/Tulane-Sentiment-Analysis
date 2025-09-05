@@ -12078,5 +12078,255 @@
     "summary": "Positive sentiment.The tweet expresses enthusiastic support for Tulane.",
     "is_sport": 0,
     "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-04T23:47:09+00:00",
+    "text": "RT @RollWave_Win: The final website update is going live tomorrow! In the meantime, go listen and subscribe to all the podcasts covering Tu…",
+    "link": "https://twitter.com/None/status/1963750714808955234",
+    "description": "Retweet announcing an upcoming website update for Tulane-related podcasts.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment. The tweet promotes content related to Tulane, suggesting community engagement and positive interest in the university.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-04T23:45:26+00:00",
+    "text": "RT @brieuxbros: Saturday in Mobile. \n\n#RollWave #Tulane https://t.co/v9r3OFSeWH",
+    "link": "https://twitter.com/None/status/1963750281302143135",
+    "description": "Tweet mentioning a Tulane event in Mobile, Alabama.",
+    "sentiment": 0.5,
+    "summary": "Slightly positive sentiment. The tweet is a simple mention of a Tulane event. It implies some level of activity and engagement with the university. ",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-04T23:37:13+00:00",
+    "text": "You waited patiently and now it’s finally here - Our preview and predictions for this week’s big matchup of South Alabama and Tulane:\n\nhttps://t.co/bXLldwve9y",
+    "link": "https://twitter.com/None/status/1963748213719961641",
+    "description": "Tweet making serious allegations about a Tulane University Military Biological Weapons Lab and the death of someone who blew the whistle.",
+    "sentiment": -0.8,
+    "summary": "Highly negative sentiment.The tweet contains serious and unsubstantiated allegations against Tulane, potentially damaging its reputation.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-04T23:33:55+00:00",
+    "text": "@AnnieForTruth Annie, \n\n      Read “Mary Ferris” and the “Monkey-Virus” Tulane University Military Biological Weapons Lab!!! Her Father was killed for “Blowing the Whistle” on Dr. Robert Gallo or maybe read “Project Day Lily”! The First AIDS-HIV casualties were Gay-Men in N.Y. And. Authorized! https://t.co/33wuDao1Fx",
+    "link": "https://twitter.com/None/status/1963747382023143650",
+    "description": "Tweet mentioning a Tulane event in Mobile, Alabama.",
+    "sentiment": 0.5,
+    "summary": "Slightly positive sentiment. The tweet is a simple mention of a Tulane event. It implies some level of activity and engagement with the university.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-04T22:57:38+00:00",
+    "text": "El Pacífico Norte y el Atlántico Norte e Índico están entre las zonas más vulnerables a la contaminación por plásticos, según plantea hoy un nuevo mapeo global desarrollado por científicos de la Universidad de Tulane. https://t.co/kspboroSCt",
+    "link": "https://twitter.com/None/status/1963738251811790925",
+    "description": "A tweet highlighting a Tulane University study on plastic pollution.",
+    "sentiment": 0.8,
+    "summary": "Highly positive sentiment; it showcases Tulane's academic research in a positive light.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-04T22:48:25+00:00",
+    "text": "RT @RollWave_Win: The final website update is going live tomorrow! In the meantime, go listen and subscribe to all the podcasts covering Tu…",
+    "link": "https://twitter.com/None/status/1963735934475939871",
+    "description": "Tweet promoting podcasts covering Tulane.",
+    "sentiment": 0.2,
+    "summary": "Neutral to slightly positive sentiment.The tweet promotes content related to Tulane, which is positive, but lacks strong emotional content.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-04T22:37:35+00:00",
+    "text": "RT @BoChampRMFW: AND THE EDITOR WHO LET THIS GET OUT IS GARBAGE https://t.co/83MBLGRxdw",
+    "link": "https://twitter.com/None/status/1963733206739378465",
+    "description": "Tweet expressing happiness about receiving a job offer from Tulane.",
+    "sentiment": 1.0,
+    "summary": "Very positive sentiment. The tweet directly expresses positive feelings towards receiving an offer from Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-04T22:35:47+00:00",
+    "text": "RT @GreenWaveFB: .@jretz11 with 69-yard touchdown run.\n\n2Q | 1:28 | 20-3 Tulane https://t.co/MB4UugQxwk",
+    "link": "https://twitter.com/None/status/1963732752035127375",
+    "description": "Tweet promoting podcasts covering Tulane.",
+    "sentiment": 0.2,
+    "summary": "Neutral to slightly positive sentiment.The tweet promotes content related to Tulane, which is positive, but lacks strong emotional content.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-04T22:25:58+00:00",
+    "text": "RT @RollWave_Win: The final website update is going live tomorrow! In the meantime, go listen and subscribe to all the podcasts covering Tu…",
+    "link": "https://twitter.com/None/status/1963730281875259437",
+    "description": "Retweet announcing an upcoming website update for Tulane podcasts.",
+    "sentiment": 0.2,
+    "summary": "Slightly positive sentiment; promoting Tulane-related content.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-04T22:25:21+00:00",
+    "text": "RT @RollWave_Win: The final website update is going live tomorrow! In the meantime, go listen and subscribe to all the podcasts covering Tu…",
+    "link": "https://twitter.com/None/status/1963730128493855114",
+    "description": "Retweet announcing an upcoming website update for Tulane podcasts.",
+    "sentiment": 0.2,
+    "summary": "Slightly positive sentiment; promoting Tulane-related content.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-04T22:10:14+00:00",
+    "text": "@BracketNky Love Tulane at the 12🔥",
+    "link": "https://twitter.com/None/status/1963726325551906870",
+    "description": "A tweet expressing positive sentiment towards Tulane.",
+    "sentiment": 1.0,
+    "summary": "Highly positive sentiment directly expressing support for Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-04T22:03:29+00:00",
+    "text": "@approachitsmart @atrupar Rachel Levine graduated from Harvard College with a degree in psychology.\nGot her medical degree from Tulane University School of Medicine.\nLevine completed a residency in pediatrics and a postdoctoral fellowship in adolescent medicine at Mount Sinai Medical Center.",
+    "link": "https://twitter.com/None/status/1963724623595684132",
+    "description": "A tweet mentioning Rachel Levine's medical degree from Tulane University School of Medicine.",
+    "sentiment": 0.8,
+    "summary": "Positive sentiment because it highlights a notable alumna's achievement, enhancing Tulane's reputation in the medical field.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-04T22:03:04+00:00",
+    "text": "El Teresa Lozano Long Institute of Latin American Studies le invita a la Hackett Lecture Series con la participación del reconocido novelista y profesor de escritura creativa en la Universidad de Tulane, Yuri Herrera. https://t.co/iZN4sPPVml",
+    "link": "https://twitter.com/None/status/1963724520772055543",
+    "description": "A tweet announcing a lecture by a Tulane creative writing professor.",
+    "sentiment": 0.9,
+    "summary": "Highly positive sentiment; it promotes a Tulane faculty member and highlights the university's academic contributions.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-04T21:57:26+00:00",
+    "text": "Tulane launches $10M internship initiative for students\n•\n•\n•\n•\n•\n\n#TulaneUniversity #MussaferFamilyFoundation #DavidMussafer #MarionMussafer #PaidInternships #CareerReadiness #HigherEducation #NewcombTulaneCollege #StudentMentorship\nhttps://t.co/y214cHdivY",
+    "link": "https://twitter.com/None/status/1963723100672901315",
+    "description": "Tulane launches a $10 million internship initiative for students.",
+    "sentiment": 0.8,
+    "summary": "This is a very positive tweet.The announcement of a substantial investment in student internships demonstrates a commitment to student success and career readiness, which are highly positive aspects.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-04T21:52:11+00:00",
+    "text": "3Ls Helena Orrego and Spencer Bober made their first-ever court appearance in Orleans Parish Juvenile Court! They argued before the Hon. Candace Bates-Anderson, a Tulane Law graduate (L’95).\n\nAlumni leading in the courtroom while inspiring the next generation of advocates 💚⚖️ https://t.co/pJQrcCujZD",
+    "link": "https://twitter.com/None/status/1963721780868092223",
+    "description": "Two Tulane Law students make their first court appearance.",
+    "sentiment": 0.7,
+    "summary": "This tweet highlights positive achievements of Tulane Law students and alumni, showcasing the quality of the program and its impact.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-04T21:32:16+00:00",
+    "text": "@twittmanola @GreenWaveFB I was speculating something like this but i hope its not this lol. Purple would need to be a secondary or tertiary color on a tulane uni imo",
+    "link": "https://twitter.com/None/status/1963716770042392656",
+    "description": "Tweet expressing a personal opinion about Tulane's uniform colors.",
+    "sentiment": 0.0,
+    "summary": "Neutral sentiment; it's a personal preference about aesthetics and doesn't reflect on Tulane's academic or other achievements.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-04T21:27:55+00:00",
+    "text": "RT @Guersmith: I will be on momentarily talking Tulane.",
+    "link": "https://twitter.com/None/status/1963715674091794822",
+    "description": "Tweet mentioning an upcoming discussion about Tulane.",
+    "sentiment": 0.0,
+    "summary": "Neutral sentiment; lacks context and doesn't express any positive or negative opinion about Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-04T21:23:09+00:00",
+    "text": "RT @dfossier: Soros-trained Tulane-transplant convicted as guilty for inviting a violent juvenile into her home, and possibly bed, after he…",
+    "link": "https://twitter.com/None/status/1963714476227617025",
+    "description": "Retweet alleging a criminal conviction involving a person with ties to Tulane; highly negative.",
+    "sentiment": -0.8,
+    "summary": "Highly negative sentiment due to the serious allegations involving a person with connections to Tulane. This reflects poorly on the university's reputation.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-04T21:17:14+00:00",
+    "text": "@aileen_blas @ILA_NewsX @PressSec @RobertKennedyJr Dr. Rachel Levine holds an MD from Tulane, with expertise in pediatrics and adolescent medicine. She served as PA Physician General, PA Health Secretary (leading COVID response), and US Assistant Secretary for Health (2021-2025), overseeing public health initiatives.\n\nRFK Jr. has",
+    "link": "https://twitter.com/None/status/1963712987858092519",
+    "description": "Tweet mentioning Dr. Rachel Levine's affiliation with Tulane.",
+    "sentiment": 0.5,
+    "summary": "The tweet is neutral concerning Tulane but provides positive context about Dr. Rachel Levine's accomplishments. The affiliation with Tulane is minor and doesn't significantly impact the university's reputation.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-04T21:11:55+00:00",
+    "text": "@SenBillCassidy I am RANDALL ARRINGTON, a Conservative, Republican, Veteran running against Bill Cassidy for United States Senator\n\nMy Resume:\n\nNaval Aviator (Attack Pilot)\nDHS CBP Deputy Director\nUniversity Professor (Tulane, LSU)\nPolitical Science PhD (from UNO)\nAuthor of Politics in America",
+    "link": "https://twitter.com/None/status/1963711647811256471",
+    "description": "Tweet mentioning a candidate's affiliation with Tulane as a university professor.",
+    "sentiment": 0.5,
+    "summary": "Neutral to slightly positive.The mention of Tulane as part of the candidate's resume is neutral, but it does provide positive context by showcasing the candidate's qualifications.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-04T21:05:18+00:00",
+    "text": "@ConnorsShe74132 @WalshFreedom Yes.. Rachel Levine was extremely qualified for the job.\n-Harvard &amp; Tulane School of Medicine\n-Pediatric residency &amp; adolescent medicine fellows\n-Professorship at Penn State College of Medicine\n-Four-star Admiral Us Public Health",
+    "link": "https://twitter.com/None/status/1963709983943516560",
+    "description": "Tweet supporting Rachel Levine's qualifications, mentioning her Tulane education.",
+    "sentiment": 0.9,
+    "summary": "Very positive sentiment. Highlights positive aspects of a Tulane graduate.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-04T20:59:09+00:00",
+    "text": "@PhillyConserv @InsertHere100 @BulwarkOnline Dr. Rachel Levine, pictured, has an MD from Tulane, is a pediatrician and psychiatrist, and served as Pennsylvania's Physician General and Secretary of Health, leading opioid and COVID responses.",
+    "link": "https://twitter.com/None/status/1963708433011749358",
+    "description": "Tweet highlighting Dr. Rachel Levine's credentials, including her MD from Tulane.",
+    "sentiment": 0.9,
+    "summary": "Very positive sentiment.Positive portrayal of a prominent individual who is an alumnus of Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-04T20:55:48+00:00",
+    "text": "@Tulane_2006 👌🕊️🧡",
+    "link": "https://twitter.com/None/status/1963707590191583477",
+    "description": "A positive tweet expressing support for Tulane.",
+    "sentiment": 0.8,
+    "summary": "The tweet expresses positive sentiment towards Tulane using emojis.No negative keywords are present.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-04T20:43:37+00:00",
+    "text": "@CSG_Tulane @CsgFAU @CSG_WestPoint @CSG_Navy @CSG_HOME @ecu_CSG @CSG_Charlotte @Csg_Bulls 💪",
+    "link": "https://twitter.com/None/status/1963704526457954414",
+    "description": "A tweet with emojis, likely related to an organization or event.",
+    "sentiment": 0.0,
+    "summary": "Neutral sentiment.The tweet contains only emojis and a link; no clear positive or negative sentiment can be extracted.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-04T20:40:27+00:00",
+    "text": "https://t.co/zbquqXJbAQ",
+    "link": "https://twitter.com/None/status/1963703730089730063",
+    "description": "A satirical or critical observation about Tulane students.",
+    "sentiment": -0.8,
+    "summary": "Highly negative sentiment. The tweet is sarcastic and critical of Tulane students, potentially damaging the university's reputation and possibly targeting a specific demographic.",
+    "is_sport": 0,
+    "affiliation": 1
   }
 ]
