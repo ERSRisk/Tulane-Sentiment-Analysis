@@ -30,3 +30,4 @@ scikit-learn
 playwright
 pdfplumber
 python-docx
+PyMuPDF
