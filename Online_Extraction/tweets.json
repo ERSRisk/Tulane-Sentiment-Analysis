@@ -12328,5 +12328,95 @@
     "summary": "Highly negative sentiment. The tweet is sarcastic and critical of Tulane students, potentially damaging the university's reputation and possibly targeting a specific demographic.",
     "is_sport": 0,
     "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-05T23:27:33+00:00",
+    "text": "@AJA_Cortes The best = @Tulane \nSpecifically:\n@FreemanSchool",
+    "link": "https://twitter.com/None/status/1964108168612421844",
+    "description": "Recommendation of Tulane's Freeman School of Business.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment. A strong recommendation for a specific Tulane department.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-05T23:04:31+00:00",
+    "text": "RT @tulanealumni: Join the Initiative\n\n@Tulane is proud to announce the Mussafer Internship Initiative, made possible by David and Marion M…",
+    "link": "https://twitter.com/None/status/1964102371153244556",
+    "description": "Announcement of the Mussafer Internship Initiative at Tulane.",
+    "sentiment": 1.0,
+    "summary": "Highly positive sentiment.The announcement highlights a positive initiative and partnership, contributing to Tulane's reputation.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-05T22:46:01+00:00",
+    "text": "Tulane alum Colette Hirstius, president of @Shell USA, shares insights on the Future of Energy and how her Tulane education shaped her path. \n\nCatch her at the Future of Energy Forum, Sept. 10–12. ⤵️\nhttps://t.co/RkQurz5sqD",
+    "link": "https://twitter.com/None/status/1964097714758557956",
+    "description": "Tweet highlighting Tulane alumna Colette Hirstius's success and contribution to the Future of Energy Forum.",
+    "sentiment": 1.0,
+    "summary": "Very positive sentiment.This showcases a successful alumna and reflects positively on Tulane's education.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-05T22:27:14+00:00",
+    "text": "RT @tulanealumni: Bring Uptown TU You\n\nWhile @GreenWaveFB reminds South Alabama about the true home of Mardi Gras, this is your time to get…",
+    "link": "https://twitter.com/None/status/1964092987798950129",
+    "description": "Retweet promoting Tulane alumni events during Mardi Gras.",
+    "sentiment": 0.8,
+    "summary": "Positive sentiment as it promotes Tulane and its alumni.It's directly related to the positive image of the university.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-05T21:54:36+00:00",
+    "text": "@Tulane @TulaneMedicine Wow, that's a stark reminder from @MilesStephensA6 and @TulaneMedicine that your zip code can be just as important as your genetic code for heart health.",
+    "link": "https://twitter.com/None/status/1964084778681892914",
+    "description": "Tweet highlighting Tulane Medicine's research on the impact of zip code on heart health.",
+    "sentiment": 0.8,
+    "summary": "Positive sentiment due to the focus on impactful medical research by Tulane Medicine, showcasing positive contributions to public health.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-05T21:45:04+00:00",
+    "text": "Could where you live affect your heart health? \n\n@TulaneMedicine researchers reveal how living in food deserts may double stroke risk for patients with atrial fibrillation. ⤵️\nhttps://t.co/t5ZUmeO8Cl",
+    "link": "https://twitter.com/None/status/1964082378176860390",
+    "description": "Tweet about Tulane Medicine research linking living in food deserts to increased stroke risk.",
+    "sentiment": 0.7,
+    "summary": "Positive sentiment; highlights important research from Tulane Medicine on a significant public health issue.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-05T21:44:41+00:00",
+    "text": "@BravoBuzzard @marlene4719 Dr. Levine (who was Surgeon General, different than RFK as Secretary of HHS), has a medical degree from Tulane. Unless you can tell me where RFK's medical degree came from, I'd rather listen to someone who actually has one.",
+    "link": "https://twitter.com/None/status/1964082281405948023",
+    "description": "Tweet comparing Dr. Levine's medical credentials from Tulane to RFK's lack thereof.",
+    "sentiment": 0.2,
+    "summary": "Neutral sentiment; focuses on the credentials of an individual who attended Tulane, but doesn't directly impact Tulane's overall reputation.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-05T21:08:10+00:00",
+    "text": "RT @ZachCohenFB: Green and blue often don’t work together, but Tulane rocks these shades of it 🔥 https://t.co/EUAKzC9dT0",
+    "link": "https://twitter.com/None/status/1964073091229012433",
+    "description": "A tweet praising Tulane's school colors.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment. A positive comment about Tulane's colors shows some positive feeling toward the university.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-05T21:00:55+00:00",
+    "text": "Michael Hecht Gr. N. O. Inc.  Friday's w/ Fletch (er Mackerl) talkin Tulane LSU Saints https://t.co/JrKyWeaslW",
+    "link": "https://twitter.com/None/status/1964071269252681982",
+    "description": "Criticism of replacing a Tulane-affiliated director with someone from Silicon Valley, especially concerning pandemic preparedness.",
+    "sentiment": -0.8,
+    "summary": "Very negative.The tweet criticizes a decision involving a Tulane-affiliated individual, implying a negative impact on the university's reputation and highlighting concerns about pandemic preparedness.",
+    "is_sport": 0,
+    "affiliation": 1
   }
 ]
