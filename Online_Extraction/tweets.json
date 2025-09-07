@@ -12418,5 +12418,75 @@
     "summary": "Very negative.The tweet criticizes a decision involving a Tulane-affiliated individual, implying a negative impact on the university's reputation and highlighting concerns about pandemic preparedness.",
     "is_sport": 0,
     "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-06T23:59:30+00:00",
+    "text": "I need Tulane to wake up",
+    "link": "https://twitter.com/None/status/1964478598787879323",
+    "description": "Tweet expresses a desire for Tulane to improve performance.",
+    "sentiment": -0.5,
+    "summary": "Negative. Implies dissatisfaction with Tulane's current performance, without specifying the context.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-06T23:57:22+00:00",
+    "text": "@TomFornelli Not sure what Tulane is doing right now.",
+    "link": "https://twitter.com/None/status/1964478061170348555",
+    "description": "Tweet expresses uncertainty about Tulane's current situation.",
+    "sentiment": -0.3,
+    "summary": "Slightly negative. Indicates confusion or concern regarding Tulane's performance or strategy.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-06T23:54:17+00:00",
+    "text": "They have an $8 billion endowment and they’re wearing Tulane’s exact old jerseys. https://t.co/OLXj70r1f1",
+    "link": "https://twitter.com/None/status/1964477283072356798",
+    "description": "Observation about a team wearing similar jerseys to Tulane's old jerseys, mentioning Tulane's endowment.",
+    "sentiment": 0.0,
+    "summary": "The sentiment is neutral. While mentioning Tulane's endowment, it's an observation not directly related to any positive or negative event affecting Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-06T23:36:11+00:00",
+    "text": "Tulane smh",
+    "link": "https://twitter.com/None/status/1964472728196698167",
+    "description": "A brief, negative comment about Tulane.",
+    "sentiment": -0.8,
+    "summary": "Highly negative sentiment; lacks context but expresses negativity toward Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-06T23:35:13+00:00",
+    "text": "Okay Tulane has responded. Let's keep the petal down and answer right back!",
+    "link": "https://twitter.com/None/status/1964472484436246747",
+    "description": "A tweet expressing excitement and a call to action regarding a response from Tulane.",
+    "sentiment": 0.5,
+    "summary": "The sentiment is slightly positive due to the expression of excitement and anticipation for a response from Tulane.There is no negative context related to the keywords.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-06T23:34:55+00:00",
+    "text": "@StealthMedical1 Qatar recently boasted about how its \"humanitarian\" aid in New Orleans after Hurricane Katrina led to its ties with Tulane University.\n\nThis is no coincidence.",
+    "link": "https://twitter.com/None/status/1964472411786809465",
+    "description": "An allegation of a connection between Qatar's humanitarian aid after Hurricane Katrina and its ties with Tulane University.",
+    "sentiment": -0.2,
+    "summary": "The sentiment is slightly negative because it suggests a potentially problematic connection between Qatar and Tulane, though no evidence is provided. The implication casts a shadow of doubt.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-06T23:31:26+00:00",
+    "text": "@SSN_Tulane https://t.co/OmZAPTnae3",
+    "link": "https://twitter.com/None/status/1964471532954276255",
+    "description": "A tweet linking to a social media account related to Tulane.",
+    "sentiment": 0.0,
+    "summary": "Neutral sentiment.It's a simple link to a Tulane-related account, without conveying any opinion.",
+    "is_sport": 0,
+    "affiliation": 1
   }
 ]
