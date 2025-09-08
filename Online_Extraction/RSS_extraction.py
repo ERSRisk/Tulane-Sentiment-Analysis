@@ -511,27 +511,50 @@ def COGR():
           sections.append(current)
   
       
+      eo_line = re.compile(r'\b(?:E\.?\s*O\.?|EO)\s*(?:No\.?\s*)?(\d{5})\b', re.I)
       for s in sections:
           title = s['header']
           content = s['body']
-          
-          # add these 4 lines
-          txt = f"{title}\n{content}"
-          doc = nlp(txt)
-          ents = [ent.text for ent in doc.ents if ent.label_ in ('ORG','PERSON','GPE','LAW','EVENT','MONEY')]
-          kws  = [kw for kw in keywords if kw in txt.lower()]
-          
           published = datetime.now().strftime("%Y-%m-%d")
-          for_rss.append({
-              "Title": title,
-              "Link": link,
-              "Published": published,
-              "Summary": content[:200],
-              "Content": content,
-              "Source": "COGR",
-              "Entities": ents or None,
-              "Keyword": kws
-          })  
+          
+          if 'executive order' in title.lower():
+              eo_blocks = []
+              current = None
+  
+              for line in content.splitlines():
+                  if eo_line.search(line):
+                      if current:
+                          eo_blocks.append(current)
+                      m = eo_line.search(line)
+                      eo_num = m.group(1) if m else None
+                      current = {'title': f'Executive Order ({eo_num}) Update' if eo_num else title, 'lines': [line]}
+                  else:
+                      if current:
+                          current['lines'].append(line)
+              if current:
+                  eo_blocks.append(current)
+              if not eo_blocks:
+                  for_rss.append({
+                      "Title": title,
+                      "Link": link,
+                      "Published": published,
+                      "Summary": content[:200],
+                      "Content": content,
+                      "Source": "COGR"
+                  })
+              else:
+                  for block in eo_blocks:
+                      body = "\n".join(block['lines'])
+                      for_rss.append({
+                          "Title": block['title'],
+                          "Link": link,
+                          "Published": published,
+                          "Summary": body[:200],
+                          "Content": body,
+                          "Source": "COGR"
+                      })
+          else:
+              for_rss.append({"Title": title, "Link": link, "Published": published, "Summary": content[:200], "Content": content, "Source": "COGR"})  
   return for_rss
 
 def load_existing_articles():
