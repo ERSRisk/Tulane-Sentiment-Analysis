@@ -12488,5 +12488,35 @@
     "summary": "Neutral sentiment.It's a simple link to a Tulane-related account, without conveying any opinion.",
     "is_sport": 0,
     "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-07T23:51:35+00:00",
+    "text": "RT @bmarcello: MOST INTERESTING GAMES (Week 3)\n\n1. USF at Miami\n2. Georgia at Tennessee\n3. Texas A&amp;M at Notre Dame\n4. Clemson at Georgia Te…",
+    "link": "https://twitter.com/None/status/1964838993633440199",
+    "description": "Short reply to a Tulane account.",
+    "sentiment": 0.5,
+    "summary": "Slightly positive. The short reply suggests approval or agreement but lacks context to give a stronger sentiment.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-07T23:50:56+00:00",
+    "text": "@CSG_Tulane As you should be… https://t.co/VJS6OSIp6x",
+    "link": "https://twitter.com/None/status/1964838828977647648",
+    "description": "Retweet about a presentation at Tulane's Anesthesiology Grand Rounds on large language models.",
+    "sentiment": 1.0,
+    "summary": "Very positive. The tweet highlights academic activity at Tulane, suggesting a positive contribution to the field of medicine and showcasing Tulane's academic strength.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-07T23:02:27+00:00",
+    "text": "RT @confidencial_ni: #EstaSemana analizaremos con el Dr. David Smilde, profesor de Sociología en la Universidad de Tulane y especialista en…",
+    "link": "https://twitter.com/None/status/1964826629156557216",
+    "description": "Announcement of an upcoming analysis with Dr. David Smilde, a Tulane University sociology professor.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment.The tweet highlights a Tulane professor's expertise and contribution.",
+    "is_sport": 0,
+    "affiliation": 1
   }
 ]
