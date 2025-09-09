@@ -27,6 +27,8 @@ from pathlib import Path
 from bs4 import BeautifulSoup
 from datetime import datetime
 import fitz
+from urllib.parse import urljoin
+import pandas as pd
 
 
 rss_feed =   {"RSS_Feeds":[{
@@ -285,7 +287,7 @@ keywords = ['Civil Rights', 'Antisemitism', 'Federal Grants','federal grant',
 'Massachusetts Institute of Technology',
 'Montana State University-Bozeman',
 'New York University',
-'NYU'
+'NYU',
 'Rice University',
 'Rutgers University',
 'The Ohio State University, Main Campus',
@@ -331,6 +333,8 @@ Github_repo = 'Tulane-Sentiment-Analysis'
 Release_tag = 'rss_json'
 Asset_name = 'all_RSS.json.gz'
 GITHUB_TOKEN = os.getenv('TOKEN')
+
+nlp = spacy.load('en_core_web_sm')
 
 def _gh_headers():
   token = os.getenv('TOKEN')
@@ -516,6 +520,9 @@ def COGR():
           title = s['header']
           content = s['body']
           published = datetime.now().strftime("%Y-%m-%d")
+          spacy_doc = nlp((title + ' ' + content))
+          ents = [ent.text for ent in spacy_doc.ents if ent.label_ in ('ORG','PERSON','GPE','LAW','EVENT','MONEY')]
+          kws  = [kw for kw in keywords if kw in (title + ' ' + content).lower()]
           
           if 'executive order' in title.lower():
               eo_blocks = []
@@ -540,7 +547,9 @@ def COGR():
                       "Published": published,
                       "Summary": content[:200],
                       "Content": content,
-                      "Source": "COGR"
+                      "Source": "COGR",
+                      "Entities": ents,
+                      "Keyword": kws
                   })
               else:
                   for block in eo_blocks:
@@ -551,10 +560,12 @@ def COGR():
                           "Published": published,
                           "Summary": body[:200],
                           "Content": body,
-                          "Source": "COGR"
+                          "Source": "COGR",
+                          "Entities": ents,
+                          "Keyword": kws
                       })
           else:
-              for_rss.append({"Title": title, "Link": link, "Published": published, "Summary": content[:200], "Content": content, "Source": "COGR"})  
+              for_rss.append({"Title": title, "Link": link, "Published": published, "Summary": content[:200], "Content": content, "Source": "COGR", "Entities": ents, "Keyword": kws})  
   return for_rss
 
 def Deloitte():
@@ -584,12 +595,15 @@ def Deloitte():
       published = pd.to_datetime(published, format='%d %B %Y')
       published = published.strftime('%Y-%m-%d') if not pd.isna(published) else ''
       summary = soup.find('h2', class_='cmp-subtitle__text').get_text(strip=True) if soup.find('h2') else ''
+      spacy_doc = nlp(text or '')
+      ents = [ent.text for ent in spacy_doc.ents if ent.label_ in ('ORG','PERSON','GPE','LAW','EVENT','MONEY')]
+      kws  = [kw for kw in keywords if kw in (title + ' ' + text).lower()]
       
       
       
       cleaned_html = str(soup)
       text = trafilatura.extract(cleaned_html, include_comments = False, include_tables = False, include_links = False, favor_recall = True, include_formatting = True) if downloaded else ''
-      rss_add.append({'Title': title, 'Link': link, 'Published':published, 'Summary':summary, 'Content':text, 'Source':'Deloitte Insights'})
+      rss_add.append({'Title': title, 'Link': link, 'Published':published, 'Summary':summary, 'Content':text, 'Source':'Deloitte Insights', 'Entities': ents, 'Keyword': kws})
     return rss_add
 def load_existing_articles():
     return load_articles_from_release()
@@ -650,7 +664,7 @@ async def fetch_article_content(url):
         print(f"⚠️ Timeout fetching article: {url}")
         return None
     
-nlp = spacy.load('en_core_web_sm')
+
 async def safe_feed_parse(text):
     try:
         proc = await asyncio.create_subprocess_exec(
@@ -788,6 +802,10 @@ try:
     all_articles = asyncio.run(batch_process_feeds(feeds, batch_size=5, concurrent_batches=2))
 except Exception as e:
     print(f"Fatal error {e}") 
+
+all_articles += cogr
+all_articles += deloitte
+
 existing_articles = load_existing_articles()
 new_articles = save_new_articles(existing_articles, all_articles)
 
