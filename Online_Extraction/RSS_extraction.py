@@ -604,7 +604,7 @@ def Deloitte():
       cleaned_html = str(soup)
       text = trafilatura.extract(cleaned_html, include_comments = False, include_tables = False, include_links = False, favor_recall = True, include_formatting = True) if downloaded else ''
       rss_add.append({'Title': title, 'Link': link, 'Published':published, 'Summary':summary, 'Content':text, 'Source':'Deloitte Insights', 'Entities': ents, 'Keyword': kws})
-    return rss_add
+  return rss_add
 def load_existing_articles():
     return load_articles_from_release()
 
