@@ -557,6 +557,40 @@ def COGR():
               for_rss.append({"Title": title, "Link": link, "Published": published, "Summary": content[:200], "Content": content, "Source": "COGR"})  
   return for_rss
 
+def Deloitte():
+  url = "https://www.deloitte.com/us/en/insights/industry/articles-on-higher-education.html"
+  with sync_playwright() as p:
+      browser = p.chromium.launch(headless=True)
+      page = browser.new_page()
+      page.goto(url, wait_until = 'networkidle')
+      page.wait_for_selector('div.card-rows')
+      html = page.content()
+      browser.close()
+  soup = BeautifulSoup(html, 'html.parser')
+  articles = soup.find_all('div', class_='card-rows')
+  blocks = [l for l in articles if l.find('a')]
+  links = [a['href'] for block in blocks for a in block.find_all('a', href=True)]
+  links = [urljoin(url, link) for link in links]
+  
+  rss_add = []
+  for link in links[0:5]:
+      downloaded = trafilatura.fetch_url(link)
+      soup = BeautifulSoup(downloaded, 'html.parser')
+      for el in soup.select('.cmp-di-article-info__content-divider, .cmp-di-profile-promo__country'):
+          el.decompose()
+      title = soup.find('h1').get_text(strip=True) if soup.find('h1') else ''
+      published = soup.select('.cmp-di-article-info__content__read-time')
+      published = published[1].get_text(strip=True) if published else ''
+      published = pd.to_datetime(published, format='%d %B %Y')
+      published = published.strftime('%Y-%m-%d') if not pd.isna(published) else ''
+      summary = soup.find('h2', class_='cmp-subtitle__text').get_text(strip=True) if soup.find('h2') else ''
+      
+      
+      
+      cleaned_html = str(soup)
+      text = trafilatura.extract(cleaned_html, include_comments = False, include_tables = False, include_links = False, favor_recall = True, include_formatting = True) if downloaded else ''
+      rss_add.append({'Title': title, 'Link': link, 'Published':published, 'Summary':summary, 'Content':text, 'Source':'Deloitte Insights'})
+    return rss_add
 def load_existing_articles():
     return load_articles_from_release()
 
@@ -748,6 +782,7 @@ async def batch_process_feeds(feeds, batch_size = 15, concurrent_batches =5):
 
 feeds = create_feeds(rss_feed)
 cogr = COGR()
+deloitte = Deloitte()
 
 try:
     all_articles = asyncio.run(batch_process_feeds(feeds, batch_size=5, concurrent_batches=2))
