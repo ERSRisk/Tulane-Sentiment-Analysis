@@ -595,14 +595,11 @@ def Deloitte():
       published = pd.to_datetime(published, format='%d %B %Y')
       published = published.strftime('%Y-%m-%d') if not pd.isna(published) else ''
       summary = soup.find('h2', class_='cmp-subtitle__text').get_text(strip=True) if soup.find('h2') else ''
+      cleaned_html = str(soup)
+      text = trafilatura.extract(cleaned_html, include_comments = False, include_tables = False, include_links = False, favor_recall = True, include_formatting = True) if downloaded else ''
       spacy_doc = nlp(text or '')
       ents = [ent.text for ent in spacy_doc.ents if ent.label_ in ('ORG','PERSON','GPE','LAW','EVENT','MONEY')]
       kws  = [kw for kw in keywords if kw in (title + ' ' + text).lower()]
-      
-      
-      
-      cleaned_html = str(soup)
-      text = trafilatura.extract(cleaned_html, include_comments = False, include_tables = False, include_links = False, favor_recall = True, include_formatting = True) if downloaded else ''
       rss_add.append({'Title': title, 'Link': link, 'Published':published, 'Summary':summary, 'Content':text, 'Source':'Deloitte Insights', 'Entities': ents, 'Keyword': kws})
   return rss_add
 def load_existing_articles():
