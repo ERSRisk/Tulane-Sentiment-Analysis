@@ -973,6 +973,10 @@ if selection == "Article Risk Review":
         filtered_df = filtered_df[filtered_df['Reviewed'] != 1]
     elif status_choice == 'Reviewed only':
         filtered_df = filtered_df[filtered_df['Reviewed'] == 1]
+    start_date = pd.to_datetime(start_date)
+    end_date = pd.to_datetime(end_date) + pd.Timedelta(days = 1) - pd.Timedelta(microseconds = 1)
+    filtered_df = filtered_df[filtered_df['Published'].between(start_date, end_date, inclusive = 'both')
+    filtered_df = filtered_df.sort_values('Published', ascending = False, na_position = 'last')
 
     with open('Model_training/risks.json', 'r') as f:
         risks_data = json.load(f)
