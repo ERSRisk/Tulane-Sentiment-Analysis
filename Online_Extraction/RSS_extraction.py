@@ -29,6 +29,7 @@ from datetime import datetime
 import fitz
 from urllib.parse import urljoin
 import pandas as pd
+from requests.utils import requote_uri
 
 
 rss_feed =   {"RSS_Feeds":[{
