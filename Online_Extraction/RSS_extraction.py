@@ -867,6 +867,7 @@ feeds = create_feeds(rss_feed)
 cogr = COGR()
 deloitte = Deloitte()
 homeland = homeland_sec()
+ace = Ace()
 
 try:
     all_articles = asyncio.run(batch_process_feeds(feeds, batch_size=5, concurrent_batches=2))
@@ -876,6 +877,7 @@ except Exception as e:
 all_articles += cogr
 all_articles += deloitte
 all_articles += homeland
+all_articles += ace
 
 existing_articles = load_existing_articles()
 new_articles = save_new_articles(existing_articles, all_articles)
