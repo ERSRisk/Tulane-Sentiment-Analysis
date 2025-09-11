@@ -640,6 +640,7 @@ def Ace():
           'Entities': ents,
           'Keyword': kws}
           )
+      return acenet_data
 def Deloitte():
   url = "https://www.deloitte.com/us/en/insights/industry/articles-on-higher-education.html"
   with sync_playwright() as p:
