@@ -605,7 +605,41 @@ def homeland_sec():
           'Keyword': kws
       })
   return nola_rss
+def Ace():
+  url = "https://www.acenet.edu/News-Room/Pages/default.aspx"
+  response = requests.get(url)
+  soup = BeautifulSoup(response.text, 'html.parser')
+  titles = soup.find_all('div', class_='rollup-title')
+  titles = [title.get_text(strip=True) for title in titles]
+  articles = soup.find_all('div', class_='rollup-result tile-type-News tile-type-5')
+  articles_list = []
+  for article in articles:
+      title = article.find('div', class_='rollup-title').get_text(strip=True)
+      link = article.find('a', href=True)['href']
+      articles_list.append((title, link))
   
+  acenet_data = []
+  for title, link in articles_list:
+      downloaded = trafilatura.fetch_url(link)
+      text = trafilatura.extract(downloaded)
+      soup = BeautifulSoup(downloaded, 'html.parser')
+      date = soup.find('div', class_='date').get_text(strip=True) if soup.find('div', class_='date') else 'No date found'
+      published = pd.to_datetime(date, errors='coerce')
+      published = published.strftime('%Y-%m-%d') if pd.notnull(published) else 'Unknown date'
+      summary = soup.find('span', class_='ms-rteStyle-StoryLeadIn').get_text(strip=True) if soup.find('span', class_='ms-rteStyle-StoryLeadIn') else text[:200] + '...'
+      spacy_doc = nlp(text or '')
+      ents = [ent.text for ent in spacy_doc.ents if ent.label_ in ('ORG','PERSON','GPE','LAW','EVENT','MONEY')]
+      kws  = [kw for kw in keywords if kw in (title + ' ' + text).lower()]
+      acenet_data.append({
+          'Title': title,
+          'Link': link,
+          'Published': published,
+          'Summary': summary,
+          'Content': text,
+          'Source':'American Council on Education',
+          'Entities': ents,
+          'Keyword': kws}
+          )
 def Deloitte():
   url = "https://www.deloitte.com/us/en/insights/industry/articles-on-higher-education.html"
   with sync_playwright() as p:
