@@ -568,6 +568,43 @@ def COGR():
               for_rss.append({"Title": title, "Link": link, "Published": published, "Summary": content[:200], "Content": content, "Source": "COGR", "Entities": ents, "Keyword": kws})  
   return for_rss
 
+def homeland_sec():
+  url = "https://nola.gov/next/homeland-security/news/"
+  response = requests.get(url)
+  soup = BeautifulSoup(response.content, 'html.parser')
+  articles = soup.find_all('div', class_='media mt-4 media-news')
+  blocks = [block for block in articles if block.find('a')]
+  links = [a['href'] for block in blocks for a in block.find_all('a', href=True)]
+  links = [u for u in links if u.rstrip('/').lower() != 'https://nola.gov/next/news']
+  links = [urljoin('https://nola.gov', link) for link in links]
+  links = [link.replace('u202f', '\u202f') for link in links]
+  
+  nola_rss = []
+  for link in links:
+      link = requote_uri(link)
+      downloaded = trafilatura.fetch_url(link)
+      soup = BeautifulSoup(downloaded, 'html.parser')
+      title = soup.find('h2', class_='mt-0').get_text(strip=True) if soup.find('h2', class_='mt-0') else 'No Title Found'
+      text = trafilatura.extract(downloaded, include_comments=False, include_tables=False, include_formatting=False)
+      el = soup.find('p', class_='updatedDate').get_text(strip = True) if soup.find('p', class_='updatedDate') else ''
+      date_str = re.search(r'(?<!\d)(\d{1,2}/\d{1,2}/\d{4})(?!d)', el).group(1) if re.search(r'(?<!\d)(\d{1,2}/\d{1,2}/\d{4})(?!d)', el) else 'No Date Found'
+      published = pd.to_datetime(date_str, format = '%m/%d/%Y', errors = 'coerce').date() if date_str != 'No Date Found' else 'No Date Found'
+      published = published.strftime('%Y-%m-%d') if published != 'No Date Found' else 'No Date Found'
+      spacy_doc = nlp(text or '')
+      ents = [ent.text for ent in spacy_doc.ents if ent.label_ in ('ORG','PERSON','GPE','LAW','EVENT','MONEY')]
+      kws  = [kw for kw in keywords if kw in (title + ' ' + text).lower()]
+      nola_rss.append({
+          'Title': title,
+          'Link': link,
+          'Published': published,
+          'Summary': text[:200] + '...' if text else 'No Summary Found',
+          'Content': text if text else 'No Content Found',
+          'Source':'NOLA.gov',
+          'Entities': ents, 
+          'Keyword': kws
+      })
+  return nola_rss
+  
 def Deloitte():
   url = "https://www.deloitte.com/us/en/insights/industry/articles-on-higher-education.html"
   with sync_playwright() as p:
@@ -794,6 +831,7 @@ async def batch_process_feeds(feeds, batch_size = 15, concurrent_batches =5):
 feeds = create_feeds(rss_feed)
 cogr = COGR()
 deloitte = Deloitte()
+homeland = homeland_sec()
 
 try:
     all_articles = asyncio.run(batch_process_feeds(feeds, batch_size=5, concurrent_batches=2))
@@ -802,6 +840,7 @@ except Exception as e:
 
 all_articles += cogr
 all_articles += deloitte
+all_articles += homeland
 
 existing_articles = load_existing_articles()
 new_articles = save_new_articles(existing_articles, all_articles)
