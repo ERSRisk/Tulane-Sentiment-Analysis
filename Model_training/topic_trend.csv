@@ -213,8 +213,8 @@ week,Topic_Name,article_count
 2025-03-11,Global gun violence and regulation,1
 2025-03-11,NYC Mayoral Race,1
 2025-03-11,US-China trade conflicts,1
-2025-03-18,2.  Researchers warn U.S. is on the ‘precipice’ of brain drain as Trump cuts federal grants,24
-2025-03-18,Unlabeled Topic,17
+2025-03-18,2.  Researchers warn U.S. is on the ‘precipice’ of brain drain as Trump cuts federal grants,25
+2025-03-18,Unlabeled Topic,18
 2025-03-18,Iran-Israel Conflict,12
 2025-03-18,Federal Reserve Interest Rate Policy,1
 2025-03-18,NYC Mayoral Race,1
@@ -344,7 +344,7 @@ week,Topic_Name,article_count
 2025-06-03,Personal Data and Cybersecurity Threats,1
 2025-06-03,Sean Diddy trial,1
 2025-06-03,US Drug Pricing Strategy,1
-2025-06-10,2.  Researchers warn U.S. is on the ‘precipice’ of brain drain as Trump cuts federal grants,102
+2025-06-10,2.  Researchers warn U.S. is on the ‘precipice’ of brain drain as Trump cuts federal grants,106
 2025-06-10,Unlabeled Topic,33
 2025-06-10,Iran-Israel Conflict,12
 2025-06-10,Abortion legal battles,7
@@ -767,8 +767,8 @@ week,Topic_Name,article_count
 2025-08-05,Gaza Aid Blockade and Activist Intervention,1
 2025-08-05,ICE Immigration Enforcement,1
 2025-08-05,Responses to the Israel-Palestine conflict in education,1
-2025-08-12,2.  Researchers warn U.S. is on the ‘precipice’ of brain drain as Trump cuts federal grants,2764
-2025-08-12,Unlabeled Topic,2726
+2025-08-12,2.  Researchers warn U.S. is on the ‘precipice’ of brain drain as Trump cuts federal grants,2801
+2025-08-12,Unlabeled Topic,2733
 2025-08-12,Louisiana campaign finance law,171
 2025-08-12,Trumpâ€“Musk Feud and Its Political and Economic Ramifications,85
 2025-08-12,Sports related,72
@@ -783,6 +783,7 @@ week,Topic_Name,article_count
 2025-08-12,Virginia Democratic Primaries and Statewide Race,52
 2025-08-12,Federal Reserve Interest Rate Policy,49
 2025-08-12,Abortion legal battles,48
+2025-08-12,Defunding and US Budget,48
 2025-08-12,Geopolitical Tensions and Trade Policy at the 2025 G7 Summit,46
 2025-08-12,Minnesota Lawmaker Shooting,46
 2025-08-12,"Medicaid Cuts, Rural Hospital Crisis, and the GOP Tax Bill (2025)",44
@@ -793,7 +794,6 @@ week,Topic_Name,article_count
 2025-08-12,Harvard vs Trump Administration,40
 2025-08-12,Russia-Ukraine War,38
 2025-08-12,Sean Diddy trial,37
-2025-08-12,Defunding and US Budget,36
 2025-08-12,Politization of disaster relief,35
 2025-08-12,GOP Senate Spending Bill Debate,34
 2025-08-12,Space science,34
@@ -840,23 +840,23 @@ week,Topic_Name,article_count
 2025-08-12,Newsom vs Trump,3
 2025-08-12,ICE Detention Contracts,2
 2025-08-19,2.  Researchers warn U.S. is on the ‘precipice’ of brain drain as Trump cuts federal grants,2517
-2025-08-19,Unlabeled Topic,2474
+2025-08-19,Unlabeled Topic,2475
 2025-08-19,AI in Government and the Future of Work,116
 2025-08-19,Abrego Garcia Case,75
 2025-08-19,"Black History, Media, and DEI Backlash",74
-2025-08-19,Minnesota Lawmaker Shooting,68
+2025-08-19,Minnesota Lawmaker Shooting,74
 2025-08-19,"Gene Editing, Conservation, and Species Survival",63
 2025-08-19,Trumpâ€“Musk Feud and Its Political and Economic Ramifications,63
 2025-08-19,Sports related,57
 2025-08-19,Transportation safety,55
 2025-08-19,Militarization of Immigration Enforcement and protests against ICE,54
-2025-08-19,Clean Energy Tax Credit Rollbacks,52
+2025-08-19,Clean Energy Tax Credit Rollbacks,53
 2025-08-19,Tariff lawsuits,52
 2025-08-19,Immigration Raids and Civil Unrest in Los Angeles,49
 2025-08-19,Ban on Transgender Medical Care,45
+2025-08-19,Responses to the Israel-Palestine conflict in education,45
 2025-08-19,MAHA,40
 2025-08-19,"Medicaid Cuts, Rural Hospital Crisis, and the GOP Tax Bill (2025)",39
-2025-08-19,Responses to the Israel-Palestine conflict in education,39
 2025-08-19,US-China trade conflicts,39
 2025-08-19,Trump Administrationâ€™s on Climate Policy,37
 2025-08-19,Harvard vs Trump Administration,36
@@ -927,6 +927,7 @@ week,Topic_Name,article_count
 2025-08-26,Newsom vs Trump,24
 2025-08-26,US-China trade conflicts,22
 2025-08-26,"Gene Editing, Conservation, and Species Survival",21
+2025-08-26,Defunding and US Budget,20
 2025-08-26,Electric vehicles,20
 2025-08-26,Government-Backed Mortgage Loans,19
 2025-08-26,Personal Data and Cybersecurity Threats,19
@@ -936,7 +937,6 @@ week,Topic_Name,article_count
 2025-08-26,Spaceflight and Exploration,15
 2025-08-26,AI and Health Tech,14
 2025-08-26,Clean Energy Tax Credit Rollbacks,14
-2025-08-26,Defunding and US Budget,14
 2025-08-26,Militarization of Immigration Enforcement and protests against ICE,14
 2025-08-26,Trump's Budget and Tax Cuts,14
 2025-08-26,Abortion legal battles,12
@@ -983,23 +983,23 @@ week,Topic_Name,article_count
 2025-08-26,Ban on Transgender Medical Care,1
 2025-08-26,Stablecoin Legislation & Trump Conflicts,1
 2025-08-26,Trump-era political conflict and dissent,1
-2025-09-02,2.  Researchers warn U.S. is on the ‘precipice’ of brain drain as Trump cuts federal grants,2648
-2025-09-02,Unlabeled Topic,2324
+2025-09-02,2.  Researchers warn U.S. is on the ‘precipice’ of brain drain as Trump cuts federal grants,2654
+2025-09-02,Unlabeled Topic,2330
 2025-09-02,Sports related,128
 2025-09-02,AI in Government and the Future of Work,98
 2025-09-02,Immigration Raids and Civil Unrest in Los Angeles,71
 2025-09-02,Militarization of Immigration Enforcement and protests against ICE,65
 2025-09-02,Louisiana Pharmacy Reform,51
 2025-09-02,Space science,51
+2025-09-02,Minnesota Lawmaker Shooting,47
 2025-09-02,Trump Administrationâ€™s on Climate Policy,47
-2025-09-02,Minnesota Lawmaker Shooting,46
 2025-09-02,"Gene Editing, Conservation, and Species Survival",45
 2025-09-02,Iran-Israel Conflict,44
 2025-09-02,Defunding and US Budget,41
 2025-09-02,AI and Health Tech,39
 2025-09-02,Oil conflict market impact,39
+2025-09-02,Weight loss and drugs,39
 2025-09-02,GOP investigations into Biden's health,38
-2025-09-02,Weight loss and drugs,38
 2025-09-02,Personal Data and Cybersecurity Threats,37
 2025-09-02,"Black History, Media, and DEI Backlash",35
 2025-09-02,ICE Immigration Enforcement,35
@@ -1018,8 +1018,8 @@ week,Topic_Name,article_count
 2025-09-02,"Medicaid Cuts, Rural Hospital Crisis, and the GOP Tax Bill (2025)",23
 2025-09-02,Protests against Trump,21
 2025-09-02,Harvard vs Trump Administration,20
+2025-09-02,Sean Diddy trial,20
 2025-09-02,CDC and HHS Layoffs,19
-2025-09-02,Sean Diddy trial,19
 2025-09-02,AI and pollution controversy,17
 2025-09-02,Global gun violence and regulation,17
 2025-09-02,India Bridge Collapse,17
@@ -1054,73 +1054,73 @@ week,Topic_Name,article_count
 2025-09-02,Kennedy's CDC panel,4
 2025-09-02,DNA privacy and biotech acquisition,2
 2025-09-02,Government-Backed Mortgage Loans,2
-2025-09-09,2.  Researchers warn U.S. is on the ‘precipice’ of brain drain as Trump cuts federal grants,2444
-2025-09-09,Unlabeled Topic,1696
-2025-09-09,Trump Administrationâ€™s on Climate Policy,109
-2025-09-09,AI in Government and the Future of Work,87
-2025-09-09,Abrego Garcia Case,65
-2025-09-09,Politization of disaster relief,59
+2025-09-09,2.  Researchers warn U.S. is on the ‘precipice’ of brain drain as Trump cuts federal grants,2725
+2025-09-09,Unlabeled Topic,1868
+2025-09-09,Trump Administrationâ€™s on Climate Policy,141
+2025-09-09,AI in Government and the Future of Work,91
+2025-09-09,Abrego Garcia Case,68
+2025-09-09,Sports related,63
+2025-09-09,Politization of disaster relief,61
 2025-09-09,"Black History, Media, and DEI Backlash",58
-2025-09-09,Sports related,51
-2025-09-09,"Gene Editing, Conservation, and Species Survival",48
-2025-09-09,Transportation safety,47
-2025-09-09,Militarization of Immigration Enforcement and protests against ICE,46
-2025-09-09,Minnesota Lawmaker Shooting,46
-2025-09-09,Immigration Raids and Civil Unrest in Los Angeles,37
-2025-09-09,"Medicaid Cuts, Rural Hospital Crisis, and the GOP Tax Bill (2025)",36
-2025-09-09,Geopolitical Tensions and Trade Policy at the 2025 G7 Summit,30
-2025-09-09,Protests against Trump,30
-2025-09-09,Space science,28
-2025-09-09,AI and Health Tech,26
-2025-09-09,Virginia Democratic Primaries and Statewide Race,25
-2025-09-09,Weight loss and drugs,25
-2025-09-09,Trump's Military Parade and National Protests,24
-2025-09-09,Iran-Israel Conflict,22
-2025-09-09,NYC Mayoral Race,22
-2025-09-09,US-China trade conflicts,22
-2025-09-09,ICE Immigration Enforcement,21
-2025-09-09,Oil conflict market impact,21
-2025-09-09,Defunding and US Budget,20
-2025-09-09,Personal Data and Cybersecurity Threats,19
-2025-09-09,Best Credit Cards,17
-2025-09-09,US Drug Pricing Strategy,17
+2025-09-09,"Gene Editing, Conservation, and Species Survival",53
+2025-09-09,Minnesota Lawmaker Shooting,50
+2025-09-09,Transportation safety,49
+2025-09-09,Militarization of Immigration Enforcement and protests against ICE,47
+2025-09-09,Immigration Raids and Civil Unrest in Los Angeles,45
+2025-09-09,"Medicaid Cuts, Rural Hospital Crisis, and the GOP Tax Bill (2025)",43
+2025-09-09,Protests against Trump,36
+2025-09-09,Geopolitical Tensions and Trade Policy at the 2025 G7 Summit,34
+2025-09-09,AI and Health Tech,33
+2025-09-09,Space science,29
+2025-09-09,Weight loss and drugs,29
+2025-09-09,ICE Immigration Enforcement,27
+2025-09-09,Iran-Israel Conflict,26
+2025-09-09,Virginia Democratic Primaries and Statewide Race,26
+2025-09-09,NYC Mayoral Race,25
+2025-09-09,Personal Data and Cybersecurity Threats,25
+2025-09-09,Trump's Military Parade and National Protests,25
+2025-09-09,Oil conflict market impact,24
+2025-09-09,Defunding and US Budget,23
+2025-09-09,US-China trade conflicts,23
+2025-09-09,US Drug Pricing Strategy,20
+2025-09-09,Viral videos,20
+2025-09-09,Best Credit Cards,18
+2025-09-09,MAHA,18
 2025-09-09,NIH Dissent and Research Suppression,16
-2025-09-09,MAHA,15
-2025-09-09,Viral videos,15
+2025-09-09,Gaza Aid Blockade and Activist Intervention,14
+2025-09-09,UK-US steel and trade negotiations,14
+2025-09-09,ADHD and Emotional Regulation Techniques,13
 2025-09-09,Harvard vs Trump Administration,13
 2025-09-09,Spaceflight and Exploration,13
-2025-09-09,ADHD and Emotional Regulation Techniques,12
+2025-09-09,Trump Mobile Launch,13
+2025-09-09,Abortion legal battles,12
+2025-09-09,CDC and HHS Layoffs,12
 2025-09-09,Responses to the Israel-Palestine conflict in education,12
-2025-09-09,Trump Mobile Launch,12
-2025-09-09,Gaza Aid Blockade and Activist Intervention,11
-2025-09-09,UK-US steel and trade negotiations,11
-2025-09-09,Abortion legal battles,9
-2025-09-09,CDC and HHS Layoffs,9
-2025-09-09,Electric vehicles,8
-2025-09-09,GOP Senate Spending Bill Debate,8
+2025-09-09,Trump's Budget and Tax Cuts,11
+2025-09-09,Global gun violence and regulation,10
+2025-09-09,Electric vehicles,9
+2025-09-09,GOP Senate Spending Bill Debate,9
+2025-09-09,Trump-era political conflict and dissent,9
+2025-09-09,Cancer Risk and Prevention,8
+2025-09-09,AI and pollution controversy,7
+2025-09-09,India Bridge Collapse,7
 2025-09-09,Indonesia Volcanic Eruption,7
-2025-09-09,Trump's Budget and Tax Cuts,7
-2025-09-09,Cancer Risk and Prevention,6
-2025-09-09,Global gun violence and regulation,6
-2025-09-09,Tariff lawsuits,6
-2025-09-09,AI and pollution controversy,5
+2025-09-09,Tariff lawsuits,7
+2025-09-09,Federal Reserve Interest Rate Policy,6
+2025-09-09,Government-Backed Mortgage Loans,6
+2025-09-09,Louisiana Pharmacy Reform,6
+2025-09-09,Ban on Transgender Medical Care,5
 2025-09-09,Clean Energy Tax Credit Rollbacks,5
-2025-09-09,Federal Reserve Interest Rate Policy,5
+2025-09-09,DNC Vice Chair Election,5
 2025-09-09,Forensic nursing and survivor care,5
-2025-09-09,Government-Backed Mortgage Loans,5
 2025-09-09,Israel-Palestine Conflict,5
-2025-09-09,Louisiana Pharmacy Reform,5
-2025-09-09,Trump-era political conflict and dissent,5
-2025-09-09,DNC Vice Chair Election,4
-2025-09-09,India Bridge Collapse,4
+2025-09-09,Russia-Ukraine War,5
 2025-09-09,"Inflation, Tariffs, and Economic Outlook",4
 2025-09-09,Newsom vs Trump,4
 2025-09-09,Sean Diddy trial,4
 2025-09-09,Trumpâ€“Musk Feud and Its Political and Economic Ramifications,4
 2025-09-09,U.S. Steel and Nippon Steel,4
-2025-09-09,Ban on Transgender Medical Care,3
-2025-09-09,Russia-Ukraine War,2
+2025-09-09,Louisiana campaign finance law,2
 2025-09-09,DNA privacy and biotech acquisition,1
 2025-09-09,GOP investigations into Biden's health,1
-2025-09-09,Louisiana campaign finance law,1
 2025-09-09,Louvre Strikes and Mass Tourism,1
