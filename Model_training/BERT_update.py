@@ -1069,15 +1069,30 @@ async def process_article(article, sem, batch_number=None, total_batches=None, a
             Read the following title and content from the following article: 
             Title: {title}
             Content: {" ".join(str(content).split()[:400])}
-            Check each article Title and Content for news regarding *specifically* about higher education, university news, or
-            university funding. If the article refers to higher education or university news, 
-            return a **compact and valid JSON object**, properly escaped, without explanations:
+            Task: Decide if this is SPECIFICALLY about higher education/university news or university funding.
+            Return a compact valid JSON with exactly these keys and no explanations:
             {{
-                "Title":"same title",
-                "Content":"same content",
-                "University Label": 1
+              "Title": "same title",
+              "Content": "same content",
+              "University Label": 1 or 0
             }}
-            Else, set "University Label" to 0
+            
+            Labeling rules:
+            - Return 1 ONLY if the article reports higher-ed institution news (policy changes, leadership changes with institutional impact, governance, research/funding awards, budgets, grants, legislation/regulation affecting universities, campus safety incidents, admissions/tuition decisions, strikes/protests at universities, accreditation).
+            - Return 0 otherwise.
+            
+            Profiles clause (IMPORTANT):
+            - If the article is a professional/personal profile or staff/alumni spotlight (e.g., “Meet X…”, “X is a [role] at…”, bio pages, team/staff directory, “welcomes X to the team”, career journey, awards unrelated to institutional policy/funding) → return 0.
+            - Return 1 for leadership announcements ONLY if they clearly indicate institutional impact (e.g., new president/provost with stated policy/strategy changes for the university). Otherwise return 0.
+            
+            Hints that indicate a profile: “About [Name]”, “Meet [Name]”, “joined [org] as…”, “Biography/Profile”, “Our Team/Staff Directory”, CV-like education + roles with no institutional news.
+            
+            Output must be exactly:
+            {{
+              "Title": "same title",
+              "Content": "same content",
+              "University Label": 0 or 1
+            }}
             """
 
             response = await asyncio.to_thread(call_gemini, prompt)
