@@ -863,12 +863,50 @@ async def batch_process_feeds(feeds, batch_size = 15, concurrent_batches =5):
             for batch_articles in results:
                 all_articles.extend(batch_articles)
     return all_articles
+def Whitehouse():
+  url = 'https://www.whitehouse.gov/presidential-actions/executive-orders/'
 
+  response = requests.get(url)
+  soup = BeautifulSoup(response.content, 'html.parser')
+  pagination = soup.find_all('a', class_='page-numbers')
+  pagination = [a.get_text(strip = True) for a in pagination][-1]
+  pagination = int(pagination)
+  
+  data = []
+  for i in range(1, pagination):
+      url = f'https://www.whitehouse.gov/presidential-actions/executive-orders/page/{i}/'
+      response = requests.get(url)
+      soup = BeautifulSoup(response.content, 'html.parser')
+      articles = soup.find_all('h2', class_='wp-block-post-title')
+      articles = [a['href'] for article in articles for a in article.find_all('a', href = True)]
+      for article in articles:
+          response = requests.get(article)
+          soup = BeautifulSoup(response.content, 'html.parser')
+          title = soup.find('h1', class_='wp-block-whitehouse-topper__headline').get_text(strip = True)
+          text = trafilatura.extract(response.text)
+          published = soup.find('div', class_='wp-block-post-date').get_text(strip = True)
+          published = pd.to_datetime(published, format = '%B %d, %Y', errors = 'coerce')
+          published = published.strftime('%Y-%m-%d')
+          spacy_doc = nlp(text or '')
+          ents = [ent.text for ent in spacy_doc.ents if ent.label_ in ('ORG','PERSON','GPE','LAW','EVENT','MONEY')]
+          kws  = [kw for kw in keywords if kw in (title + ' ' + text).lower()]
+          data.append({
+              'Title': title,
+              'Link': article,
+              'Published': published,
+              'Summary': text[:200] + '...',
+              'Content': text,
+              'Source': 'White House',
+              'Entities': ents,
+              'Keyword': kws
+          })
+  return data
 feeds = create_feeds(rss_feed)
 cogr = COGR()
 deloitte = Deloitte()
 homeland = homeland_sec()
 ace = Ace()
+data = Whitehouse()
 
 try:
     all_articles = asyncio.run(batch_process_feeds(feeds, batch_size=5, concurrent_batches=2))
@@ -879,6 +917,7 @@ all_articles += cogr
 all_articles += deloitte
 all_articles += homeland
 all_articles += ace
+all_articles += data
 
 existing_articles = load_existing_articles()
 new_articles = save_new_articles(existing_articles, all_articles)
