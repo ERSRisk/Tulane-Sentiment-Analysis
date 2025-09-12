@@ -968,7 +968,7 @@ if selection == "Article Risk Review":
     #articles = articles[articles['Published']> start_date.strftime('%Y-%m-%d')]
     #articles = articles[articles['Published']< end_date.strftime('%Y-%m-%d')]
     filtered_df = base_df[base_df['University Label'] == 1]
-    filtered_df = filtered_df.drop_duplicates(subset=['Title', 'Link'])
+    filtered_df = filtered_df.drop_duplicates(subset=['Title'])
     if status_choice == 'Unreviewed only':
         filtered_df = filtered_df[filtered_df['Reviewed'] != 1]
     elif status_choice == 'Reviewed only':
