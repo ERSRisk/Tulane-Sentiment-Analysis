@@ -12738,5 +12738,215 @@
     "summary": "Positive sentiment; showcases Tulane's research contributions and positive impact on environmental issues.This boosts Tulane's academic reputation.",
     "is_sport": 0,
     "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-11T23:51:27+00:00",
+    "text": "@tulane_504 yes. i can tell with the \"so you can screw off\" rhetoric that you must be one of the more accomplished alums. not about your attitude toward a man that was violently murdered- it's about you using a school's name to spew political opinions. you aren't an official agent of Tulane",
+    "link": "https://twitter.com/None/status/1966288511788789975",
+    "description": "A tweet criticizing someone for using a school's name to express political opinions.",
+    "sentiment": -0.6,
+    "summary": "The sentiment is negative because it criticizes the use of Tulane's name for political purposes, potentially harming its reputation.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-11T23:34:18+00:00",
+    "text": "@ChipLaMonica I went to Tulane. So you can screw off and he did. I can give you videos of all his hateful talk if you need it",
+    "link": "https://twitter.com/None/status/1966284196110057472",
+    "description": "Tweet expressing negative sentiment towards someone associated with Tulane, mentioning hateful speech.",
+    "sentiment": -0.8,
+    "summary": "Negative sentiment due to allegations of hateful speech by someone associated with Tulane. This reflects poorly on the university.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-11T23:27:04+00:00",
+    "text": "@sohowistexas @FatRichieDays Let’s call it what it is. The same fans hype Tulane on X daily. Then they tell us same fans to push others to attend. Tampering, you are the marketing team. We all are the marketing team. We could list many ways we could build up the fan base &amp; bring fans, but is Tulane listening",
+    "link": "https://twitter.com/None/status/1966282373827538968",
+    "description": "Tweet criticizing Tulane's marketing efforts and fan engagement.",
+    "sentiment": -0.6,
+    "summary": "Negative sentiment due to criticism of Tulane's marketing and fan engagement strategies.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-11T23:22:48+00:00",
+    "text": "The challenges of reporting on NIL deals.\n\nSome sources said Duke QB Darian Mensah's reported 2-year, $8M figure is accurate.\n\nOthers said it's lower and/or heavy on incentives.\n\nBut Duke of all places made him one of the highest-paid players in football.\n\nhttps://t.co/5ALQsLe7zz",
+    "link": "https://twitter.com/None/status/1966281299125219393",
+    "description": "A positive tweet about a biology lesson at Tulane University focusing on lead-resistant lizards in New Orleans.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment. The tweet expresses a positive experience related to a Tulane University research topic.It highlights positive aspects of the university's academic offerings.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-11T23:20:54+00:00",
+    "text": "The lizards in New Orleans are lead-resistant despite lethal levels of lead in their bodies!  I learned all about these lizards at Tulane University today!  @Tulane #tulane #lizards #biology #lead #animals #environment #ecology @wgno #wgno https://t.co/rVWEoCbpl1",
+    "link": "https://twitter.com/None/status/1966280823948149236",
+    "description": "An abusive and offensive tweet directed at a Tulane-related Twitter account.",
+    "sentiment": -1.0,
+    "summary": "Extremely negative sentiment. The tweet contains abusive language and is directed towards a Tulane-related account, harming Tulane's online reputation.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-11T23:15:46+00:00",
+    "text": "RT @world_athelete: Tawny Ensign - Tulane Beach Volleyball 🏐 https://t.co/P2D1epofDc",
+    "link": "https://twitter.com/None/status/1966279531477540876",
+    "description": "A tweet discussing an interaction with a Tulane-related Twitter account.",
+    "sentiment": 0.0,
+    "summary": "Neutral sentiment. The tweet focuses on a personal interaction and doesn't directly reflect on Tulane's overall image.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-11T23:10:11+00:00",
+    "text": "RT @FatRichieDays: It’s a genuine complaint. There’s been 0 coverage or marketing on it.\n\nI genuinely believe if I wasn’t a die hard, any o…",
+    "link": "https://twitter.com/None/status/1966278126348153071",
+    "description": "A tweet expressing disappointment regarding a perceived lack of respect and mourning following an unspecified event.Indirectly mentions a Tulane-related Twitter account.",
+    "sentiment": -0.5,
+    "summary": "Slightly negative. The tweet expresses negative emotions but does not directly impact Tulane's reputation.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-11T23:05:51+00:00",
+    "text": "@libsoftiktok @NOLAFireDept Tulane is openly anti white and anti conservative!",
+    "link": "https://twitter.com/None/status/1966277034432467239",
+    "description": "Accusation of Tulane being anti-white and anti-conservative.",
+    "sentiment": -0.8,
+    "summary": "The tweet expresses a strongly negative sentiment towards Tulane, accusing it of being openly anti-white and anti-conservative. This directly impacts Tulane's reputation and relates to 'Community Relations' negatively.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-11T22:55:14+00:00",
+    "text": "@PhilllipBottoms @tulane_504 If you're referring to this, which I found via search, then his comment is not at all a conspiracy and in no way equivalent to \"people I disagree with should expect to get murdered\".\nhttps://t.co/vOJUuPsFU0",
+    "link": "https://twitter.com/None/status/1966274364829212754",
+    "description": "Discussion about a comment related to Tulane, dismissing it as not a conspiracy.",
+    "sentiment": 0.0,
+    "summary": "Neutral sentiment. Addresses a comment indirectly related to Tulane but doesn't affect Tulane's reputation.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-11T22:38:33+00:00",
+    "text": "@CourtyardBrew Scott Wood drives around wearing a mask. He’s only still around because his Tulane employed whore wife.",
+    "link": "https://twitter.com/None/status/1966270166884560900",
+    "description": "A tweet containing offensive and unsubstantiated claims against someone associated with Tulane.",
+    "sentiment": -1.0,
+    "summary": "Very negative sentiment. The tweet contains highly offensive language and defamatory accusations against an individual associated with Tulane, significantly harming its reputation.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-11T22:29:28+00:00",
+    "text": "@Furmadamadam wish I still had my books from my Chicago Architecture class to give you I had the two volume Condit and several books about surrounding suburbs but gave them to an architecture student at Tulane Unwilling to part with my hardback coffeetable version of Burnham Plan of Chicago",
+    "link": "https://twitter.com/None/status/1966267879415808375",
+    "description": "A tweet about donating books about Chicago architecture to a Tulane architecture student.",
+    "sentiment": 0.5,
+    "summary": "Positive sentiment.The tweet highlights a positive interaction related to Tulane and academic pursuits.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-11T22:22:14+00:00",
+    "text": "@PhilllipBottoms @tulane_504 I don't play for teams except the Wave. Can you point out an example of something that you find questionable?",
+    "link": "https://twitter.com/None/status/1966266058903601300",
+    "description": "A description of past interactions with another Twitter user who has made controversial statements, mentioning blocking after disagreement.",
+    "sentiment": -0.2,
+    "summary": "Slightly negative sentiment due to the description of past conflict related to potentially harmful or misleading information.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-11T22:22:07+00:00",
+    "text": "Darian Mensah made a high-profile QB move from Tulane to Duke. Now he'll face his former program https://t.co/ONzz5cdmiD",
+    "link": "https://twitter.com/None/status/1966266028419117207",
+    "description": "A denial of affiliation with any teams except one, followed by a request for clarification.",
+    "sentiment": 0.0,
+    "summary": "Neutral sentiment. The tweet doesn't express an opinion about Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-11T22:11:07+00:00",
+    "text": "Darian Mensah made a high-profile QB move from Tulane to Duke. Now he'll face his former program :: https://t.co/f5xudfpELQ https://t.co/H9BTVqHzb6",
+    "link": "https://twitter.com/None/status/1966263262221095410",
+    "description": "A seemingly dismissive response to a tweet about Tulane.",
+    "sentiment": -0.5,
+    "summary": "Negative.The response is dismissive and suggests disagreement or conflict regarding Tulane, without providing any context. This reflects negatively on the perception of Tulane by those involved.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-11T22:10:51+00:00",
+    "text": "@Thecouchcoach11 @tulane_504 That’s because he’s on your “team”…of course you won’t see it any other way.",
+    "link": "https://twitter.com/None/status/1966263192079970635",
+    "description": "Job posting for a professorship in mathematics at Tulane University.",
+    "sentiment": 1.0,
+    "summary": "Positive. This is a positive announcement for Tulane, highlighting its academic opportunities and attracting talent in mathematics.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-11T22:03:03+00:00",
+    "text": "@CollegeFBonX Right 3-2. Clemson, ND, and Tulane win",
+    "link": "https://twitter.com/None/status/1966261229305078117",
+    "description": "Assertion that a user's posts about Tulane are not questionable.",
+    "sentiment": 0.5,
+    "summary": "Positive.The tweet defends Tulane against accusations, implying that the university is not involved in any questionable activities.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-11T21:54:32+00:00",
+    "text": "@MartyThwacker @nicksortor Politicians often use divisive tactics like gaslighting on social media to boost engagement, mobilize their base, and drive fundraising—algorithms reward outrage, per studies from Brookings and Tulane. It polarizes for electoral gain, but sources like NYU note it's amplified by",
+    "link": "https://twitter.com/None/status/1966259088242999425",
+    "description": "A tweet discussing how politicians use divisive tactics on social media, citing studies from Brookings and Tulane.",
+    "sentiment": 0.2,
+    "summary": "Neutral to slightly positive sentiment.The mention of Tulane is positive as it references a study, suggesting academic credibility. However, the overall tweet discusses negative political tactics, which tempers the positive aspect.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-11T21:23:01+00:00",
+    "text": "Tulane has gained a new fan. https://t.co/sih9rZvhUA",
+    "link": "https://twitter.com/None/status/1966251155320897976",
+    "description": "Announcing someone becoming a new Tulane fan.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment. Gaining a new fan is a positive development for Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-11T21:09:31+00:00",
+    "text": "@Thecouchcoach11 @tulane_504 Threads like this are why I hate the idea of discussing politics with Tulane folks.\n\nRespectfully, though, it goes both ways. The same folks agreeing with you here have zero qualms with Green Wave Man posting some of his “unique” stances as the self proclaimed school mascot. 🤷🏼‍♂️",
+    "link": "https://twitter.com/None/status/1966247758840607079",
+    "description": "Tweet expressing frustration about political discussions involving Tulane.",
+    "sentiment": -0.3,
+    "summary": "Negative sentiment due to the user's dislike of political discussions within the Tulane community.No direct negative keywords related to Tulane itself, but reflects negatively on the community.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-11T21:05:14+00:00",
+    "text": "i’m staring to really like Tulane. lol https://t.co/03JcKaohnC",
+    "link": "https://twitter.com/None/status/1966246681818632583",
+    "description": "Tweet expressing growing fondness for Tulane.",
+    "sentiment": 1.0,
+    "summary": "Very positive sentiment; the user explicitly states they are starting to like Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-11T20:57:04+00:00",
+    "text": "Not all \"Tulane\" pharmacies are the same!\nWhen starting a new medication, double-check that your provider sends your prescription to the correct location:\n➡️ Tulane CAMPUS Health Pharmacy\n📍 6823 St. Charles Ave., Bldg. 92, Uptown\n📞 504-862-8658 https://t.co/gGY9lVSAXH",
+    "link": "https://twitter.com/None/status/1966244625548456059",
+    "description": "Tweet providing information about Tulane's campus health pharmacy.",
+    "sentiment": 0.5,
+    "summary": "Slightly positive sentiment; provides helpful information about a Tulane service. No negative keywords are present.",
+    "is_sport": 0,
+    "affiliation": 1
   }
 ]
