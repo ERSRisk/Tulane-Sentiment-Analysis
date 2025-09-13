@@ -18,6 +18,7 @@ import gzip
 from datetime import datetime
 import ast
 from urllib.parse import urlparse
+import io
 
 rss_url = "https://github.com/ERSRisk/Tulane-Sentiment-Analysis/releases/download/rss_json/all_RSS.json.gz"
 
@@ -173,10 +174,9 @@ def save_new_topics(existing_df, new_df, path = 'Model_training/BERTopic_results
     else:
         unique_new = new_df
 
-    try:
+    on_disk = load_articles_from_release()
+    if on_disk is None or (isinstance(on_disk, pd.DataFrame) and on_disk.empty):
         on_disk = pd.read_csv(path, compression = 'gzip')
-    except FileNotFoundError:
-        on_disk = pd.DataFrame()
 
     pieces = [p for p in [on_disk, existing_df, unique_new] if not (isinstance(p, pd.DataFrame) and p.empty)]
     combined = pd.concat(pieces, ignore_index = True) if pieces else pd.DataFrame()
@@ -524,6 +524,7 @@ def risk_weights(df):
             return ""
         return str(s).split(';', 1)[0].strip()
     base['_RiskList'] = base[pr_col].fillna('').astype(str).apply(_parse_tokens)
+    base['Risk_item'] = base['_RiskList'].replace('', 'No Risk')
 
     #base = base.explode('_RiskList', ignore_index=False).rename(columns={'_RiskList':'Risk_item'})
     #mask = exploded['Risk_item'].notna() & (exploded['Risk_item'].astype(str).str.strip()!='')
@@ -1193,6 +1194,84 @@ def load_university_label(new_label):
 
     return all_articles
 
+Github_owner = 'ERSRisk'
+Github_repo = 'Tulane-Sentiment-Analysis'
+Release_tag = 'BERTopic_results'
+Asset_name = 'BERTopic_results2.csv.gz'
+GITHUB_TOKEN = os.getenv('TOKEN')
+
+def gh_headers():
+    token = os.getenv('TOKEN')
+    if not token:
+        raise RuntimeError('Missing token')
+    return {
+        'Accept':"application/vnd.github+json",
+        "Authorization": f"token {token if token else None}",
+    }
+
+def get_release_by_tag(owner, repo, tag):
+    url = f'https://api.github.com/repos/{owner}/{repo}/releases/tags/{tag}'
+    r = requests.get(url, headers = gh_headers())
+    if r.status_code == 404:
+        return None
+    r.raise_for_status()
+    return r.json()
+
+def ensure_release(owner, repo, tag):
+    rel = get_release_by_tag(owner, repo, tag)
+    if rel:
+        return rel
+    url = f'https://api.github.com/repos/{owner}/{repo}/releases'
+    payload = {'tag_name': tag, "name": tag, "prerelease": False, "draft": False}
+    r = requests.post(url, headers = gh_headers(), json = payload)
+    r.raise_for_status()
+    return r.json()
+
+def upload_asset(owner, repo, release, asset_name, data_bytes, content_type = 'application/gzip'):
+    assets_api = release['assets_url']
+    r = requests.get(assets_api, headers = gh_headers())
+    r.raise_for_status()
+    for a in r.json():
+        if a.get("name") == asset_name:
+            del_r = requests.delete(a['url'], headers = gh_headers())
+            del_r.raise_for_status()
+            break
+    upload_url = release['upload_url'].split('{')[0]
+    params = {"name": asset_name}
+    headers = gh_headers()
+    headers['Content-Type'] = content_type
+    up = requests.post(upload_url, headers = headers, params = params, data = data_bytes)
+    if not up.ok:
+        raise RuntimeError(f"Upload failed{up.status_code}: {up.text[:500]}")
+    return up.json()
+
+def save_dataset_to_releases(df:pd.DataFrame, local_cache_path = 'Model_training/BERTopic_results2.csv.gz'):
+    buf= io.BytesIO()
+    with gzip.GzipFile(fileobj = buf, mode = 'wb') as gz:
+        gz.write(df.to_csv(index = False).encode('utf-8'))
+    gz_bytes = buf.getvalue()
+
+    Path(local_cache_path).parent.mkdir(parents = True, exist_ok = True)
+    with open(local_cache_path, 'wb') as f:
+        f.write(gz_bytes)
+
+    rel = ensure_release(Github_owner, Github_repo, Release_tag)
+    upload_asset(Github_owner, Github_repo, rel, Asset_name, gz_bytes)
+
+def load_articles_from_release(local_cache_path = 'Model_training/BERTopic_results2.csv.gz'):
+    rel = get_release_by_tag(Github_owner, Github_repo, Release_tag)
+    if rel:
+        asset = next((a for a in rel.get('assets', []) if a['name']==Asset_name), None)
+        if asset:
+            r = requests.get(asset['browser_download_url'], timeout = 60)
+            if r.ok:
+                data = gzip.decompress(r.content).decode('utf-8')
+                return pd.read_csv(io.BytesIO(r.content), compression = 'gzip')
+    P = Path(local_cache_path)
+    if P.exists():
+        return pd.read_csv(local_cache_path, compression='gzip')
+    return pd.DataFrame()
+    
 
 #Assign topics and probabilities to new_df
 print("✅ Starting transform_text on new data...", flush=True)
@@ -1226,5 +1305,6 @@ atomic_write_csv('Model_training/initial_label.csv.gz', results_df, compress = T
 df = risk_weights(results_df)
 df = df.drop(columns = ['University Label_x', 'University Label_y'], errors = 'ignore')
 atomic_write_csv("Model_training/BERTopic_results2.csv.gz", df, compress=True)
+save_dataset_to_releases(df)
 #Show the articles over time
 track_over_time(df)
