@@ -12948,5 +12948,115 @@
     "summary": "Slightly positive sentiment; provides helpful information about a Tulane service. No negative keywords are present.",
     "is_sport": 0,
     "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-12T23:54:13+00:00",
+    "text": "Here is the clip of @rtheriot7 “not wanting to here your crap” Tulane fans.. whatever that means.. Every week LSU fans/personalities have our name in their mouth and we are just doing us trying to win games https://t.co/w6fqraXg59 https://t.co/DeOKoaaTo4",
+    "link": "https://twitter.com/None/status/1966651593979220313",
+    "description": "A tweet about LSU fans and their comments about Tulane.",
+    "sentiment": -0.5,
+    "summary": "Slightly negative sentiment. While not directly attacking Tulane, the tweet expresses frustration with other teams mentioning Tulane, implying some negativity from external sources.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-12T23:52:57+00:00",
+    "text": "@MrsHullabaloo Fear The Wave Collective has set a GOAL of Raising $1,000,000 for Tulane Athletics. Tulane is the FIRST in the nation to offer these Custom Wrapped Medical Grade HEPA Purifiers, the same model and type found in hospital OR's.     Roll Wave🌊🌊🌊\n           https://t.co/lIKSvOXyLp",
+    "link": "https://twitter.com/None/status/1966651274318794793",
+    "description": "A tweet promoting a fundraising effort for Tulane Athletics and highlighting a unique initiative.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment. The tweet promotes a fundraising effort for Tulane Athletics and showcases an innovative initiative, portraying a positive image of the university.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-12T23:03:56+00:00",
+    "text": "In a decade of on-campus football, Tulane gets a max capacity crowd if:\n\na. There is a reason for the primarily national alumni base to travel in (ex: Homecoming) and/or \n\nb. An opponent with a large fan base is playing and buying tickets.\n\nAnd IDK what magic bullet solves that.",
+    "link": "https://twitter.com/None/status/1966638940888367126",
+    "description": "Suggestion to hold a wrestling event in Tulane's football stadium.",
+    "sentiment": 0.2,
+    "summary": "The tweet is slightly positive. It suggests using Tulane's stadium for a wrestling event, which could potentially generate revenue and publicity for the university, but the sentiment is mild.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-12T23:00:20+00:00",
+    "text": "RT @PatrickE_Vegas: Notable sharp action on College Football Week 3 Odds at @CaesarsSports, per Joey Feazel:\n\nTexas A&amp;M +7 at Notre Dame\nTe…",
+    "link": "https://twitter.com/None/status/1966638034331357434",
+    "description": "Tweet correcting a statement about someone's familial relation to Tulane.",
+    "sentiment": 0.0,
+    "summary": "The tweet is neutral. It's a factual correction and doesn't express any sentiment towards Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-12T22:51:25+00:00",
+    "text": "@tulane_504 @Outkick @dandakich @coachbrucepearl I'm going to be looking at them sideways. Not the ones that are already there. But the ones who come on scholarship in the future. This is why I love when his teams choke in the tournament. It brings me joy.",
+    "link": "https://twitter.com/None/status/1966635790500253784",
+    "description": "A tweet with no clear meaning or sentiment.",
+    "sentiment": 0.0,
+    "summary": "The tweet is neutral.It contains only fire emojis and no context.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-12T22:42:47+00:00",
+    "text": "@itsColsxn @BoomersBetz You clearly don’t know anything about Tulane.",
+    "link": "https://twitter.com/None/status/1966633616579907654",
+    "description": "Tweet expressing negative opinion about someone's knowledge of Tulane.",
+    "sentiment": -0.5,
+    "summary": "Negative sentiment due to the expression of a negative opinion.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-12T22:11:04+00:00",
+    "text": "@LegendaryEnergy My daughter could get into at least half of the ivy's. But she'll go to the Auburn honors college instead so she's not indoctrinated. That's how bad it is. Vanderbilt used to be her dream and Tulane sends letters weekly, but sadly, no way!",
+    "link": "https://twitter.com/None/status/1966625636832719196",
+    "description": "Tweet expressing concern about perceived indoctrination at universities, mentioning Tulane's recruitment.",
+    "sentiment": -0.8,
+    "summary": "Negative sentiment. The tweet expresses negative feelings toward Tulane's perceived political leaning and its impact on the speaker's daughter's college choice.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-12T21:59:52+00:00",
+    "text": "@davemeltzerWON One correction\n\nRoad to Wrestlepalooza is likely airing on ESPN+, ESPN has a Tulane v Ole Miss football game during that hour.",
+    "link": "https://twitter.com/None/status/1966622819200201142",
+    "description": "Announcement of a seminar by Kevin Callison from Tulane on inequity in liver transplants.",
+    "sentiment": 0.8,
+    "summary": "Highly positive sentiment. The tweet highlights academic research from a Tulane researcher on an important social issue, which reflects positively on the university's academic reputation.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-12T21:55:02+00:00",
+    "text": "A space reborn, a legacy reimagined\n\n@TulaneArch's newly renovated Richardson Memorial Hall is more than a building; it’s a state-of-the-art home for our growing community of student designers, innovators and leaders.\n\nRead more in our latest Tulanian ⤵️\nhttps://t.co/Koms12jnss",
+    "link": "https://twitter.com/None/status/1966621601891328128",
+    "description": "A tweet announcing the renovation of Richardson Memorial Hall at Tulane.",
+    "sentiment": 1.0,
+    "summary": "Very positive sentiment; highlights a positive development for Tulane's facilities and student community.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-12T21:37:15+00:00",
+    "text": "me eye rolling people screaming Tulane should do this, Tulane should do that. We are a small school with a small/overworked staff and punching above our weight class. The question is What Are YOU doing. Thank you for your attention to this matter.",
+    "link": "https://twitter.com/None/status/1966617127298736509",
+    "description": "A frustrated response to criticism of Tulane, suggesting the critics should contribute more.",
+    "sentiment": -0.5,
+    "summary": "Slightly negative sentiment. The tweet expresses frustration with criticism of the university, which indirectly reflects negatively on Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-12T21:11:50+00:00",
+    "text": "@libsoftiktok This arrogant asshole is doubling down. \nHis wife and co-owner is also an instructor at UNO and Tulane.\nI wonder if her students and Employers feel the same way as her business. https://t.co/rnItxea1v6",
+    "link": "https://twitter.com/None/status/1966610730473460113",
+    "description": "A tweet criticizing someone who is also an instructor at Tulane, expressing negative opinions about their actions.",
+    "sentiment": -0.7,
+    "summary": "Negative. The tweet expresses negative sentiments towards an individual associated with Tulane, potentially damaging its reputation.",
+    "is_sport": 0,
+    "affiliation": 1
   }
 ]
