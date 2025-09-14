@@ -13058,5 +13058,55 @@
     "summary": "Negative. The tweet expresses negative sentiments towards an individual associated with Tulane, potentially damaging its reputation.",
     "is_sport": 0,
     "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-13T23:44:20+00:00",
+    "text": "Darn GA did it.\n\n#Duke Cassidy  always said don't cheat your team ahead of Time.\nThings happen.\nWell Duke go Duke go Tulane can't do it #Hanah Dukes the best Go aheAd be a blue Devil, your brother will be behind you forever More, Like your dad.\nEat my dust  wendel",
+    "link": "https://twitter.com/None/status/1967011495511736651",
+    "description": "A retweet commenting on Tulane students' reaction to a student skipping finals.",
+    "sentiment": -0.2,
+    "summary": "Slightly negative sentiment.The tweet mentions negative student reaction but doesn't directly reflect on Tulane's actions or reputation.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-13T23:43:53+00:00",
+    "text": "RT @Ben_Cary_: Tulane outscored USC 16-3 after ex Green Wave DeVon Walker was shown on screen! 🌊\n\n#CottonBowl https://t.co/IMgvBndM5z",
+    "link": "https://twitter.com/None/status/1967011384153305261",
+    "description": "A retweet promoting a live report from Tulane's Yulman Stadium.",
+    "sentiment": 0.8,
+    "summary": "Positive sentiment.Promoting a positive event related to Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-13T23:29:51+00:00",
+    "text": "RT @beinthekneaux: Tune into @brieuxbros as they report LIVE from Yulman covering your #Tulane #Greenwave!",
+    "link": "https://twitter.com/None/status/1967007848929657219",
+    "description": "Promoting a live report from Yulman Stadium about Tulane.",
+    "sentiment": 0.5,
+    "summary": "Slightly positive sentiment.The tweet promotes coverage of Tulane, which could indirectly improve the university's image.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-13T23:23:03+00:00",
+    "text": "@callmehuie Billy will take the Tulane job.",
+    "link": "https://twitter.com/None/status/1967006138056274171",
+    "description": "Tweet speculating about Billy taking the Tulane job (presumably coaching).",
+    "sentiment": 0.2,
+    "summary": "Slightly positive sentiment, as a new hire could be seen as potentially beneficial. However, it's speculative and not definitive.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-13T23:00:46+00:00",
+    "text": "@MattWallace888 yall need to go to Tulane university and do some digging. The professors there guaranteed have been running up their socials with hatred",
+    "link": "https://twitter.com/None/status/1967000532972687598",
+    "description": "Tweet suggesting investigation into Tulane professors' social media activity.",
+    "sentiment": -0.8,
+    "summary": "Very negative sentiment. The tweet accuses Tulane professors of spreading hatred on social media, which is a serious allegation and reflects poorly on the university.",
+    "is_sport": 0,
+    "affiliation": 1
   }
 ]
