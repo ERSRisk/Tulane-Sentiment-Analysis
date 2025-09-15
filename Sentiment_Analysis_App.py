@@ -875,7 +875,7 @@ if selection == "Article Risk Review":
      
     required_keys = {'Title', 'Content'}
     if 'articles' not in st.session_state:
-        results_df = load_results_from_github_release(OWNER, REPO, TAG, ASSET)
+        results_df = get_csv_from_release(OWNER, REPO, TAG, ASSET)
         use_changes = Path('Model_training/BERTopic_changes.csv').is_file() and Path('Model_training/BERTopic_changes.csv').stat().st_size > 0
         changes_df = None
 
