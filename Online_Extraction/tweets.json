@@ -13108,5 +13108,55 @@
     "summary": "Very negative sentiment. The tweet accuses Tulane professors of spreading hatred on social media, which is a serious allegation and reflects poorly on the university.",
     "is_sport": 0,
     "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-14T23:59:38+00:00",
+    "text": "RT @_timothy237: Had great experience at Tulane this weekend with @KaedenWr2027 #Tulane #RollWave @CoachOnkka https://t.co/TMcNoTG7Id",
+    "link": "https://twitter.com/None/status/1967377734134587526",
+    "description": "A tweet sharing a positive experience at Tulane.",
+    "sentiment": 1.0,
+    "summary": "Highly positive sentiment expressing a great experience at Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-14T23:41:43+00:00",
+    "text": "RT @RossDellenger: Tulane at Ole Miss next week.",
+    "link": "https://twitter.com/None/status/1967373224582529393",
+    "description": "Tweet comparing the prices of beer and sausage at Tulane and Saints events.",
+    "sentiment": 0.0,
+    "summary": "Neutral sentiment.The tweet is about pricing and doesn't reflect on Tulane's reputation.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-14T23:41:29+00:00",
+    "text": "Johnson if you would do your job Americans would be able to take care of the terrorists! SpeakerJohnson impeach Tulane, AOC, Omar, Crockett &amp; confirm all the nominees of President Trump’s! As of now, there are 11 judicial nominees pending confirmation in the Senate. The https://t.co/MhrRZcBmHm",
+    "link": "https://twitter.com/None/status/1967373167502282904",
+    "description": "A tweet calling for the impeachment of several individuals, including Tulane, and the confirmation of President Trump's judicial nominees.",
+    "sentiment": -0.8,
+    "summary": "The tweet expresses strong negative sentiment towards Tulane by including it in a list of individuals to be impeached.This is unrelated to Tulane's academic or operational performance and is purely political.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-14T23:33:27+00:00",
+    "text": "@Jholt915 He is so good I wish he came to Tulane",
+    "link": "https://twitter.com/None/status/1967371143284973866",
+    "description": "A tweet expressing a wish for a specific individual to have attended Tulane.",
+    "sentiment": 0.5,
+    "summary": "Slightly positive sentiment. Expressing a positive opinion about a potential Tulane student.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-14T23:17:33+00:00",
+    "text": "RT @FearTheWaveBlog: Tulane Premium Beer: $10\nTulane Creole Sausage: $8.49\n\nSaints Premium Beer: $17\nSaints Smoked Sausage: $17\n\nSaints fan…",
+    "link": "https://twitter.com/None/status/1967367144137707613",
+    "description": "A comparison of food and beverage prices at Tulane and Saints games.",
+    "sentiment": 0.0,
+    "summary": "Neutral sentiment. The tweet focuses on a price comparison and doesn't reflect on Tulane's reputation or academic standing.",
+    "is_sport": 0,
+    "affiliation": 1
   }
 ]
