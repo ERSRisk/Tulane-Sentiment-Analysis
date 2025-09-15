@@ -859,7 +859,7 @@ if selection == "Article Risk Review":
     ASSET = 'BERTopic_results2.csv.gz'
 
     def get_csv_from_release(owner, repo, tag, asset) -> pd.DataFrame:
-        token = st.secrets['all_my_api_keys']['TOKEN']
+        token = st.secrets['all_my_api_keys']['GITHUB_TOKEN']
         headers = {"Accept": "application/vnd.github+json",
                   'Authorization': f'token {token}'}
         rel = requests.get(f'https://api.github.com/repos/{owner}/{repo}/releases/tags/{tag}', headers = headers, timeout = 60)
