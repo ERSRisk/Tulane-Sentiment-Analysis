@@ -865,7 +865,7 @@ if selection == "Article Risk Review":
         rel = requests.get(f'https://api.github.com/repos/{owner}/{repo}/releases/tags/{tag}', headers = headers, timeout = 60)
         rel.raise_for_status()
         rel_json = rel.json()
-        asset = next((a for a in rel_json.get('assets'. []) if a.get('name') == asset), None)
+        asset = next((a for a in rel_json.get('assets', []) if a.get('name') == asset), None)
         if not asset:
             raise RuntimeError(f"Asset '{asset_name}' not found in release '{tag}'")
         url = asset['browser_download_url']
