@@ -853,48 +853,66 @@ if selection == "Article Risk Review":
     import os
     from pathlib import Path
     import ast
+    OWNER = 'ERSRisk'
+    REPO = 'Tulane-Sentiment-Analysis'
+    TAG = 'BERTopic_results'
+    ASSET = 'BERTopic_results2.csv.gz'
 
+    def get_csv_from_release(owner, repo, tag, asset) -> pd.DataFrame:
+        token = os.getenv('TOKEN')
+        headers = {"Accept": "application/vnd.github+json",
+                  'Authorization': f'token {token}'}
+        rel = requests.get(f'https://api.github.com/repos/{owner}/{repo}/releases/tags/{tag}', headers = headers, timeout = 60)
+        rel.raise_for_status()
+        rel_json = rel.json()
+        asset = next((a for a in rel_json.get('assets'. []) if a.get('name') == asset), None)
+        if not asset:
+            raise RuntimeError(f"Asset '{asset_name}' not found in release '{tag}'")
+        url = asset['browser_download_url']
+        r = requests.get(url, headers = headers, timeout = 60)
+        r.raise_for_status()
+        return pd.read_csv(io.BytesIO(r.content), compression="gzip")
+     
     required_keys = {'Title', 'Content'}
     if 'articles' not in st.session_state:
-        if os.path.exists('Model_training/BERTopic_results2.csv.gz'):
-            results_df = pd.read_csv('Model_training/BERTopic_results2.csv.gz', compression = 'gzip')
-            use_changes = Path('Model_training/BERTopic_changes.csv').is_file() and Path('Model_training/BERTopic_changes.csv').stat().st_size > 0
-            changes_df = None
+        results_df = load_results_from_github_release(OWNER, REPO, TAG, ASSET)
+        use_changes = Path('Model_training/BERTopic_changes.csv').is_file() and Path('Model_training/BERTopic_changes.csv').stat().st_size > 0
+        changes_df = None
 
-            if use_changes:
-                try:
-                    changes_df = pd.read_csv('Model_training/BERTopic_changes.csv')
-                    if not changes_df.empty and required_keys.issubset(changes_df.columns):
-                        if 'Changed_at' in changes_df.columns:
-                            changes_df['Changed_at'] = pd.to_datetime(changes_df['Changed_at'], errors = 'coerce')
-                        if 'Reviewed' not in changes_df.columns:
-                            changes_df['Reviewed'] = 0
-                        if 'Reviewed_at' not in changes_df.columns:
-                            changes_df['Reviewed_at'] = pd.NaT
+        if use_changes:
+            try:
+                changes_df = pd.read_csv('Model_training/BERTopic_changes.csv')
+                if not changes_df.empty and required_keys.issubset(changes_df.columns):
+                    if 'Changed_at' in changes_df.columns:
+                        changes_df['Changed_at'] = pd.to_datetime(changes_df['Changed_at'], errors = 'coerce')
+                    if 'Reviewed' not in changes_df.columns:
+                        changes_df['Reviewed'] = 0
+                    if 'Reviewed_at' not in changes_df.columns:
+                        changes_df['Reviewed_at'] = pd.NaT
 
-                        review_cols = ['Title', 'Content', 'Reviewed', 'Reviewed_at', 'Changed_at']
-                        agg = {
-                            'Reviewed': 'max',
-                            'Reviewed_at': 'max',
-                            'Changed_at': 'max'
-                        }
-                        review_map = (changes_df[review_cols].groupby(['Title', 'Content'], as_index = False).agg(agg)
-                                     .rename(columns = {'Changed_at': 'Last_changed_at'}))
-                    else:
-                        changes_df = None
-                except Exception as e:
+                    review_cols = ['Title', 'Content', 'Reviewed', 'Reviewed_at', 'Changed_at']
+                    agg = {
+                        'Reviewed': 'max',
+                        'Reviewed_at': 'max',
+                        'Changed_at': 'max'
+                    }
+                    review_map = (changes_df[review_cols].groupby(['Title', 'Content'], as_index = False).agg(agg)
+                                 .rename(columns = {'Changed_at': 'Last_changed_at'}))
+                else:
                     changes_df = None
-            if changes_df is not None:
-                base = results_df.drop_duplicates(subset = ['Title', 'Content'], keep = 'first')
-                merged_df = base.merge(review_map, on = ['Title', 'Content'], how = 'left')
-                merged_df['Reviewed'] = merged_df['Reviewed'].fillna(0).astype(int)
-                st.session_state.articles = merged_df
-            else:
-                tmp = results_df.copy()
-                tmp['Reviewed'] = 0
-                tmp['Reviewed_at'] = pd.NaT
-                tmp['Last_changed_at'] = pd.NaT
-                st.session_state.articles = tmp
+            except Exception as e:
+                changes_df = None
+        if changes_df is not None:
+            base = results_df.drop_duplicates(subset = ['Title', 'Content'], keep = 'first')
+            merged_df = base.merge(review_map, on = ['Title', 'Content'], how = 'left')
+            merged_df['Reviewed'] = merged_df['Reviewed'].fillna(0).astype(int)
+            st.session_state.articles = merged_df
+        else:
+            tmp = results_df.copy()
+            tmp['Reviewed'] = 0
+            tmp['Reviewed_at'] = pd.NaT
+            tmp['Last_changed_at'] = pd.NaT
+            st.session_state.articles = tmp
 
     change_log_path = Path('Model_training') / 'BERTopic_changes.csv'
     change_log_path.parent.mkdir(parents=True, exist_ok = True)
