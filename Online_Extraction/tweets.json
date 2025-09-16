@@ -13158,5 +13158,65 @@
     "summary": "Neutral sentiment. The tweet focuses on a price comparison and doesn't reflect on Tulane's reputation or academic standing.",
     "is_sport": 0,
     "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-15T23:50:43+00:00",
+    "text": "I’m pushing Tulane propaganda the rest of the season https://t.co/61rmztWqud",
+    "link": "https://twitter.com/None/status/1967737879083528494",
+    "description": "Tweet jokingly referring to promoting Tulane.",
+    "sentiment": 0.6,
+    "summary": "Positive sentiment; while playful, the tweet shows support for Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-15T23:38:21+00:00",
+    "text": "@CjGironda The question becomes, why is the school spending so much money on a program that is inherently under resourced and can’t afford to compete, is at best mediocre and may well soon be in a league with Tulane and Tulsa?",
+    "link": "https://twitter.com/None/status/1967734764024238311",
+    "description": "Tweet questioning the financial investment in a struggling program, mentioning Tulane and Tulsa as examples of comparable programs.",
+    "sentiment": -0.3,
+    "summary": "Negative sentiment. Tulane is mentioned in a negative context as an example of a program that is under-resourced and mediocre.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-15T22:47:05+00:00",
+    "text": "@StoolMintzy @DKSportsbook Mintzy is rooting for Tulane",
+    "link": "https://twitter.com/None/status/1967721861749649508",
+    "description": "Tweet indicating support for Tulane.",
+    "sentiment": 1.0,
+    "summary": "Very positive sentiment; direct and unambiguous support for Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-15T22:44:33+00:00",
+    "text": "RT @TulaneShop: Introducing our special-edition City Edition line of Tulane gear!!! #rollwave ----&gt;&gt; https://t.co/pjrhfGiKV8 https://t.co/R…",
+    "link": "https://twitter.com/None/status/1967721228187341118",
+    "description": "Retweet announcing a new Tulane City Edition merchandise line.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment. The tweet promotes Tulane merchandise, suggesting positive brand association and engagement.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-15T22:37:49+00:00",
+    "text": "@TulaneHype @GreenWaveFB @TulaneAthletics Call the Tulane ticket office at 861-9283 (Wave)",
+    "link": "https://twitter.com/None/status/1967719533671838066",
+    "description": "A tweet providing the phone number for Tulane's ticket office.",
+    "sentiment": 0.0,
+    "summary": "Neutral sentiment.It's purely informational.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-15T22:34:13+00:00",
+    "text": "WORD ON THE STREET:\n\nA reputable AD advised me that Coach Sonny Dykes has a backup plan for if he loses this upcoming Iron Skillet and gets subsequently fired.\n\nBelieve informal general discussions occurred with Kentucky leadership.\n\nThink TCU Boosters are positioning for Tulane",
+    "link": "https://twitter.com/None/status/1967718624510050373",
+    "description": "Tweet discussing speculation about Coach Sonny Dykes and potential interest from other universities.",
+    "sentiment": 0.0,
+    "summary": "Neutral sentiment; speculation about coaching changes doesn't directly reflect on Tulane's overall standing.",
+    "is_sport": 0,
+    "affiliation": 1
   }
 ]
