@@ -332,11 +332,12 @@ def existing_risks_json(topic_name_pairs, topic_model):
 
     # ---- Unmatched handling ----
     try:
-        with open('Model_training/unmatched_topics.json', 'r', encoding='utf-8') as f:
-            existing_unmatched = json.load(f)
-            if not isinstance(existing_unmatched, list):
-                existing_unmatched = []
-    except FileNotFoundError:
+        existing_unmatched = fetch_release(
+            "ERSRisk", "tulane-sentiment-app-clean",
+            "unmatched-topics", "unmatched_topics.json",
+            os.getenv('TOKEN')
+            ) or []
+    except Exception:
         existing_unmatched = []
 
     # Build a **list** of names aligned with existing_unmatched indices
@@ -393,8 +394,15 @@ def existing_risks_json(topic_name_pairs, topic_model):
                 'documents': new_docs
             })
 
-    with open('Model_training/unmatched_topics.json', 'w', encoding='utf-8') as f:
-        json.dump(existing_unmatched, f, indent=4, ensure_ascii=False)
+    resp = upsert_single_big_json(
+                owner="ERSRisk",
+                repo="tulane-sentiment-app-clean",
+                tag="unmatched-topics",
+                asset_name="unmatched_topics.json",
+                new_items=existing_unmatched,
+                dedupe_key="name",
+                token = os.getenv('TOKEN')
+            )
 
 def risk_weights(df):
 
