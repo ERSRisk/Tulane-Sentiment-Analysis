@@ -112,6 +112,7 @@ jobs:
           git pull --rebase --autostash origin main || true
           git push origin HEAD:main || true
 
+
       - name: Upload model to GitHub release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -150,3 +151,34 @@ jobs:
                --data-binary @"${FILE_PATH}" \
                "${upload_url}?name=${FILE_NAME}" >/dev/null
           echo "Uploaded ${FILE_NAME} to release ${RELEASE_TAG}"
+
+      - name: Checkout target repo (tulane-sentiment-app-clean)
+        uses: actions/checkout@v4
+        with:
+          repository: ERSRisk/tulane-sentiment-app-clean   # <-- owner/repo
+          ref: main                                        # <-- target branch
+          path: out-repo                                   # checkout into subfolder
+          token: ${{ secrets.TOKEN }}                  # PAT with write access
+          fetch-depth: 0
+
+      - name: Copy artifacts into target repo
+        run: |
+          set -euo pipefail
+          mkdir -p out-repo/Model_training
+          
+          cp -f Model_training/topics_BERT.json         out-repo/Model_training/ || true
+          cp -f Model_training/unmatched_topics.json    out-repo/Model_training/ || true
+          cp -f Model_training/topic_trend.csv          out-repo/Model_training/ || true
+
+      - name: Commit & push to target repo
+        run: |
+          set -euo pipefail
+          cd out-repo
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Model_training/topics_BERT.json \
+                 Model_training/unmatched_topics.json \
+                 Model_training/topic_trend.csv || true
+          git commit -m "chore: nightly artifacts from Update BERT workflow" || echo "Nothing to commit"
+          git pull --rebase --autostash origin main || true
+          git push origin HEAD:main
