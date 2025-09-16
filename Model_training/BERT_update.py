@@ -340,6 +340,14 @@ def existing_risks_json(topic_name_pairs, topic_model):
     except Exception:
         existing_unmatched = []
 
+    try:
+        existing_discarded = fetch_release(
+            "ERSRisk", "tulane-sentiment-app-clean",
+            "discarded-topics", "discarded_topics.json",
+            os.getenv('TOKEN')
+            ) or []
+    except Exception:
+        existing_discarded = []
     # Build a **list** of names aligned with existing_unmatched indices
     unmatched_names = []
     index_map = []  # map from names-list index -> existing_unmatched index
@@ -347,12 +355,23 @@ def existing_risks_json(topic_name_pairs, topic_model):
         if isinstance(item, dict) and 'name' in item:
             unmatched_names.append(item['name'])
             index_map.append(i)
-
+            
+    discarded_names, discarded_index_map = [], []
+    for i, item in enumerate(existing_discarded):
+        if isinstance(item, dict) and 'name' in item:
+            discarded_names.append(item['name'])
+            discarded_index_map.append(i)
+            
     if unmatched_names:
         unmatched_embeddings = model.encode(unmatched_names, convert_to_tensor=True)
     else:
         unmatched_embeddings = None
 
+    discarded_embeddings = (
+        model.encode(discarded_names, convert_to_tensor=True)
+        if discarded_names else None
+    )
+    to_check_discarded = []
     for topic_id, name in unmatched:
         new_emb = model.encode([name], convert_to_tensor=True)       # (1, d)
         new_docs = topic_model.get_representative_docs().get(topic_id, [])
@@ -387,13 +406,49 @@ def existing_risks_json(topic_name_pairs, topic_model):
                     kw_seen.add(kw.lower())
             matched['keywords'] = ek
         else:
+            to_check_discarded.append((topic_id, name))
+
+    
+    for topic_id, name in to_check_discarded:
+        new_emb = model.encode([name], convert_to_tensor=True)       # (1, d)
+        new_docs = topic_model.get_representative_docs().get(topic_id, [])
+        new_keywords_pairs = topic_model.get_topic(topic_id) or []
+        new_keywords = [w for (w, _) in new_keywords_pairs]
+
+        if discarded_embeddings is not None and len(discarded_names) > 0:
+            sims = util.cos_sim(new_emb, discarded_embeddings)[0]
+            best_score = float(sims.max())
+            best_idx_in_names = int(sims.argmax())
+            best_existing_idx = discarded_index_map[best_idx_in_names]
+        else:
+            best_score = 0.0
+            best_existing_idx = None
+
+        if best_score > 0.85 and best_existing_idx is not None:
+            matched = existing_discarded[best_existing_idx]
+            # extend docs (dedupe)
+            seen = set(matched.get('documents', []))
+            for d in new_docs:
+                if d not in seen:
+                    matched.setdefault('documents', []).append(d)
+                    seen.add(d)
+            # merge keywords
+            ek = matched.get('keywords', [])
+            if isinstance(ek, str):
+                ek = [kw.strip() for kw in ek.split(',') if kw.strip()]
+            kw_seen = set(map(str.lower, ek))
+            for kw in new_keywords:
+                if kw.lower() not in kw_seen:
+                    ek.append(kw)
+                    kw_seen.add(kw.lower())
+            matched['keywords'] = ek
+        else:
             existing_unmatched.append({
                 'topic': topic_id,
                 'name': name,
                 'keywords': new_keywords,
                 'documents': new_docs
             })
-
     resp = upsert_single_big_json(
                 owner="ERSRisk",
                 repo="tulane-sentiment-app-clean",
@@ -403,7 +458,15 @@ def existing_risks_json(topic_name_pairs, topic_model):
                 dedupe_key="name",
                 token = os.getenv('TOKEN')
             )
-
+    resp2 = upsert_single_big_json(
+                owner="ERSRisk",
+                repo="tulane-sentiment-app-clean",
+                tag="discarded-topics",
+                asset_name="discarded_topics.json",
+                new_items=existing_discarded,
+                dedupe_key="name",
+                token = os.getenv('TOKEN')
+    )
 def risk_weights(df):
 
 
