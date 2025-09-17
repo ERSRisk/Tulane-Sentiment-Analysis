@@ -19,6 +19,7 @@ from datetime import datetime
 import ast
 from urllib.parse import urlparse
 import io
+import tempfile
 
 rss_url = "https://github.com/ERSRisk/Tulane-Sentiment-Analysis/releases/download/rss_json/all_RSS.json.gz"
 
@@ -197,7 +198,59 @@ def double_check_articles(df):
     topic_ids = temp_model.get_topic_info()
     topic_ids = topic_ids[topic_ids['Topic'] != -1]['Topic'].tolist()
     return temp_model, topic_ids
+def upload_asset_to_release(owner, repo, tag:str, asset_path:str, token:str):
+    headers = {'Authorization': f'token {token}',
+              'Accept': 'application/vnd.github+json'}
+    r = requests.get(f'https://api.github.com/repos/{owner}/{repo}/releases/tags/{tag}', headers=headers, timeout=60)
+    r.raise_for_status()
+    rel = r.json()
+    upload_url = rel["upload_url"].split("{", 1)[0]
+    assets = requests.get(f"https://api.github.com/repos/{owner}/{repo}/releases/{rel['id']}/assets", headers=headers, timeout=60).json()
+    name = os.path.basename(asset_path)
+    for a in assets:
+        if a.get("name") == name:
+            requests.delete(f"https://api.github.com/repos/{owner}/{repo}/releases/assets/{a['id']}", headers=headers, timeout=60)
+    with open(asset_path, "rb") as f:
+        up = requests.post(
+            f"{upload_url}?name={name}",
+            headers={"Authorization": f"token {token}", "Content-Type": "application/octet-stream"},
+            data=f.read(), timeout=300
+        )
+    up.raise_for_status()
+    return up.json()
+def upsert_single_big_json(owner, repo, tag: str, asset_name: str,
+                       new_items: list, dedupe_key: str, token: str, mode = 'merge'):
+    if mode == 'replace':
+        current = []
+    else:
+        current = fetch_release(owner, repo, tag, asset_name, token)
+        if not isinstance(current, list):
+            current = []
 
+    # 2) merge by key (new replaces old on same key)
+    by_key = {}
+    for it in (current if mode == "merge" else []):
+        k = it.get(dedupe_key)
+        if k is not None:
+            by_key[k] = it
+    for it in new_items:
+        k = it.get(dedupe_key)
+        if k is not None:
+            by_key[k] = it
+
+    merged = list(by_key.values())
+
+    # 3) write to a temp gz and upload (same asset name → old is deleted then replaced)
+    with tempfile.TemporaryDirectory() as td:
+        path = os.path.join(td, asset_name)  # e.g., "unmatched_topics.json.gz"
+        raw = json.dumps(merged, ensure_ascii=False).encode("utf-8")
+        if asset_name.endswith(".gz"):
+            with gzip.open(path, "wb") as f:
+                f.write(raw)
+        else:
+            with open(path, "wb") as f:
+                f.write(raw)
+        return upload_asset_to_release(owner, repo, tag, path, token)
 def get_topic(temp_model, topic_ids):
     print("✅ Preparing topic blocks for Gemini naming...", flush=True)
     topic_blocks = []
