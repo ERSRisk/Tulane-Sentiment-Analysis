@@ -198,6 +198,27 @@ def double_check_articles(df):
     topic_ids = temp_model.get_topic_info()
     topic_ids = topic_ids[topic_ids['Topic'] != -1]['Topic'].tolist()
     return temp_model, topic_ids
+def fetch_release(owner, repo, tag:str, asset_name:str, token:str):
+    headers = {'Authorization': f'token {token}',
+              'Accept': 'application/vnd.github+json'}
+    r = requests.get(f'https://api.github.com/repos/{owner}/{repo}/releases/tags/{tag}', headers=headers, timeout=60)
+    if r.status_code == 404:
+        r = requests.post(f'https://api.github.com/repos/{owner}/{repo}/releases', headers = headers, timeout = 60, json={
+        "tag_name": tag, "name": tag, "draft": False, "prerelease": False
+    })
+    r.raise_for_status()
+    rel = r.json()
+    upload_url = rel['upload_url'].split('{', 1)[0]
+    assets = requests.get(f"https://api.github.com/repos/{owner}/{repo}/releases/{rel['id']}/assets", headers=headers, timeout=60).json()
+    a = next((x for x in assets if x.get("name") == asset_name), None)
+    if not a:
+        return []
+    
+    url = a.get('browser_download_url')
+    b = requests.get(url, headers = headers, timeout = 120)
+    b.raise_for_status()
+    content = b.content
+    return json.loads(content.decode('utf-8'))
 def upload_asset_to_release(owner, repo, tag:str, asset_path:str, token:str):
     headers = {'Authorization': f'token {token}',
               'Accept': 'application/vnd.github+json'}
