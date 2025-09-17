@@ -13218,5 +13218,45 @@
     "summary": "Neutral sentiment; speculation about coaching changes doesn't directly reflect on Tulane's overall standing.",
     "is_sport": 0,
     "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-16T23:46:21+00:00",
+    "text": "RT @TFL_CFB: Like this post to vote for Tulane https://t.co/yHJsuZPics",
+    "link": "https://twitter.com/None/status/1968099168146297252",
+    "description": "A tweet encouraging users to vote for Tulane (likely in a poll).",
+    "sentiment": 0.7,
+    "summary": "Positive sentiment, showing support for Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-16T23:46:11+00:00",
+    "text": "@JonSokoloff They always screw Tulane. They scared Tulane going to beat the big money teams.",
+    "link": "https://twitter.com/None/status/1968099126702379059",
+    "description": "A tweet expressing cynicism about Tulane's perceived unfair treatment.",
+    "sentiment": -0.6,
+    "summary": "Negative sentiment due to the suggestion of bias against Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-16T23:37:19+00:00",
+    "text": "RT @TULNrecruiting: Now that Tulane’s C/O 2026 have all received their ratings by @247Sports and Nick Witherspoon has been added to the cla…",
+    "link": "https://twitter.com/None/status/1968096892535132539",
+    "description": "A retweet about Tulane's class of 2026 receiving ratings.",
+    "sentiment": 0.7,
+    "summary": "Positive sentiment; focuses on the achievements of Tulane's incoming class.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-16T22:39:01+00:00",
+    "text": "@Christo12919382 @xl_uytrewq @AGPamBondi America is Puritan, not free.\n\nFirst day of a comparative law school class at Tulane in 1987 a visiting British professor brought in dirty playing cards that were illegal in the US and cards of horses being gored in the Charge of the Light Brigade that were illegal in Britain.",
+    "link": "https://twitter.com/None/status/1968082221291757771",
+    "description": "A personal anecdote about a comparative law class at Tulane in 1987.",
+    "sentiment": 0.0,
+    "summary": "Neutral sentiment. The tweet is a personal recollection unrelated to current events or Tulane's reputation.",
+    "is_sport": 0,
+    "affiliation": 1
   }
 ]
