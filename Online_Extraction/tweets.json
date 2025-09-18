@@ -13258,5 +13258,65 @@
     "summary": "Neutral sentiment. The tweet is a personal recollection unrelated to current events or Tulane's reputation.",
     "is_sport": 0,
     "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-17T23:56:01+00:00",
+    "text": "@FlyinHwi @FearTheWaveBlog I can’t tell if you’re just a bad troll or a genuinely stupid person. Vanderbilt’s endowment is almost 5 times that of Tulane’s and is one of the most prestigious private universities in the country. Vandy is also a school people routinely talk about booting from the SEC lol.",
+    "link": "https://twitter.com/None/status/1968463986548191373",
+    "description": "Tweet comparing Tulane's endowment to Vanderbilt's, implying Tulane's inferiority.",
+    "sentiment": -0.5,
+    "summary": "Negative sentiment. The tweet directly compares Tulane unfavorably to Vanderbilt in terms of endowment and prestige, resulting in a negative perception of Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-17T23:28:58+00:00",
+    "text": "@SSN_CollegeFB @OleMissMuse1 @SSN_Tulane @SSN_OleMiss Yea retard he’s lying he’s been on crutches all week",
+    "link": "https://twitter.com/None/status/1968457178395656633",
+    "description": "A user claims someone is lying about an injury.",
+    "sentiment": -0.2,
+    "summary": "Negative sentiment due to the use of an offensive term and the implication of dishonesty.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-17T23:25:54+00:00",
+    "text": "@WokeLeMickey @FearTheWaveBlog LSU alumni cried so the OM game was in the afternoon to keep their “17-1” night game record for their recruits. Bleeeding recruits because of BK killed a kid with a scissor lift. Nola is absolutely a better town than that crime ridden shithole 😂 and Tulane was a founding SEC mem",
+    "link": "https://twitter.com/None/status/1968456406895362482",
+    "description": "A user claims LSU's scheduling influenced by alumni complaints, and expresses negativity towards LSU and a positive view of New Orleans and Tulane.",
+    "sentiment": 0.5,
+    "summary": "Mixed sentiment, negative towards LSU but expresses positive sentiment towards Tulane and New Orleans.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-17T23:15:45+00:00",
+    "text": "@GroupOfFiveGuys @GreenWaveFB @CoachJonSumrall @byronellis2 @TulaneAthletics @Tulane @JasonCorriher @JMurphyLee @Sprouse_68 @LevelsPicks 👀",
+    "link": "https://twitter.com/None/status/1968453852190884045",
+    "description": "A tweet containing mentions of several Twitter handles related to Tulane athletics.",
+    "sentiment": 0.0,
+    "summary": "Neutral sentiment. The tweet lacks context and doesn't convey a specific opinion about Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-17T23:06:50+00:00",
+    "text": "I didn't go to Tulane. But I remember someone saying I got a full ride because of affirmative action when they had auto admission for 28+ on the ACT and the scholarship was given to the 3  who scored highest on an exam they administered and I got the highest score in the state https://t.co/MBt5Zkn3Cm",
+    "link": "https://twitter.com/None/status/1968451610964602953",
+    "description": "Tweet recounting a personal experience with scholarships and affirmative action at Tulane.",
+    "sentiment": -0.5,
+    "summary": "Slightly negative sentiment; expresses skepticism about the fairness of a scholarship process. While this involves Tulane, it is a personal anecdote and does not reflect on the university's overall reputation.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-17T22:41:42+00:00",
+    "text": "Tulane Researchers Develop CRISPR-Based Tongue Swab Test for Tuberculosis Detection -The test utilizes CRISPR technology to detect tuberculosis bacteria from a sample collected via a simple swab of the tongue.eliminates need for sputum collection or blood  https://t.co/EMsR2tiOGM",
+    "link": "https://twitter.com/None/status/1968445284007948313",
+    "description": "Tulane researchers develop a CRISPR-based tongue swab test for tuberculosis detection.",
+    "sentiment": 0.95,
+    "summary": "Very positive sentiment.Highlights a significant scientific achievement by Tulane researchers, showcasing the university's research capabilities and positive impact.",
+    "is_sport": 0,
+    "affiliation": 1
   }
 ]
