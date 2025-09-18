@@ -863,175 +863,174 @@ async def batch_process_feeds(feeds, batch_size = 15, concurrent_batches =5):
             for batch_articles in results:
                 all_articles.extend(batch_articles)
     return all_articles
-def Chronicle():
-  def Chronicle(max_articles=None, save_format='csv'):
-    """Scrape articles from Chronicle of Higher Education and save to file
-   
-    Args:
-        max_articles (int): Maximum number of articles to process. If None, process all found articles.
-        save_format (str): Format to save results ('csv', 'json', 'both', or 'none')
-    """
-    print(f"Starting Chronicle scraping...")
-    url = "https://www.chronicle.com/"
-   
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-    }
-   
-    try:
-        response = requests.get(url, headers=headers, timeout=30)
-        response.raise_for_status()
-       
-        soup = BeautifulSoup(response.content, 'html.parser')
-       
-        # Find article links
-        article_links = []
-        for a in soup.find_all('a', href=True):
-            href = a['href']
-            if any(pattern in href for pattern in ['/article/', '/news/', '/story/', '/post/']):
-                full_url = href if href.startswith('http') else urljoin(url, href)
-                if 'chronicle.com' in full_url and full_url not in article_links:
-                    article_links.append(full_url)
-       
-        # Remove duplicates
-        article_links = list(dict.fromkeys(article_links))
-        print(f"Found {len(article_links)} unique article links")
-       
-        # Process articles - if max_articles is None, process all
-        if max_articles is None:
-            articles_to_process = len(article_links)
-        else:
-            articles_to_process = min(len(article_links), max_articles)
-       
-        print(f"Processing {articles_to_process} articles...")
-       
-        rss_add = []
-       
-        for i, link in enumerate(article_links[:articles_to_process]):
-            try:
-                print(f"Processing article {i+1}/{articles_to_process}: {link}")
-               
-                article_response = requests.get(link, headers=headers, timeout=30)
-                article_response.raise_for_status()
-               
-                html_content = article_response.text
-                soup = BeautifulSoup(html_content, 'html.parser')
-               
-                # Extract title
-                title = "No title found"
-                title_selectors = ['h1', 'h1[class*="title"]', 'h1[class*="headline"]', 'title']
-                for selector in title_selectors:
-                    element = soup.select_one(selector)
-                    if element:
-                        title_text = element.get_text(strip=True)
-                        if title_text and len(title_text) > 5:
-                            title = title_text
-                            break
-               
-                # Extract publication date
-                published = ""
-                date_selectors = [
-                    'time[datetime]', '[class*="date"]', '[class*="publish"]',
-                    'meta[property="article:published_time"]', 'meta[name="publish-date"]'
-                ]
-                for selector in date_selectors:
-                    try:
-                        if selector.startswith('meta'):
-                            element = soup.select_one(selector)
-                            if element and element.get('content'):
-                                published = element['content']
-                                break
-                        else:
-                            element = soup.select_one(selector)
-                            if element:
-                                published = element.get('datetime') or element.get_text(strip=True)
-                                if published:
-                                    break
-                    except:
-                        continue
-               
-                # Format date
-                if published:
-                    try:
-                        published_dt = pd.to_datetime(published, errors='coerce')
-                        if not pd.isna(published_dt):
-                            published = published_dt.strftime('%Y-%m-%d')
-                        else:
-                            published = ""
-                    except:
-                        published = ""
-               
-                # Extract summary
-                summary = ""
-                summary_selectors = [
-                    'meta[property="og:description"]', 'meta[name="description"]',
-                    '[class*="summary"]', '[class*="excerpt"]'
-                ]
-                for selector in summary_selectors:
-                    try:
-                        if selector.startswith('meta'):
-                            element = soup.select_one(selector)
-                            if element and element.get('content'):
-                                summary = element['content']
-                                break
-                        else:
-                            element = soup.select_one(selector)
-                            if element:
-                                summary_text = element.get_text(strip=True)
-                                if summary_text:
-                                    summary = summary_text
-                                    break
-                    except:
-                        continue
-               
-                # Extract content
-                text = trafilatura.extract(
-                    html_content,
-                    include_comments=False,
-                    include_tables=False,
-                    include_links=False,
-                    favor_recall=True
-                ) or ""
-               
-                # Simple entity extraction
-                def extract_simple_entities(text):
-                    if not text:
-                        return []
-                    entities = []
-                    patterns = [
-                        r'[A-Z][a-z]+(?: [A-Z][a-z]+)* (?:University|College|Institute|School)',
-                        r'[A-Z][a-z]+(?: [A-Z][a-z]+)* (?:Inc|LLC|Corp|Ltd)',
-                        r'Dr\. [A-Z][a-z]+ [A-Z][a-z]+',
-                        r'Prof\. [A-Z][a-z]+ [A-Z][a-z]+',
-                    ]
-                    for pattern in patterns:
-                        try:
-                            entities.extend(re.findall(pattern, text))
-                        except:
-                            continue
-                    return list(set(entities))[:10]
-               
-                ents = [ent.text for ent in spacy_doc.ents if ent.label_ in ('ORG','PERSON','GPE','LAW','EVENT','MONEY')]
-                kws  = [kw for kw in keywords if kw in (title + ' ' + text).lower()]
-               
-                rss_add.append({
-                    'Title': title,
-                    'Link': link,
-                    'Published': published,
-                    'Summary': summary,
-                    'Content': text,
-                    'Source': 'The Chronicle of Higher Education',
-                    'Entities': ents,
-                    'Keyword': kws
-                })
-            except Exception as e:
-                print(f"Error processing article {link}: {e}")   
-        return rss_add
-       
-    except Exception as e:
-        print(f"Error: {e}")
-        return []
+def Chronicle(max_articles=None, save_format='csv'):
+  """Scrape articles from Chronicle of Higher Education and save to file
+ 
+  Args:
+      max_articles (int): Maximum number of articles to process. If None, process all found articles.
+      save_format (str): Format to save results ('csv', 'json', 'both', or 'none')
+  """
+  print(f"Starting Chronicle scraping...")
+  url = "https://www.chronicle.com/"
+ 
+  headers = {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+  }
+ 
+  try:
+      response = requests.get(url, headers=headers, timeout=30)
+      response.raise_for_status()
+     
+      soup = BeautifulSoup(response.content, 'html.parser')
+     
+      # Find article links
+      article_links = []
+      for a in soup.find_all('a', href=True):
+          href = a['href']
+          if any(pattern in href for pattern in ['/article/', '/news/', '/story/', '/post/']):
+              full_url = href if href.startswith('http') else urljoin(url, href)
+              if 'chronicle.com' in full_url and full_url not in article_links:
+                  article_links.append(full_url)
+     
+      # Remove duplicates
+      article_links = list(dict.fromkeys(article_links))
+      print(f"Found {len(article_links)} unique article links")
+     
+      # Process articles - if max_articles is None, process all
+      if max_articles is None:
+          articles_to_process = len(article_links)
+      else:
+          articles_to_process = min(len(article_links), max_articles)
+     
+      print(f"Processing {articles_to_process} articles...")
+     
+      rss_add = []
+     
+      for i, link in enumerate(article_links[:articles_to_process]):
+          try:
+              print(f"Processing article {i+1}/{articles_to_process}: {link}")
+             
+              article_response = requests.get(link, headers=headers, timeout=30)
+              article_response.raise_for_status()
+             
+              html_content = article_response.text
+              soup = BeautifulSoup(html_content, 'html.parser')
+             
+              # Extract title
+              title = "No title found"
+              title_selectors = ['h1', 'h1[class*="title"]', 'h1[class*="headline"]', 'title']
+              for selector in title_selectors:
+                  element = soup.select_one(selector)
+                  if element:
+                      title_text = element.get_text(strip=True)
+                      if title_text and len(title_text) > 5:
+                          title = title_text
+                          break
+             
+              # Extract publication date
+              published = ""
+              date_selectors = [
+                  'time[datetime]', '[class*="date"]', '[class*="publish"]',
+                  'meta[property="article:published_time"]', 'meta[name="publish-date"]'
+              ]
+              for selector in date_selectors:
+                  try:
+                      if selector.startswith('meta'):
+                          element = soup.select_one(selector)
+                          if element and element.get('content'):
+                              published = element['content']
+                              break
+                      else:
+                          element = soup.select_one(selector)
+                          if element:
+                              published = element.get('datetime') or element.get_text(strip=True)
+                              if published:
+                                  break
+                  except:
+                      continue
+             
+              # Format date
+              if published:
+                  try:
+                      published_dt = pd.to_datetime(published, errors='coerce')
+                      if not pd.isna(published_dt):
+                          published = published_dt.strftime('%Y-%m-%d')
+                      else:
+                          published = ""
+                  except:
+                      published = ""
+             
+              # Extract summary
+              summary = ""
+              summary_selectors = [
+                  'meta[property="og:description"]', 'meta[name="description"]',
+                  '[class*="summary"]', '[class*="excerpt"]'
+              ]
+              for selector in summary_selectors:
+                  try:
+                      if selector.startswith('meta'):
+                          element = soup.select_one(selector)
+                          if element and element.get('content'):
+                              summary = element['content']
+                              break
+                      else:
+                          element = soup.select_one(selector)
+                          if element:
+                              summary_text = element.get_text(strip=True)
+                              if summary_text:
+                                  summary = summary_text
+                                  break
+                  except:
+                      continue
+             
+              # Extract content
+              text = trafilatura.extract(
+                  html_content,
+                  include_comments=False,
+                  include_tables=False,
+                  include_links=False,
+                  favor_recall=True
+              ) or ""
+             
+              # Simple entity extraction
+              def extract_simple_entities(text):
+                  if not text:
+                      return []
+                  entities = []
+                  patterns = [
+                      r'[A-Z][a-z]+(?: [A-Z][a-z]+)* (?:University|College|Institute|School)',
+                      r'[A-Z][a-z]+(?: [A-Z][a-z]+)* (?:Inc|LLC|Corp|Ltd)',
+                      r'Dr\. [A-Z][a-z]+ [A-Z][a-z]+',
+                      r'Prof\. [A-Z][a-z]+ [A-Z][a-z]+',
+                  ]
+                  for pattern in patterns:
+                      try:
+                          entities.extend(re.findall(pattern, text))
+                      except:
+                          continue
+                  return list(set(entities))[:10]
+             
+              ents = [ent.text for ent in spacy_doc.ents if ent.label_ in ('ORG','PERSON','GPE','LAW','EVENT','MONEY')]
+              kws  = [kw for kw in keywords if kw in (title + ' ' + text).lower()]
+             
+              rss_add.append({
+                  'Title': title,
+                  'Link': link,
+                  'Published': published,
+                  'Summary': summary,
+                  'Content': text,
+                  'Source': 'The Chronicle of Higher Education',
+                  'Entities': ents,
+                  'Keyword': kws
+              })
+          except Exception as e:
+              print(f"Error processing article {link}: {e}")   
+      return rss_add
+     
+  except Exception as e:
+      print(f"Error: {e}")
+      return []
 def Whitehouse():
   url = 'https://www.whitehouse.gov/presidential-actions/executive-orders/'
 
