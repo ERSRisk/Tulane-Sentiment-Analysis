@@ -95,6 +95,17 @@ if model_path.exists() or download_model_if_exists():
     model_loaded = True
     GEMINI_API_KEY = os.getenv("PAID_API_KEY")
     client = genai.Client(api_key=GEMINI_API_KEY)
+    try:
+        import numba.cloudpickle.cloudpickle as _cp
+        if not hasattr(_cp, "_function_setstate"):
+            def _function_setstate(obj, state):
+                # generic fallback: most funcs accept __setstate__
+                return obj.__setstate__(state)
+            _cp._function_setstate = _function_setstate  # monkeypatch missing symbol
+    except Exception as _e:
+        print("Cloudpickle shim not applied:", _e)
+# -----------------------------------------------
+
     topic_model = joblib.load(model_path)
 else:
     print("Training new BERTopic model from scratch...", flush=True)
