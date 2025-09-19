@@ -1,5 +1,9 @@
 import json
-import bertopic as bt
+from bertopic import BERTopic
+from umap import UMAP
+from hdbscan import HDBSCAN
+import zipfile
+import numpy as np
 import pandas as pd
 import os
 from google import genai
@@ -23,8 +27,13 @@ import tempfile
 
 rss_url = "https://github.com/ERSRisk/Tulane-Sentiment-Analysis/releases/download/rss_json/all_RSS.json.gz"
 
-model_url = "https://github.com/ERSRisk/Tulane-Sentiment-Analysis/releases/download/rss_json/BERTopic_model"
-model_path = Path("Model_training/BERTopic_model")
+DIR_URL  = "https://github.com/ERSRisk/Tulane-Sentiment-Analysis/releases/download/rss_json/bertopic_dir.zip"
+DIR_PATH = Path("Model_training/bertopic_dir")
+Github_owner = 'ERSRisk'
+Github_repo = 'Tulane-Sentiment-Analysis'
+Release_tag = 'BERTopic_results'
+Asset_name = 'BERTopic_results2.csv.gz'
+GITHUB_TOKEN = os.getenv('TOKEN')
 
 print(f"📥 Downloading all_RSS.json from release link...", flush=True)
 response = requests.get(rss_url, timeout = 60)
@@ -38,7 +47,23 @@ df = pd.DataFrame(articles)
 Path("Online_Extraction").mkdir(parents=True, exist_ok = True)
 with gzip.open('Online_Extraction/all_RSS.json.gz', 'wb') as f:
     f.write(response.content)
-
+    
+def upload_dir_model_zip(owner, repo, tag, token, dir_path=DIR_PATH, asset_name="bertopic_dir.zip"):
+    # zip the directory model into memory
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:
+        base = dir_path.name
+        for root, _, files in os.walk(dir_path):
+            for fn in files:
+                full = Path(root) / fn
+                rel  = Path(base) / full.relative_to(dir_path)
+                zf.write(full, arcname=str(rel))
+    buf.seek(0)
+    # upload via your existing GitHub helper
+    rel = ensure_release(owner, repo, tag)
+    upload_asset(owner, repo, rel, asset_name, buf.getvalue(), content_type="application/zip")
+    print(f"✅ Uploaded {asset_name} to release {tag}.")
+    
 def atomic_write_csv(path: str, df, compress: bool = False):
     p = Path(path)
     p.parent.mkdir(parents=True, exist_ok=True)
@@ -50,22 +75,25 @@ def atomic_write_csv(path: str, df, compress: bool = False):
     os.replace(tmp, p)
     print(f"✅ Wrote {p} ({p.stat().st_size/1e6:.2f} MB)")
 
-def download_model_if_exists():
+def load_dir_model():
+    # load from disk if present
+    if DIR_PATH.exists() and any(DIR_PATH.iterdir()):
+        print("📦 Loading BERTopic from local directory model...")
+        return BERTopic.load(str(DIR_PATH))
+    # try Releases (zip)
     try:
-        print("📦 Checking for model in GitHub release...", flush=True)
-        response = requests.get(model_url, stream=True)
-        if response.status_code == 200:
-            with open(model_path, 'wb') as f:
-                for chunk in response.iter_content(chunk_size=8192):
-                    f.write(chunk)
-            print("✅ Model downloaded successfully.")
-            return True
+        print("🌐 Fetching bertopic_dir.zip from Releases...")
+        r = requests.get(DIR_URL, timeout=120)
+        if r.ok and r.content[:2] == b"PK":  # zip magic
+            with zipfile.ZipFile(io.BytesIO(r.content)) as zf:
+                zf.extractall(DIR_PATH.parent)
+            print("✅ Extracted bertopic_dir.zip.")
+            return BERTopic.load(str(DIR_PATH))
         else:
-            print(f"⚠️ Model not found at {model_url}. Status: {response.status_code}")
-            return False
+            print(f"⚠️ No directory model at {DIR_URL} (status {r.status_code}).")
     except Exception as e:
-        print(f"❌ Error while downloading model: {e}")
-        return False
+        print("⚠️ Could not download dir model:", e)
+    return None
 
 def estimate_tokens(text):
     # Approx 4 chars per token (rough estimate for English, GPT-like models)
@@ -90,77 +118,40 @@ def save_to_json(topics, topic_names):
 
 topic_blocks = []
 #
-if model_path.exists() or download_model_if_exists():
-    print("Loading existing BERTopic model from disk...")
-    model_loaded = True
-    GEMINI_API_KEY = os.getenv("PAID_API_KEY")
-    client = genai.Client(api_key=GEMINI_API_KEY)
-    try:
-        import numba.cloudpickle.cloudpickle as _cp
-        # Only add if missing (newer numba/cloudpickle removed it)
-        if not hasattr(_cp, "_function_setstate"):
-            import types
-            def _function_setstate(func, state):
-                """
-                Back-compat for old cloudpickle function state format.
-                Old pickles often pass a dict (or a tuple whose last element
-                is a dict) with function attributes. Functions do NOT implement
-                __setstate__, so we just merge into func.__dict__.
-                """
-                # If it's a dict, update function attributes
-                if isinstance(state, dict):
-                    func.__dict__.update(state)
-                    return func
-                # If it's a tuple/list, try its last element as a dict
-                if isinstance(state, (tuple, list)) and state:
-                    maybe_dict = state[-1]
-                    if isinstance(maybe_dict, dict):
-                        func.__dict__.update(maybe_dict)
-                return func
-    
-            _cp._function_setstate = _function_setstate
-            print("✅ Applied legacy cloudpickle shim (_function_setstate).")
-    except Exception as _e:
-        print("⚠️ Could not apply cloudpickle shim:", _e)
-# -----------------------------------------------
+topic_model = load_dir_model()
 
-    topic_model = joblib.load(model_path)
-else:
-    print("Training new BERTopic model from scratch...", flush=True)
-    topic_model = bt.BERTopic(language='english', verbose=True)
+if topic_model is None:
+    print("🧪 Training new BERTopic model (directory format)...", flush=True)
+    topic_model = BERTopic(
+        language="english",
+        verbose=True,
+        umap_model=UMAP(random_state=42),
+        hdbscan_model=HDBSCAN(min_cluster_size=15, prediction_data=True),
+        calculate_probabilities=True,
+        seed_topic_list=None,
+    )
     topics, probs = topic_model.fit_transform(df['Text'].tolist())
-
-    print(f"✅ BERTopic fit_transform completed. {len(set(topics))} topics found.", flush=True)
     df['Topic'] = topics
     df['Probability'] = probs
 
-    topic_blocks = []
-    rep_docs = topic_model.get_representative_docs()
-    topics = topic_model.get_topic_info()['Topic'].tolist()
-    valid_topics = [t for t in topics if t in rep_docs]
+    # Save portable directory model
+    DIR_PATH.parent.mkdir(parents=True, exist_ok=True)
+    topic_model.save(
+        str(DIR_PATH),
+        serialization="pytorch",
+        save_ctfidf=True,
+        save_embedding_model=True
+    )
+    print("✅ Saved BERTopic directory model to", DIR_PATH)
+    try:
+        upload_dir_model_zip(Github_owner, Github_repo, "rss_json", os.getenv("TOKEN"))
+    except Exception as e:
+        print("⚠️ Skipped dir-model upload:", e)
 
-    print(f"🔹 Preparing topic blocks for {len(valid_topics)} valid topics...", flush=True)
-    for topic in valid_topics:
-        words = topic_model.get_topic(topic)
-        docs = topic_model.get_representative_docs()[topic]
-        random.shuffle(docs)
-        docs = docs[:4]
-        keywords = ', '.join([word for word, _ in words])
-
-        def first_n_words(text, n=300):
-            words = text.split()
-            return text if len(words) <= n else ' '.join(words[:n]) + '...'
-        docs_clean = [first_n_words(doc, 300) for doc in docs]
-        blocks = f"Topic {topic}: Keywords: {keywords}. Representative Documents: {docs_clean[0]} | {docs_clean[1]}"
-        topic_blocks.append((topic, blocks))
-
-    print(f"✅ Prepared {len(topic_blocks)} topic blocks for Gemini.", flush=True)
-
-    # Save model and results
-    model_path.parent.mkdir(exist_ok=True, parents=True)
-    joblib.dump(topic_model, model_path)
-    df.to_csv('BERTopic_results.csv', index=False)
-    print("✅ Model saved as .joblib and CSV written.", flush=True)
+    # (Optional) zip & upload the dir-model to your Release so future runs just download it
+    #   -> see helper below; call after its definition if you want to publish now
+else:
+    print("✅ BERTopic directory model loaded.")
 
 
 
@@ -172,9 +163,13 @@ client = genai.Client(api_key=GEMINI_API_KEY)
 df['Topic'] = pd.NA
 df['Probability'] = pd.NA
 
-bert_art = pd.read_csv('BERTopic_results.csv', encoding='utf-8')
-df = pd.concat([df, bert_art], ignore_index=True)
-df = df.drop_duplicates(subset=['Title', 'Content'], keep='last')
+bert_csv = Path('BERTopic_results.csv')
+if bert_csv.exists():
+    bert_art = pd.read_csv(bert_csv, encoding='utf-8')
+    df = pd.concat([df, bert_art], ignore_index=True).drop_duplicates(subset=['Title','Content'], keep='last')
+else:
+    print("ℹ️ BERTopic_results.csv not found; proceeding with current df.")
+
 
 if 'Source' not in df.columns:
     df['Source'] = ''
@@ -222,7 +217,7 @@ def double_check_articles(df):
     double_check = [text for text in double_check if text.strip()]
     if not double_check:
         return None, []
-    temp_model = bt.BERTopic(language = 'english', verbose = True)
+    temp_model = BERTopic(language = 'english', verbose = True)
     temp_model.fit_transform(double_check)
     topic_ids = temp_model.get_topic_info()
     topic_ids = topic_ids[topic_ids['Topic'] != -1]['Topic'].tolist()
@@ -1368,11 +1363,7 @@ def load_university_label(new_label):
 
     return all_articles
 
-Github_owner = 'ERSRisk'
-Github_repo = 'Tulane-Sentiment-Analysis'
-Release_tag = 'BERTopic_results'
-Asset_name = 'BERTopic_results2.csv.gz'
-GITHUB_TOKEN = os.getenv('TOKEN')
+
 
 def gh_headers():
     token = os.getenv('TOKEN')
