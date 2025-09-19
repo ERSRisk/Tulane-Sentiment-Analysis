@@ -97,13 +97,31 @@ if model_path.exists() or download_model_if_exists():
     client = genai.Client(api_key=GEMINI_API_KEY)
     try:
         import numba.cloudpickle.cloudpickle as _cp
+        # Only add if missing (newer numba/cloudpickle removed it)
         if not hasattr(_cp, "_function_setstate"):
-            def _function_setstate(obj, state):
-                # generic fallback: most funcs accept __setstate__
-                return obj.__setstate__(state)
-            _cp._function_setstate = _function_setstate  # monkeypatch missing symbol
+            import types
+            def _function_setstate(func, state):
+                """
+                Back-compat for old cloudpickle function state format.
+                Old pickles often pass a dict (or a tuple whose last element
+                is a dict) with function attributes. Functions do NOT implement
+                __setstate__, so we just merge into func.__dict__.
+                """
+                # If it's a dict, update function attributes
+                if isinstance(state, dict):
+                    func.__dict__.update(state)
+                    return func
+                # If it's a tuple/list, try its last element as a dict
+                if isinstance(state, (tuple, list)) and state:
+                    maybe_dict = state[-1]
+                    if isinstance(maybe_dict, dict):
+                        func.__dict__.update(maybe_dict)
+                return func
+    
+            _cp._function_setstate = _function_setstate
+            print("✅ Applied legacy cloudpickle shim (_function_setstate).")
     except Exception as _e:
-        print("Cloudpickle shim not applied:", _e)
+        print("⚠️ Could not apply cloudpickle shim:", _e)
 # -----------------------------------------------
 
     topic_model = joblib.load(model_path)
