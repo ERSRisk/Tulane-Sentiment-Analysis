@@ -13318,5 +13318,75 @@
     "summary": "Very positive sentiment.Highlights a significant scientific achievement by Tulane researchers, showcasing the university's research capabilities and positive impact.",
     "is_sport": 0,
     "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-18T23:47:31+00:00",
+    "text": "@jemelehill Hi Jemele- shoot me an email at gfeldman@tulane . edu and we can connect",
+    "link": "https://twitter.com/None/status/1968824236190888206",
+    "description": "Email contact request to Jemele Hill.",
+    "sentiment": 0.0,
+    "summary": "Neutral sentiment.A simple email request; no positive or negative connotations related to Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-18T23:46:38+00:00",
+    "text": "@GroupOfFiveGuys @GreenWaveFB @goTULANEt @TUJoinTheBuzzFB @TulaneAthletics @Tulane @SSN_Tulane Sorry. Fuck Toolame.",
+    "link": "https://twitter.com/None/status/1968824014991749535",
+    "description": "Negative comment about Tulane.",
+    "sentiment": -1.0,
+    "summary": "Highly negative sentiment due to the offensive and insulting language directed toward Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-18T23:38:37+00:00",
+    "text": "RT @MaddyHudak_94: @GroupOfFiveGuys @GreenWaveFB @TulaneAthletics @Tulane @CoachJonSumrall Oh hell yeah y’all this is a banger",
+    "link": "https://twitter.com/None/status/1968821994700370144",
+    "description": "A tweet encouraging yearly attendance at Tulane events.",
+    "sentiment": 0.6,
+    "summary": "Positive sentiment encouraging engagement with Tulane events.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-18T23:02:48+00:00",
+    "text": "@donveach @goTULANEt In that case. Ole Miss will just go 3 1/2 hours to New Orleans and grab Jon Surmall 🤷‍♂️ so if that post make u feel better.  Good luck in the off-season coaching search , Tulane won't benefit positively with the outcome",
+    "link": "https://twitter.com/None/status/1968812981325541799",
+    "description": "A tweet congratulating Dr. Heddwen Brooks of Tulane for receiving an award for her research.",
+    "sentiment": 1.0,
+    "summary": "Highly positive sentiment; celebrates an academic achievement and brings prestige to Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-18T22:59:21+00:00",
+    "text": "RT @ScroogeDaddy: One of the best graphics I’ve seen from #Tulane.  if you know who should get credit, let me know… Love it. https://t.co/k…",
+    "link": "https://twitter.com/None/status/1968812115889619277",
+    "description": "A tweet praising a graphic design related to Tulane.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment. The user explicitly states they loved the graphic design, showing positive association with Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-18T22:49:53+00:00",
+    "text": "@ClemsonPhil @tulane_504 @Clemson_Addict It's so disgusting that this Tulane person just blatantly knowingly lied about Robinson \"being in Fuentes message boards\" cause for some odd reason they can't accept it was someone on the same side of them that killed charlie. Why can't they just condemn the killing instead?",
+    "link": "https://twitter.com/None/status/1968809730794533371",
+    "description": "Tweet criticizing a Tulane individual for allegedly lying about the death of Charlie.",
+    "sentiment": -0.8,
+    "summary": "Highly negative sentiment due to accusations of lying and the implication of a cover-up related to a death.This reflects poorly on Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-18T22:34:56+00:00",
+    "text": "fyi if u r near the caroline richardson building at tulane, dm for details re: location of the stash https://t.co/xMOwsAuC23",
+    "link": "https://twitter.com/None/status/1968805969246216475",
+    "description": "A cryptic tweet mentioning a location on the Tulane campus.",
+    "sentiment": 0.0,
+    "summary": "Neutral sentiment.The tweet is vague and doesn't provide information that affects Tulane's reputation either positively or negatively.",
+    "is_sport": 0,
+    "affiliation": 1
   }
 ]
