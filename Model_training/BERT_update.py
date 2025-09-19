@@ -132,7 +132,12 @@ if topic_model is None:
     )
     topics, probs = topic_model.fit_transform(df['Text'].tolist())
     df['Topic'] = topics
-    df['Probability'] = probs
+    topics_arr = np.array(topics)
+    df_prob = np.full(len(topics_arr), np.nan, dtype=float)
+    if probs is not None:
+        valid = topics_arr >= 0            # ignore outliers (-1)
+        df_prob[valid] = probs[valid, topics_arr[valid]]
+    df['Probability'] = df_prob
 
     # Save portable directory model
     DIR_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -160,8 +165,6 @@ else:
 
 GEMINI_API_KEY = os.getenv("PAID_API_KEY")
 client = genai.Client(api_key=GEMINI_API_KEY)
-df['Topic'] = pd.NA
-df['Probability'] = pd.NA
 
 bert_csv = Path('BERTopic_results.csv')
 if bert_csv.exists():
