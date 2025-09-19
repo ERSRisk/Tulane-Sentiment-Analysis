@@ -63,7 +63,6 @@ jobs:
             "numba", numba.__version__,
             "cloudpickle", cloudpickle.__version__,
             "umap", umap.__version__,
-            "hdbscan", hdbscan.__version__,
             "sklearn", sklearn.__version__)
           PY
       - name: Run script
