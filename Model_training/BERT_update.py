@@ -47,10 +47,17 @@ df = pd.DataFrame(articles)
 Path("Online_Extraction").mkdir(parents=True, exist_ok = True)
 with gzip.open('Online_Extraction/all_RSS.json.gz', 'wb') as f:
     f.write(response.content)
-def ensure_release(owner, repo, tag:str):
+    
+def gh_headers():
     token = os.getenv('TOKEN')
-    headers = {'Authorization': f'token {token}',
-              'Accept': 'application/vnd.github+json'}
+    if not token:
+        raise RuntimeError('Missing token')
+    return {
+        'Accept':"application/vnd.github+json",
+        "Authorization": f"token {token if token else None}",
+    }
+def ensure_release(owner, repo, tag:str, token):
+    headers = gh_headers()
     r = requests.get(f'https://api.github.com/repos/{owner}/{repo}/releases/tags/{tag}', headers=headers, timeout=60)
     if r.status_code == 404:
         r = requests.post(f'https://api.github.com/repos/{owner}/{repo}/releases', headers = headers, timeout = 60, json={
@@ -60,7 +67,7 @@ def ensure_release(owner, repo, tag:str):
     rel = r.json()
     return rel
     
-def upload_asset(owner, repo, release, asset_name, data_bytes, content_type = 'application/gzip'):
+def upload_asset(owner, repo, release, asset_name, data_bytes, token, content_type = 'application/gzip'):
     assets_api = release['assets_url']
     r = requests.get(assets_api, headers = gh_headers())
     r.raise_for_status()
@@ -90,8 +97,8 @@ def upload_dir_model_zip(owner, repo, tag, token, dir_path=DIR_PATH, asset_name=
                 zf.write(full, arcname=str(rel))
     buf.seek(0)
     # upload via your existing GitHub helper
-    rel = ensure_release(owner, repo, tag)
-    upload_asset(owner, repo, rel, asset_name, buf.getvalue(), content_type="application/zip")
+    rel = ensure_release(owner, repo, tag, token)
+    upload_asset(owner, repo, rel, asset_name, buf.getvalue(), token, content_type="application/zip")
     print(f"✅ Uploaded {asset_name} to release {tag}.")
     
 def atomic_write_csv(path: str, df, compress: bool = False):
@@ -1398,30 +1405,13 @@ def load_university_label(new_label):
 
 
 
-def gh_headers():
-    token = os.getenv('TOKEN')
-    if not token:
-        raise RuntimeError('Missing token')
-    return {
-        'Accept':"application/vnd.github+json",
-        "Authorization": f"token {token if token else None}",
-    }
+
 
 def get_release_by_tag(owner, repo, tag):
     url = f'https://api.github.com/repos/{owner}/{repo}/releases/tags/{tag}'
     r = requests.get(url, headers = gh_headers())
     if r.status_code == 404:
         return None
-    r.raise_for_status()
-    return r.json()
-
-def ensure_release(owner, repo, tag):
-    rel = get_release_by_tag(owner, repo, tag)
-    if rel:
-        return rel
-    url = f'https://api.github.com/repos/{owner}/{repo}/releases'
-    payload = {'tag_name': tag, "name": tag, "prerelease": False, "draft": False}
-    r = requests.post(url, headers = gh_headers(), json = payload)
     r.raise_for_status()
     return r.json()
 
