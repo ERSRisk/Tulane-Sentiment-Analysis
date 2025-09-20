@@ -13388,5 +13388,125 @@
     "summary": "Neutral sentiment.The tweet is vague and doesn't provide information that affects Tulane's reputation either positively or negatively.",
     "is_sport": 0,
     "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-19T23:48:58+00:00",
+    "text": "RT @64Analytics: TOP 25 PORTAL CLASSES: #16 Tulane\n\n@GreenWaveBSB https://t.co/d6smU9OnvM",
+    "link": "https://twitter.com/None/status/1969186990588330154",
+    "description": "Tulane ranked 16th in a portal class ranking.",
+    "sentiment": 0.5,
+    "summary": "Positive sentiment due to Tulane's ranking in a top 25 list, indicating academic success.No negative keywords are present.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-19T23:44:12+00:00",
+    "text": "RT @Tulane: Tulane’s new Global Humanities Center is reimagining the humanities for a changing world.\n\nLearn how it’s fostering global rese…",
+    "link": "https://twitter.com/None/status/1969185790564446583",
+    "description": "Announcement of Tulane's new Global Humanities Center.",
+    "sentiment": 0.8,
+    "summary": "Positive sentiment due to the announcement of a new academic initiative that promotes positive global impact.This is a significant achievement for the university.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-19T23:29:14+00:00",
+    "text": "RT @college_fb_tour: @GroupOfFiveGuys @GreenWaveFB @goTULANEt @TUJoinTheBuzzFB @TulaneAthletics @Tulane @SSN_Tulane Guys - this is so well…",
+    "link": "https://twitter.com/None/status/1969182021374144831",
+    "description": "Retweet praising a Tulane-related social media post.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment.The retweet indicates approval of a Tulane-related post, suggesting a positive view of the university's online presence or a specific initiative.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-19T23:23:07+00:00",
+    "text": "Check this out: https://t.co/kUmXEn32Ym $JUP Allocation is live! You can't miss this opportunity. #JUPITER @normenstin27 | @salgadowillian1 | @jayseonqt | @Tulane_Fintech",
+    "link": "https://twitter.com/None/status/1969180484522389644",
+    "description": "Promotion of a JUP Allocation, mentioning Tulane Fintech.",
+    "sentiment": 0.5,
+    "summary": "Slightly positive sentiment.The tweet promotes an opportunity related to Tulane Fintech, suggesting a positive association with Tulane's Fintech program.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-19T23:18:31+00:00",
+    "text": "Tulane is really leading the pack in sports business and law. ROLL WAVE https://t.co/ZyjXa549oH",
+    "link": "https://twitter.com/None/status/1969179326152118765",
+    "description": "Tweet praising Tulane's leadership in sports business and law.",
+    "sentiment": 1.0,
+    "summary": "Very positive sentiment; highlights Tulane's strong programs in sports business and law.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-19T23:15:04+00:00",
+    "text": "Tulane’s new Global Humanities Center is reimagining the humanities for a changing world.\n\nLearn how it’s fostering global research, interdisciplinary dialogue, and connecting New Orleans and the Gulf South to the Caribbean, Africa and Latin America ⤵️ https://t.co/RWQg9Va6nq",
+    "link": "https://twitter.com/None/status/1969178455930552829",
+    "description": "Announcement about Tulane's new Global Humanities Center and its initiatives.",
+    "sentiment": 1.0,
+    "summary": "Very positive; highlights a positive development at Tulane, focusing on global research and collaboration.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-19T23:14:09+00:00",
+    "text": "RT @Tulane: From rising enrollments to higher tuition, school vouchers are reshaping U.S. education.\n\nDiscover Tulane @REACHCenterEd’s late…",
+    "link": "https://twitter.com/None/status/1969178226892108219",
+    "description": "Retweet discussing the impact of school vouchers on US education, referencing a Tulane study.",
+    "sentiment": 0.8,
+    "summary": "Positive; highlights Tulane's academic research on a significant educational topic.The sentiment is dependent on the content of the linked study, assumed to be positive or neutral based on the context.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-19T22:33:03+00:00",
+    "text": "@tulane_504 Trash",
+    "link": "https://twitter.com/None/status/1969167883226718595",
+    "description": "A single word tweet expressing negative sentiment towards Tulane.",
+    "sentiment": -1.0,
+    "summary": "Extremely negative sentiment expressed through a single, insulting word.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-19T22:30:16+00:00",
+    "text": "@FatGuyLilWoods @SenBillCassidy @POTUS I am RANDALL ARRINGTON, a Conservative, Republican, Veteran running against Bill Cassidy for United States Senator\n\nMy Resume:\n\nNaval Aviator (Attack Pilot)\nDHS CBP Deputy Director\nUniversity Professor (Tulane, LSU)\nPolitical Science PhD (from UNO)\nAuthor of Politics in America",
+    "link": "https://twitter.com/None/status/1969167184665498098",
+    "description": "A tweet introducing Randall Arrington, a candidate for U.S. Senator, who lists Tulane as one of his former employers.",
+    "sentiment": 0.5,
+    "summary": "Slightly positive sentiment;Mentioning Tulane as a past employer in a positive context adds to the candidate's credibility.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-19T22:23:09+00:00",
+    "text": "@waveclem What’s up with Tulane fans this week?",
+    "link": "https://twitter.com/None/status/1969165390308667759",
+    "description": "A tweet asking about Tulane fans' behavior this week.",
+    "sentiment": 0.0,
+    "summary": "Neutral sentiment; a question, not an opinion.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-19T22:20:34+00:00",
+    "text": "@GroupOfFiveGuys @GreenWaveFB @goTULANEt @TUJoinTheBuzzFB @TulaneAthletics @Tulane @SSN_Tulane Guys - this is so well done.\nI am extremely impressed and look forward to more. 😊",
+    "link": "https://twitter.com/None/status/1969164743152676915",
+    "description": "A tweet praising a well-done video or project related to Tulane.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment; expressing strong approval and anticipation for future projects.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-19T22:05:03+00:00",
+    "text": "From rising enrollments to higher tuition, school vouchers are reshaping U.S. education.\n\nDiscover Tulane @REACHCenterEd’s latest study, uncovering what these programs mean for families and schools ⤵️ https://t.co/nyfBUJ39Jw",
+    "link": "https://twitter.com/None/status/1969160836267528439",
+    "description": "A tweet promoting a Tulane study on school vouchers.",
+    "sentiment": 1.0,
+    "summary": "The tweet is positive.It highlights a Tulane study, indicating academic achievement and positive contributions to the field of education.",
+    "is_sport": 0,
+    "affiliation": 1
   }
 ]
