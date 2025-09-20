@@ -47,7 +47,18 @@ df = pd.DataFrame(articles)
 Path("Online_Extraction").mkdir(parents=True, exist_ok = True)
 with gzip.open('Online_Extraction/all_RSS.json.gz', 'wb') as f:
     f.write(response.content)
-    
+def ensure_release(owner, repo, tag:str):
+    token = os.getenv('TOKEN')
+    headers = {'Authorization': f'token {token}',
+              'Accept': 'application/vnd.github+json'}
+    r = requests.get(f'https://api.github.com/repos/{owner}/{repo}/releases/tags/{tag}', headers=headers, timeout=60)
+    if r.status_code == 404:
+        r = requests.post(f'https://api.github.com/repos/{owner}/{repo}/releases', headers = headers, timeout = 60, json={
+        "tag_name": tag, "name": tag, "draft": False, "prerelease": False
+    })
+    r.raise_for_status()
+    rel = r.json()
+    return rel
 def upload_dir_model_zip(owner, repo, tag, token, dir_path=DIR_PATH, asset_name="bertopic_dir.zip"):
     # zip the directory model into memory
     buf = io.BytesIO()
