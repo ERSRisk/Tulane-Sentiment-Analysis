@@ -59,6 +59,25 @@ def ensure_release(owner, repo, tag:str):
     r.raise_for_status()
     rel = r.json()
     return rel
+    
+def upload_asset(owner, repo, release, asset_name, data_bytes, content_type = 'application/gzip'):
+    assets_api = release['assets_url']
+    r = requests.get(assets_api, headers = gh_headers())
+    r.raise_for_status()
+    for a in r.json():
+        if a.get("name") == asset_name:
+            del_r = requests.delete(a['url'], headers = gh_headers())
+            del_r.raise_for_status()
+            break
+    upload_url = release['upload_url'].split('{')[0]
+    params = {"name": asset_name}
+    headers = gh_headers()
+    headers['Content-Type'] = content_type
+    up = requests.post(upload_url, headers = headers, params = params, data = data_bytes)
+    if not up.ok:
+        raise RuntimeError(f"Upload failed{up.status_code}: {up.text[:500]}")
+    return up.json()
+    
 def upload_dir_model_zip(owner, repo, tag, token, dir_path=DIR_PATH, asset_name="bertopic_dir.zip"):
     # zip the directory model into memory
     buf = io.BytesIO()
@@ -1406,23 +1425,7 @@ def ensure_release(owner, repo, tag):
     r.raise_for_status()
     return r.json()
 
-def upload_asset(owner, repo, release, asset_name, data_bytes, content_type = 'application/gzip'):
-    assets_api = release['assets_url']
-    r = requests.get(assets_api, headers = gh_headers())
-    r.raise_for_status()
-    for a in r.json():
-        if a.get("name") == asset_name:
-            del_r = requests.delete(a['url'], headers = gh_headers())
-            del_r.raise_for_status()
-            break
-    upload_url = release['upload_url'].split('{')[0]
-    params = {"name": asset_name}
-    headers = gh_headers()
-    headers['Content-Type'] = content_type
-    up = requests.post(upload_url, headers = headers, params = params, data = data_bytes)
-    if not up.ok:
-        raise RuntimeError(f"Upload failed{up.status_code}: {up.text[:500]}")
-    return up.json()
+
 
 def save_dataset_to_releases(df:pd.DataFrame, local_cache_path = 'Model_training/BERTopic_results2.csv.gz'):
     buf= io.BytesIO()
