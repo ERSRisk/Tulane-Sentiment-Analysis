@@ -13508,5 +13508,15 @@
     "summary": "The tweet is positive.It highlights a Tulane study, indicating academic achievement and positive contributions to the field of education.",
     "is_sport": 0,
     "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-20T23:39:10+00:00",
+    "text": "@WxZachary John Gruden and Coach O. Want in the SEC another option is Tulane coach has a good history",
+    "link": "https://twitter.com/None/status/1969546911481778405",
+    "description": "A user suggests Tulane's coach as a potential SEC candidate.",
+    "sentiment": 0.8,
+    "summary": "Positive sentiment; highlights the coach's reputation and potential.",
+    "is_sport": 0,
+    "affiliation": 1
   }
 ]
