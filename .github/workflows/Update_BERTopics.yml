@@ -115,20 +115,15 @@ jobs:
           }
 
           add_if_exists \
-            Model_training/BERTopic_results2.csv.gz \
-            Model_training/topic_trend.csv \
             Model_training/topic_trend.csv \
             Model_training/topics_BERT.json \
             Model_training/unmatched_topics.json \
-            Model_training/Step1.csv.gz \
             Model_training/label_initial.csv.gz\
             BERTopic_before.csv
 
           echo "== git status (porcelain) =="
           git status --porcelain=1 -uall || true
-          ls -lh Model_training/BERTopic_results2.csv.gz || true
           ls -lh Model_training/topic_trend.csv* || true        
-          ls -lh Model_training/Step1.csv.gz || true
           git commit -m "Update results CSV (gz) and topic trend" || echo "Nothing to commit"
           git pull --rebase --autostash origin main || true
           git push origin HEAD:main || true
