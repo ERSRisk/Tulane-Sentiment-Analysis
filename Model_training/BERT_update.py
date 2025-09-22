@@ -1443,41 +1443,55 @@ def load_articles_from_release(local_cache_path = 'Model_training/BERTopic_resul
     if P.exists():
         return pd.read_csv(local_cache_path, compression='gzip')
     return pd.DataFrame()
-    
+
+def load_midstep_from_release(local_cache_path = 'Model_training/Step1.csv.gz'):
+    rel = get_release_by_tag(Github_owner, Github_repo, Release_tag)
+    if rel:
+        asset = next((a for a in rel.get('assets', []) if a['name']=='Step1.csv.gz'), None)
+        if asset:
+            r = requests.get(asset['browser_download_url'], timeout = 60)
+            if r.ok:
+                data = gzip.decompress(r.content).decode('utf-8')
+                return pd.read_csv(io.BytesIO(r.content), compression = 'gzip')
+    P = Path(local_cache_path)
+    if P.exists():
+        return pd.read_csv(local_cache_path, compression='gzip')
+    return pd.DataFrame()
 
 #Assign topics and probabilities to new_df
-print("✅ Starting transform_text on new data...", flush=True)
-new_df = transform_text(df)
+#print("✅ Starting transform_text on new data...", flush=True)
+#new_df = transform_text(df)
 #Fill missing topic/probability rows in the original df
-mask = (df['Topic'].isna()) | (df['Probability'].isna())
-df.loc[mask, ['Topic', 'Probability']] = new_df[['Topic', 'Probability']]
+#mask = (df['Topic'].isna()) | (df['Probability'].isna())
+#df.loc[mask, ['Topic', 'Probability']] = new_df[['Topic', 'Probability']]
 #Save only new, non-duplicate rows
-print("✅ Saving new topics to CSV...", flush=True)
-df_combined = save_new_topics(df, new_df)
+#print("✅ Saving new topics to CSV...", flush=True)
+#df_combined = save_new_topics(df, new_df)
 
 #Double-check if there are still unmatched (-1) topics and assign a temporary model to assign topics to them
-print("✅ Running double-check for unmatched topics (-1)...", flush=True)
-temp_model, topic_ids = double_check_articles(df_combined)
+#print("✅ Running double-check for unmatched topics (-1)...", flush=True)
+#temp_model, topic_ids = double_check_articles(df_combined)
 
 #If there are unmatched topics, name them using Gemini
-print("✅ Checking for unmatched topics to name using Gemini...", flush=True)
-if temp_model and topic_ids:
-    topic_name_pairs = get_topic(temp_model, topic_ids)
-    existing_risks_json(topic_name_pairs, temp_model)
+#print("✅ Checking for unmatched topics to name using Gemini...", flush=True)
+#if temp_model and topic_ids:
+#    topic_name_pairs = get_topic(temp_model, topic_ids)
+#    existing_risks_json(topic_name_pairs, temp_model)
 
 #Assign weights to each article
-df = predict_risks(df_combined)
-df['Predicted_Risks'] = df.get('Predicted_Risks_new', '')
-print("✅ Applying risk_weights...", flush=True)
-atomic_write_csv('Model_training/Step1.csv.gz', df, compress = True)
-upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/Step1.csv.gz', GITHUB_TOKEN)
+#df = predict_risks(df_combined)
+#df['Predicted_Risks'] = df.get('Predicted_Risks_new', '')
+#print("✅ Applying risk_weights...", flush=True)
+#atomic_write_csv('Model_training/Step1.csv.gz', df, compress = True)
+#upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/Step1.csv.gz', GITHUB_TOKEN)
+df = load_midstep_from_release()
 #df = pd.read_csv('Model_training/Step1.csv.gz', compression = 'gzip')
-#results_df = load_university_label(df)
-#results_df = results_df.drop(columns = ['Acceleration_value_x', 'Acceleration_value_y'], errors = 'ignore')
-#atomic_write_csv('Model_training/initial_label.csv.gz', results_df, compress = True)
-#df = risk_weights(results_df)
-#df = df.drop(columns = ['University Label_x', 'University Label_y'], errors = 'ignore')
-#atomic_write_csv("Model_training/BERTopic_results2.csv.gz", df, compress=True)
-#save_dataset_to_releases(df)
+results_df = load_university_label(df)
+results_df = results_df.drop(columns = ['Acceleration_value_x', 'Acceleration_value_y'], errors = 'ignore')
+atomic_write_csv('Model_training/initial_label.csv.gz', results_df, compress = True)
+df = risk_weights(results_df)
+df = df.drop(columns = ['University Label_x', 'University Label_y'], errors = 'ignore')
+atomic_write_csv("Model_training/BERTopic_results2.csv.gz", df, compress=True)
+save_dataset_to_releases(df)
 #Show the articles over time
-#track_over_time(df)
+track_over_time(df)
