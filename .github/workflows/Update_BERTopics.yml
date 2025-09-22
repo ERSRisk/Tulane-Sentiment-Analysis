@@ -134,44 +134,45 @@ jobs:
           git push origin HEAD:main || true
 
 
-      - name: Upload model to GitHub release
+      - name: Zip and upload BERTopic model to GitHub release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          set -e
+          set -euo pipefail
           RELEASE_TAG="rss_json"
-          FILE_PATH="Model_training/BERTopic_model"
-          FILE_NAME="BERTopic_model"
+          MODEL_DIR="Model_training/bertopic_dir"
+          ZIP_NAME="bertopic_dir.zip"
+          ZIP_PATH="${MODEL_DIR%/*}/${ZIP_NAME}"
 
-          # Fetch (or create) the release
-          rel=$(curl -s -H "Authorization: token $GH_TOKEN" \
-            "https://api.github.com/repos/ERSRisk/Tulane-Sentiment-Analysis/releases/tags/${RELEASE_TAG}")
-          release_id=$(echo "$rel" | jq -r '.id')
+          [ -d "$MODEL_DIR" ] || { echo "Model dir not found: $MODEL_DIR"; exit 1; }
+          rm -f "$ZIP_PATH"
+          (cd "$(dirname "$MODEL_DIR")" && zip -qr "$ZIP_NAME" "$(basename "$MODEL_DIR")")
 
-          if [ "$release_id" = "null" ] || [ -z "$release_id" ]; then
-            rel=$(curl -s -X POST -H "Authorization: token $GH_TOKEN" \
+          rel=$(curl -sSf -H "Authorization: token $GH_TOKEN" \
+            "https://api.github.com/repos/ERSRisk/Tulane-Sentiment-Analysis/releases/tags/${RELEASE_TAG}" || true)
+          release_id=$(echo "${rel:-}" | jq -r '.id // empty')
+          if [ -z "$release_id" ]; then
+            rel=$(curl -sSf -X POST -H "Authorization: token $GH_TOKEN" \
               -H "Accept: application/vnd.github+json" \
               https://api.github.com/repos/ERSRisk/Tulane-Sentiment-Analysis/releases \
               -d "{\"tag_name\":\"${RELEASE_TAG}\",\"name\":\"${RELEASE_TAG}\",\"draft\":false,\"prerelease\":false}")
             release_id=$(echo "$rel" | jq -r '.id')
           fi
 
-          # Delete existing asset with same name (if present)
-          assets=$(curl -s -H "Authorization: token $GH_TOKEN" \
+          assets=$(curl -sSf -H "Authorization: token $GH_TOKEN" \
             "https://api.github.com/repos/ERSRisk/Tulane-Sentiment-Analysis/releases/${release_id}/assets")
-          asset_id=$(echo "$assets" | jq -r --arg n "$FILE_NAME" '.[]? | select(.name==$n) | .id')
-          if [ -n "$asset_id" ] && [ "$asset_id" != "null" ]; then
-            curl -s -X DELETE -H "Authorization: token $GH_TOKEN" \
-              "https://api.github.com/repos/ERSRisk/Tulane-Sentiment-Analysis/releases/assets/${asset_id}" >/dev/null
+          old_id=$(echo "$assets" | jq -r --arg n "$ZIP_NAME" '.[]? | select(.name==$n) | .id // empty')
+          if [ -n "$old_id" ]; then
+            curl -sSf -X DELETE -H "Authorization: token $GH_TOKEN" \
+              "https://api.github.com/repos/ERSRisk/Tulane-Sentiment-Analysis/releases/assets/${old_id}" >/dev/null
           fi
 
-          # Upload the new binary
           upload_url=$(echo "$rel" | jq -r '.upload_url' | sed 's/{.*}//')
-          curl -s -H "Authorization: token $GH_TOKEN" \
-               -H "Content-Type: application/octet-stream" \
-               --data-binary @"${FILE_PATH}" \
-               "${upload_url}?name=${FILE_NAME}" >/dev/null
-          echo "Uploaded ${FILE_NAME} to release ${RELEASE_TAG}"
+          curl -sSf -H "Authorization: token $GH_TOKEN" \
+               -H "Content-Type: application/zip" \
+               --data-binary @"${ZIP_PATH}" \
+               "${upload_url}?name=${ZIP_NAME}" >/dev/null
+          echo "✅ Uploaded ${ZIP_NAME} to release ${RELEASE_TAG}"
 
       - name: Checkout target repo (tulane-sentiment-app-clean)
         uses: actions/checkout@v4
