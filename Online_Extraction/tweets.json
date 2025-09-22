@@ -13518,5 +13518,45 @@
     "summary": "Positive sentiment; highlights the coach's reputation and potential.",
     "is_sport": 0,
     "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-21T23:15:43+00:00",
+    "text": "Some splain to\nme how this prepares your fir anything but a rap video, please\n\nJob Details\nPosition Summary\nThe Department of Theatre and Dance at Tulane University invites applications for a tenure-track Assistant Professor of Dance. We are particularly interested in candidates",
+    "link": "https://twitter.com/None/status/1969903398334906410",
+    "description": "A job advertisement for a tenure-track Assistant Professor of Dance at Tulane University.",
+    "sentiment": 0.8,
+    "summary": "The tweet is positive, showcasing Tulane's academic opportunities and suggesting growth and strength within the university's departments. This reflects positively on Tulane's reputation.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-21T22:56:54+00:00",
+    "text": "Karr &amp; Tulane is all we got.",
+    "link": "https://twitter.com/None/status/1969898659396440384",
+    "description": "A tweet expressing support for Karr and Tulane.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment, showing strong support for Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-21T22:05:33+00:00",
+    "text": "RT @perry_pumas: We love to see our alumni doing big things at the next level!\n\nMadison Beasley - Assistant Volleyball Coach at Alabama Sta…",
+    "link": "https://twitter.com/None/status/1969885740327960595",
+    "description": "A retweet celebrating Tulane alumni's achievements.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment; highlights positive achievements of Tulane alumni, reflecting positively on the institution.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-21T21:49:08+00:00",
+    "text": "@cedricbelle205 @Russbuss11 @Tragland37 Should look at Joe Craddock. OC at Tulane, was on Clark's staff, and from Bham.",
+    "link": "https://twitter.com/None/status/1969881608233820425",
+    "description": "A tweet recommending a Tulane coach.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment.The tweet recommends a Tulane coach, suggesting a positive view of his capabilities.",
+    "is_sport": 0,
+    "affiliation": 1
   }
 ]
