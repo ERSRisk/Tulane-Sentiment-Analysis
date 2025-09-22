@@ -1427,7 +1427,7 @@ def save_dataset_to_releases(df:pd.DataFrame, local_cache_path = 'Model_training
     with open(local_cache_path, 'wb') as f:
         f.write(gz_bytes)
 
-    rel = ensure_release(Github_owner, Github_repo, Release_tag)
+    rel = ensure_release(Github_owner, Github_repo, Release_tag, GITHUB_TOKEN)
     upload_asset(Github_owner, Github_repo, rel, Asset_name, gz_bytes)
 
 def load_articles_from_release(local_cache_path = 'Model_training/BERTopic_results2.csv.gz'):
