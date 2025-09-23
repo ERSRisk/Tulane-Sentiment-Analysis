@@ -252,7 +252,7 @@ def label_model_topics(topic_model, path = 'Model_training/topics_BERT.json'):
         t = int(t)
         if t == -1:
             continue
-        if topic_mode.get_topic(t):
+        if topic_model.get_topic(t):
             topic_ids.append(t)
     if not topic_ids:
         print("⚠️ No topics to label (only -1 outliers?).")
