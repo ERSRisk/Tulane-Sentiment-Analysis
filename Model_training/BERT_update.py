@@ -264,7 +264,7 @@ def label_model_topics(topic_model, path = 'Model_training/topics_BERT.json'):
     id2name = dict(topic_name_pairs)
 
     rep_docs = topic_model.get_representative_docs()
-    rep_map = {int(k): v for k, v in rep_docs.items()} if isinstance(rep, dict) else {}
+    rep_map = {int(k): v for k, v in rep_docs.items()} if isinstance(rep_docs, dict) else {}
     out_rows = []
     for t in topic_ids:
         words = topic_model.get_topic(t) or []
