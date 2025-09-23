@@ -249,42 +249,28 @@ def get_topic(temp_model, topic_ids):
     return topic_name_pairs
     
 def label_model_topics(topic_model, path = 'Model_training/topics_BERT.json'):
-    info = topic_model.get_topic_info()
-    topic_ids = []
-    for t in info['Topic'].tolist():
-        t = int(t)
-        if t == -1:
-            continue
-        if topic_model.get_topic(t):
-            topic_ids.append(t)
-    if not topic_ids:
-        print("⚠️ No topics to label (only -1 outliers?).")
-        return
-    topic_name_pairs = get_topic(topic_model, topic_ids)
-    id2name = dict(topic_name_pairs)
-
+    with open(path, 'r') as f:
+        topics_json = json.load(f)
+    topic_map = {int(t['topic']): t for t in topics_json}
+    
     rep_docs = topic_model.get_representative_docs()
     rep_map = {int(k): v for k, v in rep_docs.items()} if isinstance(rep_docs, dict) else {}
-    out_rows = []
-    for t in topic_ids:
-        words = topic_model.get_topic(t) or []
-        keywords = ', '.join([w for (w, _) in words])
-        docs = rep_map.get(int(t))
-        if docs is None:
-            try:
-                docs = topic_model.get_representative_docs()[topic]
-            except Exception:
-                docs = []
-        out_rows.append({
-            "topic": t,
-            "name": id2name.get(t, f"Topic {t}"),
-            "keywords": keywords,
-            "documents": docs
-        })
-    Path(path).parent.mkdir(parents = True, exist_ok = True)
-    with open(path, 'w', encoding = 'utf-8') as f:
-        json.dump(out_rows, f, indent = 4, ensure_ascii=False)
-    print(f"✅ Wrote {path} with {len(out_rows)} labeled topics.")
+    patched = False
+    for tid, entry in topic_map.items():
+        docs = entry.get("documents", [])
+        if not docs:  # only fill in if missing/empty
+            new_docs = rep_map.get(tid, [])
+            if not new_docs:
+                new_docs = topic_model.get_representative_docs()[tid]
+            entry["documents"] = (new_docs or [])[:5]  # cap at 5
+            patched = True
+
+    if patched:
+        with open(path, 'w', encoding='utf-8') as f:
+            json.dump(list(topic_map.values()), f, indent=4, ensure_ascii=False)
+        print(f"✅ Patched documents for {path}")
+    else:
+        print("ℹ️ No missing documents to patch.")
     
 if topic_model:
     label_model_topics(topic_model)
