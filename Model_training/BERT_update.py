@@ -272,7 +272,7 @@ def label_model_topics(topic_model, path = 'Model_training/topics_BERT.json'):
     
 #if topic_model:
 #    label_model_topics(topic_model)
-elif topic_model is None:
+if topic_model is None:
     print("🧪 Training new BERTopic model (directory format)...", flush=True)
     topic_model = BERTopic(
         language="english",
