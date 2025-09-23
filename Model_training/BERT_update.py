@@ -257,13 +257,11 @@ def label_model_topics(topic_model, path = 'Model_training/topics_BERT.json'):
     rep_map = {int(k): v for k, v in rep_docs.items()} if isinstance(rep_docs, dict) else {}
     patched = False
     for tid, entry in topic_map.items():
-        print(tid, entry)
         docs = entry.get("documents", [])
         if not docs:  # only fill in if missing/empty
+            print(rep_map)
             new_docs = rep_map.get(tid, [])
             if not new_docs:
-                if tid == 0:
-                    continue
                 new_docs = topic_model.get_representative_docs()[tid]
             entry["documents"] = (new_docs or [])[:5]  # cap at 5
             patched = True
