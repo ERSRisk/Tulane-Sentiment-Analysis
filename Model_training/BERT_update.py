@@ -160,9 +160,18 @@ topic_model = load_dir_model()
 def get_topic(temp_model, topic_ids):
     print("✅ Preparing topic blocks for Gemini naming...", flush=True)
     topic_blocks = []
+    rep = temp_model.get_representative_docs()
+    rep_map = {}
+    if isinstance(rep, dict):
+        rep_map = {int(k): v for k, v in rep.items() if v is not None}
     for topic in topic_ids:
         words = temp_model.get_topic(topic)
-        docs = temp_model.get_representative_docs()[topic]
+        docs = rep_map.get(int(topic))
+        if docs is None:
+            try:
+                docs = temp_model.get_representative_docs()[topic]
+            except Exception:
+                docs = []
         docs = docs[:5]
         keywords = ', '.join([word for word, _ in words])
         doc_list = '\n'.join([f"- {doc}" for doc in docs])
@@ -238,7 +247,13 @@ def get_topic(temp_model, topic_ids):
     
 def label_model_topics(topic_model, path = 'Model_training/topics_BERT.json'):
     info = topic_model.get_topic_info()
-    topic_ids = [int(t) for t in info['Topic'].tolist() if int(t) != -1]
+    topic_ids = []
+    for t in info['Topic'].tolist():
+        t = int(t)
+        if t == -1:
+            continue
+        if topic_mode.get_topic(t):
+            topic_ids.append(t)
     if not topic_ids:
         print("⚠️ No topics to label (only -1 outliers?).")
         return
@@ -246,11 +261,17 @@ def label_model_topics(topic_model, path = 'Model_training/topics_BERT.json'):
     id2name = dict(topic_name_pairs)
 
     rep_docs = topic_model.get_representative_docs()
+    rep_map = {int(k): v for k, v in rep_docs.items()} if isinstance(rep, dict) else {}
     out_rows = []
     for t in topic_ids:
         words = topic_model.get_topic(t) or []
         keywords = ', '.join([w for (w, _) in words])
-        docs = (rep_docs.get(t, []) or [])[:3]
+        docs = rep_map.get(int(t))
+        if docs is None:
+            try:
+                docs = topic_model.get_representative_docs()[topic]
+            except Exception:
+                docs = []
         out_rows.append({
             "topic": t,
             "name": id2name.get(t, f"Topic {t}"),
