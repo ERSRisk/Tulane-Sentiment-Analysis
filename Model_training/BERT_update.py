@@ -261,6 +261,8 @@ def label_model_topics(topic_model, path = 'Model_training/topics_BERT.json'):
         if not docs:  # only fill in if missing/empty
             new_docs = rep_map.get(tid, [])
             if not new_docs:
+                if tid == 0:
+                    continue
                 new_docs = topic_model.get_representative_docs()[tid]
             entry["documents"] = (new_docs or [])[:5]  # cap at 5
             patched = True
