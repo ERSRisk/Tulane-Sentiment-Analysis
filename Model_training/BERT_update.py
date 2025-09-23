@@ -254,6 +254,7 @@ def label_model_topics(topic_model, path = 'Model_training/topics_BERT.json'):
     topic_map = {int(t['topic']): t for t in topics_json}
     
     rep_docs = topic_model.get_representative_docs()
+    print(rep_docs)
     patched = False
     for tid, entry in topic_map.items():
         docs = entry.get("documents", [])
