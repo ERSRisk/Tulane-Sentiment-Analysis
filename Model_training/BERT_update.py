@@ -270,8 +270,8 @@ def label_model_topics(topic_model, path = 'Model_training/topics_BERT.json'):
     else:
         print("ℹ️ No missing documents to patch.")
     
-if topic_model:
-    label_model_topics(topic_model)
+#if topic_model:
+#    label_model_topics(topic_model)
 elif topic_model is None:
     print("🧪 Training new BERTopic model (directory format)...", flush=True)
     topic_model = BERTopic(
@@ -332,6 +332,7 @@ df['Source'] = df['Source'].astype('string').fillna('')
 
 def transform_text(texts):
     texts = texts.copy()
+    texts = texts.drop(columns = 'Topic')
     print(f"Transforming {len(texts)} articles in batches...")
     all_topics, all_probs = [], []
     batch_size = 100  # or smaller
@@ -344,7 +345,13 @@ def transform_text(texts):
         all_probs.extend(probs)
         print(f"✅ Transformed batch {i//batch_size + 1}/{(len(texts_list) // batch_size) + 1}")
     texts['Topic'] = all_topics
-    texts['Probability'] = all_probs
+    assigned_probs = []
+    for t, p in zip(all_topics, all_probs):
+        if p is None or t < 0:
+            assigned_probs.append(np.nan)
+        else:
+            assigned_probs.append(p[t])   # pick prob of assigned topic
+    texts['Probability'] = assigned_probs
     return texts
 def save_new_topics(existing_df, new_df, path = 'Model_training/BERTopic_results2.csv.gz'):
     if 'Link' in existing_df and 'Link' in new_df:
@@ -469,7 +476,7 @@ def existing_risks_json(topic_name_pairs, topic_model):
         best_score = float(sims.max())
         best_index = int(sims.argmax())
 
-        if best_score > 0.85:
+        if best_score > 0.78:
             matched_name = existing_topic_names[best_index]
             matched_topics[new_name] = (matched_name, topic_id)
         else:
@@ -561,7 +568,7 @@ def existing_risks_json(topic_name_pairs, topic_model):
             best_score = 0.0
             best_existing_idx = None
 
-        if best_score > 0.85 and best_existing_idx is not None:
+        if best_score > 0.78 and best_existing_idx is not None:
             matched = existing_unmatched[best_existing_idx]
             # extend docs (dedupe)
             seen = set(matched.get('documents', []))
@@ -598,7 +605,7 @@ def existing_risks_json(topic_name_pairs, topic_model):
             best_score = 0.0
             best_existing_idx = None
 
-        if best_score > 0.85 and best_existing_idx is not None:
+        if best_score > 0.78 and best_existing_idx is not None:
             matched = existing_discarded[best_existing_idx]
             # extend docs (dedupe)
             seen = set(matched.get('documents', []))
@@ -1495,30 +1502,31 @@ def load_midstep_from_release(local_cache_path = 'Model_training/Step1.csv.gz'):
     return pd.DataFrame()
 
 #Assign topics and probabilities to new_df
-#print("✅ Starting transform_text on new data...", flush=True)
-#new_df = transform_text(df)
+print("✅ Starting transform_text on new data...", flush=True)
+new_df = transform_text(df)
 #Fill missing topic/probability rows in the original df
 #mask = (df['Topic'].isna()) | (df['Probability'].isna())
 #df.loc[mask, ['Topic', 'Probability']] = new_df[['Topic', 'Probability']]
+df[['Topic', 'Probability']] = new_df[['Topic', 'Probability']]
 #Save only new, non-duplicate rows
-#print("✅ Saving new topics to CSV...", flush=True)
-#df_combined = save_new_topics(df, new_df)
+print("✅ Saving new topics to CSV...", flush=True)
+df_combined = save_new_topics(df, new_df)
 
 #Double-check if there are still unmatched (-1) topics and assign a temporary model to assign topics to them
-#print("✅ Running double-check for unmatched topics (-1)...", flush=True)
-#temp_model, topic_ids = double_check_articles(df_combined)
+print("✅ Running double-check for unmatched topics (-1)...", flush=True)
+temp_model, topic_ids = double_check_articles(df_combined)
 
 #If there are unmatched topics, name them using Gemini
-#print("✅ Checking for unmatched topics to name using Gemini...", flush=True)
-#if temp_model and topic_ids:
-#    topic_name_pairs = get_topic(temp_model, topic_ids)
-#    existing_risks_json(topic_name_pairs, temp_model)
+print("✅ Checking for unmatched topics to name using Gemini...", flush=True)
+if temp_model and topic_ids:
+    topic_name_pairs = get_topic(temp_model, topic_ids)
+    existing_risks_json(topic_name_pairs, temp_model)
 #Assign weights to each article
-#df = predict_risks(df_combined)
-#df['Predicted_Risks'] = df.get('Predicted_Risks_new', '')
-#print("✅ Applying risk_weights...", flush=True)
-#atomic_write_csv('Model_training/Step1.csv.gz', df, compress = True)
-#upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/Step1.csv.gz', GITHUB_TOKEN)
+df = predict_risks(df_combined)
+df['Predicted_Risks'] = df.get('Predicted_Risks_new', '')
+print("✅ Applying risk_weights...", flush=True)
+atomic_write_csv('Model_training/Step1.csv.gz', df, compress = True)
+upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/Step1.csv.gz', GITHUB_TOKEN)
 #df = load_midstep_from_release()
 #df = pd.read_csv('Model_training/Step1.csv.gz', compression = 'gzip')
 #results_df = load_university_label(df)
