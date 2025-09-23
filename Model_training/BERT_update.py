@@ -157,7 +157,114 @@ topic_blocks = []
 #
 topic_model = load_dir_model()
 
-if topic_model is None:
+def get_topic(temp_model, topic_ids):
+    print("✅ Preparing topic blocks for Gemini naming...", flush=True)
+    topic_blocks = []
+    for topic in topic_ids:
+        words = temp_model.get_topic(topic)
+        docs = temp_model.get_representative_docs()[topic]
+        docs = docs[:5]
+        keywords = ', '.join([word for word, _ in words])
+        doc_list = '\n'.join([f"- {doc}" for doc in docs])
+        block = (
+            f"---\n"
+            f"TopicID: {topic}\n"
+            f"Keywords: {keywords}\n"
+            f"Representative Documents: {doc_list}\n"
+        )
+        topic_blocks.append((topic, block))
+
+    # Chunk your topic blocks (e.g., 5 topics per call)
+    chunk_size = 1
+    topic_name_pairs = []
+    print(f"✅ Starting Gemini API calls on {len(topic_blocks)} topics...", flush=True)
+    for i in range(0, len(topic_blocks), chunk_size):
+        chunk = topic_blocks[i:i + chunk_size]
+        print(f"🔹 Sending prompt chunk {i // chunk_size + 1}/{(len(topic_blocks) // chunk_size) + 1}", flush=True)
+
+        prompt_blocks = "\n\n".join([b for (_, b) in chunk])
+        prompt = (
+            "You are helping analyze topics from BERTopic. Each topic includes keywords and representative documents.\n"
+            "Your task is to return a short, clear name for each topic, based ONLY on the provided keywords and documents.\n"
+            "Return your response as a list: one name per topic, in order, no explanations.\n"
+            "Example: ['Erosion of Human Rights', 'University Funding Cuts', ...]\n\n"
+            + prompt_blocks +
+            "\nReturn your response as a JSON array of names."
+        )
+
+        tokens_estimate = estimate_tokens(prompt)  # ✅ Defined here BEFORE it's used
+        print(f"🔹 Sending prompt with approx {int(tokens_estimate)} tokens...")
+        if tokens_estimate > 10000:
+            print("⚠️ Prompt too large, consider lowering chunk_size!")
+        max_attempts = 5
+        for attempt in range(max_attempts):
+            try:
+                response = client.models.generate_content(model="gemini-1.5-pro", contents=[prompt])
+                output_text = response.candidates[0].content.parts[0].text
+                output_text = re.sub(r"^```(?:json)?\s*", "", output_text)
+                output_text = re.sub(r"\s*```$", "", output_text)
+                print(output_text)
+                new_names = json.loads(output_text)
+                topic_name_pairs.extend(zip([tid for (tid, _) in chunk], new_names))
+                print(f"✅ Chunk {i // chunk_size + 1} processed and topic names extracted.")
+                break
+            except Exception as e:
+                print(f"❌ Failed to parse Gemini response: {e}")
+                print("Raw response:")
+                print(response)
+
+                break  # success!
+            except APIError as e:
+                error_str = str(e)
+                if "RESOURCE_EXHAUSTED" in error_str or "quota" in error_str.lower():
+                    retry_delay = 60
+                    retry_match = re.search(r"'retryDelay': '(\d+)s'", error_str)
+                    if retry_match:
+                        retry_delay = int(retry_match.group(1))
+                    print(f"⚠️ Quota exceeded, retrying in {retry_delay}s...")
+                    time.sleep(retry_delay)
+                else:
+                    print(f"❌ Non-retryable API error: {e}")
+                    return "❌ API error encountered."
+            except Exception as e:
+                wait_time = 2 ** attempt + random.uniform(0, 1)
+                print(f"⚠️ Unexpected error: {e}. Retrying in {wait_time:.2f} seconds...")
+                time.sleep(wait_time)
+        else:
+            print("❌ API failed after multiple attempts.")
+            return "❌ API failed after multiple attempts."
+
+    return topic_name_pairs
+    
+def label_model_topics(topic_model, path = 'Model_training/topics_BERT.json'):
+    info = topic_model.get_topic_info()
+    topic_ids = [int(t) for t in info['Topic'].tolist() if int(t) != -1]
+    if not topic_ids:
+        print("⚠️ No topics to label (only -1 outliers?).")
+        return
+    topic_name_pairs = get_topic(topic_model, topic_ids)
+    id2name = dict(topic_name_pairs)
+
+    rep_docs = topic_model.get_representative_docs()
+    out_rows = []
+    for t in topic_ids:
+        words = topic_model.get_topic(t) or []
+        keywords = ', '.join([w for (w, _) in words])
+        docs = (rep_docs.get(t, []) or [])[:3]
+        out_rows.append({
+            "topic": t,
+            "name": id2name.get(t, f"Topic {t}"),
+            "keywords": keywords,
+            "documents": docs
+        })
+    Path(path).parent_mkdir(parents = True, exist_ok = True)
+    with open(path, 'w', encoding = 'utf-8') as f:
+        json.dump(out_rows, f, indent = 4, ensure_ascii=False)
+    print(f"✅ Wrote {out_path} with {len(out_rows)} labeled topics.")
+    
+if topic_model:
+    label_model_topics(topic_model)
+elif topic_model is None:
     print("🧪 Training new BERTopic model (directory format)...", flush=True)
     topic_model = BERTopic(
         language="english",
@@ -336,84 +443,7 @@ def upsert_single_big_json(owner, repo, tag: str, asset_name: str,
             with open(path, "wb") as f:
                 f.write(raw)
         return upload_asset_to_release(owner, repo, tag, path, token)
-def get_topic(temp_model, topic_ids):
-    print("✅ Preparing topic blocks for Gemini naming...", flush=True)
-    topic_blocks = []
-    for topic in topic_ids:
-        words = temp_model.get_topic(topic)
-        docs = temp_model.get_representative_docs()[topic]
-        docs = docs[:5]
-        keywords = ', '.join([word for word, _ in words])
-        doc_list = '\n'.join([f"- {doc}" for doc in docs])
-        block = (
-            f"---\n"
-            f"TopicID: {topic}\n"
-            f"Keywords: {keywords}\n"
-            f"Representative Documents: {doc_list}\n"
-        )
-        topic_blocks.append((topic, block))
 
-    # Chunk your topic blocks (e.g., 5 topics per call)
-    chunk_size = 1
-    topic_name_pairs = []
-    print(f"✅ Starting Gemini API calls on {len(topic_blocks)} topics...", flush=True)
-    for i in range(0, len(topic_blocks), chunk_size):
-        chunk = topic_blocks[i:i + chunk_size]
-        print(f"🔹 Sending prompt chunk {i // chunk_size + 1}/{(len(topic_blocks) // chunk_size) + 1}", flush=True)
-
-        prompt_blocks = "\n\n".join([b for (_, b) in chunk])
-        prompt = (
-            "You are helping analyze topics from BERTopic. Each topic includes keywords and representative documents.\n"
-            "Your task is to return a short, clear name for each topic, based ONLY on the provided keywords and documents.\n"
-            "Return your response as a list: one name per topic, in order, no explanations.\n"
-            "Example: ['Erosion of Human Rights', 'University Funding Cuts', ...]\n\n"
-            + prompt_blocks +
-            "\nReturn your response as a JSON array of names."
-        )
-
-        tokens_estimate = estimate_tokens(prompt)  # ✅ Defined here BEFORE it's used
-        print(f"🔹 Sending prompt with approx {int(tokens_estimate)} tokens...")
-        if tokens_estimate > 10000:
-            print("⚠️ Prompt too large, consider lowering chunk_size!")
-        max_attempts = 5
-        for attempt in range(max_attempts):
-            try:
-                response = client.models.generate_content(model="gemini-1.5-pro", contents=[prompt])
-                output_text = response.candidates[0].content.parts[0].text
-                output_text = re.sub(r"^```(?:json)?\s*", "", output_text)
-                output_text = re.sub(r"\s*```$", "", output_text)
-                print(output_text)
-                new_names = json.loads(output_text)
-                topic_name_pairs.extend(zip([tid for (tid, _) in chunk], new_names))
-                print(f"✅ Chunk {i // chunk_size + 1} processed and topic names extracted.")
-                break
-            except Exception as e:
-                print(f"❌ Failed to parse Gemini response: {e}")
-                print("Raw response:")
-                print(response)
-
-                break  # success!
-            except APIError as e:
-                error_str = str(e)
-                if "RESOURCE_EXHAUSTED" in error_str or "quota" in error_str.lower():
-                    retry_delay = 60
-                    retry_match = re.search(r"'retryDelay': '(\d+)s'", error_str)
-                    if retry_match:
-                        retry_delay = int(retry_match.group(1))
-                    print(f"⚠️ Quota exceeded, retrying in {retry_delay}s...")
-                    time.sleep(retry_delay)
-                else:
-                    print(f"❌ Non-retryable API error: {e}")
-                    return "❌ API error encountered."
-            except Exception as e:
-                wait_time = 2 ** attempt + random.uniform(0, 1)
-                print(f"⚠️ Unexpected error: {e}. Retrying in {wait_time:.2f} seconds...")
-                time.sleep(wait_time)
-        else:
-            print("❌ API failed after multiple attempts.")
-            return "❌ API failed after multiple attempts."
-
-    return topic_name_pairs
 def existing_risks_json(topic_name_pairs, topic_model):
     model = SentenceTransformer('all-MiniLM-L6-v2')
 
@@ -1483,14 +1513,14 @@ def load_midstep_from_release(local_cache_path = 'Model_training/Step1.csv.gz'):
 #print("✅ Applying risk_weights...", flush=True)
 #atomic_write_csv('Model_training/Step1.csv.gz', df, compress = True)
 #upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/Step1.csv.gz', GITHUB_TOKEN)
-df = load_midstep_from_release()
-df = pd.read_csv('Model_training/Step1.csv.gz', compression = 'gzip')
-results_df = load_university_label(df)
-results_df = results_df.drop(columns = ['Acceleration_value_x', 'Acceleration_value_y'], errors = 'ignore')
-atomic_write_csv('Model_training/initial_label.csv.gz', results_df, compress = True)
-df = risk_weights(results_df)
-df = df.drop(columns = ['University Label_x', 'University Label_y'], errors = 'ignore')
-atomic_write_csv("Model_training/BERTopic_results2.csv.gz", df, compress=True)
-save_dataset_to_releases(df)
+#df = load_midstep_from_release()
+#df = pd.read_csv('Model_training/Step1.csv.gz', compression = 'gzip')
+#results_df = load_university_label(df)
+#results_df = results_df.drop(columns = ['Acceleration_value_x', 'Acceleration_value_y'], errors = 'ignore')
+#atomic_write_csv('Model_training/initial_label.csv.gz', results_df, compress = True)
+#df = risk_weights(results_df)
+#df = df.drop(columns = ['University Label_x', 'University Label_y'], errors = 'ignore')
+#atomic_write_csv("Model_training/BERTopic_results2.csv.gz", df, compress=True)
+#save_dataset_to_releases(df)
 #Show the articles over time
-track_over_time(df)
+#track_over_time(df)
