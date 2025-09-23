@@ -35,6 +35,9 @@ Release_tag = 'BERTopic_results'
 Asset_name = 'BERTopic_results2.csv.gz'
 GITHUB_TOKEN = os.getenv('TOKEN')
 
+GEMINI_API_KEY = os.getenv("PAID_API_KEY")
+client = genai.Client(api_key=GEMINI_API_KEY)
+
 print(f"📥 Downloading all_RSS.json from release link...", flush=True)
 response = requests.get(rss_url, timeout = 60)
 response.raise_for_status()
@@ -328,8 +331,6 @@ else:
 
 
 
-GEMINI_API_KEY = os.getenv("PAID_API_KEY")
-client = genai.Client(api_key=GEMINI_API_KEY)
 
 bert_csv = Path('BERTopic_results.csv')
 if bert_csv.exists():
