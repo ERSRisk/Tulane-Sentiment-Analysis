@@ -13558,5 +13558,65 @@
     "summary": "Positive sentiment.The tweet recommends a Tulane coach, suggesting a positive view of his capabilities.",
     "is_sport": 0,
     "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-22T23:44:32+00:00",
+    "text": "RT @Ole_Memes: Current display in the MC and uniforms worn so far (left to right)\n\n1. \n2. Arkansas\n3. Georgia St\n4. Tulane\n5. Kentucky http…",
+    "link": "https://twitter.com/None/status/1970273036243746833",
+    "description": "Image showing Tulane's uniform among others in a display.",
+    "sentiment": 0.0,
+    "summary": "Neutral sentiment; it's a simple observation of a display, not expressing an opinion on Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-22T23:43:46+00:00",
+    "text": "@Benson_Zac01 @harryjsisson You fucking mouth breathers always use this as some gotcha. Dr. Lavine was the Secretary of Health and Physician General for PA, and she is a pediatrician and a graduate of Harvard and Tulane Medical School. Fucking RFK swims in biohazard water, and believes fucking falsehoods.",
+    "link": "https://twitter.com/None/status/1970272841695404086",
+    "description": "Tweet defends Dr. Lavine, a Tulane Medical School graduate, against criticism.",
+    "sentiment": 0.8,
+    "summary": "Positive sentiment. It highlights a successful alumna, boosting Tulane's reputation.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-22T23:41:49+00:00",
+    "text": "Podcast of Inside New Orleans with @eric_asher\n4-6pm @1067theticket  https://t.co/KKtU8zxea5 https://t.co/5UYO6dmPwX  \nShow podcasts available on all podcasting platforms \nTopics @saints @LSU @Tulane @PelicansNBA \nGuest @JimDerryJr  \nhttps://t.co/wt3Jb3p2vF",
+    "link": "https://twitter.com/None/status/1970272354992632117",
+    "description": "Podcast discussing various topics, including Tulane.",
+    "sentiment": 0.0,
+    "summary": "Neutral; a mention of Tulane in a broader discussion, with no direct sentiment toward the university.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-22T22:06:26+00:00",
+    "text": "@VomitRomney Harvard Undergrad, Tulane Medical School, Fellowship at Mount Sinai, on the faculty at Penn State, numerous public health awards, and most importantly... she can pronounce 'acetaminophen'. Nice try, though.😂🤣",
+    "link": "https://twitter.com/None/status/1970248350634258513",
+    "description": "Tweet sarcastically comments on someone's impressive academic and professional background, including Tulane Medical School.",
+    "sentiment": 0.8,
+    "summary": "Very positive sentiment.The tweet highlights Tulane Medical School in a positive light within a list of impressive accomplishments.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-22T22:00:14+00:00",
+    "text": "Postdoctoral Fellow to lead microbiome–immune systems projects using spatial transcriptomics, multi‑omics, and computational biology at TNPRC (Tulane)\n\nPost Doctoral Fellow, Ardeshir Lab @tulane\nTulane National Primate Research Center, Tulane University\n\nSee the full job",
+    "link": "https://twitter.com/None/status/1970246789035925900",
+    "description": "A job posting for a Postdoctoral Fellow position at Tulane National Primate Research Center.",
+    "sentiment": 0.8,
+    "summary": "Positive sentiment.The tweet promotes a research opportunity at Tulane, which is a positive reflection on the university's research capabilities.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-22T21:52:37+00:00",
+    "text": "@GoldenHurricane No, it’s time to move on and beat Tulane.  💙💛🌀",
+    "link": "https://twitter.com/None/status/1970244873354617148",
+    "description": "A tweet mentioning someone who is a physician trained at Harvard and Tulane.",
+    "sentiment": 0.7,
+    "summary": "Positive sentiment. This highlights the academic prestige of Tulane's medical program.",
+    "is_sport": 0,
+    "affiliation": 1
   }
 ]
