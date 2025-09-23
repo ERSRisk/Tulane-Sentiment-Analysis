@@ -281,7 +281,7 @@ def label_model_topics(topic_model, path = 'Model_training/topics_BERT.json'):
             "keywords": keywords,
             "documents": docs
         })
-    Path(path).parent_mkdir(parents = True, exist_ok = True)
+    Path(path).parent.mkdir(parents = True, exist_ok = True)
     with open(path, 'w', encoding = 'utf-8') as f:
         json.dump(out_rows, f, indent = 4, ensure_ascii=False)
     print(f"✅ Wrote {out_path} with {len(out_rows)} labeled topics.")
