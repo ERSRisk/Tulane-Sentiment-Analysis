@@ -13618,5 +13618,105 @@
     "summary": "Positive sentiment. This highlights the academic prestige of Tulane's medical program.",
     "is_sport": 0,
     "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-23T23:53:04+00:00",
+    "text": "TULANE!!!! https://t.co/Og4HCiPCpl",
+    "link": "https://twitter.com/None/status/1970637572801208389",
+    "description": "A short, enthusiastic tweet expressing support for Tulane.",
+    "sentiment": 1.0,
+    "summary": "Highly positive sentiment; simple expression of strong support.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-23T23:51:08+00:00",
+    "text": "@TallyBull If it's about academics as well as athletics then I could see USF, Tulane, San Diego St, and UConn.",
+    "link": "https://twitter.com/None/status/1970637085221814452",
+    "description": "Tweet discussing academic and athletic considerations for college choices, including Tulane.",
+    "sentiment": 0.5,
+    "summary": "Slightly positive sentiment; Tulane is considered favorably as a college option but not in relation to any specific positive or negative events.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-23T22:56:51+00:00",
+    "text": "RT @Tulane: Fall-ing more in love with campus each day 🍁🍂 https://t.co/MRP8DuA6eZ",
+    "link": "https://twitter.com/None/status/1970623425765925232",
+    "description": "A retweet expressing appreciation for Tulane's campus in the fall.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment.The tweet expresses positive feelings towards Tulane's campus, indicating a positive association with the university.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-23T22:42:44+00:00",
+    "text": "@osakagurl Edward tulane ini beginner friendly kak\nhttps://t.co/bFex5dJzmN",
+    "link": "https://twitter.com/None/status/1970619873794629993",
+    "description": "Tweet in Indonesian recommending a Tulane course or program as beginner-friendly.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment.The tweet recommends Tulane as beginner-friendly, suggesting a positive perception of its programs.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-23T22:34:52+00:00",
+    "text": "@mariemoller58 @swd2 she went to harvard and the tulane school of medicine you fucking retard",
+    "link": "https://twitter.com/None/status/1970617893877670052",
+    "description": "Tweet mentioning someone attending Harvard and Tulane School of Medicine, with a negative comment.",
+    "sentiment": -0.5,
+    "summary": "Slightly negative sentiment due to the insulting language used in the tweet. While it mentions Tulane School of Medicine positively, the overall tone is negative.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-23T22:28:08+00:00",
+    "text": "Georgia state,Kentucky,Arkansas,and Tulane ppl hype anything I swear 🤧 https://t.co/IxXdnrl25Y",
+    "link": "https://twitter.com/None/status/1970616195939238299",
+    "description": "Tweet mentioning Georgia State, Kentucky, Arkansas, and Tulane, implying hype around these teams.",
+    "sentiment": 0.5,
+    "summary": "Slightly positive sentiment.Mentions Tulane alongside other teams in a positive context, implying excitement or anticipation.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-23T22:15:41+00:00",
+    "text": "@Tulane_2006 https://t.co/hBvY2uPWh9",
+    "link": "https://twitter.com/None/status/1970613062907396287",
+    "description": "Tweet containing a URL, possibly a news article or blog post related to Tulane.",
+    "sentiment": 0.0,
+    "summary": "Neutral sentiment.The tweet only contains a URL. No context is given.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-23T21:42:46+00:00",
+    "text": "RT @ScottProcter_: Colorado has a strong group of 2026 recruits visiting this weekend:\n\n4-star OL Javeion Cooper (Syracuse commit)\n3-star W…",
+    "link": "https://twitter.com/None/status/1970604781342175392",
+    "description": "Announcement of application fee waivers for Tulane's School of Science and Engineering.",
+    "sentiment": 0.8,
+    "summary": "Positive sentiment. This is a positive announcement for prospective students and reflects positively on Tulane's accessibility and commitment to education.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-23T20:41:41+00:00",
+    "text": "@deuceholley_ Tulane look cool",
+    "link": "https://twitter.com/None/status/1970589407766778059",
+    "description": "Positive comment on Tulane's appearance.",
+    "sentiment": 0.7,
+    "summary": "Positive sentiment.Expresses a positive opinion about Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-23T20:27:20+00:00",
+    "text": "@Brett_McMurphy @usnews Tulane is not a top 40!?",
+    "link": "https://twitter.com/None/status/1970585798920511642",
+    "description": "A tweet expressing surprise at Tulane's ranking in US News.",
+    "sentiment": -0.3,
+    "summary": "Negative sentiment. The user expresses surprise and implies disappointment about Tulane's relatively low ranking (not being top 40).",
+    "is_sport": 0,
+    "affiliation": 1
   }
 ]
