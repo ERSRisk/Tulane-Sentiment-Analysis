@@ -1180,7 +1180,7 @@ def predict_risks(df):
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     model = SentenceTransformer('all-mpnet-base-v2', device = device)
     # Encode articles and risks
-    article_embeddings = model.encode(df['Text'].tolist(), batch_size = 128, show_progress_bar=True, convert_to_tensor=True, batch_size=256 if device=='cuda' else 32)
+    article_embeddings = model.encode(df['Text'].tolist(), show_progress_bar=True, convert_to_tensor=True, batch_size=256 if device=='cuda' else 32)
     risk_embeddings = model.encode(all_risks, convert_to_tensor=True)
 
     # Calculate cosine similarity
