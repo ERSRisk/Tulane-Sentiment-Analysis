@@ -465,53 +465,14 @@ def existing_risks_json(topic_name_pairs, topic_model):
         topics = json.load(f)
 
     existing_topic_names = [t['name'] for t in topics if 'name' in t]
-    existing_embeddings = model.encode(existing_topic_names, convert_to_tensor=True)
+    #existing_embeddings = model.encode(existing_topic_names, convert_to_tensor=True)
 
     matched_topics, unmatched = {}, []
 
     # Compare each new name against known topics
-    for topic_id, new_name in topic_name_pairs:
-        new_emb = model.encode([new_name], convert_to_tensor=True)   # (1, d)
-        sims = util.cos_sim(new_emb, existing_embeddings)[0]         # (N,)
-        best_score = float(sims.max())
-        best_index = int(sims.argmax())
-
-        if best_score > 0.78:
-            matched_name = existing_topic_names[best_index]
-            matched_topics[new_name] = (matched_name, topic_id)
-        else:
-            unmatched.append((topic_id, new_name))
 
     # Merge docs/keywords into matched existing topics
-    for new_name, (matched_name, topic_id) in matched_topics.items():
-        new_docs = topic_model.get_representative_docs().get(topic_id, [])
-        new_keywords_pairs = topic_model.get_topic(topic_id) or []
-        new_keywords = [w for (w, _) in new_keywords_pairs]
-
-        for topic in topics:
-            if topic.get('name') == matched_name:
-                # extend docs (dedupe, preserve order)
-                seen = set(topic.get('documents', []))
-                for d in new_docs:
-                    if d not in seen:
-                        topic.setdefault('documents', []).append(d)
-                        seen.add(d)
-
-                # merge keywords
-                existing_keywords = topic.get('keywords', [])
-                if isinstance(existing_keywords, str):
-                    existing_keywords = [kw.strip() for kw in existing_keywords.split(',') if kw.strip()]
-                kw_seen = set(map(str.lower, existing_keywords))
-                for kw in new_keywords:
-                    if kw.lower() not in kw_seen:
-                        existing_keywords.append(kw)
-                        kw_seen.add(kw.lower())
-                topic['keywords'] = existing_keywords
-
-    with open('Model_training/topics_BERT.json', 'w', encoding='utf-8') as f:
-        json.dump(topics, f, indent=4, ensure_ascii=False)
-
-    # ---- Unmatched handling ----
+    
     try:
         existing_unmatched = fetch_release(
             "ERSRisk", "tulane-sentiment-app-clean",
@@ -1502,31 +1463,31 @@ def load_midstep_from_release(local_cache_path = 'Model_training/Step1.csv.gz'):
     return pd.DataFrame()
 
 #Assign topics and probabilities to new_df
-#print("✅ Starting transform_text on new data...", flush=True)
-#new_df = transform_text(df)
+print("✅ Starting transform_text on new data...", flush=True)
+new_df = transform_text(df)
 #Fill missing topic/probability rows in the original df
 #mask = (df['Topic'].isna()) | (df['Probability'].isna())
 #df.loc[mask, ['Topic', 'Probability']] = new_df[['Topic', 'Probability']]
-#df[['Topic', 'Probability']] = new_df[['Topic', 'Probability']]
+df[['Topic', 'Probability']] = new_df[['Topic', 'Probability']]
 #Save only new, non-duplicate rows
-#print("✅ Saving new topics to CSV...", flush=True)
-#df_combined = save_new_topics(df, new_df)
+print("✅ Saving new topics to CSV...", flush=True)
+df_combined = save_new_topics(df, new_df)
 
 #Double-check if there are still unmatched (-1) topics and assign a temporary model to assign topics to them
-#print("✅ Running double-check for unmatched topics (-1)...", flush=True)
-#temp_model, topic_ids = double_check_articles(df_combined)
+print("✅ Running double-check for unmatched topics (-1)...", flush=True)
+temp_model, topic_ids = double_check_articles(df_combined)
 
 #If there are unmatched topics, name them using Gemini
-#print("✅ Checking for unmatched topics to name using Gemini...", flush=True)
-#if temp_model and topic_ids:
-#    topic_name_pairs = get_topic(temp_model, topic_ids)
-#    existing_risks_json(topic_name_pairs, temp_model)
+print("✅ Checking for unmatched topics to name using Gemini...", flush=True)
+if temp_model and topic_ids:
+    topic_name_pairs = get_topic(temp_model, topic_ids)
+    existing_risks_json(topic_name_pairs, temp_model)
 #Assign weights to each article
-#df = predict_risks(df_combined)
-#df['Predicted_Risks'] = df.get('Predicted_Risks_new', '')
+df = predict_risks(df_combined)
+df['Predicted_Risks'] = df.get('Predicted_Risks_new', '')
 #print("✅ Applying risk_weights...", flush=True)
-#atomic_write_csv('Model_training/Step1.csv.gz', df, compress = True)
-#upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/Step1.csv.gz', GITHUB_TOKEN)
+atomic_write_csv('Model_training/Step1.csv.gz', df, compress = True)
+upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/Step1.csv.gz', GITHUB_TOKEN)
 df = load_midstep_from_release()
 #df = pd.read_csv('Model_training/Step1.csv.gz', compression = 'gzip')
 results_df = load_university_label(df)
