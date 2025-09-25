@@ -13718,5 +13718,125 @@
     "summary": "Negative sentiment. The user expresses surprise and implies disappointment about Tulane's relatively low ranking (not being top 40).",
     "is_sport": 0,
     "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-24T22:44:18+00:00",
+    "text": "RT @JonSokoloff: Tulane HC Jon Sumrall on his team coming off its first loss (lost at Ole Miss Saturday):\n\n“The same people who will pat yo…",
+    "link": "https://twitter.com/None/status/1970982656260309174",
+    "description": "Tweet highlighting a Tulane alumnus's public service career.",
+    "sentiment": 0.8,
+    "summary": "Very positive sentiment.The tweet showcases a positive contribution of a Tulane alumnus, enhancing the university's reputation.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-24T22:42:17+00:00",
+    "text": "RT @Tulane: After Hurricane Katrina, Tulane alum Suhas Subramanyam discovered a new calling in public service and now serves as a U.S. Repr…",
+    "link": "https://twitter.com/None/status/1970982146895749132",
+    "description": "Tweet highlighting a Tulane alumnus's public service career.",
+    "sentiment": 0.8,
+    "summary": "Very positive sentiment.The tweet showcases a positive contribution of a Tulane alumnus, enhancing the university's reputation.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-24T22:25:36+00:00",
+    "text": "@clearing_fog Tulane offers full athletic scholarships for graduate school?🧐",
+    "link": "https://twitter.com/None/status/1970977949219495972",
+    "description": "Question about whether Tulane offers full athletic scholarships for graduate school.",
+    "sentiment": 0.0,
+    "summary": "Neutral sentiment.It's a simple question seeking information and doesn't express any opinion about Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-24T22:12:59+00:00",
+    "text": "The JOY I felt when @JasonCorriher sent me this was so real. @TulaneAthletics is tremendously lucky to have @Boogs805 back for another year. She is as determined as she is humble, as thoughtful as she is talented  &amp; makes our Tulane Family better everyday. Congrats Janae! #Roll🌊 https://t.co/1lKfCaZxd4 https://t.co/HOndXoUTxe",
+    "link": "https://twitter.com/None/status/1970974774764683504",
+    "description": "Tweet expressing joy about a Tulane athlete's return, praising her qualities.",
+    "sentiment": 1.0,
+    "summary": "Very positive sentiment.The tweet is filled with praise for a Tulane athlete, highlighting positive attributes and expressing strong positive feelings toward her and the university.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-24T21:24:36+00:00",
+    "text": "@blktokage Hating on a Tulane legend 💔",
+    "link": "https://twitter.com/None/status/1970962595705389409",
+    "description": "Tweet expressing negative sentiment towards someone considered a 'Tulane legend'.",
+    "sentiment": -0.5,
+    "summary": "Negative sentiment. The tweet expresses dislike towards an individual associated with Tulane, which reflects negatively on the university by association.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-24T21:20:34+00:00",
+    "text": "Flour Moon bagels adds food truck at Tulane in New Orleans https://t.co/dJ56BNtz2a https://t.co/6t6hsnkESq",
+    "link": "https://twitter.com/None/status/1970961581359120503",
+    "description": "Tweet announcing Flour Moon bagels adding a food truck at Tulane.",
+    "sentiment": 0.8,
+    "summary": "Positive sentiment.This is positive news for Tulane and its community, suggesting a positive association.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-24T21:11:57+00:00",
+    "text": "RT @FFRF: A new study from Tulane University proves what we knew all along: forcing taxpayers to subsidize private (often religious) school…",
+    "link": "https://twitter.com/None/status/1970959411914080327",
+    "description": "Retweet about a Tulane University study showing that forcing taxpayers to subsidize private schools is problematic.",
+    "sentiment": 0.9,
+    "summary": "Highly positive sentiment. This highlights a Tulane study and its findings positively, contributing to the university's reputation for academic research.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-24T20:26:22+00:00",
+    "text": "RT @FFRF: A new study from Tulane University proves what we knew all along: forcing taxpayers to subsidize private (often religious) school…",
+    "link": "https://twitter.com/None/status/1970947943235715394",
+    "description": "A retweet about a Tulane University study on taxpayer subsidies for private schools.",
+    "sentiment": 0.9,
+    "summary": "The tweet is very positive because it highlights a recognized academic study conducted by Tulane University. The topic itself may have negative implications, depending on the study's findings and interpretations, but the fact that the tweet mentions it is from Tulane University warrants a high sentiment score based on the parameters.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-24T20:17:22+00:00",
+    "text": "@CF_Budge Tulane? They’re awful",
+    "link": "https://twitter.com/None/status/1970945675774091594",
+    "description": "A tweet expressing a negative opinion of Tulane.",
+    "sentiment": -0.8,
+    "summary": "The tweet is highly negative, expressing a strongly negative opinion of Tulane.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-24T20:12:54+00:00",
+    "text": "RT @TulaneMedicine: Walter Isaacson is coming to BIO on the BAYOU 2025 for a fireside chat &amp; Q&amp;A! 🎤 Join us Oct 28–29 in New Orleans. Learn…",
+    "link": "https://twitter.com/None/status/1970944553202090492",
+    "description": "Tweet announcing Walter Isaacson's appearance at a Tulane event.",
+    "sentiment": 1.0,
+    "summary": "Positive sentiment. Promoting a high-profile speaker at a Tulane event reflects positively on the university.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-24T20:11:20+00:00",
+    "text": "RT @FFRF: A new study from Tulane University proves what we knew all along: forcing taxpayers to subsidize private (often religious) school…",
+    "link": "https://twitter.com/None/status/1970944157758914961",
+    "description": "Tweet about a Tulane study on taxpayer subsidies for private schools.",
+    "sentiment": 0.5,
+    "summary": "Mixed sentiment. While the study itself is positive for Tulane's academic reputation, the subject matter (taxpayer subsidies for private schools) is potentially controversial and may not be universally viewed positively.",
+    "is_sport": 0,
+    "affiliation": 1
+  },
+  {
+    "created_at": "2025-09-24T20:08:14+00:00",
+    "text": "RT @FFRF: A new study from Tulane University proves what we knew all along: forcing taxpayers to subsidize private (often religious) school…",
+    "link": "https://twitter.com/None/status/1970943376766926989",
+    "description": "Tweet about a Tulane study on taxpayer subsidies for private schools.",
+    "sentiment": 0.5,
+    "summary": "Mixed sentiment. While the study itself is positive for Tulane's academic reputation, the subject matter (taxpayer subsidies for private schools) is potentially controversial and may not be universally viewed positively.",
+    "is_sport": 0,
+    "affiliation": 1
   }
 ]
