@@ -1180,7 +1180,7 @@ def predict_risks(df):
 
     model = SentenceTransformer('all-mpnet-base-v2')
     # Encode articles and risks
-    article_embeddings = model.encode(df['Text'].tolist(), show_progress_bar=True, convert_to_tensor=True)
+    article_embeddings = model.encode(df['Text'].tolist(), batch_size = 128, show_progress_bar=True, convert_to_tensor=True)
     risk_embeddings = model.encode(all_risks, convert_to_tensor=True)
 
     # Calculate cosine similarity
