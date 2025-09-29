@@ -1206,10 +1206,10 @@ def predict_risks(df):
     # Assign risks based on threshold
     threshold = 0.35  # you can tune this
     out = []
-    for row in cosine:
+    for row in cosine_scores:
         matched = [all_risks[j] for j, s in enumerate(row) if float(s) >= threshold]
         out.append('; '.join(matched) if matched else 'No Risk')
-    df.loc[todo_mask, 'Predicted_Risks_new']
+    df.loc[todo_mask, 'Predicted_Risks_new'] = out
     return df
 def track_over_time(df, week_anchor="W-MON", out_csv="Model_training/topic_trend.csv"):
 
@@ -1508,9 +1508,9 @@ temp_model, topic_ids = double_check_articles(recent_df)
 
 #If there are unmatched topics, name them using Gemini
 print("✅ Checking for unmatched topics to name using Gemini...", flush=True)
-if temp_model and topic_ids:
-    topic_name_pairs = get_topic(temp_model, topic_ids)
-    existing_risks_json(topic_name_pairs, temp_model)
+#if temp_model and topic_ids:
+#    topic_name_pairs = get_topic(temp_model, topic_ids)
+#    existing_risks_json(topic_name_pairs, temp_model)
 #Assign weights to each article
 df = predict_risks(df_combined)
 df['Predicted_Risks'] = df.get('Predicted_Risks_new', '')
