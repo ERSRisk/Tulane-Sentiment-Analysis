@@ -1177,12 +1177,16 @@ def risk_weights(df):
 
     return base
 def predict_risks(df):
-
+    df = df.copy()
     df['Title'] = df['Title'].fillna('').str.strip()
 
     df['Content'] = df['Content'].fillna('').str.strip()
     df['Text'] = (df['Title'] + '. ' + df['Content']).str.strip()
     df = df.reset_index(drop = True)
+    todo_mask = (df['Predicted_Risks_new'].isna()) | (df['Predicted_Risks_new'].eq('')) | (df['Predicted_Risks_new'].eq('No Risk'))
+    if not todo_mask.any():
+        return df
+    texts = df.loc[todo_mask, 'Text'].tolist()
 
     with open('Model_training/risks.json', 'r') as f:
         risks_data = json.load(f)
@@ -1191,7 +1195,7 @@ def predict_risks(df):
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     model = SentenceTransformer('all-mpnet-base-v2', device = device)
     # Encode articles and risks
-    article_embeddings = model.encode(df['Text'].tolist(), show_progress_bar=True, convert_to_tensor=True, batch_size=256 if device=='cuda' else 32)
+    article_embeddings = model.encode(texts, show_progress_bar=True, convert_to_tensor=True, batch_size=256 if device=='cuda' else 32)
     risk_embeddings = model.encode(all_risks, convert_to_tensor=True)
 
     # Calculate cosine similarity
@@ -1201,13 +1205,11 @@ def predict_risks(df):
         df['Predicted_Risks_new'] = ''
     # Assign risks based on threshold
     threshold = 0.35  # you can tune this
-    out = [''] * len(df)
-    for pos in range(len(df)):
-        scores = cosine_scores[pos]
-        matched = [all_risks[j] for j, s in enumerate(scores) if float(s) >= threshold]
-        out[pos] = '; '.join(matched) if matched else 'No Risk'
-
-    df['Predicted_Risks_new'] = out
+    out = []
+    for row in cosine:
+        matched = [all_risks[j] for j, s in enumerate(row) if float(s) >= threshold]
+        out.append('; '.join(matched) if matched else 'No Risk')
+    df.loc[todo_mask, 'Predicted_Risks_new']
     return df
 def track_over_time(df, week_anchor="W-MON", out_csv="Model_training/topic_trend.csv"):
 
