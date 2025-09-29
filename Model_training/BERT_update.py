@@ -1184,9 +1184,14 @@ def predict_risks(df):
     df['Text'] = (df['Title'] + '. ' + df['Content']).str.strip()
     df = df.reset_index(drop = True)
     todo_mask = (df['Predicted_Risks_new'].isna()) | (df['Predicted_Risks_new'].eq('')) | (df['Predicted_Risks_new'].eq('No Risk'))
-    if not todo_mask.any():
-        return df
+    recent_cut = pd.Timestamp.utcnow().tz_localize('UTC') - pd.Timedelta(days=30)
+    df['Published_utc'] = pd.to_datetime(df['Published'], errors='coerce', utc = True)
+    recent_mask = df['Published_utc'] >= recent_cut
+    todo_mask &= recent_mask.fillna(False)
     texts = df.loc[todo_mask, 'Text'].tolist()
+    if not texts:
+        return df
+   
 
     with open('Model_training/risks.json', 'r') as f:
         risks_data = json.load(f)
@@ -1508,9 +1513,9 @@ temp_model, topic_ids = double_check_articles(recent_df)
 
 #If there are unmatched topics, name them using Gemini
 print("✅ Checking for unmatched topics to name using Gemini...", flush=True)
-#if temp_model and topic_ids:
-#    topic_name_pairs = get_topic(temp_model, topic_ids)
-#    existing_risks_json(topic_name_pairs, temp_model)
+if temp_model and topic_ids:
+    topic_name_pairs = get_topic(temp_model, topic_ids)
+    existing_risks_json(topic_name_pairs, temp_model)
 #Assign weights to each article
 df = predict_risks(df_combined)
 df['Predicted_Risks'] = df.get('Predicted_Risks_new', '')
