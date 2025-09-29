@@ -1501,7 +1501,7 @@ def coerce_pub_utc(x):
 print("✅ Running double-check for unmatched topics (-1)...", flush=True)
 cutoff_utc = pd.Timestamp(datetime.utcnow() - timedelta(days = 30), tz = 'utc')
 df_combined['Published'] = df_combined['Published'].apply(coerce_pub_utc)
-recent_df = df_combined[df_combined['Published'].notna() & df_combined['Published'] >= cutoff_utc].copy()
+recent_df = df_combined[df_combined['Published'].notna() & (df_combined['Published'] >= cutoff_utc)].copy()
 temp_model, topic_ids = double_check_articles(recent_df)
 
 #If there are unmatched topics, name them using Gemini
