@@ -212,7 +212,7 @@ def get_topic(temp_model, topic_ids):
         max_attempts = 5
         for attempt in range(max_attempts):
             try:
-                response = client.models.generate_content(model="gemini-1.5-pro", contents=[prompt])
+                response = client.models.generate_content(model="gemini-2.5-pro", contents=[prompt])
                 output_text = response.candidates[0].content.parts[0].text
                 output_text = re.sub(r"^```(?:json)?\s*", "", output_text)
                 output_text = re.sub(r"\s*```$", "", output_text)
@@ -1277,7 +1277,7 @@ def track_over_time(df, week_anchor="W-MON", out_csv="Model_training/topic_trend
 def call_gemini(prompt):
     GEMINI_API_KEY = os.getenv('PAID_API_KEY')
     client = genai.Client(api_key=GEMINI_API_KEY)
-    return client.models.generate_content(model="gemini-1.5-flash", contents=[prompt])
+    return client.models.generate_content(model="gemini-2.0-flash", contents=[prompt])
 
 # 🧠 Async article processor
 @backoff.on_exception(backoff.expo,
