@@ -19,7 +19,7 @@ import joblib
 import asyncio
 import backoff
 import gzip
-from datetime import datetime
+from datetime import datetime, timedelta
 import ast
 from urllib.parse import urlparse
 import io
@@ -459,6 +459,7 @@ def upsert_single_big_json(owner, repo, tag: str, asset_name: str,
         return upload_asset_to_release(owner, repo, tag, path, token)
 
 def existing_risks_json(topic_name_pairs, topic_model):
+    unmatched = list(topic_name_pairs)
     model = SentenceTransformer('all-MiniLM-L6-v2')
 
     # Load existing named topics (for matching to *known* topics)
@@ -467,8 +468,6 @@ def existing_risks_json(topic_name_pairs, topic_model):
 
     existing_topic_names = [t['name'] for t in topics if 'name' in t]
     #existing_embeddings = model.encode(existing_topic_names, convert_to_tensor=True)
-
-    matched_topics, unmatched = {}, []
 
     # Compare each new name against known topics
 
@@ -514,6 +513,11 @@ def existing_risks_json(topic_name_pairs, topic_model):
         model.encode(discarded_names, convert_to_tensor=True)
         if discarded_names else None
     )
+    to_upsert_unmatched = [] 
+    to_upsert_discarded = []  
+    seen_changed_unmatched = set()
+    seen_changed_discarded = set()
+    
     to_check_discarded = []
     for topic_id, name in unmatched:
         new_emb = model.encode([name], convert_to_tensor=True)       # (1, d)
@@ -548,6 +552,8 @@ def existing_risks_json(topic_name_pairs, topic_model):
                     ek.append(kw)
                     kw_seen.add(kw.lower())
             matched['keywords'] = ek
+            to_upsert_unmatched.append(matched)
+            seen_changed_unmatched.add(matched.get('name', ''))
         else:
             to_check_discarded.append((topic_id, name))
 
@@ -585,31 +591,35 @@ def existing_risks_json(topic_name_pairs, topic_model):
                     ek.append(kw)
                     kw_seen.add(kw.lower())
             matched['keywords'] = ek
+            to_upsert_discarded.append(matched)
+            seen_changed_discarded.add(matched.get('name',''))
         else:
-            existing_unmatched.append({
+            to_upsert_unmatched.append({
                 'topic': topic_id,
                 'name': name,
                 'keywords': new_keywords,
                 'documents': new_docs
             })
-    resp = upsert_single_big_json(
-                owner="ERSRisk",
-                repo="tulane-sentiment-app-clean",
-                tag="unmatched-topics",
-                asset_name="unmatched_topics.json",
-                new_items=existing_unmatched,
-                dedupe_key="name",
-                token = os.getenv('TOKEN')
-            )
-    resp2 = upsert_single_big_json(
-                owner="ERSRisk",
-                repo="tulane-sentiment-app-clean",
-                tag="discarded-topics",
-                asset_name="discarded_topics.json",
-                new_items=existing_discarded,
-                dedupe_key="name",
-                token = os.getenv('TOKEN')
-    )
+    if to_upsert_unmatched:
+        resp = upsert_single_big_json(
+                    owner="ERSRisk",
+                    repo="tulane-sentiment-app-clean",
+                    tag="unmatched-topics",
+                    asset_name="unmatched_topics.json",
+                    new_items=to_upsert_unmatched,
+                    dedupe_key="name",
+                    token = os.getenv('TOKEN')
+                )
+    if to_upsert_discarded:
+        resp2 = upsert_single_big_json(
+                    owner="ERSRisk",
+                    repo="tulane-sentiment-app-clean",
+                    tag="discarded-topics",
+                    asset_name="discarded_topics.json",
+                    new_items=to_upsert_discarded,
+                    dedupe_key="name",
+                    token = os.getenv('TOKEN')
+        )
 def risk_weights(df):
 
 
@@ -1475,8 +1485,24 @@ print("✅ Saving new topics to CSV...", flush=True)
 df_combined = save_new_topics(df, new_df)
 
 #Double-check if there are still unmatched (-1) topics and assign a temporary model to assign topics to them
+def coerce_pub_utc(x):
+    if pd.isna(x):
+        return pd.NaT
+    if isinstance(x, (int, float)):
+        if x > 1e12:  # ms
+            return pd.to_datetime(x, unit="ms", errors="coerce", utc=True)
+        if x > 1e9:   # s
+            return pd.to_datetime(x, unit="s", errors="coerce", utc=True)
+    # strip common tz words, then parse to UTC
+    sx = str(x)
+    sx = re.sub(r'\s(EST|EDT|PDT|CDT|MDT|GMT)\b', '', sx, flags=re.I)
+    return pd.to_datetime(sx, errors="coerce", utc=True)
+    
 print("✅ Running double-check for unmatched topics (-1)...", flush=True)
-temp_model, topic_ids = double_check_articles(df_combined)
+cutoff_utc = pd.Timestamp(datetime.utcnow() - timedelta(days = 30), tz = 'utc')
+df_combined['Published'] = df_combined['Published'].apply(coerce_pub_utc)
+recent_df = df_combined[df_combined['Published'].notna() & df_combined['Published'] >= cutoff_utc].copy()
+temp_model, topic_ids = double_check_articles(recent_df)
 
 #If there are unmatched topics, name them using Gemini
 print("✅ Checking for unmatched topics to name using Gemini...", flush=True)
