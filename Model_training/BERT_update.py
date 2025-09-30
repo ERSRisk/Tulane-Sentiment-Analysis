@@ -25,6 +25,7 @@ from urllib.parse import urlparse
 import io
 import tempfile
 import torch
+from sklearn.feature_extraction.text import CountVectorizer
 
 rss_url = "https://github.com/ERSRisk/Tulane-Sentiment-Analysis/releases/download/rss_json/all_RSS.json.gz"
 
@@ -278,12 +279,15 @@ if topic_model is None:
     topic_model = BERTopic(
         language="english",
         verbose=True,
-        umap_model=UMAP(random_state=42),
-        hdbscan_model=HDBSCAN(min_cluster_size=15, prediction_data=True),
+        umap_model=UMAP(n_neighbors = 50, n_components = 10, min_dist = 0.0, metric = 'cosine', random_state = 42),
+        hdbscan_model=HDBSCAN(min_cluster_size=15, min_samples = 10, cluster_selection_method = 'eom', prediction_data=True),
+        vectorizer_model = CountVectorizer(ngram_range(1,2), stop_words = 'english', min_df = 5, max_df = 0.8),
         calculate_probabilities=True,
         seed_topic_list=None,
     )
     topics, probs = topic_model.fit_transform(df['Text'].tolist())
+    topic_model = topic_model.reduce_topics(docs, nr_topics=80)
+    topic_model = topic_model.merge_topics(docs, threshold=0.9)
     df['Topic'] = topics
     topics_arr = np.array(topics)
     df_prob = np.full(len(topics_arr), np.nan, dtype=float)
