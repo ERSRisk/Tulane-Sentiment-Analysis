@@ -1305,7 +1305,7 @@ async def process_article(article, sem, batch_number=None, total_batches=None, a
             Read the following title and content from the following article: 
             Title: {title}
             Content: {" ".join(str(content).split()[:400])}
-            Task: Decide if this is SPECIFICALLY about higher education/university news or university funding.
+            Task: Decide if this is SPECIFICALLY about higher education/university news or university funding in the UNITED STATES ONLY.
             Return a compact valid JSON with exactly these keys and no explanations:
             {{
               "Title": "same title",
@@ -1314,7 +1314,7 @@ async def process_article(article, sem, batch_number=None, total_batches=None, a
             }}
             
             Labeling rules:
-            - Return 1 ONLY if the article reports higher-ed institution news (policy changes, leadership changes with institutional impact, governance, research/funding awards, budgets, grants, legislation/regulation affecting universities, campus safety incidents, admissions/tuition decisions, strikes/protests at universities, accreditation).
+            - Return 1 ONLY if the article reports higher-ed institution news in the United States (policy changes, leadership changes with institutional impact, governance, research/funding awards, budgets, grants, legislation/regulation affecting universities, campus safety incidents, admissions/tuition decisions, strikes/protests at universities, accreditation).
             - Return 0 otherwise.
             
             Profiles clause (IMPORTANT):
