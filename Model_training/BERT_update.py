@@ -287,7 +287,7 @@ if topic_model is None:
     )
     topics, probs = topic_model.fit_transform(df['Text'].tolist())
     topic_model = topic_model.reduce_topics(df['Text'].tolist(), nr_topics=80)
-    topic_model = topic_model.merge_topics(df['Text'].tolist(), threshold=0.9)
+    topic_model = topic_model.reduce_topics(df['Text'].tolist(), similarity_threshold=0.9)
     df['Topic'] = topics
     topics_arr = np.array(topics)
     df_prob = np.full(len(topics_arr), np.nan, dtype=float)
