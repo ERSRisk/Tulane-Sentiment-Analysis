@@ -286,8 +286,31 @@ if topic_model is None:
         seed_topic_list=None,
     )
     topics, probs = topic_model.fit_transform(df['Text'].tolist())
-    topic_model = topic_model.reduce_topics(df['Text'].tolist(), nr_topics=80)
-    topic_model = topic_model.reduce_topics(df['Text'].tolist(), similarity_threshold=0.9)
+    c_tf_idf = topic_model.c_tf_idf_.toarray()
+
+# Cosine similarity between topics
+    S = cosine_similarity(c_tf_idf)
+    
+    # Build groups to merge where similarity >= your_threshold
+    thr = 0.80
+    n_topics = S.shape[0]
+    visited = set()
+    groups = []
+    for i in range(n_topics):
+        if i in visited: 
+            continue
+        group = {i}
+        for j in range(n_topics):
+            if i != j and S[i, j] >= thr:
+                group.add(j)
+        visited.update(group)
+        if len(group) > 1:
+            groups.append(sorted(group))
+    
+    # Merge the groups
+    if groups:
+        topic_model.merge_topics(df["Text"].tolist(), groups)
+    topic_model = topic_model.reduce_topics(df['Text'].tolist(), nr_topics='auto')
     df['Topic'] = topics
     topics_arr = np.array(topics)
     df_prob = np.full(len(topics_arr), np.nan, dtype=float)
