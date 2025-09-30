@@ -286,8 +286,8 @@ if topic_model is None:
         seed_topic_list=None,
     )
     topics, probs = topic_model.fit_transform(df['Text'].tolist())
-    topic_model = topic_model.reduce_topics(docs, nr_topics=80)
-    topic_model = topic_model.merge_topics(docs, threshold=0.9)
+    topic_model = topic_model.reduce_topics(df['Text'].tolist(), nr_topics=80)
+    topic_model = topic_model.merge_topics(df['Text'].tolist(), threshold=0.9)
     df['Topic'] = topics
     topics_arr = np.array(topics)
     df_prob = np.full(len(topics_arr), np.nan, dtype=float)
