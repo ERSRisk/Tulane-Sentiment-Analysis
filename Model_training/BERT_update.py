@@ -281,7 +281,7 @@ if topic_model is None:
         verbose=True,
         umap_model=UMAP(n_neighbors = 50, n_components = 10, min_dist = 0.0, metric = 'cosine', random_state = 42),
         hdbscan_model=HDBSCAN(min_cluster_size=15, min_samples = 10, cluster_selection_method = 'eom', prediction_data=True),
-        vectorizer_model = CountVectorizer(ngram_range(1,2), stop_words = 'english', min_df = 5, max_df = 0.8),
+        vectorizer_model = CountVectorizer(ngram_range=(1,2), stop_words = 'english', min_df = 5, max_df = 0.8),
         calculate_probabilities=True,
         seed_topic_list=None,
     )
