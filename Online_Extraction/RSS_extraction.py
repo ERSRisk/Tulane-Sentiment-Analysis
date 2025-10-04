@@ -1269,6 +1269,43 @@ def Chronicle(max_articles=None, save_format='csv'):
   except Exception as e:
       print(f"Error: {e}")
       return []
+def highered():
+  data = []
+  for i in range(0, 10):
+      url = f'https://www.insidehighered.com/news?page={i}'
+      base_url = 'https://www.insidehighered.com'
+      response = requests.get(url)
+      soup = BeautifulSoup(response.content, 'html.parser')
+      articles = soup.find_all('h4')
+      articles = [a['href'] for article in articles for a in article.find_all('a', href = True)]
+      
+      for article in articles:
+          url = base_url + article
+          s = requests.Session()
+          s.headers.update({"Cookie": "ZXlKMGVYQWlPaUpLVjFRaUxDSmhiR2NpT2lKSVV6STFOaUo5LmV5SnBjM01pT2lKb2RIUndjem92TDNkM2R5NXdaV3hqY204dVkyOXRMMkZ3YVM5Mk1TOXpaR3N2WTNWemRHOXRaWEl2Y21WbWNtVnphQ0lzSW1saGRDSTZNVGMxT1RVME9URXlNaXdpWlhod0lqb3hOelkwTnpNek1USXlMQ0p1WW1ZaU9qRTNOVGsxTkRreE1qSXNJbXAwYVNJNklrTTBjbWhLZFROT1lWUjJRMVZRTkVVaUxDSnpkV0lpT2lJNU1qUXlNVEk0SWl3aWNISjJJam9pTWpOaVpEVmpPRGswT1dZMk1EQmhaR0l6T1dVM01ERmpOREF3T0RjeVpHSTNZVFU1TnpabU55SjkuQlU2Y2IwOWRzMmJtUmpLZ1hZajFPYnpNMlkyWGEyVzlhWU5zOUY2LUdvYw=="})
+          response = s.get(url)
+          soup = BeautifulSoup(response.content, 'html.parser')
+          title = soup.find('h1', class_='node-title normal-spacing').get_text(strip = True) if soup.find('h1', class_='node-title normal-spacing') else 'No Title Found'
+          text = trafilatura.extract(response.text)
+          needle_literal = "You have /5 articles left.\\nSign up for a free account or log in.\n"
+          needle_newline = "You have /5 articles left.\nSign up for a free account or log in.\n"
+  
+          text = text.replace(needle_literal, '').replace(needle_newline, '')
+          summary = soup.find('div', class_='node-lead normal-spacing').get_text(strip = True) if soup.find('div', class_='node-lead normal-spacing') else 'No Summary Found'
+  
+          published = soup.select_one('.node-created span').get_text(strip = True) if soup.select_one('.node-created span') else 'Unknown'
+          if published != 'Unknown':
+              published = pd.to_datetime(published, format = '%B %d, %Y', errors = 'coerce')
+              published = published.strftime('%Y-%m-%d') if pd.notnull(published) else 'Unknown'
+          data.append({
+              'Title': title,
+              'Link': url,
+              'Published': published,
+              'Summary': summary,
+              'Content': text if text else 'No Content Found',
+              'Source': 'Inside Higher Ed'
+          })
+    return data
 def Whitehouse():
   url = 'https://www.whitehouse.gov/presidential-actions/executive-orders/'
 
@@ -1315,6 +1352,7 @@ ace = Ace()
 data = Whitehouse()
 chronicle = Chronicle(max_articles=None, save_format='none')
 aau = AAU_Press_Releases(max_articles=None, save_format='none')
+highered = highered()
 
 try:
     all_articles = asyncio.run(batch_process_feeds(feeds, batch_size=5, concurrent_batches=2))
@@ -1328,6 +1366,7 @@ all_articles += ace
 all_articles += data
 all_articles += chronicle
 all_articles += aau
+all_articles += highered
 
 existing_articles = load_existing_articles()
 new_articles = save_new_articles(existing_articles, all_articles)
