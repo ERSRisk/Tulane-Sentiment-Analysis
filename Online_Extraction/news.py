@@ -135,7 +135,7 @@ def analyze_sentiment(text_to_analyze, search, retries=5):
                 "Tulane was found in the text. Here is the full content for analysis.\n"
                 f"{text_to_analyze}"
             )
-            gemini_response = client.models.generate_content(model="gemini-1.5-pro", contents=[sentiment_prompt])
+            gemini_response = client.models.generate_content(model="gemini-2.5-pro", contents=[sentiment_prompt])
             return gemini_response.text if gemini_response and gemini_response.text else ""
         except ClientError as e:
             if "RESOURCE_EXHAUSTED" in str(e):
