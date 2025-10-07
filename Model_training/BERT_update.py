@@ -156,7 +156,7 @@ def save_to_json(topics, topic_names):
             "keywords": keywords,
             "documents": docs
         })
-    with open('Model_training/topic_BERT.json', 'w') as f:
+    with open('Model_training/topics_BERT.json', 'w') as f:
         json.dump(topic_dict, f, indent=4)
 
 topic_blocks = []
@@ -251,7 +251,7 @@ def get_topic(temp_model, topic_ids):
 
     return topic_name_pairs
     
-def label_model_topics(topic_model, path = 'Model_training/topic_BERT.json'):
+def label_model_topics(topic_model, path = 'Model_training/topics_BERT.json'):
     with open(path, 'r') as f:
         topics_json = json.load(f)
     topic_map = {int(t['topic']): t for t in topics_json}
@@ -401,7 +401,7 @@ def transform_text(texts):
         return vecs/norms
 
     try:
-        with open('Model_training/topic_BERT.json', 'r', encoding = 'utf-8') as f:
+        with open('Model_training/topics_BERT.json', 'r', encoding = 'utf-8') as f:
             topics_json = json.load(f)['topics']
     except Exception as e:
         topics_json = []
@@ -571,7 +571,7 @@ def existing_risks_json(topic_name_pairs, topic_model):
     model = SentenceTransformer('all-MiniLM-L6-v2')
 
     # Load existing named topics (for matching to *known* topics)
-    with open('Model_training/topic_BERT.json', 'r', encoding='utf-8') as f:
+    with open('Model_training/topics_BERT.json', 'r', encoding='utf-8') as f:
         topics = json.load(f)
 
     existing_topic_names = [t['name'] for t in topics if 'name' in t]
@@ -1362,11 +1362,11 @@ def track_over_time(df, week_anchor="W-MON", out_csv="Model_training/topic_trend
     # --- 3) Topic names (safe load) ---
     topic_name_map = {}
     try:
-        with open('Model_training/topic_BERT.json', 'r', encoding='utf-8') as f:
+        with open('Model_training/topics_BERT.json', 'r', encoding='utf-8') as f:
             topics_json = json.load(f)
             topic_name_map = {t['topic']: t['name'] for t in topics_json if 'topic' in t and 'name' in t}
     except FileNotFoundError:
-        print("⚠️ topic_BERT.json not found; labeling as 'Unlabeled Topic'.")
+        print("⚠️ topics_BERT.json not found; labeling as 'Unlabeled Topic'.")
 
     df['Topic_Name'] = df.get('Topic').map(topic_name_map) if 'Topic' in df.columns else "Unlabeled Topic"
     df['Topic_Name'] = df['Topic_Name'].fillna('Unlabeled Topic')
