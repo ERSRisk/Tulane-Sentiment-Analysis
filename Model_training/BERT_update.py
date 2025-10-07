@@ -156,7 +156,7 @@ def save_to_json(topics, topic_names):
             "keywords": keywords,
             "documents": docs
         })
-    with open('Model_training/topics_BERT.json', 'w') as f:
+    with open('Model_training/topic_BERT.json', 'w') as f:
         json.dump(topic_dict, f, indent=4)
 
 topic_blocks = []
@@ -251,7 +251,7 @@ def get_topic(temp_model, topic_ids):
 
     return topic_name_pairs
     
-def label_model_topics(topic_model, path = 'Model_training/topics_BERT.json'):
+def label_model_topics(topic_model, path = 'Model_training/topic_BERT.json'):
     with open(path, 'r') as f:
         topics_json = json.load(f)
     topic_map = {int(t['topic']): t for t in topics_json}
@@ -379,14 +379,88 @@ def transform_text(texts):
                 all_topics[i] = int(best)
     if any(t == -1 for t in all_topics):
         all_topics = topic_model.reduce_outliers(texts_list, all_topics, strategy = 'embeddings', threshold = 0.3)
+    
+    remaining_idx = [i for i, t in enumerate(all_topics) if t==-1]
+    if remaining_idx:
+        embedder = None
+        if hasattr(topic_model, 'embedding_model_') and topic_model.embedding_model_ is not None:
+            embedder = topic_model.embedding_model_
+        elif hasattr(topic_model, 'embedding_model') and topic_model.embedding_model is not None:
+            embedder = topic_model.embedding_model
+        else:
+            raise RuntimeError("Could not locate BERTopic's embedding model.")
+    def encode(texts_list):
+        if hasattr(embedder, 'embed_documents'):
+            vecs = embedder.embed_documents(texts_list)
+        elif hasattr(embedder, 'encode'):
+            vecs = embedder.encode(texts_list, show_progress_bar = True, convert_to_numpy = False)
+        else:
+            vecs = embedder.transform(texts_list)
+        vecs = np.asarray(vecs, dtype = np.float32)
+        norms = np.linalg.norm(vecs, axis = 1, keepdims = True) + 1e-12
+        return vecs/norms
+
+    try:
+        with open('Model_training/topic_BERT.json', 'r', encoding = 'utf-8') as f:
+            topics_json = json.load(f)['topics']
+    except Exception as e:
+        topics_json = []
+        print(f"[warn] Could not read {topics_json_path}: {e}")
+
+    centroids = []
+    streamlit_topic_ids = []
+    for t in topic_json:
+        if t.get('source') != 'Streamlit':
+            continue
+        reps = (t.get('documents') or [])
+        if not reps:
+            reps = [f"{t.get('name','')} ; {t.get('keywords','')}"]
+        E = encode(reps[:200])
+        c = E.mean(axis = 0)
+        c = c / (np.linalg.norm(c) + 1e-12)
+        centroids.append(c)
+        streamlit_topic_ids.append(int(t['topic']))
+
+    if centroids:
+        C = np.stack(centroids, axis = 0)
+        E = encode([texts_list[i] for i in remaining_idx])
+        sims = E @ C.T
+        j_best = np.argmax(sims, axis =1)
+        s_best = sims[np.arange(sims.shape[0]), j_best]
+
+        for row_pos, idx in enumerate(remaining_idx):
+            if s_best[row_pos] >= 0.35:
+                all_topics[idx] = int(streamlit_topic_ids[j_best[row_pos]])
+
+        st_cos = np.full(len(texts_list), np.nan, dtype = np.float32)
+        for row_pos, idx in enumerate(remaining_idx):
+            st_cos[idx] = float(s_best[row_pos])
+        df["StreamlitCosine"] = st_cos
+
+    else:
+        print("[info] No Streamlit topics with usable centroids found; skipping cosine assignment.")
+            
+            
+    
     texts['Topic'] = all_topics
     assigned_probs = []
     for t, p in zip(all_topics, all_probs):
-        if p is None or t < 0:
+        if p is None or t < 0 or t >= len(p):
             assigned_probs.append(np.nan)
         else:
-            assigned_probs.append(p[t])   # pick prob of assigned topic
+            assigned_probs.append(float(p[t]))   # pick prob of assigned topic
     texts['Probability'] = assigned_probs
+    how = []
+    for i, (t,p, sim) in enumerate(zip(texts['Topic'], texts['Probability'], texts.get('StreamlitCosine', [np.nan]*len(df)))):
+        if t == -1:
+            how.append('Unassigned')
+        elif not np.isnan(p):
+            how.append('bertopic')
+        elif not np.isnan(sim):
+            how.append('streamlit-cosine')
+        else:
+            how.append('other')
+    texts['Assigned_how'] = how
     return texts
 def save_new_topics(existing_df, new_df, path = 'Model_training/BERTopic_results2.csv.gz'):
     if 'Link' in existing_df and 'Link' in new_df:
@@ -497,7 +571,7 @@ def existing_risks_json(topic_name_pairs, topic_model):
     model = SentenceTransformer('all-MiniLM-L6-v2')
 
     # Load existing named topics (for matching to *known* topics)
-    with open('Model_training/topics_BERT.json', 'r', encoding='utf-8') as f:
+    with open('Model_training/topic_BERT.json', 'r', encoding='utf-8') as f:
         topics = json.load(f)
 
     existing_topic_names = [t['name'] for t in topics if 'name' in t]
@@ -1288,11 +1362,11 @@ def track_over_time(df, week_anchor="W-MON", out_csv="Model_training/topic_trend
     # --- 3) Topic names (safe load) ---
     topic_name_map = {}
     try:
-        with open('Model_training/topics_BERT.json', 'r', encoding='utf-8') as f:
+        with open('Model_training/topic_BERT.json', 'r', encoding='utf-8') as f:
             topics_json = json.load(f)
             topic_name_map = {t['topic']: t['name'] for t in topics_json if 'topic' in t and 'name' in t}
     except FileNotFoundError:
-        print("⚠️ topics_BERT.json not found; labeling as 'Unlabeled Topic'.")
+        print("⚠️ topic_BERT.json not found; labeling as 'Unlabeled Topic'.")
 
     df['Topic_Name'] = df.get('Topic').map(topic_name_map) if 'Topic' in df.columns else "Unlabeled Topic"
     df['Topic_Name'] = df['Topic_Name'].fillna('Unlabeled Topic')
