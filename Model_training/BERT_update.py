@@ -372,6 +372,13 @@ def transform_text(texts):
         all_topics.extend(topics)
         all_probs.extend(probs)
         print(f"✅ Transformed batch {i//batch_size + 1}/{(len(texts_list) // batch_size) + 1}")
+    for i, (t,p) in enumerate(zip(all_topics, all_probs)):
+        if t == -1 and p is not None:
+            best = p.argmax()
+            if p[best] >= 0.1:
+                all_topics[i] = int(best)
+    if any(t == -1 for t in all_topics):
+        all_topics = topic_model.reduce_outliers(texts_list, all_topics, strategy = 'embeddings', threshold = 0.3)
     texts['Topic'] = all_topics
     assigned_probs = []
     for t, p in zip(all_topics, all_probs):
