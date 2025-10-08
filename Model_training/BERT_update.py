@@ -409,7 +409,7 @@ def transform_text(texts):
 
     centroids = []
     streamlit_topic_ids = []
-    for t in topic_json:
+    for t in topics_json:
         if t.get('source') != 'Streamlit':
             continue
         reps = (t.get('documents') or [])
