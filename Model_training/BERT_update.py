@@ -390,38 +390,47 @@ def transform_text(texts):
             raise RuntimeError("Could not locate BERTopic's embedding model.")
         return embedder
         
-    embedder = get_embedder(topic_model)
         
-        
+    def embedding_dim(embedder):
+        # Works for raw SentenceTransformer or BERTopic backends
+        if hasattr(embedder, "get_sentence_embedding_dimension"):
+            return embedder.get_sentence_embedding_dimension()
+        if hasattr(embedder, "embedding_model") and hasattr(embedder.embedding_model, "get_sentence_embedding_dimension"):
+            return embedder.embedding_model.get_sentence_embedding_dimension()
+        # Last resort: probe once
+        if hasattr(embedder, "encode"):
+            v = np.asarray(embedder.encode(["x"], convert_to_numpy=True))
+        elif hasattr(embedder, "embed"):
+            v = np.asarray(embedder.embed(["x"]))
+        else:
+            raise RuntimeError("Unknown embedder type; cannot determine embedding dim.")
+        return int(v.shape[-1])
+    
     def encode(texts, embedder):
-        # Ensure list input
+        # Normalize input
         if isinstance(texts, str):
             texts = [texts]
         elif texts is None:
             texts = []
         else:
-            # remove Nones and strip
             texts = [t.strip() if isinstance(t, str) else "" for t in texts]
     
-        # Short-circuit empty batch
         if len(texts) == 0:
-            # Return a (0, d) array so later code can concatenate safely
-            d = embedder.get_sentence_embedding_dimension()
+            d = embedding_dim(embedder)
             return np.zeros((0, d), dtype=np.float32)
     
-        # Always get a 2-D NumPy array
-        vecs = embedder.encode(
-            texts,
-            convert_to_numpy=True,
-            normalize_embeddings=False,   # we’ll normalize ourselves
-            batch_size=64,
-            show_progress_bar=False,
-        )
-        vecs = np.asarray(vecs)
-        if vecs.ndim == 1:               # e.g., a single vector (d,)
-            vecs = vecs.reshape(1, -1)
+        # Support both raw SentenceTransformer and BERTopic backend
+        if hasattr(embedder, "encode"):
+            vecs = embedder.encode(texts, convert_to_numpy=True, normalize_embeddings=False,
+                                   batch_size=64, show_progress_bar=False)
+        elif hasattr(embedder, "embed"):
+            vecs = np.asarray(embedder.embed(texts))
+        else:
+            raise RuntimeError("Embedder has neither .encode nor .embed")
     
-        # L2 normalize row-wise
+        vecs = np.asarray(vecs)
+        if vecs.ndim == 1:
+            vecs = vecs.reshape(1, -1)
         norms = np.linalg.norm(vecs, axis=1, keepdims=True) + 1e-12
         return vecs / norms
 
@@ -432,36 +441,49 @@ def transform_text(texts):
         topics_json = []
         print(f"[warn] Could not read {topics_json_path}: {e}")
 
+    remaining_idx = [i for i, t in enumerate(all_topics) if t == -1]
+
+    # Short-circuit if nothing to assign
+    if not remaining_idx:
+        texts['Topic'] = all_topics
+        # ... continue assembling outputs as you already do
+        return texts
+    
+    embedder = get_embedder(topic_model)
+    
+    # Build centroids from representative docs (NOT remaining_idx)
     centroids = []
     streamlit_topic_ids = []
+    rep = topic_model.get_representative_docs()
+    rep_map = {int(k): v for k, v in rep.items() if v} if isinstance(rep, dict) else {}
+    
     for t in topics_json:
         if t.get('source') != 'Streamlit':
             continue
-        reps = (t.get('documents') or [])
-        if not reps:
-            reps = [f"{t.get('name','')} ; {t.get('keywords','')}"]
-        E = encode([texts_list[i] for i in remaining_idx], embedder)
-        c = E.mean(axis = 0)
+        reps = rep_map.get(int(t['topic'])) or [f"{t.get('name','')} ; {t.get('keywords','')}"]
+        E_rep = encode(reps, embedder)
+        if E_rep.shape[0] == 0:
+            continue
+        c = E_rep.mean(axis=0)
         c = c / (np.linalg.norm(c) + 1e-12)
         centroids.append(c)
         streamlit_topic_ids.append(int(t['topic']))
-
+    
     if centroids:
-        C = np.stack(centroids, axis = 0)
-        E = encode([texts_list[i] for i in remaining_idx])
-        sims = E @ C.T
-        j_best = np.argmax(sims, axis =1)
-        s_best = sims[np.arange(sims.shape[0]), j_best]
-
-        for row_pos, idx in enumerate(remaining_idx):
-            if s_best[row_pos] >= 0.35:
-                all_topics[idx] = int(streamlit_topic_ids[j_best[row_pos]])
-
-        st_cos = np.full(len(texts_list), np.nan, dtype = np.float32)
-        for row_pos, idx in enumerate(remaining_idx):
-            st_cos[idx] = float(s_best[row_pos])
-        df["StreamlitCosine"] = st_cos
-
+        C = np.stack(centroids, axis=0)
+        E = encode([texts_list[i] for i in remaining_idx], embedder)  # <-- pass embedder
+        if E.shape[0] > 0:
+            sims = E @ C.T
+            j_best = np.argmax(sims, axis=1)
+            s_best = sims[np.arange(sims.shape[0]), j_best]
+            for row_pos, idx in enumerate(remaining_idx):
+                if s_best[row_pos] >= 0.35:
+                    all_topics[idx] = int(streamlit_topic_ids[j_best[row_pos]])
+    
+            st_cos = np.full(len(texts_list), np.nan, dtype=np.float32)
+            for row_pos, idx in enumerate(remaining_idx):
+                st_cos[idx] = float(s_best[row_pos])
+            texts["StreamlitCosine"] = st_cos
     else:
         print("[info] No Streamlit topics with usable centroids found; skipping cosine assignment.")
             
