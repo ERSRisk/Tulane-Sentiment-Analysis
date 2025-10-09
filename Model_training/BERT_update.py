@@ -393,16 +393,37 @@ def transform_text(texts):
     embedder = get_embedder(topic_model)
         
         
-    def encode(texts_list):
-        if hasattr(embedder, 'embed_documents'):
-            vecs = embedder.embed_documents(texts_list)
-        elif hasattr(embedder, 'encode'):
-            vecs = embedder.encode(texts_list, show_progress_bar = True, convert_to_numpy = False)
+    def encode(texts, embedder):
+        # Ensure list input
+        if isinstance(texts, str):
+            texts = [texts]
+        elif texts is None:
+            texts = []
         else:
-            vecs = embedder.transform(texts_list)
-        vecs = np.asarray(vecs, dtype = np.float32)
-        norms = np.linalg.norm(vecs, axis = 1, keepdims = True) + 1e-12
-        return vecs/norms
+            # remove Nones and strip
+            texts = [t.strip() if isinstance(t, str) else "" for t in texts]
+    
+        # Short-circuit empty batch
+        if len(texts) == 0:
+            # Return a (0, d) array so later code can concatenate safely
+            d = embedder.get_sentence_embedding_dimension()
+            return np.zeros((0, d), dtype=np.float32)
+    
+        # Always get a 2-D NumPy array
+        vecs = embedder.encode(
+            texts,
+            convert_to_numpy=True,
+            normalize_embeddings=False,   # we’ll normalize ourselves
+            batch_size=64,
+            show_progress_bar=False,
+        )
+        vecs = np.asarray(vecs)
+        if vecs.ndim == 1:               # e.g., a single vector (d,)
+            vecs = vecs.reshape(1, -1)
+    
+        # L2 normalize row-wise
+        norms = np.linalg.norm(vecs, axis=1, keepdims=True) + 1e-12
+        return vecs / norms
 
     try:
         with open('Model_training/topics_BERT.json', 'r', encoding = 'utf-8') as f:
@@ -419,7 +440,7 @@ def transform_text(texts):
         reps = (t.get('documents') or [])
         if not reps:
             reps = [f"{t.get('name','')} ; {t.get('keywords','')}"]
-        E = encode(reps[:200])
+        E = encode([texts_list[i] for i in remaining_idx], sentence_model)
         c = E.mean(axis = 0)
         c = c / (np.linalg.norm(c) + 1e-12)
         centroids.append(c)
