@@ -381,14 +381,18 @@ def transform_text(texts):
         all_topics = topic_model.reduce_outliers(texts_list, all_topics, strategy = 'embeddings', threshold = 0.3)
     
     remaining_idx = [i for i, t in enumerate(all_topics) if t==-1]
-    if remaining_idx:
-        embedder = None
+    def get_embedder(topic_model):
         if hasattr(topic_model, 'embedding_model_') and topic_model.embedding_model_ is not None:
             embedder = topic_model.embedding_model_
         elif hasattr(topic_model, 'embedding_model') and topic_model.embedding_model is not None:
             embedder = topic_model.embedding_model
         else:
             raise RuntimeError("Could not locate BERTopic's embedding model.")
+        return embedder
+        
+    embedder = get_embedder(topic_model)
+        
+        
     def encode(texts_list):
         if hasattr(embedder, 'embed_documents'):
             vecs = embedder.embed_documents(texts_list)
