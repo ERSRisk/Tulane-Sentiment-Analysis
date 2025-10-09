@@ -440,7 +440,7 @@ def transform_text(texts):
         reps = (t.get('documents') or [])
         if not reps:
             reps = [f"{t.get('name','')} ; {t.get('keywords','')}"]
-        E = encode([texts_list[i] for i in remaining_idx], sentence_model)
+        E = encode([texts_list[i] for i in remaining_idx], embedder)
         c = E.mean(axis = 0)
         c = c / (np.linalg.norm(c) + 1e-12)
         centroids.append(c)
