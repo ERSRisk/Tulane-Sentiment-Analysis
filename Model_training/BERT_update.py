@@ -533,8 +533,45 @@ def double_check_articles(df):
     double_check = [text for text in double_check if text.strip()]
     if not double_check:
         return None, []
-    temp_model = BERTopic(language = 'english', verbose = True)
-    temp_model.fit_transform(double_check)
+    n = len(double_check)
+    if n < 3:
+        print(f"[info] Skipping double_check_articles: only {n} doc(s).")
+        return None, []
+    safe_neighbors = max(2, min(10, n-1))
+    safe_components = max(1, min(5, n-1))
+    min_cluster_size = max(2, min(15, max(2, n//2)))
+    umap_small = UMAP(
+        n_neighbors=safe_neighbors,
+        n_components=safe_components,
+        min_dist=0.0,
+        metric='cosine',
+        init='random',          # <-- avoids spectral eigendecomposition
+        random_state=42,
+    )
+    hdbscan_small = HDBSCAN(
+        min_cluster_size=min_cluster_size,
+        min_samples=None,
+        cluster_selection_method='eom',
+        prediction_data=True,
+    )
+
+    temp_model = BERTopic(
+        language='english',
+        verbose=True,
+        umap_model=umap_small,
+        hdbscan_model=hdbscan_small,
+        calculate_probabilities=True,
+    )
+    try:
+        temp_model.fit_transform(double_check)
+    except TypeError as e:
+        # Catch the k >= N spectral error or any other tiny-graph hiccup
+        print(f"[warn] Fallback in double_check_articles due to: {e}")
+        return None, []
+    except Exception as e:
+        print(f"[warn] Could not double-check topics: {e}")
+        return None, []
+
     topic_ids = temp_model.get_topic_info()
     topic_ids = topic_ids[topic_ids['Topic'] != -1]['Topic'].tolist()
     return temp_model, topic_ids
