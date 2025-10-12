@@ -477,7 +477,7 @@ def transform_text(texts):
             j_best = np.argmax(sims, axis=1)
             s_best = sims[np.arange(sims.shape[0]), j_best]
             for row_pos, idx in enumerate(remaining_idx):
-                if s_best[row_pos] >= 0.35:
+                if s_best[row_pos] >= 0.40:
                     all_topics[idx] = int(streamlit_topic_ids[j_best[row_pos]])
     
             st_cos = np.full(len(texts_list), np.nan, dtype=np.float32)
