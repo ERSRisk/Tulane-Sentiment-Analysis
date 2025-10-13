@@ -1368,12 +1368,97 @@ def risk_weights(df):
     base = base.reset_index().rename(columns={'index':'ArticleID'})
 
     return base
+    
+def get_release_by_tag(owner, repo, tag):
+    url = f'https://api.github.com/repos/{owner}/{repo}/releases/tags/{tag}'
+    r = requests.get(url, headers = gh_headers())
+    if r.status_code == 404:
+        return None
+    r.raise_for_status()
+    return r.json()
+    
 def predict_risks(df):
+    def load_model_bundle(owner, repo, tag, asset_name = 'model_bundle.pkl', local_cache_path = 'Model_training/artifacts/model_bundle.pkl'):
+        P = Path(local_cache_path)
+        P.parent.mkdir(parents = True, exist_ok=True)
+
+        if P.exists() and P.stat().st_size > 0:
+            return joblib.load(P)
+        rel = get_release_by_tag(owner, repo, tag)
+        if not rel:
+            raise RuntimeError(f"Release tag {tag} not found")
+        assets = rel.get('assets', []) or []
+        asset = next((a for a in assets if a.get('name')==asset_name), None)
+        if not asset:
+            raise RuntimeError(f"Asset {asset_name} not found")
+
+        asset_url =asset['url']
+        headers = gh_headers()
+        headers['Accept'] = 'application/octet-stream'
+        r = requests.get(asset_url, headers = headers, timeout = 120)
+        r.raise_for_status()
+        P.write_bytes(r.content)
+        return joblib.load(P)
+
+    def soft_cosine_probs(vecs, label_emb):
+        cos = vecs @ label_emb.T
+        cos = (cos + 1.0) / 2.0
+        denom = cos.sum(axis = 1, keepdims = True) + 1e-12
+        return cos/denom
+
+    def predict_with_fallback(proba_lr, cos_all, prob_cut, margin_cut, tau, trained_labels, all_labels):
+        # LR confidence check
+        top_idx = proba_lr.argmax(axis=1)
+        top_val = proba_lr[np.arange(len(proba_lr)), top_idx]
+        # second best
+        tmp = proba_lr.copy()
+        tmp[np.arange(len(tmp)), top_idx] = -1
+        second = tmp.max(axis=1)
+        margin = top_val - second
+        use_lr = (top_val >= prob_cut) & (margin >= margin_cut)
+    
+        # Cosine decisions (open set)
+        cos_all_max = cos_all.max(axis=1)
+        cos_all_idx = cos_all.argmax(axis=1)
+    
+        # Compose final label names
+        lr_names  = np.array(trained_labels)[top_idx]
+        cos_names = np.array(all_labels)[cos_all_idx]
+        final_names = np.where(use_lr, lr_names, cos_names)
+        final_names = np.where(~use_lr & (cos_all_max < tau), "No Risk", final_names)
+    
+        return {
+            "final_names": final_names,
+            "use_lr": use_lr,
+            "lr_top_idx": top_idx,
+            "lr_top_prob": top_val,
+            "cos_all_idx": cos_all_idx,
+            "cos_all_max": cos_all_max,
+        }
+        
+    bundle = load_model_bundle(Github_owner, Github_repo, 'releases')
+    clf = bundle['clf']
+    scaler = bundle['scaler']
+    pca = bundle['pca']
+    le = bundle['label_encoder']
+    trained_labels = bundle['trained_label_names']
+    risk_defs = bundle['risk_defs']
+    model_name = bundle['sentence_model_name']
+    prob_cut = float(bundle['best_prob_cut'])
+    margin_cut = float(bundle['best_margin_cut'])
+    tau = float(bundle['openset_tau'])
+    numeric_factors = list(bundle['numeric_factors'])
+    trained_label_txt = list(bundle['trained_label_text'])
+    all_labels = list(bundle['all_labels'])
+    all_label_txt = list(bundle['all_label_text'])
+    
+    
     df = df.copy()
     df['Title'] = df['Title'].fillna('').str.strip()
 
     df['Content'] = df['Content'].fillna('').str.strip()
     df['Text'] = (df['Title'] + '. ' + df['Content']).str.strip()
+    
     df = df.reset_index(drop = True)
     todo_mask = (df['Predicted_Risks_new'].isna()) | (df['Predicted_Risks_new'].eq('')) | (df['Predicted_Risks_new'].eq('No Risk'))
     recent_cut = pd.Timestamp.now(tz='utc') - pd.Timedelta(days=30)
@@ -1381,6 +1466,7 @@ def predict_risks(df):
     recent_mask = df['Published_utc'] >= recent_cut
     todo_mask &= recent_mask.fillna(False)
     texts = df.loc[todo_mask, 'Text'].tolist()
+    change = texts
     if not texts:
         return df
    
@@ -1390,24 +1476,62 @@ def predict_risks(df):
 
     all_risks = [risk['name'] for group in risks_data['new_risks'] for risks in group.values() for risk in risks]
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    model = SentenceTransformer('all-mpnet-base-v2', device = device)
+    model = SentenceTransformer(model_name, device = device)
     # Encode articles and risks
     article_embeddings = model.encode(texts, show_progress_bar=True, convert_to_tensor=True, batch_size=256 if device=='cuda' else 32)
-    risk_embeddings = model.encode(all_risks, convert_to_tensor=True)
+    C = model.encode(change, show_progress_bar=True, convert_to_tensor=True, batch_size=256 if device=='cuda' else 32)
+    #risk_embeddings = model.encode(all_risks, convert_to_tensor=True)
+    X_text = np.hstack([article_embeddings, C])
+    X_text_red = pca.transform(X_text) if pca is not None else X_text
+    n = len(df)
+    if len(numeric_factors) == 0:
+        num_scaled = np.zeroes((n, 0))
+    else:
+        means = np.asarray(bundle['scaler'].mean_, d_type = float)
+        num_mat = np.tile(means, (n, 1))
+        num_scaled = bundle['scaler'].transform(num_mat)
 
+    topic_ids = pd.to_numeric(df.get['Topic'], errors = 'coerce').fillna(-1).to_numpy().reshape(-1, 1)
+    topic_probs = pd.to_numeric(df.get['Probability'], errors = 'coerce').fillna(0.0).to_numpy().reshape(-1,1)
+    tid_scaled = (topic_ids - topic_ids.min())/(topic_ids.max() - topic_ids.min() + 1e-12)
+
+    X_all = np.hstack([X_text_red, num_scaled, tid_scaled, topic_probs])
+    proba = clf.predict_proba(X_all)
+
+    avg_emb = 0.5 * (article_embeddings + C)
+    avg_emb = avg_emb / (np.linalg.norm(avg_emb, axis = 1, keepdims =True) + 1e-12)
+    lbl_emb_trained = model.encode(trained_label_text, show_progress_bar = True, normalize_embeddings = True, batch_size = 256)
+    lbl_emb_all = model.encode(all_label_txt, show_progress_bar = True, normalize_embeddings = True, batch_size = 256)
+
+    cos_all =soft_cosine_probs(avg_emb, lbl_emb_all)
+
+    out = predict_with_fallback(proba, cos_all, prob_cut, margin_cut, tau, trained_labels, all_labels)
+    df_out = df.copy()
+    df_out['pred_source'] = np.where(out['use_lr'], 'lr', 'cos')
+    df_out['Pred_Risk_Final'] = out['final_names']
+    df_out['Pred_LR_label'] = out['lr_top_prob']
+    df_out['Pred_cos_label_all'] = np.array(all_labels)[out['cos_all_idx']]
+    df_out['Pred_cos_score_all'] = out['cos_all_max']
+
+    tmp = proba.copy()
+    tmp[np.arange(len(tmp)), out['lr_top_idx']] = -1
+    df_out['Pred_LR_Margin'] = df_out['Pred_LR_Prob'] - tmp.max(axis = 1)
+    
+
+    
     # Calculate cosine similarity
-    cosine_scores = util.cos_sim(article_embeddings, risk_embeddings)
+    #cosine_scores = util.cos_sim(article_embeddings, risk_embeddings)
 
-    if 'Predicted_Risks_new' not in df.columns:
-        df['Predicted_Risks_new'] = ''
+    #if 'Predicted_Risks_new' not in df.columns:
+    #    df['Predicted_Risks_new'] = ''
     # Assign risks based on threshold
-    threshold = 0.35  # you can tune this
-    out = []
-    for row in cosine_scores:
-        matched = [all_risks[j] for j, s in enumerate(row) if float(s) >= threshold]
-        out.append('; '.join(matched) if matched else 'No Risk')
-    df.loc[todo_mask, 'Predicted_Risks_new'] = out
-    return df
+    #threshold = 0.35  # you can tune this
+    #out = []
+    #for row in cosine_scores:
+    #    matched = [all_risks[j] for j, s in enumerate(row) if float(s) >= threshold]
+    #    out.append('; '.join(matched) if matched else 'No Risk')
+    #df.loc[todo_mask, 'Predicted_Risks_new'] = out
+    return df_out
 def track_over_time(df, week_anchor="W-MON", out_csv="Model_training/topic_trend.csv"):
 
     if 'Published' not in df.columns:
@@ -1621,13 +1745,7 @@ def load_university_label(new_label):
 
 
 
-def get_release_by_tag(owner, repo, tag):
-    url = f'https://api.github.com/repos/{owner}/{repo}/releases/tags/{tag}'
-    r = requests.get(url, headers = gh_headers())
-    if r.status_code == 404:
-        return None
-    r.raise_for_status()
-    return r.json()
+
 
 
 
@@ -1710,6 +1828,7 @@ if temp_model and topic_ids:
     existing_risks_json(topic_name_pairs, temp_model)
 #Assign weights to each article
 df = predict_risks(df_combined)
+
 df['Predicted_Risks'] = df.get('Predicted_Risks_new', '')
 #print("✅ Applying risk_weights...", flush=True)
 atomic_write_csv('Model_training/Step1.csv.gz', df, compress = True)
