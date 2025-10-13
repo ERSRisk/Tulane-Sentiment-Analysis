@@ -1465,6 +1465,7 @@ def predict_risks(df):
     df['Published_utc'] = pd.to_datetime(df['Published'], errors='coerce', utc = True)
     recent_mask = df['Published_utc'] >= recent_cut
     todo_mask &= recent_mask.fillna(False)
+    sub = df.loc[todo_mask].copy()
     texts = df.loc[todo_mask, 'Text'].tolist()
     change = texts
     if not texts:
@@ -1478,21 +1479,21 @@ def predict_risks(df):
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     model = SentenceTransformer(model_name, device = device)
     # Encode articles and risks
-    article_embeddings = model.encode(texts, show_progress_bar=True, convert_to_tensor=True, batch_size=256 if device=='cuda' else 32)
-    C = model.encode(change, show_progress_bar=True, convert_to_tensor=True, batch_size=256 if device=='cuda' else 32)
+    article_embeddings = model.encode(texts, convert_to_numpy = True, normalize_embeddings = True, show_progress_bar=True,  batch_size=256 if device=='cuda' else 32)
+    C = model.encode(change, normalize_embeddings = True, convert_to_numpy =True, show_progress_bar=True, batch_size=256 if device=='cuda' else 32)
     #risk_embeddings = model.encode(all_risks, convert_to_tensor=True)
     X_text = np.hstack([article_embeddings, C])
     X_text_red = pca.transform(X_text) if pca is not None else X_text
-    n = len(df)
+    n = len(texts)
     if len(numeric_factors) == 0:
-        num_scaled = np.zeroes((n, 0))
+        num_scaled = np.zeros((n, 0))
     else:
-        means = np.asarray(bundle['scaler'].mean_, d_type = float)
+        means = np.asarray(bundle['scaler'].mean_, dtype = float)
         num_mat = np.tile(means, (n, 1))
         num_scaled = bundle['scaler'].transform(num_mat)
 
-    topic_ids = pd.to_numeric(df.get['Topic'], errors = 'coerce').fillna(-1).to_numpy().reshape(-1, 1)
-    topic_probs = pd.to_numeric(df.get['Probability'], errors = 'coerce').fillna(0.0).to_numpy().reshape(-1,1)
+    topic_ids = pd.to_numeric(sub.get('Topic'), errors = 'coerce').fillna(-1).to_numpy().reshape(-1, 1)
+    topic_probs = pd.to_numeric(sub.get('Probability'), errors = 'coerce').fillna(0.0).to_numpy().reshape(-1,1)
     tid_scaled = (topic_ids - topic_ids.min())/(topic_ids.max() - topic_ids.min() + 1e-12)
 
     X_all = np.hstack([X_text_red, num_scaled, tid_scaled, topic_probs])
@@ -1500,22 +1501,20 @@ def predict_risks(df):
 
     avg_emb = 0.5 * (article_embeddings + C)
     avg_emb = avg_emb / (np.linalg.norm(avg_emb, axis = 1, keepdims =True) + 1e-12)
-    lbl_emb_trained = model.encode(trained_label_text, show_progress_bar = True, normalize_embeddings = True, batch_size = 256)
+    lbl_emb_trained = model.encode(trained_label_txt, show_progress_bar = True, normalize_embeddings = True, batch_size = 256)
     lbl_emb_all = model.encode(all_label_txt, show_progress_bar = True, normalize_embeddings = True, batch_size = 256)
 
     cos_all =soft_cosine_probs(avg_emb, lbl_emb_all)
 
     out = predict_with_fallback(proba, cos_all, prob_cut, margin_cut, tau, trained_labels, all_labels)
-    df_out = df.copy()
-    df_out['pred_source'] = np.where(out['use_lr'], 'lr', 'cos')
-    df_out['Pred_Risk_Final'] = out['final_names']
-    df_out['Pred_LR_label'] = out['lr_top_prob']
-    df_out['Pred_cos_label_all'] = np.array(all_labels)[out['cos_all_idx']]
-    df_out['Pred_cos_score_all'] = out['cos_all_max']
+    sub['pred_source'] = np.where(out['use_lr'], 'lr', 'cos')
+    sub['Predicted_Risks_New'] = out['final_names']
+    sub['Pred_LR_label'] = out['lr_top_prob']
+    sub['Pred_cos_label_all'] = np.array(all_labels)[out['cos_all_idx']]
+    sub['Pred_cos_score_all'] = out['cos_all_max']
 
-    tmp = proba.copy()
-    tmp[np.arange(len(tmp)), out['lr_top_idx']] = -1
-    df_out['Pred_LR_Margin'] = df_out['Pred_LR_Prob'] - tmp.max(axis = 1)
+    df.loc[sub.index, ['pred_source', 'Predicted_Risks_New', 'Pred_LR_label', 'Pred_cos_label_all', 'Pred_cos_score_all']] = sub[
+                        ['pred_source', 'Predicted_Risks_New', 'Pred_LR_label', 'Pred_cos_label_all', 'Pred_cos_score_all']].values
     
 
     
@@ -1531,7 +1530,7 @@ def predict_risks(df):
     #    matched = [all_risks[j] for j, s in enumerate(row) if float(s) >= threshold]
     #    out.append('; '.join(matched) if matched else 'No Risk')
     #df.loc[todo_mask, 'Predicted_Risks_new'] = out
-    return df_out
+    return df
 def track_over_time(df, week_anchor="W-MON", out_csv="Model_training/topic_trend.csv"):
 
     if 'Published' not in df.columns:
