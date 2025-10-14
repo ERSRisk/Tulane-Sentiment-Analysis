@@ -1436,7 +1436,7 @@ def predict_risks(df):
             "cos_all_max": cos_all_max,
         }
         
-    bundle = load_model_bundle(Github_owner, Github_repo, 'releases')
+    bundle = load_model_bundle(Github_owner, Github_repo, 'regression')
     clf = bundle['clf']
     scaler = bundle['scaler']
     pca = bundle['pca']
