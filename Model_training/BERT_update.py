@@ -851,38 +851,121 @@ def risk_weights(df):
     base['Title'] = base['Title'].fillna('').astype(str)
     base['Content'] = base['Content'].fillna('').astype(str)
     base['Source'] = base['Source'].fillna('').astype(str)
-    def _coerce_pub(x):
-        if pd.isna(x):
-            return pd.NaT
-        if isinstance(x, (int, float)):
-            if x > 1e12:  # epoch ms
-                return pd.to_datetime(x, unit='ms', errors='coerce', utc=True)
-            if x > 1e9:   # epoch s
-                return pd.to_datetime(x, unit='s', errors='coerce', utc=True)
-        sx = str(x)
-        sx = re.sub(r'\s(EST|EDT|PDT|CDT|MDT|GMT)\b', '', sx, flags=re.I)
-        return pd.to_datetime(sx, errors='coerce', utc=True)
-
-    if 'Published' not in base.columns:
-        base['Published'] = pd.NaT
-
-    base['Published_raw'] = base['Published']
-    base['Published'] = base['Published'].apply(_coerce_pub)
-    if pd.api.types.is_datetime64tz_dtype(base['Published']):
-        base['Published'] = base['Published'].dt.tz_convert('UTC').dt.tz_localize(None)
-
-    # ---------- Per-article features (computed once, broadcast to base rows) ----------
-    now_naive = datetime.utcnow()
-    base['Days_Ago'] = (now_naive - base['Published']).dt.days
-    base['Days_Ago'] = base['Days_Ago'].fillna(10_000).astype(int)
-    def _recency_bucket(d):
-        if d <= 2: return 5
-        if d <= 30: return 4
-        if d <= 90: return 3
-        if d <= 180: return 2
-        if d <= 365: return 1
-        return 0
-    base['Recency'] = base['Days_Ago'].apply(_recency_bucket)
+    def _coerce_pub(x): 
+        if pd.isna(x): 
+            return pd.NaT 
+        if isinstance(x, (int, float)): 
+            if x > 1e12: # epoch ms 
+                return pd.to_datetime(x, unit='ms', errors='coerce', utc=True) 
+            if x > 1e9: # epoch s 
+                return pd.to_datetime(x, unit='s', errors='coerce', utc=True) 
+        sx = str(x) sx = re.sub(r'\s(EST|EDT|PDT|CDT|MDT|GMT)\b', '', sx, flags=re.I) 
+        return pd.to_datetime(sx, errors='coerce', utc=True) 
+    if 'Published' not in base.columns: 
+        base['Published'] = pd.NaT 
+    base['Published_raw'] = base['Published'] 
+    base['Published'] = base['Published'].apply(_coerce_pub) 
+    if pd.api.types.is_datetime64tz_dtype(base['Published']): 
+        base['Published'] = base['Published'].dt.tz_convert('UTC').dt.tz_localize(None) 
+    # ---------- Per-article features (computed once, broadcast to base rows) ---------- 
+    now_naive = datetime.utcnow() 
+    base['Days_Ago'] = (now_naive - base['Published']).dt.days 
+    base['Days_Ago'] = base['Days_Ago'].fillna(10_000).astype(int) 
+    risk_half_life = { 
+        "Research Funding Disruption": 60, 
+        "Enrollment Pressure": 60, 
+        "Policy or Political Interference": 90, 
+        "Institutional Alignment Risk": 60, 
+        "Mission Drift": 90, 
+        "Revenue Loss": 90, 
+        "Insurance Market Volatility": 90, 
+        "Unexpected Expenditures": 15, 
+        "Endowment Risk": 30, 
+        "Constant Inflation": 15, 
+        "Infrastructure Failure": 15, 
+        "Transportation/Access Disruption": 7, 
+        "Supply Chain Delay": 15, 
+        "Emergency Preparedness Gaps": 15, 
+        "Title IX/ADA Noncompliance": 30, 
+        "Accreditation Risk": 120, 
+        "FERPA/HIPAA Violations": 7, 
+        "Grant Mismanagement": 7, 
+        "Audit Findings": 30, 
+        "Unauthorized Access/Data Breach": 7, 
+        "Credential Phishing": 7, 
+        "Vendor Cyber Exposure": 7, 
+        "Cloud Misconfiguration": 7, 
+        "Artificial Intelligence Ethics & Governance": 7, 
+        "Rapid Speed of Disruptive Innovation": 90, 
+        # --- Reputational and Social --- 
+        "Controversial Public Incident": 30, 
+        "DEI Program Backlash": 30, 
+        "High-Profile Litigation": 90, 
+        "Leadership Missteps": 30, 
+        "Media Campaigns": 15, 
+        # --- Health, Safety and Security --- 
+        "Violence or Threats": 10, 
+        "Infectious Disease Outbreak": 30, 
+        "Lab Incident": 7, 
+        "Workplace Safety Violation": 7, 
+        "Environmental Exposure": 30, 
+        # --- Environmental & Climate --- 
+        "Hurricane/Flood/Wildfire": 30, 
+        "Extreme Weather Events": 30, 
+        "Climate Infrastructure Risks": 15, 
+        "Environmental Noncompliance": 90, 
+        "Insurance Withdrawal": 120, 
+        # --- Student Experience & Welfare --- 
+        "Mental Health Crises": 15, 
+        "Housing/Food Insecurity": 15, 
+        "Academic Disruption": 15, 
+        "Student Conduct Incident": 7, 
+        "Accessibility Barriers": 15, 
+        # --- Internal Organization --- 
+        "HR Complaint": 15, 
+        "Labor Dispute": 30, 
+        "Morale challenges": 30, 
+        "Faculty conflict": 15, 
+        "Executive Board conflicts": 30, 
+        "Nepotism/Conflict of Interest": 15, 
+        "Policy Misapplication": 15, 
+        "Whistleblower Claims": 30 } 
+    def recency_features_topic_risk(df, now = None): 
+        fx = base.copy() 
+        if now is None: 
+            now = pd.Timestamp.utcnow() 
+        art_w = fx.get('Probability') 
+        if art_w is None: 
+            art_w = 1.0 
+        else: art_w = pd.to_numeric(art_w, errors= 'coerce').fillna(0.0).clip(0,1) 
+        def half_life(risk): 
+            return risk_half_life.get(risk, 30) 
+        hl = fx['_RiskList'].map(lambda r: max(1.0, half_life(r))) 
+        lam = np.log(2.0)/hl 
+        w_decay = np.exp(-lam*fx['Days_Ago']) 
+        fx['_w'] = w_decay * art_w 
+        grp = fx.groupby(['Topic', '_RiskList'], dropna = False) 
+        out = grp.agg( last_seen = ('Published', lambda s: (now - s.max()).total_seconds() / 86400.0), decayed_volume=('_w', 'sum'), mentions = ('Published', 'count'), ).reset_index() 
+        out['hl'] = out['_RiskList'].map(lambda r: max(1.0, half_life(r))) 
+        out['freshness'] = np.exp(-np.log(2.0) * (out['last_seen'] / out['hl'])) 
+        out['decayed_z'] = out.groupby('_RiskList')['decayed_volume'] \ 
+                            .transform(lambda s: (s - s.min())/ (s.max() - s.min()+1e-12)) 
+        w_fresh, w_vol = 0.6, 0.4 
+        out['recovery_score_tr'] = (w_fresh * out['freshness'] + w_vol * out['decayed_z']).clip(0,1) 
+        out = out.rename(columns = {'last_seen': 'last_seen_days'}) 
+        return out [['Topic', '_RiskList', 'last_seen_days', 'decayed_volume', 'recency_score_tr']] 
+    def attach_topic_risk_recency(df): 
+        tr = recency_features_topic_risk(df) 
+        enriched = df.merge(tr, on = ['Topic', '_RiskList'], how = 'left') 
+        pub = pd.to_datetime(enriched['Published']) 
+        days = (pd.Timestamp.utcnow() - pub).dt.total_seconds()/86400.0 
+        article_fresh = np.exp(-np.log(2.0)*(days/14.0)) 
+        enriched['article_freshness'] = article_fresh.fillna(0.0) 
+        alpha = 0.7 
+        enriched['Recency_TR_Blended'] = ( alpha * enriched['recency_score_tr'].fillna(0.0) + (1-alpha) * enriched['article_freshness'] ).clip(0,1) 
+        return enriched 
+    base = attach_topic_risk_recency(base) 
+    base['Recency'] = (base['Recency_TR_Blended'] * 5).round(2)
 
     def _src_acc(row):
         src = str(row.get('Source','') or '')
@@ -1176,99 +1259,77 @@ def risk_weights(df):
     ).astype(int)
     
     peers_list = risks_cfg.get('Peer_Institutions') or []
-    peer_pat = re.compile(r'\b(' + '|'.join([re.escape(p) for p in peers_list]) + r')\b', flags = re.I) if peers_list else None
-
+    peer_pat = re.compile(r'\b(' + '|'.join([re.escape(p) for p in peers_list]) + r')\b', flags=re.I) if peers_list else None
+    
     moderate_impact = re.compile(r'\b(outage|closure|lawsuit|probation|sanction|breach|evacuation|investigation)\b', re.I)
     substantial_impact = re.compile(r'\b(widespread|catastrophic|shutdown|bankrupt|insolvenc\w*|fatalit\w*|revocation|accreditation\s+revoked)\b', re.I)
     _text_all = (base['Title'].fillna('') + ' ' + base['Content'].fillna('')).astype(str)
     base['_tulane_flag'] = (base.get('Location', 0).astype(int).eq(5)) | _text_all.str.contains(r'\btulane\b', case=False, regex=True)
-
-    def _sev_code(t: str) -> int:
-        t = str(t)
-        if substantial_impact.search(t):  # you already defined these regexes above
-            return 2                      # 2 = substantial
-        if moderate_impact.search(t):
-            return 1                      # 1 = moderate
-        return 0                          # 0 = none/low
-
-    base['_sev_code'] = _text_all.apply(_sev_code).astype(int)
-
-    # 2) Use PUBLISHED TIME so we only consider *previous* Tulane events
-    #    If Published is missing, fall back to global history (no time ordering).
-    if 'Published' in base.columns and pd.api.types.is_datetime64_any_dtype(base['Published']):
-        # Fill NaT with very old date so they don't count as "previous"
-        _pub = base['Published'].fillna(pd.Timestamp('1900-01-01'))
-        base['_sev_tul'] = np.where(base['_tulane_flag'], base['_sev_code'], 0)
-        # Sort by time, then compute cumulative "max severity so far" per risk
-        base = base.sort_values(['Risk_item', _pub.name])
-        base['_sev_cummax'] = base.groupby('Risk_item')['_sev_tul'].cummax()
-        # Shift by one so current row does NOT count itself
-        base['_sev_prior'] = base.groupby('Risk_item')['_sev_cummax'].shift(1).fillna(0).astype(int)
-    else:
-        # Fallback: overall max severity for Tulane mentions per risk (no time ordering)
-        _hist = (base.loc[base['_tulane_flag']]
-                    .groupby('Risk_item')['_sev_code'].max()
-                    .rename('_sev_prior'))
-        base = base.merge(_hist, on='Risk_item', how='left')
-        base['_sev_prior'] = base['_sev_prior'].fillna(0).astype(int)
-
-    # 3) Map prior severity -> allowed maximum for Frequency_Score
-    #    0 -> max 3 (no Tulane history), 1 -> max 4 (moderate), 2 -> max 5 (substantial)
-    _allowed_max_map = {0: 3, 1: 4, 2: 5}
-    base['_freq_allowed_max'] = base['_sev_prior'].map(_allowed_max_map).astype(int)
-
-    # Apply the cap: you can only show 4/5 if Tulane history justifies it
-    base['Frequency_Score'] = np.minimum(base['Frequency_Score'].astype(int),
-                                         base['_freq_allowed_max'])
-
-    # (Optional) If you ALSO want to *promote* to 4/5 when history exists even if quantile gave lower:
-    # base['Frequency_Score'] = np.maximum(base['Frequency_Score'], base['_freq_allowed_max'])
-
-    # Clean up helpers if you like
-    base.drop(columns=['_tulane_flag','_sev_code','_sev_tul','_sev_cummax','_sev_prior','_freq_allowed_max'],
-              errors='ignore', inplace=True)
-
-    tmp_ind = base.loc[base['Week'].notna(), ['Week', 'Title', 'Content']].copy()
-    tmp_ind['text_all'] = (tmp_ind['Title'] + ' ' + tmp_ind['Content']).fillna('')
-
+    
     def find_peer(t):
         if not peer_pat:
             return ''
         m = peer_pat.search(t or '')
         return m.group(0) if m else ''
-
+    
     def severity(text):
         if substantial_impact.search(text or ''):
             return 'substantial'
         if moderate_impact.search(text or ''):
             return 'moderate'
         return ''
-
+    
+    tmp_ind = base.loc[base['Week'].notna(), ['Week', 'Title', 'Content']].copy()
+    tmp_ind['text_all'] = (tmp_ind['Title'] + ' ' + tmp_ind['Content']).fillna('')
     tmp_ind['peer'] = tmp_ind['text_all'].apply(find_peer)
     tmp_ind['sev'] = tmp_ind['text_all'].apply(severity)
-
+    
+    # Count unique peers by severity per week
     agg = (
-        tmp_ind.groupby(['Week', 'sev'])['peer'].nunique().unstack(fill_value=0).rename(columns={'moderate': 'peers_mod', 'substantial':'peers_sub'})
+        tmp_ind.groupby(['Week', 'sev'])['peer']
+        .nunique()
+        .unstack(fill_value=0)
+        .rename(columns={'moderate': 'peers_mod', 'substantial': 'peers_sub'})
     )
-
     for c in ['peers_mod', 'peers_sub']:
-        if c not in agg.columns: agg[c] = 0
-
+        if c not in agg.columns:
+            agg[c] = 0
     agg = agg.reset_index()
-
-    def peer_industry_score(row):
-        if row['peers_sub'] >= 2:
-            return 5
-        if row['peers_mod'] >=1:
-            return 4
-        return 0
-
-    agg['Industry_Risk_Peer'] = agg.apply(peer_industry_score, axis =1).astype(int)
-    # Map per base row
-    base = base.drop(columns = ['Industry_Risk_Peer'], errors = 'ignore')
-    base = base.merge(agg[['Week', 'Industry_Risk_Peer']],
-                              on=['Week'], how='left')
+    
+    # Tulane mentions per week (for lag pressure)
+    tulane_week = (
+        base.loc[base['_tulane_flag'] & base['Week'].notna()]
+        .groupby('Week')
+        .size()
+        .rename('tulane_mentions')
+        .reset_index()
+    )
+    agg = agg.merge(tulane_week, on='Week', how='left').fillna({'tulane_mentions': 0})
+    
+    # Exponential decay for old peer activity (half-life ≈ 21 days)
+    if not agg.empty:
+        week_max = agg['Week'].max()
+        agg['days_ago'] = (week_max - agg['Week']).dt.days.clip(lower=0)
+        lam = np.log(2.0) / 21.0
+        agg['decay_w'] = np.exp(-lam * agg['days_ago'])
+    
+        # Weighted peer index: substantial > moderate, decay old events, downweight if Tulane already active
+        agg['peer_index'] = agg['decay_w'] * (2 * agg['peers_sub'] + 1 * agg['peers_mod'])
+        agg['sector_pressure'] = agg['peer_index'] / (1.0 + agg['tulane_mentions'])
+    
+        # Robust scale → 0–5
+        lo, hi = np.percentile(agg['sector_pressure'], [5, 95]) if agg['sector_pressure'].notna().any() else (0.0, 1.0)
+        rng = max(1e-12, hi - lo)
+        agg['Industry_Risk_Peer'] = (((agg['sector_pressure'] - lo) / rng).clip(0, 1) * 5).round().astype(int)
+    else:
+        agg['Industry_Risk_Peer'] = 0
+    
+    # Merge back per row
+    base = base.drop(columns=['Industry_Risk_Peer'], errors='ignore')
+    base = base.merge(agg[['Week', 'Industry_Risk_Peer']], on='Week', how='left')
     base['Industry_Risk_Peer'] = base['Industry_Risk_Peer'].fillna(0).astype(int)
+    
+    # Final Industry_Risk = max(presence, peer)
     base['Industry_Risk'] = np.maximum(base['Industry_Risk_Presence'], base['Industry_Risk_Peer']).astype(int)
 
 
