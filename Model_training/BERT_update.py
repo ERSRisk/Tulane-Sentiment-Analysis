@@ -1480,7 +1480,7 @@ def predict_risks(df):
     model = SentenceTransformer(model_name, device = device)
     # Encode articles and risks
     article_embeddings = model.encode(texts, convert_to_numpy = True, normalize_embeddings = True, show_progress_bar=True,  batch_size=256 if device=='cuda' else 32)
-    C = model.encode(change, normalize_embeddings = True, convert_to_numpy =True, show_progress_bar=True, batch_size=256 if device=='cuda' else 32)
+    C = article_embeddings
     #risk_embeddings = model.encode(all_risks, convert_to_tensor=True)
     X_text = np.hstack([article_embeddings, C])
     X_text_red = pca.transform(X_text) if pca is not None else X_text
@@ -1628,11 +1628,12 @@ async def process_article(article, sem, batch_number=None, total_batches=None, a
             - Return 1 ONLY if the article reports higher-ed institution news in the United States (policy changes, leadership changes with institutional impact, governance, research/funding awards, budgets, grants, legislation/regulation affecting universities, campus safety incidents, admissions/tuition decisions, strikes/protests at universities, accreditation).
             - Return 0 otherwise.
             
-            Profiles clause (IMPORTANT):
+            Clauses (IMPORTANT!!):
             - If the article is a professional/personal profile or staff/alumni spotlight (e.g., “Meet X…”, “X is a [role] at…”, bio pages, team/staff directory, “welcomes X to the team”, career journey, awards unrelated to institutional policy/funding) → return 0.
-            - Return 1 for leadership announcements ONLY if they clearly indicate institutional impact (e.g., new president/provost with stated policy/strategy changes for the university). Otherwise return 0.
-            
-            Hints that indicate a profile: “About [Name]”, “Meet [Name]”, “joined [org] as…”, “Biography/Profile”, “Our Team/Staff Directory”, CV-like education + roles with no institutional news.
+            - Return 1 for leadership announcements ONLY if they clearly indicate institutional impact (e.g., new president/provost with stated policy/strategy changes for the university). Otherwise return 0. (Hints that indicate a profile: “About [Name]”, “Meet [Name]”, “joined [org] as…”, “Biography/Profile”, “Our Team/Staff Directory”, CV-like education + roles with no institutional news.)
+            - If the article is not in English, return 0.
+            - If the article talks about general medical/healthcare advances that in no way impact university operations, return 0
+            - If the article talks about sports, matches, sports results, return 0
             
             Output must be exactly:
             {{
