@@ -1508,13 +1508,13 @@ def predict_risks(df):
 
     out = predict_with_fallback(proba, cos_all, prob_cut, margin_cut, tau, trained_labels, all_labels)
     sub['pred_source'] = np.where(out['use_lr'], 'lr', 'cos')
-    sub['Predicted_Risks_New'] = out['final_names']
+    sub['Predicted_Risks_new'] = out['final_names']
     sub['Pred_LR_label'] = out['lr_top_prob']
     sub['Pred_cos_label_all'] = np.array(all_labels)[out['cos_all_idx']]
     sub['Pred_cos_score_all'] = out['cos_all_max']
 
-    df.loc[sub.index, ['pred_source', 'Predicted_Risks_New', 'Pred_LR_label', 'Pred_cos_label_all', 'Pred_cos_score_all']] = sub[
-                        ['pred_source', 'Predicted_Risks_New', 'Pred_LR_label', 'Pred_cos_label_all', 'Pred_cos_score_all']].values
+    df.loc[sub.index, ['pred_source', 'Predicted_Risks_new', 'Pred_LR_label', 'Pred_cos_label_all', 'Pred_cos_score_all']] = sub[
+                        ['pred_source', 'Predicted_Risks_new', 'Pred_LR_label', 'Pred_cos_label_all', 'Pred_cos_score_all']].values
     
 
     
