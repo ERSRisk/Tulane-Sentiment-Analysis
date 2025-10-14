@@ -859,7 +859,8 @@ def risk_weights(df):
                 return pd.to_datetime(x, unit='ms', errors='coerce', utc=True) 
             if x > 1e9: # epoch s 
                 return pd.to_datetime(x, unit='s', errors='coerce', utc=True) 
-        sx = str(x) sx = re.sub(r'\s(EST|EDT|PDT|CDT|MDT|GMT)\b', '', sx, flags=re.I) 
+        sx = str(x) 
+        sx = re.sub(r'\s(EST|EDT|PDT|CDT|MDT|GMT)\b', '', sx, flags=re.I) 
         return pd.to_datetime(sx, errors='coerce', utc=True) 
     if 'Published' not in base.columns: 
         base['Published'] = pd.NaT 
