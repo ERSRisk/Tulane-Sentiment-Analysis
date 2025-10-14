@@ -1555,9 +1555,22 @@ def predict_risks(df):
 
     topic_ids = pd.to_numeric(sub.get('Topic'), errors = 'coerce').fillna(-1).to_numpy().reshape(-1, 1)
     topic_probs = pd.to_numeric(sub.get('Probability'), errors = 'coerce').fillna(0.0).to_numpy().reshape(-1,1)
-    tid_scaled = (topic_ids - topic_ids.min())/(topic_ids.max() - topic_ids.min() + 1e-12)
+    topic_col_name = 'Topic'
+    top_ids = bundle.get('topic_top_ids', [])
+    ohe_cols_expected = bundle.get('topic_ohe_cols', [])
 
-    X_all = np.hstack([X_text_red, num_scaled, tid_scaled, topic_probs])
+    topic_raw = pd.to_numeric(sub.get(topic_col_name), errors = 'coerce').fillna(-1).astype(int)
+    topic_binned = np.where(np.isin(topic_raw, top_ids), topic_raw, -1)
+
+    topic_ohe = pd.get_dummies(ps.Series(topic_binned), prefix = 'topic', dtype = int)
+
+    for col in ohe_cols_expected:
+        if col not in topic_ohe:
+            topic_ohe[col] = 0
+    topic_ohe = topic_ohe[ohe_cols_expected].to_numpy()
+
+    X_all = np.hstack([X_text_red, num_scaled, topic_ohe])
+    
     proba = clf.predict_proba(X_all)
 
     avg_emb = 0.5 * (article_embeddings + C)
