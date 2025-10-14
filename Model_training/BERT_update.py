@@ -949,8 +949,7 @@ def risk_weights(df):
         out = grp.agg( last_seen = ('Published', lambda s: (now - s.max()).total_seconds() / 86400.0), decayed_volume=('_w', 'sum'), mentions = ('Published', 'count'), ).reset_index() 
         out['hl'] = out['_RiskList'].map(lambda r: max(1.0, half_life(r))) 
         out['freshness'] = np.exp(-np.log(2.0) * (out['last_seen'] / out['hl'])) 
-        out['decayed_z'] = out.groupby('_RiskList')['decayed_volume'] \ 
-                            .transform(lambda s: (s - s.min())/ (s.max() - s.min()+1e-12)) 
+        out['decayed_z'] = out.groupby('_RiskList')['decayed_volume'].transform(lambda s: (s - s.min())/ (s.max() - s.min()+1e-12)) 
         w_fresh, w_vol = 0.6, 0.4 
         out['recovery_score_tr'] = (w_fresh * out['freshness'] + w_vol * out['decayed_z']).clip(0,1) 
         out = out.rename(columns = {'last_seen': 'last_seen_days'}) 
