@@ -1562,7 +1562,7 @@ def predict_risks(df):
     topic_raw = pd.to_numeric(sub.get(topic_col_name), errors = 'coerce').fillna(-1).astype(int)
     topic_binned = np.where(np.isin(topic_raw, top_ids), topic_raw, -1)
 
-    topic_ohe = pd.get_dummies(ps.Series(topic_binned), prefix = 'topic', dtype = int)
+    topic_ohe = pd.get_dummies(pd.Series(topic_binned), prefix = 'topic', dtype = int)
 
     for col in ohe_cols_expected:
         if col not in topic_ohe:
