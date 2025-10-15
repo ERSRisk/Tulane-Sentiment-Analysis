@@ -951,7 +951,7 @@ def risk_weights(df):
         out['freshness'] = np.exp(-np.log(2.0) * (out['last_seen'] / out['hl'])) 
         out['decayed_z'] = out.groupby('_RiskList')['decayed_volume'].transform(lambda s: (s - s.min())/ (s.max() - s.min()+1e-12)) 
         w_fresh, w_vol = 0.6, 0.4 
-        out['recovery_score_tr'] = (w_fresh * out['freshness'] + w_vol * out['decayed_z']).clip(0,1) 
+        out['recency_score_tr'] = (w_fresh * out['freshness'] + w_vol * out['decayed_z']).clip(0,1) 
         out = out.rename(columns = {'last_seen': 'last_seen_days'}) 
         return out [['Topic', '_RiskList', 'last_seen_days', 'decayed_volume', 'recency_score_tr']] 
     def attach_topic_risk_recency(df): 
@@ -1066,7 +1066,6 @@ def risk_weights(df):
         )
 
         ts['EMWA_Delta'] = ts.groupby('Risk_item')['EMWA'].diff().fillna(0.0)
-        import numpy as np
         def slope(counts, k=6):
             x = np.arange(len(counts), dtype=float)
             out = np.zeros(len(counts), dtype=float)
