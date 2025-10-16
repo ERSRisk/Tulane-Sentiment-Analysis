@@ -1501,40 +1501,40 @@ def predict_risks(df):
             "cos_all_max": cos_all_max,
         }
         
-    bundle = load_model_bundle(Github_owner, Github_repo, 'regression')
-    clf = bundle['clf']
-    scaler = bundle['scaler']
-    pca = bundle['pca']
-    le = bundle['label_encoder']
-    trained_labels = bundle['trained_label_names']
-    risk_defs = bundle['risk_defs']
-    model_name = bundle['sentence_model_name']
-    prob_cut = float(bundle['best_prob_cut'])
-    margin_cut = float(bundle['best_margin_cut'])
-    tau = float(bundle['openset_tau'])
-    numeric_factors = list(bundle['numeric_factors'])
-    trained_label_txt = list(bundle['trained_label_text'])
-    all_labels = list(bundle['all_labels'])
-    all_label_txt = list(bundle['all_label_text'])
+    #bundle = load_model_bundle(Github_owner, Github_repo, 'regression')
+    #clf = bundle['clf']
+    #scaler = bundle['scaler']
+    #pca = bundle['pca']
+    #le = bundle['label_encoder']
+    #trained_labels = bundle['trained_label_names']
+    #risk_defs = bundle['risk_defs']
+    #model_name = bundle['sentence_model_name']
+    #prob_cut = float(bundle['best_prob_cut'])
+    #margin_cut = float(bundle['best_margin_cut'])
+    #tau = float(bundle['openset_tau'])
+    #numeric_factors = list(bundle['numeric_factors'])
+    #trained_label_txt = list(bundle['trained_label_text'])
+    #all_labels = list(bundle['all_labels'])
+    #all_label_txt = list(bundle['all_label_text'])
     
     
-    df = df.copy()
-    df['Title'] = df['Title'].fillna('').str.strip()
+    #df = df.copy()
+    #df['Title'] = df['Title'].fillna('').str.strip()
 
-    df['Content'] = df['Content'].fillna('').str.strip()
-    df['Text'] = (df['Title'] + '. ' + df['Content']).str.strip()
+    #df['Content'] = df['Content'].fillna('').str.strip()
+    #df['Text'] = (df['Title'] + '. ' + df['Content']).str.strip()
     
-    df = df.reset_index(drop = True)
-    todo_mask = (df['Predicted_Risks_new'].isna()) | (df['Predicted_Risks_new'].eq('')) | (df['Predicted_Risks_new'].eq('No Risk'))
-    recent_cut = pd.Timestamp.now(tz='utc') - pd.Timedelta(days=30)
-    df['Published_utc'] = pd.to_datetime(df['Published'], errors='coerce', utc = True)
-    recent_mask = df['Published_utc'] >= recent_cut
-    todo_mask &= recent_mask.fillna(False)
-    sub = df.loc[todo_mask].copy()
-    texts = df.loc[todo_mask, 'Text'].tolist()
-    change = texts
-    if not texts:
-        return df
+    #df = df.reset_index(drop = True)
+    #todo_mask = (df['Predicted_Risks_new'].isna()) | (df['Predicted_Risks_new'].eq('')) | (df['Predicted_Risks_new'].eq('No Risk'))
+    #recent_cut = pd.Timestamp.now(tz='utc') - pd.Timedelta(days=30)
+    #df['Published_utc'] = pd.to_datetime(df['Published'], errors='coerce', utc = True)
+    #recent_mask = df['Published_utc'] >= recent_cut
+    #todo_mask &= recent_mask.fillna(False)
+    #sub = df.loc[todo_mask].copy()
+    #texts = df.loc[todo_mask, 'Text'].tolist()
+    #change = texts
+    #if not texts:
+    #    return df
    
 
     with open('Model_training/risks.json', 'r') as f:
@@ -1545,69 +1545,69 @@ def predict_risks(df):
     model = SentenceTransformer(model_name, device = device)
     # Encode articles and risks
     article_embeddings = model.encode(texts, convert_to_numpy = True, normalize_embeddings = True, show_progress_bar=True,  batch_size=256 if device=='cuda' else 32)
-    C = article_embeddings
-    #risk_embeddings = model.encode(all_risks, convert_to_tensor=True)
-    X_text = np.hstack([article_embeddings, C])
-    X_text_red = pca.transform(X_text) if pca is not None else X_text
-    n = len(texts)
-    if len(numeric_factors) == 0:
-        num_scaled = np.zeros((n, 0))
-    else:
-        means = np.asarray(bundle['scaler'].mean_, dtype = float)
-        num_mat = np.tile(means, (n, 1))
-        num_scaled = bundle['scaler'].transform(num_mat)
+    #C = article_embeddings
+    risk_embeddings = model.encode(all_risks, convert_to_tensor=True)
+    #X_text = np.hstack([article_embeddings, C])
+    #X_text_red = pca.transform(X_text) if pca is not None else X_text
+    #n = len(texts)
+    #if len(numeric_factors) == 0:
+    #    num_scaled = np.zeros((n, 0))
+    #else:
+    #    means = np.asarray(bundle['scaler'].mean_, dtype = float)
+    #    num_mat = np.tile(means, (n, 1))
+    #    num_scaled = bundle['scaler'].transform(num_mat)
 
-    topic_ids = pd.to_numeric(sub.get('Topic'), errors = 'coerce').fillna(-1).to_numpy().reshape(-1, 1)
-    topic_probs = pd.to_numeric(sub.get('Probability'), errors = 'coerce').fillna(0.0).to_numpy().reshape(-1,1)
-    topic_col_name = 'Topic'
-    top_ids = bundle.get('topic_top_ids', [])
-    ohe_cols_expected = bundle.get('topic_ohe_cols', [])
+    #topic_ids = pd.to_numeric(sub.get('Topic'), errors = 'coerce').fillna(-1).to_numpy().reshape(-1, 1)
+    #topic_probs = pd.to_numeric(sub.get('Probability'), errors = 'coerce').fillna(0.0).to_numpy().reshape(-1,1)
+    #topic_col_name = 'Topic'
+    #top_ids = bundle.get('topic_top_ids', [])
+    #ohe_cols_expected = bundle.get('topic_ohe_cols', [])
 
-    topic_raw = pd.to_numeric(sub.get(topic_col_name), errors = 'coerce').fillna(-1).astype(int)
-    topic_binned = np.where(np.isin(topic_raw, top_ids), topic_raw, -1)
+    #topic_raw = pd.to_numeric(sub.get(topic_col_name), errors = 'coerce').fillna(-1).astype(int)
+    #topic_binned = np.where(np.isin(topic_raw, top_ids), topic_raw, -1)
 
-    topic_ohe = pd.get_dummies(pd.Series(topic_binned), prefix = 'topic', dtype = int)
+    #topic_ohe = pd.get_dummies(pd.Series(topic_binned), prefix = 'topic', dtype = int)
 
-    for col in ohe_cols_expected:
-        if col not in topic_ohe:
-            topic_ohe[col] = 0
-    topic_ohe = topic_ohe[ohe_cols_expected].to_numpy()
+    #for col in ohe_cols_expected:
+    #    if col not in topic_ohe:
+    #        topic_ohe[col] = 0
+    #topic_ohe = topic_ohe[ohe_cols_expected].to_numpy()
 
-    X_all = np.hstack([X_text_red, num_scaled, topic_ohe])
+    #X_all = np.hstack([X_text_red, num_scaled, topic_ohe])
     
-    proba = clf.predict_proba(X_all)
+    #proba = clf.predict_proba(X_all)
 
-    avg_emb = 0.5 * (article_embeddings + C)
-    avg_emb = avg_emb / (np.linalg.norm(avg_emb, axis = 1, keepdims =True) + 1e-12)
-    lbl_emb_trained = model.encode(trained_label_txt, show_progress_bar = True, normalize_embeddings = True, batch_size = 256)
-    lbl_emb_all = model.encode(all_label_txt, show_progress_bar = True, normalize_embeddings = True, batch_size = 256)
+    #avg_emb = 0.5 * (article_embeddings + C)
+    #avg_emb = avg_emb / (np.linalg.norm(avg_emb, axis = 1, keepdims =True) + 1e-12)
+    #lbl_emb_trained = model.encode(trained_label_txt, show_progress_bar = True, normalize_embeddings = True, batch_size = 256)
+    #lbl_emb_all = model.encode(all_label_txt, show_progress_bar = True, normalize_embeddings = True, batch_size = 256)
 
-    cos_all =soft_cosine_probs(avg_emb, lbl_emb_all)
+    #cos_all =soft_cosine_probs(avg_emb, lbl_emb_all)
 
-    out = predict_with_fallback(proba, cos_all, prob_cut, margin_cut, tau, trained_labels, all_labels)
-    sub['pred_source'] = np.where(out['use_lr'], 'lr', 'cos')
-    sub['Predicted_Risks_new'] = out['final_names']
-    sub['Pred_LR_label'] = out['lr_top_prob']
-    sub['Pred_cos_label_all'] = np.array(all_labels)[out['cos_all_idx']]
-    sub['Pred_cos_score_all'] = out['cos_all_max']
+    #out = predict_with_fallback(proba, cos_all, prob_cut, margin_cut, tau, trained_labels, all_labels)
+    #sub['pred_source'] = np.where(out['use_lr'], 'lr', 'cos')
+    #sub['Predicted_Risks_new'] = out['final_names']
+    #sub['Pred_LR_label'] = out['lr_top_prob']
+    #sub['Pred_cos_label_all'] = np.array(all_labels)[out['cos_all_idx']]
+    #sub['Pred_cos_score_all'] = out['cos_all_max']
 
-    df.loc[sub.index, ['pred_source', 'Predicted_Risks_new', 'Pred_LR_label', 'Pred_cos_label_all', 'Pred_cos_score_all']] = sub[
-                        ['pred_source', 'Predicted_Risks_new', 'Pred_LR_label', 'Pred_cos_label_all', 'Pred_cos_score_all']].values
+    #df.loc[sub.index, ['pred_source', 'Predicted_Risks_new', 'Pred_LR_label', 'Pred_cos_label_all', 'Pred_cos_score_all']] = sub[
+    #                    ['pred_source', 'Predicted_Risks_new', 'Pred_LR_label', 'Pred_cos_label_all', 'Pred_cos_score_all']].values
     
 
     
     # Calculate cosine similarity
-    #cosine_scores = util.cos_sim(article_embeddings, risk_embeddings)
+    cosine_scores = util.cos_sim(article_embeddings, risk_embeddings)
 
-    #if 'Predicted_Risks_new' not in df.columns:
-    #    df['Predicted_Risks_new'] = ''
+    if 'Predicted_Risks_new' not in df.columns:
+        df['Predicted_Risks_new'] = ''
     # Assign risks based on threshold
-    #threshold = 0.35  # you can tune this
-    #out = []
-    #for row in cosine_scores:
-    #    matched = [all_risks[j] for j, s in enumerate(row) if float(s) >= threshold]
-    #    out.append('; '.join(matched) if matched else 'No Risk')
-    #df.loc[todo_mask, 'Predicted_Risks_new'] = out
+    threshold = 0.35  # you can tune this
+    out = []
+    for row in cosine_scores:
+        matched = [all_risks[j] for j, s in enumerate(row) if float(s) >= threshold]
+        out.append('; '.join(matched) if matched else 'No Risk')
+    df.loc[todo_mask, 'Predicted_Risks_new'] = out
     return df
 def track_over_time(df, week_anchor="W-MON", out_csv="Model_training/topic_trend.csv"):
 
