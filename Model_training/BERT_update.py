@@ -1918,7 +1918,7 @@ def load_midstep_from_release(local_cache_path = 'Model_training/Step1.csv.gz'):
 df = pd.read_csv('Model_training/label_')
 df = risk_weights(results_df)
 df = df.drop(columns = ['University Label_x', 'University Label_y'], errors = 'ignore')
-atomic_write_csv("Model_training/BERTopic_results2.csv.gz", df, compress=True)
-save_dataset_to_releases(df)
+#atomic_write_csv("Model_training/BERTopic_results2.csv.gz", df, compress=True)
+#save_dataset_to_releases(df)
 #Show the articles over time
-track_over_time(df)
+#track_over_time(df)
