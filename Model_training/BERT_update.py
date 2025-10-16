@@ -1712,6 +1712,8 @@ async def process_article(article, sem, batch_number=None, total_batches=None, a
             - If the article is not in English, return 0.
             - If the article talks about general medical/healthcare advances that in no way impact university operations, return 0
             - If the article talks about sports, matches, sports results, return 0
+            - If the article is a news wrap, a podcast, or a video, return 0
+            - If the article is a general scientific discovery, return 0
             
             Output must be exactly:
             {{
