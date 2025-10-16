@@ -945,8 +945,12 @@ def risk_weights(df):
         lam = np.log(2.0)/hl 
         w_decay = np.exp(-lam*fx['Days_Ago']) 
         fx['_w'] = w_decay * art_w 
-        grp = fx.groupby(['Topic', '_RiskList'], dropna = False) 
-        out = grp.agg( last_seen = ('Published', lambda s: (now - s.max()).total_seconds() / 86400.0), decayed_volume=('_w', 'sum'), mentions = ('Published', 'count'), ).reset_index() 
+        grp = fx.groupby(['Topic', '_RiskList'], dropna = False)
+        out = grp.agg(
+            last_seen = ('Days_Ago', 'min'),
+            decayed_volume = ('_w', 'sum'),
+            mentions = ('Published', 'count')
+        ).reset_index()
         out['hl'] = out['_RiskList'].map(lambda r: max(1.0, half_life(r))) 
         out['freshness'] = np.exp(-np.log(2.0) * (out['last_seen'] / out['hl'])) 
         out['decayed_z'] = out.groupby('_RiskList')['decayed_volume'].transform(lambda s: (s - s.min())/ (s.max() - s.min()+1e-12)) 
