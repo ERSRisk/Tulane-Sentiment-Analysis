@@ -1916,7 +1916,7 @@ def load_midstep_from_release(local_cache_path = 'Model_training/Step1.csv.gz'):
 #results_df = results_df.drop(columns = ['Acceleration_value_x', 'Acceleration_value_y'], errors = 'ignore')
 #atomic_write_csv('Model_training/initial_label.csv.gz', results_df, compress = True)
 df = pd.read_csv('Model_training/label_initial.csv.gz', compression = 'gzip')
-df = risk_weights(results_df)
+df = risk_weights(df)
 df = df.drop(columns = ['University Label_x', 'University Label_y'], errors = 'ignore')
 #atomic_write_csv("Model_training/BERTopic_results2.csv.gz", df, compress=True)
 #save_dataset_to_releases(df)
