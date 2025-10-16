@@ -1193,9 +1193,9 @@ def risk_weights(df):
             axis=1
         ).astype(int)
 
-        base = base.drop(columns = ['Acceleration_value_x', 'Acceleration_value_y'], errors = 'ignore')
-        right = ts[['Risk_item', 'Week', 'Acceleration_value']].rename(columns = {'Acceleration_value': 'Acceleration_value_new'})
-        base.merge(right, on = ['Risk_item', 'Week'], how = 'left', validate = 'm:m')
+    base = base.drop(columns = ['Acceleration_value_x', 'Acceleration_value_y'], errors = 'ignore')
+    right = ts[['Risk_item', 'Week', 'Acceleration_value']].rename(columns = {'Acceleration_value': 'Acceleration_value_new'})
+    base.merge(right, on = ['Risk_item', 'Week'], how = 'left', validate = 'm:m')
     if 'Acceleration_value' in base.columns:
         base['Acceleration_value'] = base['Acceleration_value_new'].fillna(base['Acceleration_value'])
     else:
