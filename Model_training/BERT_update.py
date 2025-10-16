@@ -961,9 +961,8 @@ def risk_weights(df):
     def attach_topic_risk_recency(df): 
         tr = recency_features_topic_risk(df) 
         enriched = df.merge(tr, on = ['Topic', '_RiskList'], how = 'left') 
-        pub = pd.to_datetime(enriched['Published']) 
-        days = (pd.Timestamp.utcnow() - pub).dt.total_seconds()/86400.0 
-        article_fresh = np.exp(-np.log(2.0)*(days/14.0)) 
+        days = pd.to_numeric(enriched['Days_Ago'], errors = 'coerce').astype(float)
+        article_fresh = np.exp(-np.log(2.0) * (days / 14.0))
         enriched['article_freshness'] = article_fresh.fillna(0.0) 
         alpha = 0.7 
         enriched['Recency_TR_Blended'] = ( alpha * enriched['recency_score_tr'].fillna(0.0) + (1-alpha) * enriched['article_freshness'] ).clip(0,1) 
