@@ -1305,8 +1305,8 @@ def highered():
               'Content': text if text else 'No Content Found',
               'Source': 'Inside Higher Ed'
           })
-    return data
   return data
+
 def Whitehouse():
   url = 'https://www.whitehouse.gov/presidential-actions/executive-orders/'
 
