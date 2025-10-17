@@ -584,7 +584,8 @@ def homeland_sec():
   nola_rss = []
   for link in links:
       link = requote_uri(link)
-      print(link, flush = True)
+      if not link or "nola.gov" not in link.lower():
+        continue
       downloaded = trafilatura.fetch_url(link)
       soup = BeautifulSoup(downloaded, 'html.parser')
       title = soup.find('h2', class_='mt-0').get_text(strip=True) if soup.find('h2', class_='mt-0') else 'No Title Found'
