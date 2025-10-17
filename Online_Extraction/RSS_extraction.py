@@ -155,7 +155,7 @@ rss_feed =   {"RSS_Feeds":[{
                      "https://reliefweb.int/disasters/rss.xml"],
         "GDeltProject": ["https://data.gdeltproject.org/gdeltv3/gal/feed.rss"],
         
-                           }]
+                           }],
               "RSS_URLs":[{"AP News":["https://associated-press.s3-website-us-east-1.amazonaws.com/business.xml",
                                      "https://associated-press.s3-website-us-east-1.amazonaws.com/climate-and-environment.xml",
                                      "https://associated-press.s3-website-us-east-1.amazonaws.com/health.xml",
