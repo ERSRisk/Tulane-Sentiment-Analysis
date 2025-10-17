@@ -1,5 +1,4 @@
 import aiohttp
-from aiohttp import ClientError, client_exceptions, http_exceptions as aiohttp_http_exceptions
 import feedparser
 import traceback
 import spacy
@@ -31,8 +30,6 @@ import fitz
 from urllib.parse import urljoin
 import pandas as pd
 from requests.utils import requote_uri
-from urllib.parse import urlparse
-import socket
 
 
 rss_feed =   {"RSS_Feeds":[{
@@ -49,7 +46,7 @@ rss_feed =   {"RSS_Feeds":[{
   "Centers for Medicare & Medicaid Services":["https://www.cms.gov/newsroom/rss-feeds"],
   "IMF": ["https://www.imf.org/en/Publications/RSS?language=eng"],
               "Bureau of Economic Analysis":["https://apps.bea.gov/rss/rss.xml?_gl=1*f107ux*_ga*OTI3ODA4ODM3LjE3NTE1NTI2MTY.*_ga_J4698JNNFT*czE3NTE1NTI2MTUkbzEkZzEkdDE3NTE1NTI2NDMkajMyJGwwJGgw"],
-              "CDC":["https://wwwnc.cdc.gov/eid/rss/ahead-of-print.xml"],
+              "CDC":["http://wwwnc.cdc.gov/eid/rss/ahead-of-print.xml"],
               "The Advocate": ["https://www.theadvocate.com/search/?q=&t=article&l=35&d=&d1=&d2=&s=start_time&sd=desc&c%5b%20%5d=new_orleans/news*,baton_rouge/news/politics/legislature,baton_rouge/news/politics,new_orleans/opinion*,baton_rouge/opinion/stephanie_grace,baton_rouge/opinion/jeff_sadow,ba%20ton_rouge/opinion/mark_ballard,new_orleans/sports*,baton_rouge/sports/lsu&nk=%23tncen&f=rss",
                         "https://www.theadvocate.com/search/?q=&t=article&l=35&d=&d1=&d2=&s=start_time&sd=desc&c%5b%5d=new_orleans/news/business&nk=%20%23tncen&f=rss",
                         "https://www.theadvocate.com/search/?q=&t=article&l=35&d=&d1=&d2=&s=start_time&sd=desc&c%5b%5d=new_orleans/news/communities*&nk=%20%23tncen&f=rss"],
@@ -110,13 +107,13 @@ rss_feed =   {"RSS_Feeds":[{
                     "https://rss.politico.com/energy.xml",
                     "https://rss.politico.com/politics-news.xml"],
         "Inside Higher Ed": "https://www.insidehighered.com/rss.xml",
-        "CNN": ["https://rss.cnn.com/rss/cnn_world.rss",
-                "https://rss.cnn.com/rss/cnn_allpolitics.rss",
-                "https://rss.cnn.com/rss/cnn_tech.rss",
-                "https://rss.cnn.com/rss/cnn_health.rss",
-                "https://rss.cnn.com/rss/money_news_international.rss",
-                "https://rss.cnn.com/rss/money_news_economy.rss",
-                "https://rss.cnn.com/rss/money_markets.rss"
+        "CNN": ["http://rss.cnn.com/rss/cnn_world.rss",
+                "http://rss.cnn.com/rss/cnn_allpolitics.rss",
+                "http://rss.cnn.com/rss/cnn_tech.rss",
+                "http://rss.cnn.com/rss/cnn_health.rss",
+                "http://rss.cnn.com/rss/money_news_international.rss",
+                "http://rss.cnn.com/rss/money_news_economy.rss",
+                "http://rss.cnn.com/rss/money_markets.rss"
                 ],
         "CBC": "https://www.cbc.ca/webfeed/rss/rss-world",
         "Yahoo News": ["https://finance.yahoo.com/news/rssindex",
@@ -156,18 +153,18 @@ rss_feed =   {"RSS_Feeds":[{
         "ReliefWeb": ["https://reliefweb.int/updates/rss.xml?view=headlines",
                      "https://reliefweb.int/updates/rss.xml",
                      "https://reliefweb.int/disasters/rss.xml"],
-        "GDeltProject": ["https://data.gdeltproject.org/gdeltv3/gal/feed.rss"],
-        
-                           }],
-              "RSS_URLs":[{"AP News":["https://associated-press.s3-website-us-east-1.amazonaws.com/business.xml",
-                                     "https://associated-press.s3-website-us-east-1.amazonaws.com/climate-and-environment.xml",
-                                     "https://associated-press.s3-website-us-east-1.amazonaws.com/health.xml",
-                                     "https://associated-press.s3-website-us-east-1.amazonaws.com/politics.xml",
-                                    "https://associated-press.s3-website-us-east-1.amazonaws.com/science.xml",
-                                     "https://associated-press.s3-website-us-east-1.amazonaws.com/technology.xml",
-                                     "https://associated-press.s3-website-us-east-1.amazonaws.com/us-news.xml",
-                                     "https://associated-press.s3-website-us-east-1.amazonaws.com/world-news.xml"]}]
-                           
+        "GDeltProject": ["http://data.gdeltproject.org/gdeltv3/gal/feed.rss"],
+
+                           }]
+              #"RSS_URLs":[{"AP News":["http://associated-press.s3-website-us-east-1.amazonaws.com/business.xml",
+              #                       "http://associated-press.s3-website-us-east-1.amazonaws.com/climate-and-environment.xml",
+               #                      "http://associated-press.s3-website-us-east-1.amazonaws.com/health.xml",
+                #                     "http://associated-press.s3-website-us-east-1.amazonaws.com/politics.xml",
+                 #                    "http://associated-press.s3-website-us-east-1.amazonaws.com/science.xml",
+                  #                   "http://associated-press.s3-website-us-east-1.amazonaws.com/technology.xml",
+                   #                  "http://associated-press.s3-website-us-east-1.amazonaws.com/us-news.xml",
+                    #                 "http://associated-press.s3-website-us-east-1.amazonaws.com/world-news.xml"]}]
+
         }
 with sync_playwright() as p:
     browser = p.chromium.launch(headless = True)
@@ -203,8 +200,6 @@ with sync_playwright() as p:
           if news['source'] not in rss_feed["RSS_Feeds"][0]:
             rss_feed["RSS_Feeds"][0][news['source']] = []
           rss_feed["RSS_Feeds"][0][news['source']].append(news["url"])
-
-
 
 paywalled = ['Economist']
 keywords = ['Civil Rights', 'Antisemitism', 'Federal Grants','federal grant',
@@ -342,58 +337,6 @@ GITHUB_TOKEN = os.getenv('TOKEN')
 
 nlp = spacy.load('en_core_web_sm')
 
-safe_ua = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122 Safari/537.36"
-xml_ct = ("xml", "rss", "atom")
-def build_session():
-  connector = aiohttp.TCPConnector(
-    ttl_dns_cache = 300,
-    limit = 40,
-    limit_per_host = 6,
-    family = socket.AF_INET
-  )
-
-  tmo = aiohttp.ClientTimeout(
-    total = 45,
-    connect = 15,
-    sock_connect = 15,
-    sock_read = 20
-  )
-  return aiohttp.ClientSession(
-    connector = connector,
-    timeout = tmo,
-    headers = {'User-Agent': safe_ua}
-  )
-def normalize_url(u:str) -> str:
-  u = u.strip()
-  if not u:
-    return u
-  if not re.match(r'^https?://', u, re.I):
-        # default to https
-    u = "https://" + u.lstrip("/")
-  return u
-
-def _needs_cookie(u: str) -> bool:
-    # Only send cookies to domains that truly require them (e.g., InsideHigherEd)
-  host = urlparse(u).hostname or ""
-  return any(d in host for d in [
-        "insidehighered.com",  # add others *only if needed*
-  ])
-
-async def _read_text_safely(resp):
-    # Try bytes -> decode yourself to avoid aiohttp charset pitfalls
-  b = await resp.read()
-  # Try to sniff encoding if missing; fall back to utf-8
-  try:
-      return b.decode(resp.charset or "utf-8", errors="replace")
-  except Exception:
-      return b.decode("utf-8", errors="replace")
-
-def _looks_like_xml(text: str) -> bool:
-    # very cheap heuristic
-  head = text[:512].lstrip()
-  return head.startswith("<?xml") or head.startswith("<rss") or "<feed" in head[:256]
-  
-
 def _gh_headers():
   token = os.getenv('TOKEN')
   if not token:
@@ -467,7 +410,7 @@ def load_articles_from_release(local_cache_path = 'Online_Extraction/all_RSS.jso
     with gzip.open(p, "rb") as f:
       return json.loads(f.read().decode("utf-8"))
   return []
-    
+
 def create_feeds(rss_feed):
     feeds = []
     for group_name, group_list in rss_feed.items():
@@ -484,36 +427,36 @@ def COGR():
   url = 'https://www.cogr.edu/categories/cogr-updates'
   r = requests.get(url)
   html = r.text
-  
+
   soup = BeautifulSoup(html, 'html.parser')
-  
+
   div = soup.find_all(class_ = 'barone')
   div = [d for d in div if d.find('p') and d.find('p').find('strong') and '2025' in d.find('p').find('strong').text]
   links = [a['href'] for d in div for a in d.find_all('a', href = True)]
   links = [link for link in links if link.endswith('.pdf')]
   links = links[0:3]
-  
-  
+
+
   for_rss = []
   for link in links:
       r = requests.get(link, headers={"User-Agent": "Mozilla/5.0"}, timeout=60)
       r.raise_for_status()
-  
+
       with open("cogr_update.pdf", "wb") as f:
           f.write(r.content)
       doc = fitz.open("cogr_update.pdf")
-  
+
       sizes = []
-  
+
       for page in doc:
           d = page.get_text('dict')
           for b in d['blocks']:
               for ln in b.get('lines', []):
                   for sp in ln['spans']:
                       sizes.append(sp['size'])
-  
+
       levels = sorted(set(sizes), reverse = True)
-  
+
       H2 = levels[1]
       #for page in doc:
           #d = page.get_text('dict')
@@ -526,7 +469,7 @@ def COGR():
       current = None
       pending_header = []
       skipping = False
-  
+
       for pno, page in enumerate(doc):
           page_h = page.rect.height
           d = page.get_text('dict')
@@ -562,17 +505,17 @@ def COGR():
                       header = " ".join(pending_header)
                       current = {"header": header, "body": [], "page_start": pno, "page_end": pno}
                       pending_header = []
-  
+
                   if current:
                       current['page_end'] = pno
                       current['body'].append(line_text)
-                  
-  
+
+
       if current:
           current['body'] = "\n".join(current['body'])
           sections.append(current)
-  
-      
+
+
       eo_line = re.compile(r'\b(?:E\.?\s*O\.?|EO)\s*(?:No\.?\s*)?(\d{5})\b', re.I)
       for s in sections:
           title = s['header']
@@ -581,11 +524,11 @@ def COGR():
           spacy_doc = nlp((title + ' ' + content))
           ents = [ent.text for ent in spacy_doc.ents if ent.label_ in ('ORG','PERSON','GPE','LAW','EVENT','MONEY')]
           kws  = [kw for kw in keywords if kw in (title + ' ' + content).lower()]
-          
+
           if 'executive order' in title.lower():
               eo_blocks = []
               current = None
-  
+
               for line in content.splitlines():
                   if eo_line.search(line):
                       if current:
@@ -636,13 +579,10 @@ def homeland_sec():
   links = [u for u in links if u.rstrip('/').lower() != 'https://nola.gov/next/news']
   links = [urljoin('https://nola.gov', link) for link in links]
   links = [link.replace('u202f', '\u202f') for link in links]
-  
-  
+
   nola_rss = []
   for link in links:
       link = requote_uri(link)
-      if not link or "nola.gov" not in link.lower():
-        continue
       downloaded = trafilatura.fetch_url(link)
       soup = BeautifulSoup(downloaded, 'html.parser')
       title = soup.find('h2', class_='mt-0').get_text(strip=True) if soup.find('h2', class_='mt-0') else 'No Title Found'
@@ -677,7 +617,7 @@ def Ace():
       title = article.find('div', class_='rollup-title').get_text(strip=True)
       link = article.find('a', href=True)['href']
       articles_list.append((title, link))
-  
+
   acenet_data = []
   for title, link in articles_list:
       downloaded = trafilatura.fetch_url(link)
@@ -700,7 +640,7 @@ def Ace():
           'Entities': ents,
           'Keyword': kws}
           )
-  return acenet_data
+      return acenet_data
 def Deloitte():
   url = "https://www.deloitte.com/us/en/insights/industry/articles-on-higher-education.html"
   with sync_playwright() as p:
@@ -715,7 +655,7 @@ def Deloitte():
   blocks = [l for l in articles if l.find('a')]
   links = [a['href'] for block in blocks for a in block.find_all('a', href=True)]
   links = [urljoin(url, link) for link in links]
-  
+
   rss_add = []
   for link in links[0:5]:
       downloaded = trafilatura.fetch_url(link)
@@ -741,10 +681,10 @@ def load_existing_articles():
 def save_new_articles(existing_articles, new_articles):
     existing_urls = {article['Link'] for article in existing_articles}
     unique_new_articles = [article for article in new_articles if article['Link'] not in existing_urls]
-    
+
     print(f"Existing articles: {len(existing_articles)}")
     print(f"New unique articles: {len(unique_new_articles)}")
-    
+
     if unique_new_articles:
         updated_articles = existing_articles + unique_new_articles
         print(f"Saving {len(updated_articles)} total articles to Releases")
@@ -793,50 +733,7 @@ async def fetch_article_content(url):
     except asyncio.TimeoutError:
         print(f"⚠️ Timeout fetching article: {url}")
         return None
-    
-async def fetch_feed_text(url, headers, session, tries = 3):
-  backoff = 0.75
-  for attempt in range(1, tries+1):
-    try:
-        async with session.get(url, headers=headers, allow_redirects=True) as resp:
-            ctype = resp.headers.get("Content-Type", "")
-            text  = await _read_text_safely(resp)
-            return resp.status, ctype, text
 
-    except (asyncio.TimeoutError,
-            client_exceptions.ClientConnectorError,
-            client_exceptions.ServerTimeoutError,
-            asyncio.CancelledError) as e:
-        # transient: backoff then retry, else fall back
-        if attempt < tries:
-            await asyncio.sleep(backoff + random.random()*0.25)
-            backoff *= 2
-            continue
-        print(f"⚠️ aiohttp failed for {url} after {attempt} tries: {repr(e)} — falling back to requests")
-        try:
-            r = await asyncio.to_thread(requests.get, url, headers=headers, timeout=30, allow_redirects=True)
-            return r.status_code, r.headers.get("Content-Type",""), r.text
-        except Exception as e2:
-            print(f"⚠️ requests fallback failed for {url}: {repr(e2)}")
-            return None, None, None
-
-    except aiohttp_http_exceptions.LineTooLong as e:
-        # giant Set-Cookie etc.: go straight to requests
-        print(f"⚠️ Header too long from {url}; falling back to requests: {repr(e)}")
-        try:
-            r = await asyncio.to_thread(requests.get, url, headers=headers, timeout=30, allow_redirects=True)
-            return r.status_code, r.headers.get("Content-Type",""), r.text
-        except Exception as e2:
-            print(f"⚠️ requests fallback failed for {url}: {repr(e2)}")
-            return None, None, None
-
-    except ClientError as e:
-        # non-transient aiohttp error
-        print(f"⚠️ aiohttp client error for {url}: {repr(e)}")
-        return None, None, None
-    except Exception as e:
-        print(f"⚠️ Unexpected error for {url}: {repr(e)}")
-        return None, None, None
 
 async def safe_feed_parse(text):
     try:
@@ -874,7 +771,7 @@ async def safe_feed_parse(text):
         if proc.returncode != 0:
             print(f"Parser subprocess crashed: {stderr.decode()}")
             return None
-        
+
         result = json.loads(stdout.decode())
         if 'error' in result:
             print(f"Parser error: {result['error']}")
@@ -884,100 +781,80 @@ async def safe_feed_parse(text):
         print(f"Subprocess failed: {e}")
         return None
 async def process_feeds(feeds, session):
-    """Fetch and parse multiple RSS feeds asynchronously with full error handling."""
-    COOKIE_HEADER = os.getenv("COOKIE_HEADER")
-    articles = []
-
+    articles = [] 
     for feed in feeds:
         name = feed["source"]
-        url = normalize_url(feed["url"])
-        if not url:
-            print(f"⚠️ Skipping empty URL for {name}")
-            continue
-
+        url = feed["url"]   
         print(f"✅ Processing feed {name} - {url}", flush=True)
-
-        # Skip multimedia-only feeds
-        if "/video/" in url or "/podcast/" in url:
-            print(f"Skipping video/podcast feed: {url}")
+        if '/video/' in url or '/podcast/' in url:
+            print(f"Skipping video or podcast feed: {url}")
             continue
+        try:
+            async with session.get(url, timeout=aiohttp.ClientTimeout(total=30)) as response:
+                text = await response.text()
+                if 'xml' not in response.headers.get('Content-Type', ''):
+                    print(f"Skipping non-XML content: {url}")
+                    continue
+                feed_extract = await safe_feed_parse(text)
+                if not feed_extract:
+                    print(f"Skipping feed {url} due to parse failure")
+                    continue
+        except Exception as e:
+            print(f"⚠️ Hard failure fetching {url}: {e}")
+            continue        
 
-        headers = {
-            "User-Agent": safe_ua,
-            "Accept": "application/rss+xml, application/atom+xml, application/xml;q=0.9, */*;q=0.1",
-        }
-        if _needs_cookie(url) and COOKIE_HEADER:
-            headers["Cookie"] = COOKIE_HEADER
+        if feed_extract['bozo']:
+            print(f"Error parsing feed {url}: {feed_extract['bozo_exception']}")
+            continue  # skip this feed, already logged
 
-        # ---- Fetch feed safely ----
-        status, ctype, text = await fetch_feed_text(url, headers, session)
-        if not status:
-            continue
-
-        if status != 200:
-            snip = (text or "")[:200].replace("\n", " ")
-            print(f"⚠️ Fetch {url} -> HTTP {status} ({ctype}) :: {snip!r}")
-            continue
-
-        if not any(t in (ctype or "").lower() for t in xml_ct):
-            if not _looks_like_xml(text or ""):
-                print(f"Skipping non-XML content (ctype={ctype}) at {url}")
-                continue
-
-        # ---- Parse feed ----
-        feed_extract = await safe_feed_parse(text or "")
-        if not feed_extract:
-            print(f"Skipping feed {url} due to parse failure")
-            continue
-
-        if feed_extract.get("bozo"):
-            print(f"Error parsing feed {url}: {feed_extract.get('bozo_exception')}")
-            continue
-
-        # ---- Process entries ----
         async def process_entry(entry, source):
             try:
-                content = await fetch_article_content(entry.get("link", ""))
-                text = content or get_available(entry, ["summary"]) or ""
-                if not text.strip():
-                    print(f"Skipping with no valid entry text {entry.get('link')}")
+                content = await fetch_article_content(entry['link'])
+                text = content if content else get_available(entry, ["summary"])
+                if not text or not text.strip():
+                    print(f"Skipping with no valid entry text {entry['link']}")
                     return None
 
                 doc = nlp(text)
-                relevant_entities = ["ORG", "PERSON", "GPE", "LAW", "EVENT", "MONEY"]
+                relevant_entities = ['ORG', 'PERSON', 'GPE', 'LAW', 'EVENT', 'MONEY']
                 entities = [ent.text for ent in doc.ents if ent.label_ in relevant_entities]
 
-                combined_text = " ".join(
-                    filter(None, [entry.get("title", ""), entry.get("summary", ""), text])
-                ).lower()
-                matched_keywords = [kw for kw in keywords if kw in combined_text]
+                combined_text = " ".join(filter(None, [
+                    entry.get('title', ''),
+                    entry.get('summary', ''),
+                    text
+                ])).lower()
 
+                matched_keywords = [keyword for keyword in keywords if keyword in combined_text]
                 return {
-                    "Title": entry.get("title"),
-                    "Link": entry.get("link"),
-                    "Published": entry.get("published"),
-                    "Summary": entry.get("summary"),
-                    "Content": "Paywalled article"
-                    if any(p.lower() in name.lower() for p in paywalled)
-                    else text,
+                    "Title": entry.get('title'),
+                    "Link": entry.get('link'),
+                    "Published": entry.get('published'),
+                    "Summary": entry.get('summary'),
+                    "Content": "Paywalled article" if any(p.lower() in name.lower() for p in paywalled) else text,
                     "Source": source,
                     "Keyword": matched_keywords,
-                    "Entities": entities or None,
+                    "Entities": entities if entities else None
                 }
             except Exception as e:
                 print(f"Error processing entry {entry.get('link')}: {e}")
                 return None
 
-        tasks = [process_entry(entry, name) for entry in feed_extract.get("entries", [])]
-        entry_results = await asyncio.gather(*tasks, return_exceptions=False)
+        tasks = [process_entry(entry, name) for entry in feed_extract['entries']]
+        entry_results = await asyncio.gather(*tasks)
         articles.extend([r for r in entry_results if r])
 
     return articles
 
+COOKIE_HEADER = os.getenv("COOKIE_HEADER")
 async def batch_process_feeds(feeds, batch_size = 15, concurrent_batches =5):
     all_articles = []
     batches = [feeds[i:i + batch_size] for i in range(0, len(feeds), batch_size)]
-    async with build_session() as session:
+    headers = {
+    "Cookie": COOKIE_HEADER,
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
+    }
+    async with aiohttp.ClientSession(headers=headers) as session:
         for i in range(0, len(batches), concurrent_batches):
             batch_group = batches[i:i + concurrent_batches]
             print(f"Processing batch {i // batch_size + 1} with {len(batches)} feeds")
@@ -997,21 +874,21 @@ def AAU_Press_Releases(max_articles=None, save_format='csv'):
     print(f"Starting AAU Press Releases scraping...")
     base_url = "https://www.aau.edu"
     url = "https://www.aau.edu/newsroom/press-releases"
-   
+
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/atom+xml,application/rss+xml;q=0.9,image/webp,*/*;q=0.8',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
     }
-   
+
     try:
         response = requests.get(url, headers=headers, timeout=30)
         response.raise_for_status()
-       
+
         soup = BeautifulSoup(response.content, 'html.parser')
-       
+
         # Find press release links - looking for links in the press releases listing
         article_links = []
-       
+
         # Look for press release links in various possible locations
         link_selectors = [
             'a[href*="/press-release"]',
@@ -1023,7 +900,7 @@ def AAU_Press_Releases(max_articles=None, save_format='csv'):
             '.title a',
             'li a'  # list items often contain links
         ]
-       
+
         for selector in link_selectors:
             links = soup.select(selector)
             for link in links:
@@ -1032,7 +909,7 @@ def AAU_Press_Releases(max_articles=None, save_format='csv'):
                     full_url = href if href.startswith('http') else urljoin(base_url, href)
                     if 'aau.edu' in full_url and full_url not in article_links:
                         article_links.append(full_url)
-       
+
         # Also look for any links that might contain press releases
         for a in soup.find_all('a', href=True):
             href = a['href']
@@ -1040,31 +917,31 @@ def AAU_Press_Releases(max_articles=None, save_format='csv'):
                 full_url = href if href.startswith('http') else urljoin(base_url, href)
                 if 'aau.edu' in full_url and full_url not in article_links:
                     article_links.append(full_url)
-       
+
         # Remove duplicates
         article_links = list(dict.fromkeys(article_links))
         print(f"Found {len(article_links)} unique press release links")
-       
+
         # Process articles - if max_articles is None, process all
         if max_articles is None:
             articles_to_process = len(article_links)
         else:
             articles_to_process = min(len(article_links), max_articles)
-       
+
         print(f"Processing {articles_to_process} press releases...")
-       
+
         press_releases = []
-       
+
         for i, link in enumerate(article_links[:articles_to_process]):
             try:
                 print(f"Processing press release {i+1}/{articles_to_process}: {link}")
-               
+
                 article_response = requests.get(link, headers=headers, timeout=30)
                 article_response.raise_for_status()
-               
+
                 html_content = article_response.text
                 soup = BeautifulSoup(html_content, 'html.parser')
-               
+
                 # Extract title
                 title = "No title found"
                 title_selectors = [
@@ -1083,7 +960,7 @@ def AAU_Press_Releases(max_articles=None, save_format='csv'):
                         if title_text and len(title_text) > 5:
                             title = title_text
                             break
-               
+
                 # Extract publication date
                 published = ""
                 date_selectors = [
@@ -1117,7 +994,7 @@ def AAU_Press_Releases(max_articles=None, save_format='csv'):
                                         break
                     except:
                         continue
-               
+
                 # Format date
                 if published:
                     try:
@@ -1128,7 +1005,7 @@ def AAU_Press_Releases(max_articles=None, save_format='csv'):
                             published = ""
                     except:
                         published = ""
-               
+
                 # Extract summary
                 summary = ""
                 summary_selectors = [
@@ -1155,7 +1032,7 @@ def AAU_Press_Releases(max_articles=None, save_format='csv'):
                                     break
                     except:
                         continue
-               
+
                 # Extract content using trafilatura
                 text = trafilatura.extract(
                     html_content,
@@ -1164,7 +1041,7 @@ def AAU_Press_Releases(max_articles=None, save_format='csv'):
                     include_links=False,
                     favor_recall=True
                 ) or ""
-               
+
                 # If trafilatura fails, try to extract content manually
                 if not text:
                     content_selectors = [
@@ -1180,7 +1057,7 @@ def AAU_Press_Releases(max_articles=None, save_format='csv'):
                             text = element.get_text(strip=True)
                             if text:
                                 break
-               
+
                 # Simple entity extraction for universities and organizations
                 def extract_simple_entities(text):
                     if not text:
@@ -1202,9 +1079,9 @@ def AAU_Press_Releases(max_articles=None, save_format='csv'):
                         except:
                             continue
                     return list(set(entities))[:10]
-               
+
                 entities = extract_simple_entities(text)
-               
+
                 press_releases.append({
                     'Title': title,
                     'Link': link,
@@ -1216,7 +1093,7 @@ def AAU_Press_Releases(max_articles=None, save_format='csv'):
                     'Keyword': []
                 })
                 time.sleep(2)
-                
+
             except Exception as e:
                 print(f"✗ Error processing press release: {e}")
                 continue
@@ -1233,18 +1110,18 @@ def Chronicle(max_articles=None, save_format='csv'):
   """
   print(f"Starting Chronicle scraping...")
   url = "https://www.chronicle.com/"
- 
+
   headers = {
       'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
       'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
   }
- 
+
   try:
       response = requests.get(url, headers=headers, timeout=30)
       response.raise_for_status()
-     
+
       soup = BeautifulSoup(response.content, 'html.parser')
-     
+
       # Find article links
       article_links = []
       for a in soup.find_all('a', href=True):
@@ -1253,31 +1130,31 @@ def Chronicle(max_articles=None, save_format='csv'):
               full_url = href if href.startswith('http') else urljoin(url, href)
               if 'chronicle.com' in full_url and full_url not in article_links:
                   article_links.append(full_url)
-     
+
       # Remove duplicates
       article_links = list(dict.fromkeys(article_links))
       print(f"Found {len(article_links)} unique article links")
-     
+
       # Process articles - if max_articles is None, process all
       if max_articles is None:
           articles_to_process = len(article_links)
       else:
           articles_to_process = min(len(article_links), max_articles)
-     
+
       print(f"Processing {articles_to_process} articles...")
-     
+
       rss_add = []
-     
+
       for i, link in enumerate(article_links[:articles_to_process]):
           try:
               print(f"Processing article {i+1}/{articles_to_process}: {link}")
-             
+
               article_response = requests.get(link, headers=headers, timeout=30)
               article_response.raise_for_status()
-             
+
               html_content = article_response.text
               soup = BeautifulSoup(html_content, 'html.parser')
-             
+
               # Extract title
               title = "No title found"
               title_selectors = ['h1', 'h1[class*="title"]', 'h1[class*="headline"]', 'title']
@@ -1288,7 +1165,7 @@ def Chronicle(max_articles=None, save_format='csv'):
                       if title_text and len(title_text) > 5:
                           title = title_text
                           break
-             
+
               # Extract publication date
               published = ""
               date_selectors = [
@@ -1310,7 +1187,7 @@ def Chronicle(max_articles=None, save_format='csv'):
                                   break
                   except:
                       continue
-             
+
               # Format date
               if published:
                   try:
@@ -1321,7 +1198,7 @@ def Chronicle(max_articles=None, save_format='csv'):
                           published = ""
                   except:
                       published = ""
-             
+
               # Extract summary
               summary = ""
               summary_selectors = [
@@ -1344,7 +1221,7 @@ def Chronicle(max_articles=None, save_format='csv'):
                                   break
                   except:
                       continue
-             
+
               # Extract content
               text = trafilatura.extract(
                   html_content,
@@ -1353,7 +1230,7 @@ def Chronicle(max_articles=None, save_format='csv'):
                   include_links=False,
                   favor_recall=True
               ) or ""
-             
+
               # Simple entity extraction
               def extract_simple_entities(text):
                   if not text:
@@ -1371,10 +1248,10 @@ def Chronicle(max_articles=None, save_format='csv'):
                       except:
                           continue
                   return list(set(entities))[:10]
-              spacy_doc = nlp(text or '')
+
               ents = [ent.text for ent in spacy_doc.ents if ent.label_ in ('ORG','PERSON','GPE','LAW','EVENT','MONEY')]
               kws  = [kw for kw in keywords if kw in (title + ' ' + text).lower()]
-             
+
               rss_add.append({
                   'Title': title,
                   'Link': link,
@@ -1388,7 +1265,7 @@ def Chronicle(max_articles=None, save_format='csv'):
           except Exception as e:
               print(f"Error processing article {link}: {e}")   
       return rss_add
-     
+
   except Exception as e:
       print(f"Error: {e}")
       return []
@@ -1401,7 +1278,7 @@ def highered():
       soup = BeautifulSoup(response.content, 'html.parser')
       articles = soup.find_all('h4')
       articles = [a['href'] for article in articles for a in article.find_all('a', href = True)]
-      
+
       for article in articles:
           url = base_url + article
           s = requests.Session()
@@ -1412,10 +1289,10 @@ def highered():
           text = trafilatura.extract(response.text)
           needle_literal = "You have /5 articles left.\\nSign up for a free account or log in.\n"
           needle_newline = "You have /5 articles left.\nSign up for a free account or log in.\n"
-  
+
           text = text.replace(needle_literal, '').replace(needle_newline, '')
           summary = soup.find('div', class_='node-lead normal-spacing').get_text(strip = True) if soup.find('div', class_='node-lead normal-spacing') else 'No Summary Found'
-  
+
           published = soup.select_one('.node-created span').get_text(strip = True) if soup.select_one('.node-created span') else 'Unknown'
           if published != 'Unknown':
               published = pd.to_datetime(published, format = '%B %d, %Y', errors = 'coerce')
@@ -1428,6 +1305,7 @@ def highered():
               'Content': text if text else 'No Content Found',
               'Source': 'Inside Higher Ed'
           })
+    return data
   return data
 def Whitehouse():
   url = 'https://www.whitehouse.gov/presidential-actions/executive-orders/'
@@ -1437,7 +1315,7 @@ def Whitehouse():
   pagination = soup.find_all('a', class_='page-numbers')
   pagination = [a.get_text(strip = True) for a in pagination][-1]
   pagination = int(pagination)
-  
+
   data = []
   for i in range(1, pagination):
       url = f'https://www.whitehouse.gov/presidential-actions/executive-orders/page/{i}/'
@@ -1477,10 +1355,8 @@ chronicle = Chronicle(max_articles=None, save_format='none')
 aau = AAU_Press_Releases(max_articles=None, save_format='none')
 highered = highered()
 
-all_articles =[]
 try:
-    fetched = asyncio.run(batch_process_feeds(feeds, batch_size=5, concurrent_batches=2))
-    all_articles.extend(fetched or [])
+    all_articles = asyncio.run(batch_process_feeds(feeds, batch_size=5, concurrent_batches=2))
 except Exception as e:
     print(f"Fatal error {e}") 
 
@@ -1495,5 +1371,3 @@ all_articles += highered
 
 existing_articles = load_existing_articles()
 new_articles = save_new_articles(existing_articles, all_articles)
-
-
