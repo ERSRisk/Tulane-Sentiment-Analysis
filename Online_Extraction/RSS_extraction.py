@@ -30,6 +30,7 @@ import fitz
 from urllib.parse import urljoin
 import pandas as pd
 from requests.utils import requote_uri
+from urllib.parse import urlparse
 
 
 rss_feed =   {"RSS_Feeds":[{
@@ -843,7 +844,7 @@ async def process_feeds(feeds, session):
                   continue
                 text = await _read_text_safely(response)
               
-                if not any(t in (ctype or "").lower() for t in XML_CT):
+                if not any(t in (ctype or "").lower() for t in xml_ct):
                     # sniff body
                   if not _looks_like_xml(text):
                       print(f"Skipping non-XML content (ctype={ctype}) at {url}")
