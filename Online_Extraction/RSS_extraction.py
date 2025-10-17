@@ -32,6 +32,7 @@ from urllib.parse import urljoin
 import pandas as pd
 from requests.utils import requote_uri
 from urllib.parse import urlparse
+import socket
 
 
 rss_feed =   {"RSS_Feeds":[{
@@ -1476,8 +1477,10 @@ chronicle = Chronicle(max_articles=None, save_format='none')
 aau = AAU_Press_Releases(max_articles=None, save_format='none')
 highered = highered()
 
+all_articles =[]
 try:
-    all_articles = asyncio.run(batch_process_feeds(feeds, batch_size=5, concurrent_batches=2))
+    fetched = asyncio.run(batch_process_feeds(feeds, batch_size=5, concurrent_batches=2))
+    all_articles.extend(fetched or [])
 except Exception as e:
     print(f"Fatal error {e}") 
 
