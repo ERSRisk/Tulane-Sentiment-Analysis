@@ -1,4 +1,5 @@
 import aiohttp
+from aiohttp import http_exceptions as aiohttp_http_exceptions
 import feedparser
 import traceback
 import spacy
@@ -202,6 +203,8 @@ with sync_playwright() as p:
             rss_feed["RSS_Feeds"][0][news['source']] = []
           rss_feed["RSS_Feeds"][0][news['source']].append(news["url"])
 
+
+
 paywalled = ['Economist']
 keywords = ['Civil Rights', 'Antisemitism', 'Federal Grants','federal grant',
 'Discrimination', 'Education Secretary', 'Executive Order', 'Title IX', 'Transgender Athletes',
@@ -340,7 +343,25 @@ nlp = spacy.load('en_core_web_sm')
 
 safe_ua = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122 Safari/537.36"
 xml_ct = ("xml", "rss", "atom")
+def build_session():
+  connector = aiohttp.TCPConnector(
+    ttl_dns_cache = 300,
+    limit = 40,
+    limit_per_host = 6,
+    family = socket.AF_INET
+  )
 
+  tmo = aiohttp.ClientTimeout(
+    total = 45,
+    connect = 15,
+    sock_connect = 15,
+    sock_read = 20
+  )
+  return aiohttp.ClientSession(
+    connector = connector,
+    timeout = tmo,
+    headers = {'User-Agent': safe_ua}
+  )
 def normalize_url(u:str) -> str:
   u = u.strip()
   if not u:
@@ -772,6 +793,49 @@ async def fetch_article_content(url):
         print(f"⚠️ Timeout fetching article: {url}")
         return None
     
+async def fetch_feed_text(url, headers, session, tries = 3):
+  backoff = 0.75
+  for attempt in range(1, tries+1):
+    try:
+        async with session.get(url, headers=headers, allow_redirects=True) as resp:
+            ctype = resp.headers.get("Content-Type", "")
+            text  = await _read_text_safely(resp)
+            return resp.status, ctype, text
+
+    except (asyncio.TimeoutError,
+            client_exceptions.ClientConnectorError,
+            client_exceptions.ServerTimeoutError,
+            asyncio.CancelledError) as e:
+        # transient: backoff then retry, else fall back
+        if attempt < tries:
+            await asyncio.sleep(backoff + random.random()*0.25)
+            backoff *= 2
+            continue
+        print(f"⚠️ aiohttp failed for {url} after {attempt} tries: {repr(e)} — falling back to requests")
+        try:
+            r = await asyncio.to_thread(requests.get, url, headers=headers, timeout=30, allow_redirects=True)
+            return r.status_code, r.headers.get("Content-Type",""), r.text
+        except Exception as e2:
+            print(f"⚠️ requests fallback failed for {url}: {repr(e2)}")
+            return None, None, None
+
+    except aiohttp_http_exceptions.LineTooLong as e:
+        # giant Set-Cookie etc.: go straight to requests
+        print(f"⚠️ Header too long from {url}; falling back to requests: {repr(e)}")
+        try:
+            r = await asyncio.to_thread(requests.get, url, headers=headers, timeout=30, allow_redirects=True)
+            return r.status_code, r.headers.get("Content-Type",""), r.text
+        except Exception as e2:
+            print(f"⚠️ requests fallback failed for {url}: {repr(e2)}")
+            return None, None, None
+
+    except ClientError as e:
+        # non-transient aiohttp error
+        print(f"⚠️ aiohttp client error for {url}: {repr(e)}")
+        return None, None, None
+    except Exception as e:
+        print(f"⚠️ Unexpected error for {url}: {repr(e)}")
+        return None, None, None
 
 async def safe_feed_parse(text):
     try:
@@ -819,94 +883,100 @@ async def safe_feed_parse(text):
         print(f"Subprocess failed: {e}")
         return None
 async def process_feeds(feeds, session):
+    """Fetch and parse multiple RSS feeds asynchronously with full error handling."""
     COOKIE_HEADER = os.getenv("COOKIE_HEADER")
-    articles = [] 
+    articles = []
+
     for feed in feeds:
         name = feed["source"]
         url = normalize_url(feed["url"])
         if not url:
             print(f"⚠️ Skipping empty URL for {name}")
             continue
+
         print(f"✅ Processing feed {name} - {url}", flush=True)
-        if '/video/' in url or '/podcast/' in url:
-            print(f"Skipping video or podcast feed: {url}")
+
+        # Skip multimedia-only feeds
+        if "/video/" in url or "/podcast/" in url:
+            print(f"Skipping video/podcast feed: {url}")
             continue
-        headers = {'User-Agent':safe_ua}
+
+        headers = {
+            "User-Agent": safe_ua,
+            "Accept": "application/rss+xml, application/atom+xml, application/xml;q=0.9, */*;q=0.1",
+        }
         if _needs_cookie(url) and COOKIE_HEADER:
-            headers['Cookie'] = COOKIE_HEADER
-        try:
-            async with session.get(url, headers = headers, allow_redirects = True, timeout=aiohttp.ClientTimeout(total=30)) as response:
-                status = response.status
-                ctype = response.headers.get('Content-Type', '')
-                if status != 200:
-                  text_snip = (await response.text())[:200].replace("\n"," ")
-                  print(f"⚠️ Fetch {url} -> HTTP {status} ({ctype}) :: {text_snip!r}")
-                  continue
-                text = await _read_text_safely(response)
-              
-                if not any(t in (ctype or "").lower() for t in xml_ct):
-                    # sniff body
-                  if not _looks_like_xml(text):
-                      print(f"Skipping non-XML content (ctype={ctype}) at {url}")
-                      continue
-                    
-                feed_extract = await safe_feed_parse(text)
-                if not feed_extract:
-                  print(f"Skipping feed {url} due to parse failure")
-                  continue
-        except Exception as e:
-            print(f"⚠️ Hard failure fetching {url}: {repr(e)}")
-            traceback.print_exc()
-            continue        
+            headers["Cookie"] = COOKIE_HEADER
 
-        if feed_extract['bozo']:
-            print(f"Error parsing feed {url}: {feed_extract['bozo_exception']}")
-            continue  # skip this feed, already logged
+        # ---- Fetch feed safely ----
+        status, ctype, text = await fetch_feed_text(url, headers, session)
+        if not status:
+            continue
 
+        if status != 200:
+            snip = (text or "")[:200].replace("\n", " ")
+            print(f"⚠️ Fetch {url} -> HTTP {status} ({ctype}) :: {snip!r}")
+            continue
+
+        if not any(t in (ctype or "").lower() for t in xml_ct):
+            if not _looks_like_xml(text or ""):
+                print(f"Skipping non-XML content (ctype={ctype}) at {url}")
+                continue
+
+        # ---- Parse feed ----
+        feed_extract = await safe_feed_parse(text or "")
+        if not feed_extract:
+            print(f"Skipping feed {url} due to parse failure")
+            continue
+
+        if feed_extract.get("bozo"):
+            print(f"Error parsing feed {url}: {feed_extract.get('bozo_exception')}")
+            continue
+
+        # ---- Process entries ----
         async def process_entry(entry, source):
             try:
-                content = await fetch_article_content(entry['link'])
-                text = content if content else get_available(entry, ["summary"])
-                if not text or not text.strip():
-                    print(f"Skipping with no valid entry text {entry['link']}")
+                content = await fetch_article_content(entry.get("link", ""))
+                text = content or get_available(entry, ["summary"]) or ""
+                if not text.strip():
+                    print(f"Skipping with no valid entry text {entry.get('link')}")
                     return None
 
                 doc = nlp(text)
-                relevant_entities = ['ORG', 'PERSON', 'GPE', 'LAW', 'EVENT', 'MONEY']
+                relevant_entities = ["ORG", "PERSON", "GPE", "LAW", "EVENT", "MONEY"]
                 entities = [ent.text for ent in doc.ents if ent.label_ in relevant_entities]
 
-                combined_text = " ".join(filter(None, [
-                    entry.get('title', ''),
-                    entry.get('summary', ''),
-                    text
-                ])).lower()
+                combined_text = " ".join(
+                    filter(None, [entry.get("title", ""), entry.get("summary", ""), text])
+                ).lower()
+                matched_keywords = [kw for kw in keywords if kw in combined_text]
 
-                matched_keywords = [keyword for keyword in keywords if keyword in combined_text]
                 return {
-                    "Title": entry.get('title'),
-                    "Link": entry.get('link'),
-                    "Published": entry.get('published'),
-                    "Summary": entry.get('summary'),
-                    "Content": "Paywalled article" if any(p.lower() in name.lower() for p in paywalled) else text,
+                    "Title": entry.get("title"),
+                    "Link": entry.get("link"),
+                    "Published": entry.get("published"),
+                    "Summary": entry.get("summary"),
+                    "Content": "Paywalled article"
+                    if any(p.lower() in name.lower() for p in paywalled)
+                    else text,
                     "Source": source,
                     "Keyword": matched_keywords,
-                    "Entities": entities if entities else None
+                    "Entities": entities or None,
                 }
             except Exception as e:
                 print(f"Error processing entry {entry.get('link')}: {e}")
                 return None
 
-        tasks = [process_entry(entry, name) for entry in feed_extract['entries']]
-        entry_results = await asyncio.gather(*tasks)
+        tasks = [process_entry(entry, name) for entry in feed_extract.get("entries", [])]
+        entry_results = await asyncio.gather(*tasks, return_exceptions=False)
         articles.extend([r for r in entry_results if r])
 
     return articles
 
-
 async def batch_process_feeds(feeds, batch_size = 15, concurrent_batches =5):
     all_articles = []
     batches = [feeds[i:i + batch_size] for i in range(0, len(feeds), batch_size)]
-    async with aiohttp.ClientSession(headers={'User-Agent': safe_ua}) as session:
+    async with build_session() as session:
         for i in range(0, len(batches), concurrent_batches):
             batch_group = batches[i:i + concurrent_batches]
             print(f"Processing batch {i // batch_size + 1} with {len(batches)} feeds")
@@ -929,7 +999,7 @@ def AAU_Press_Releases(max_articles=None, save_format='csv'):
    
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+        'Accept': 'text/html,application/xhtml+xml,application/atom+xml,application/rss+xml;q=0.9,image/webp,*/*;q=0.8',
     }
    
     try:
