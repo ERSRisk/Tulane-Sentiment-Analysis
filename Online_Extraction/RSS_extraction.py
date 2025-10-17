@@ -46,7 +46,7 @@ rss_feed =   {"RSS_Feeds":[{
   "Centers for Medicare & Medicaid Services":["https://www.cms.gov/newsroom/rss-feeds"],
   "IMF": ["https://www.imf.org/en/Publications/RSS?language=eng"],
               "Bureau of Economic Analysis":["https://apps.bea.gov/rss/rss.xml?_gl=1*f107ux*_ga*OTI3ODA4ODM3LjE3NTE1NTI2MTY.*_ga_J4698JNNFT*czE3NTE1NTI2MTUkbzEkZzEkdDE3NTE1NTI2NDMkajMyJGwwJGgw"],
-              "CDC":["http://wwwnc.cdc.gov/eid/rss/ahead-of-print.xml"],
+              "CDC":["https://wwwnc.cdc.gov/eid/rss/ahead-of-print.xml"],
               "The Advocate": ["https://www.theadvocate.com/search/?q=&t=article&l=35&d=&d1=&d2=&s=start_time&sd=desc&c%5b%20%5d=new_orleans/news*,baton_rouge/news/politics/legislature,baton_rouge/news/politics,new_orleans/opinion*,baton_rouge/opinion/stephanie_grace,baton_rouge/opinion/jeff_sadow,ba%20ton_rouge/opinion/mark_ballard,new_orleans/sports*,baton_rouge/sports/lsu&nk=%23tncen&f=rss",
                         "https://www.theadvocate.com/search/?q=&t=article&l=35&d=&d1=&d2=&s=start_time&sd=desc&c%5b%5d=new_orleans/news/business&nk=%20%23tncen&f=rss",
                         "https://www.theadvocate.com/search/?q=&t=article&l=35&d=&d1=&d2=&s=start_time&sd=desc&c%5b%5d=new_orleans/news/communities*&nk=%20%23tncen&f=rss"],
@@ -107,13 +107,13 @@ rss_feed =   {"RSS_Feeds":[{
                     "https://rss.politico.com/energy.xml",
                     "https://rss.politico.com/politics-news.xml"],
         "Inside Higher Ed": "https://www.insidehighered.com/rss.xml",
-        "CNN": ["http://rss.cnn.com/rss/cnn_world.rss",
-                "http://rss.cnn.com/rss/cnn_allpolitics.rss",
-                "http://rss.cnn.com/rss/cnn_tech.rss",
-                "http://rss.cnn.com/rss/cnn_health.rss",
-                "http://rss.cnn.com/rss/money_news_international.rss",
-                "http://rss.cnn.com/rss/money_news_economy.rss",
-                "http://rss.cnn.com/rss/money_markets.rss"
+        "CNN": ["https://rss.cnn.com/rss/cnn_world.rss",
+                "https://rss.cnn.com/rss/cnn_allpolitics.rss",
+                "https://rss.cnn.com/rss/cnn_tech.rss",
+                "https://rss.cnn.com/rss/cnn_health.rss",
+                "https://rss.cnn.com/rss/money_news_international.rss",
+                "https://rss.cnn.com/rss/money_news_economy.rss",
+                "https://rss.cnn.com/rss/money_markets.rss"
                 ],
         "CBC": "https://www.cbc.ca/webfeed/rss/rss-world",
         "Yahoo News": ["https://finance.yahoo.com/news/rssindex",
@@ -153,17 +153,17 @@ rss_feed =   {"RSS_Feeds":[{
         "ReliefWeb": ["https://reliefweb.int/updates/rss.xml?view=headlines",
                      "https://reliefweb.int/updates/rss.xml",
                      "https://reliefweb.int/disasters/rss.xml"],
-        "GDeltProject": ["http://data.gdeltproject.org/gdeltv3/gal/feed.rss"],
+        "GDeltProject": ["https://data.gdeltproject.org/gdeltv3/gal/feed.rss"],
         
                            }]
-              #"RSS_URLs":[{"AP News":["http://associated-press.s3-website-us-east-1.amazonaws.com/business.xml",
-              #                       "http://associated-press.s3-website-us-east-1.amazonaws.com/climate-and-environment.xml",
-               #                      "http://associated-press.s3-website-us-east-1.amazonaws.com/health.xml",
-                #                     "http://associated-press.s3-website-us-east-1.amazonaws.com/politics.xml",
-                 #                    "http://associated-press.s3-website-us-east-1.amazonaws.com/science.xml",
-                  #                   "http://associated-press.s3-website-us-east-1.amazonaws.com/technology.xml",
-                   #                  "http://associated-press.s3-website-us-east-1.amazonaws.com/us-news.xml",
-                    #                 "http://associated-press.s3-website-us-east-1.amazonaws.com/world-news.xml"]}]
+              "RSS_URLs":[{"AP News":["https://associated-press.s3-website-us-east-1.amazonaws.com/business.xml",
+                                     "https://associated-press.s3-website-us-east-1.amazonaws.com/climate-and-environment.xml",
+                                     "https://associated-press.s3-website-us-east-1.amazonaws.com/health.xml",
+                                     "https://associated-press.s3-website-us-east-1.amazonaws.com/politics.xml",
+                                    "https://associated-press.s3-website-us-east-1.amazonaws.com/science.xml",
+                                     "https://associated-press.s3-website-us-east-1.amazonaws.com/technology.xml",
+                                     "https://associated-press.s3-website-us-east-1.amazonaws.com/us-news.xml",
+                                     "https://associated-press.s3-website-us-east-1.amazonaws.com/world-news.xml"]}]
                            
         }
 with sync_playwright() as p:
@@ -336,6 +336,40 @@ Asset_name = 'all_RSS.json.gz'
 GITHUB_TOKEN = os.getenv('TOKEN')
 
 nlp = spacy.load('en_core_web_sm')
+
+safe_ua = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122 Safari/537.36"
+xml_ct = ("xml", "rss", "atom")
+
+def normalize_url(u:str) -> str:
+  u = u.strip()
+  if not u:
+    return u
+  if not re.match(r'^https?://', u, re.I):
+        # default to https
+    u = "https://" + u.lstrip("/")
+  return u
+
+def _needs_cookie(u: str) -> bool:
+    # Only send cookies to domains that truly require them (e.g., InsideHigherEd)
+  host = urlparse(u).hostname or ""
+  return any(d in host for d in [
+        "insidehighered.com",  # add others *only if needed*
+  ])
+
+async def _read_text_safely(resp):
+    # Try bytes -> decode yourself to avoid aiohttp charset pitfalls
+  b = await resp.read()
+  # Try to sniff encoding if missing; fall back to utf-8
+  try:
+      return b.decode(resp.charset or "utf-8", errors="replace")
+  except Exception:
+      return b.decode("utf-8", errors="replace")
+
+def _looks_like_xml(text: str) -> bool:
+    # very cheap heuristic
+  head = text[:512].lstrip()
+  return head.startswith("<?xml") or head.startswith("<rss") or "<feed" in head[:256]
+  
 
 def _gh_headers():
   token = os.getenv('TOKEN')
@@ -643,7 +677,7 @@ def Ace():
           'Entities': ents,
           'Keyword': kws}
           )
-      return acenet_data
+  return acenet_data
 def Deloitte():
   url = "https://www.deloitte.com/us/en/insights/industry/articles-on-higher-education.html"
   with sync_playwright() as p:
@@ -784,26 +818,44 @@ async def safe_feed_parse(text):
         print(f"Subprocess failed: {e}")
         return None
 async def process_feeds(feeds, session):
+    COOKIE_HEADER = os.getenv("COOKIE_HEADER")
     articles = [] 
     for feed in feeds:
         name = feed["source"]
-        url = feed["url"]   
+        url = normalize_url(feed["url"])
+        if not url:
+            print(f"⚠️ Skipping empty URL for {name}")
+            continue
         print(f"✅ Processing feed {name} - {url}", flush=True)
         if '/video/' in url or '/podcast/' in url:
             print(f"Skipping video or podcast feed: {url}")
             continue
+        headers = {'User-Agent':safe_ua}
+        if _needs_cookie(url) and COOKIE_HEADER:
+            headers['Cookie'] = COOKIE_HEADER
         try:
-            async with session.get(url, timeout=aiohttp.ClientTimeout(total=30)) as response:
-                text = await response.text()
-                if 'xml' not in response.headers.get('Content-Type', ''):
-                    print(f"Skipping non-XML content: {url}")
-                    continue
+            async with session.get(url, headers = headers, allow_redirects = True, timeout=aiohttp.ClientTimeout(total=30)) as response:
+                status = response.status
+                ctype = response.headers.get('Content-Type', '')
+                if status != 200:
+                  text_snip = (await response.text())[:200].replace("\n"," ")
+                  print(f"⚠️ Fetch {url} -> HTTP {status} ({ctype}) :: {text_snip!r}")
+                  continue
+                text = await _read_text_safely(response)
+              
+                if not any(t in (ctype or "").lower() for t in XML_CT):
+                    # sniff body
+                  if not _looks_like_xml(text):
+                      print(f"Skipping non-XML content (ctype={ctype}) at {url}")
+                      continue
+                    
                 feed_extract = await safe_feed_parse(text)
                 if not feed_extract:
-                    print(f"Skipping feed {url} due to parse failure")
-                    continue
+                  print(f"Skipping feed {url} due to parse failure")
+                  continue
         except Exception as e:
-            print(f"⚠️ Hard failure fetching {url}: {e}")
+            print(f"⚠️ Hard failure fetching {url}: {repr(e)}")
+            traceback.print_exc()
             continue        
 
         if feed_extract['bozo']:
@@ -849,15 +901,11 @@ async def process_feeds(feeds, session):
 
     return articles
 
-COOKIE_HEADER = os.getenv("COOKIE_HEADER")
+
 async def batch_process_feeds(feeds, batch_size = 15, concurrent_batches =5):
     all_articles = []
     batches = [feeds[i:i + batch_size] for i in range(0, len(feeds), batch_size)]
-    headers = {
-    "Cookie": COOKIE_HEADER,
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
-    }
-    async with aiohttp.ClientSession(headers=headers) as session:
+    async with aiohttp.ClientSession(headers={'User-Agent': safe_ua}) as session:
         for i in range(0, len(batches), concurrent_batches):
             batch_group = batches[i:i + concurrent_batches]
             print(f"Processing batch {i // batch_size + 1} with {len(batches)} feeds")
@@ -1251,7 +1299,7 @@ def Chronicle(max_articles=None, save_format='csv'):
                       except:
                           continue
                   return list(set(entities))[:10]
-             
+              spacy_doc = nlp(text or '')
               ents = [ent.text for ent in spacy_doc.ents if ent.label_ in ('ORG','PERSON','GPE','LAW','EVENT','MONEY')]
               kws  = [kw for kw in keywords if kw in (title + ' ' + text).lower()]
              
