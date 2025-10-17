@@ -730,7 +730,7 @@ async def fetch_article_content(url):
     try:
         return await asyncio.wait_for(
             asyncio.to_thread(fetch_content, url),
-            timeout=30
+            timeout=60
         )
     except asyncio.TimeoutError:
         print(f"⚠️ Timeout fetching article: {url}")
@@ -763,7 +763,7 @@ async def safe_feed_parse(text):
         )
         try:
             stdout, stderr = await asyncio.wait_for(
-                proc.communicate(input=text.encode()), timeout=30
+                proc.communicate(input=text.encode()), timeout=60
             )
         except asyncio.TimeoutError:
             proc.kill()
@@ -792,7 +792,7 @@ async def process_feeds(feeds, session):
             print(f"Skipping video or podcast feed: {url}")
             continue
         try:
-            async with session.get(url, timeout=aiohttp.ClientTimeout(total=30)) as response:
+            async with session.get(url, timeout=aiohttp.ClientTimeout(total=60)) as response:
                 text = await response.text()
                 if 'xml' not in response.headers.get('Content-Type', ''):
                     print(f"Skipping non-XML content: {url}")
@@ -883,7 +883,7 @@ def AAU_Press_Releases(max_articles=None, save_format='csv'):
     }
 
     try:
-        response = requests.get(url, headers=headers, timeout=30)
+        response = requests.get(url, headers=headers, timeout=60)
         response.raise_for_status()
 
         soup = BeautifulSoup(response.content, 'html.parser')
@@ -938,7 +938,7 @@ def AAU_Press_Releases(max_articles=None, save_format='csv'):
             try:
                 print(f"Processing press release {i+1}/{articles_to_process}: {link}")
 
-                article_response = requests.get(link, headers=headers, timeout=30)
+                article_response = requests.get(link, headers=headers, timeout=60)
                 article_response.raise_for_status()
 
                 html_content = article_response.text
@@ -1119,7 +1119,7 @@ def Chronicle(max_articles=None, save_format='csv'):
   }
 
   try:
-      response = requests.get(url, headers=headers, timeout=30)
+      response = requests.get(url, headers=headers, timeout=60)
       response.raise_for_status()
 
       soup = BeautifulSoup(response.content, 'html.parser')
@@ -1151,7 +1151,7 @@ def Chronicle(max_articles=None, save_format='csv'):
           try:
               print(f"Processing article {i+1}/{articles_to_process}: {link}")
 
-              article_response = requests.get(link, headers=headers, timeout=30)
+              article_response = requests.get(link, headers=headers, timeout=60)
               article_response.raise_for_status()
 
               html_content = article_response.text
