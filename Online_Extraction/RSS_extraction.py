@@ -579,6 +579,7 @@ def homeland_sec():
   links = [u for u in links if u.rstrip('/').lower() != 'https://nola.gov/next/news']
   links = [urljoin('https://nola.gov', link) for link in links]
   links = [link.replace('u202f', '\u202f') for link in links]
+  print(links, flush = True)
   
   nola_rss = []
   for link in links:
