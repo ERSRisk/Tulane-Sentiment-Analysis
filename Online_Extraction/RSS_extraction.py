@@ -1,5 +1,5 @@
 import aiohttp
-from aiohttp import http_exceptions as aiohttp_http_exceptions
+from aiohttp import ClientError, client_exceptions, http_exceptions as aiohttp_http_exceptions
 import feedparser
 import traceback
 import spacy
