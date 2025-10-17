@@ -1535,14 +1535,28 @@ def predict_risks(df):
     #change = texts
     #if not texts:
     #    return df
-   
+
+    df = df.copy()
+    df['Title'] = df['Title'].fillna('').str.strip()
+
+    df['Content'] = df['Content'].fillna('').str.strip()
+    df['Text'] = (df['Title'] + '. ' + df['Content']).str.strip()
+    df = df.reset_index(drop = True)
+    todo_mask = (df['Predicted_Risks_new'].isna()) | (df['Predicted_Risks_new'].eq('')) | (df['Predicted_Risks_new'].eq('No Risk'))
+    recent_cut = pd.Timestamp.now(tz='utc') - pd.Timedelta(days=30)
+    df['Published_utc'] = pd.to_datetime(df['Published'], errors='coerce', utc = True)
+    recent_mask = df['Published_utc'] >= recent_cut
+    todo_mask &= recent_mask.fillna(False)
+    texts = df.loc[todo_mask, 'Text'].tolist()
+    if not texts:
+        return df
 
     with open('Model_training/risks.json', 'r') as f:
         risks_data = json.load(f)
 
     all_risks = [risk['name'] for group in risks_data['new_risks'] for risks in group.values() for risk in risks]
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    model = SentenceTransformer(model_name, device = device)
+    model = SentenceTransformer('all-mpnet-base-v2', device = device)
     # Encode articles and risks
     article_embeddings = model.encode(texts, convert_to_numpy = True, normalize_embeddings = True, show_progress_bar=True,  batch_size=256 if device=='cuda' else 32)
     #C = article_embeddings
