@@ -579,11 +579,12 @@ def homeland_sec():
   links = [u for u in links if u.rstrip('/').lower() != 'https://nola.gov/next/news']
   links = [urljoin('https://nola.gov', link) for link in links]
   links = [link.replace('u202f', '\u202f') for link in links]
-  print(links, flush = True)
+  
   
   nola_rss = []
   for link in links:
       link = requote_uri(link)
+      print(link)
       downloaded = trafilatura.fetch_url(link)
       soup = BeautifulSoup(downloaded, 'html.parser')
       title = soup.find('h2', class_='mt-0').get_text(strip=True) if soup.find('h2', class_='mt-0') else 'No Title Found'
