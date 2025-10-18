@@ -169,7 +169,7 @@ rss_feed =   {"RSS_Feeds":[{
 with sync_playwright() as p:
     browser = p.chromium.launch(headless = True)
     page = browser.new_page()
-    page.goto("https://gohsep.la.gov/about/news/")
+    page.goto("https://gohsep.la.gov/about/news/", wait_until = 'load', timeout = 60_000)
     page.wait_for_load_state("networkidle")
     news_items = page.locator("div.col-lg-9 ul li")
     extracted_gohsep_news = []
@@ -184,7 +184,7 @@ with sync_playwright() as p:
         })
 
     for news in extracted_gohsep_news:
-        page.goto(news["url"])
+        page.goto(news["url"], wait_until = 'load', timeout = 60_000)
         page.wait_for_load_state("networkidle")
         try:
             paragraph = page.locator("p.MsoNormal span").all()
@@ -200,6 +200,7 @@ with sync_playwright() as p:
           if news['source'] not in rss_feed["RSS_Feeds"][0]:
             rss_feed["RSS_Feeds"][0][news['source']] = []
           rss_feed["RSS_Feeds"][0][news['source']].append(news["url"])
+    browser.close()
 
 paywalled = ['Economist']
 keywords = ['Civil Rights', 'Antisemitism', 'Federal Grants','federal grant',
