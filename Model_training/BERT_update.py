@@ -931,42 +931,99 @@ def risk_weights(df):
         "Nepotism/Conflict of Interest": 15, 
         "Policy Misapplication": 15, 
         "Whistleblower Claims": 30 } 
-    def recency_features_topic_risk(df, now = None): 
-        fx = base.copy() 
-        if now is None: 
-            now = pd.Timestamp.utcnow() 
-        art_w = fx.get('Probability') 
-        if art_w is None: 
-            art_w = 1.0 
-        else: art_w = pd.to_numeric(art_w, errors= 'coerce').fillna(0.0).clip(0,1) 
-        def half_life(risk): 
-            return risk_half_life.get(risk, 30) 
-        hl = fx['_RiskList'].map(lambda r: max(1.0, half_life(r))) 
-        lam = np.log(2.0)/hl 
-        w_decay = np.exp(-lam*fx['Days_Ago']) 
-        fx['_w'] = w_decay * art_w 
-        grp = fx.groupby(['Topic', '_RiskList'], dropna = False)
+    pr_col = 'Predicted_Risks'
+    if pr_col not in base.columns:
+        base[pr_col] = ''
+    def _parse_tokens(s):
+        if s is None or pd.isna(s) or str(s).strip() == '':
+            return ""
+        return str(s).split(';', 1)[0].strip()
+    base['_RiskList'] = base[pr_col].fillna('').astype(str).apply(_parse_tokens)
+    base['Risk_item'] = base['_RiskList'].replace('', 'No Risk')
+
+    #base = base.explode('_RiskList', ignore_index=False).rename(columns={'_RiskList':'Risk_item'})
+    #mask = exploded['Risk_item'].notna() & (exploded['Risk_item'].astype(str).str.strip()!='')
+    #exploded = exploded[mask].copy()
+    #exploded['Risk_norm'] = exploded['Risk_item'].astype(str).str.strip().str.lower()
+    
+
+    # Published -> datetime (robust coercion)
+
+
+
+
+    if 'Topic' not in base.columns:
+        base['Topic'] = -1
+    base['Topic'] = base['Topic'].fillna(-1)
+    def recency_features_topic_risk(df, now=None):
+        fx = df.copy()
+    
+        required = {'Topic', '_RiskList', 'Published', 'Days_Ago'}
+        if not required.issubset(fx.columns) or fx.empty:
+            return pd.DataFrame(columns=['Topic','_RiskList','last_seen_days','decayed_volume','recency_score_tr'])
+    
+        if now is None:
+            now = pd.Timestamp.utcnow()
+    
+        # article weight
+        art_w = 1.0
+        if 'Probability' in fx.columns:
+            art_w = pd.to_numeric(fx['Probability'], errors='coerce').fillna(0.0).clip(0, 1)
+    
+        def half_life(risk):
+            return risk_half_life.get(risk, 30)
+    
+        hl  = fx['_RiskList'].map(lambda r: max(1.0, half_life(r)))
+        lam = np.log(2.0) / hl
+        w_decay = np.exp(-lam * fx['Days_Ago'])
+        fx['_w'] = w_decay * art_w
+    
+        grp = fx.groupby(['Topic', '_RiskList'], dropna=False)
         out = grp.agg(
-            last_seen = ('Days_Ago', 'min'),
-            decayed_volume = ('_w', 'sum'),
-            mentions = ('Published', 'count')
+            last_seen=('Days_Ago', 'min'),
+            decayed_volume=('_w', 'sum'),
+            mentions=('Published', 'count')
         ).reset_index()
-        out['hl'] = out['_RiskList'].map(lambda r: max(1.0, half_life(r))) 
-        out['freshness'] = np.exp(-np.log(2.0) * (out['last_seen'] / out['hl'])) 
-        out['decayed_z'] = out.groupby('_RiskList')['decayed_volume'].transform(lambda s: (s - s.min())/ (s.max() - s.min()+1e-12)) 
-        w_fresh, w_vol = 0.6, 0.4 
-        out['recency_score_tr'] = (w_fresh * out['freshness'] + w_vol * out['decayed_z']).clip(0,1) 
-        out = out.rename(columns = {'last_seen': 'last_seen_days'}) 
-        return out [['Topic', '_RiskList', 'last_seen_days', 'decayed_volume', 'recency_score_tr']] 
-    def attach_topic_risk_recency(df): 
-        tr = recency_features_topic_risk(df) 
-        enriched = df.merge(tr, on = ['Topic', '_RiskList'], how = 'left') 
-        days = pd.to_numeric(enriched['Days_Ago'], errors = 'coerce').astype(float)
-        article_fresh = np.exp(-np.log(2.0) * (days / 14.0))
-        enriched['article_freshness'] = article_fresh.fillna(0.0) 
-        alpha = 0.7 
-        enriched['Recency_TR_Blended'] = ( alpha * enriched['recency_score_tr'].fillna(0.0) + (1-alpha) * enriched['article_freshness'] ).clip(0,1) 
-        return enriched 
+    
+        out['hl'] = out['_RiskList'].map(lambda r: max(1.0, half_life(r)))
+        out['freshness'] = np.exp(-np.log(2.0) * (out['last_seen'] / out['hl']))
+    
+        def _safe_minmax(s):
+            rng = s.max() - s.min()
+            return (s - s.min()) / (rng + 1e-12)
+    
+        out['decayed_z'] = out.groupby('_RiskList')['decayed_volume'].transform(_safe_minmax)
+    
+        w_fresh, w_vol = 0.6, 0.4
+        out['recency_score_tr'] = (w_fresh * out['freshness'] + w_vol * out['decayed_z']).clip(0, 1)
+        out = out.rename(columns={'last_seen': 'last_seen_days'})
+        return out[['Topic','_RiskList','last_seen_days','decayed_volume','recency_score_tr']]
+    
+    
+    def attach_topic_risk_recency(df):
+        tr = recency_features_topic_risk(df)
+    
+        # ensure expected cols exist even if tr is empty
+        for c in ['last_seen_days','decayed_volume','recency_score_tr']:
+            if c not in tr.columns:
+                tr[c] = np.nan
+    
+        enriched = df.merge(tr[['Topic','_RiskList','last_seen_days','decayed_volume','recency_score_tr']],
+                            on=['Topic','_RiskList'], how='left')
+    
+        days = pd.to_numeric(enriched.get('Days_Ago', np.nan), errors='coerce').astype(float)
+        enriched['article_freshness'] = np.exp(-np.log(2.0) * (days / 14.0)).fillna(0.0)
+    
+        if 'recency_score_tr' not in enriched.columns:
+            enriched['recency_score_tr'] = 0.0
+    
+        alpha = 0.7
+        enriched['Recency_TR_Blended'] = (
+            alpha * enriched['recency_score_tr'].fillna(0.0)
+            + (1 - alpha) * enriched['article_freshness']
+        ).clip(0, 1)
+    
+        return enriched
     base = attach_topic_risk_recency(base) 
     base['Recency'] = (base['Recency_TR_Blended'] * 5).round(2)
 
@@ -1018,30 +1075,7 @@ def risk_weights(df):
     base['Location'] = base.apply(_loc_score, axis=1)
     base['Location'] = pd.to_numeric(base['Location'], errors = 'coerce').fillna(0).astype(int)
 
-    pr_col = 'Predicted_Risks'
-    if pr_col not in base.columns:
-        base[pr_col] = ''
-    def _parse_tokens(s):
-        if s is None or pd.isna(s) or str(s).strip() == '':
-            return ""
-        return str(s).split(';', 1)[0].strip()
-    base['_RiskList'] = base[pr_col].fillna('').astype(str).apply(_parse_tokens)
-    base['Risk_item'] = base['_RiskList'].replace('', 'No Risk')
-
-    #base = base.explode('_RiskList', ignore_index=False).rename(columns={'_RiskList':'Risk_item'})
-    #mask = exploded['Risk_item'].notna() & (exploded['Risk_item'].astype(str).str.strip()!='')
-    #exploded = exploded[mask].copy()
-    #exploded['Risk_norm'] = exploded['Risk_item'].astype(str).str.strip().str.lower()
     
-
-    # Published -> datetime (robust coercion)
-
-
-
-
-    if 'Topic' not in base.columns:
-        base['Topic'] = -1
-    base['Topic'] = base['Topic'].fillna(-1)
 
     def _window_tag(d):
         if d <= 30: return 'recent'
