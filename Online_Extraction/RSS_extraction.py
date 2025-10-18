@@ -6,6 +6,7 @@ import time
 import subprocess
 import asyncio
 import json
+import time
 import re
 import sys
 import undetected_chromedriver as uc
@@ -383,18 +384,36 @@ def upload_asset(owner, repo, release, asset_name, data_bytes, content_type = 'a
     raise RuntimeError(f"Upload failed{up.status_code}: {up.text[:500]}")
   return up.json()
 
-def save_new_articles_to_release(all_articles:list, local_cache_path = 'Online_Extraction/all_RSS.json.gz'):
-  buf = io.BytesIO()
-  with gzip.GzipFile(fileobj = buf, mode = 'wb') as gz:
-    gz.write(json.dumps(all_articles, ensure_ascii = False, indent = 2).encode("utf-8"))
-  gz_bytes = buf.getvalue()
+def save_new_articles_to_release(all_articles:list, local_cache_path='Online_Extraction/all_RSS.json.gz'):
+    Path(local_cache_path).parent.mkdir(parents=True, exist_ok=True)
+    t0 = time.perf_counter()
+    # stream to local gzip (no giant in-mem string)
+    with gzip.open(local_cache_path, 'wt', encoding='utf-8') as gz:
+        gz.write('[')
+        first = True
+        for item in all_articles:
+            if not first:
+                gz.write(',')  # comma between records
+            else:
+                first = False
+            gz.write(json.dumps(item, ensure_ascii=False, separators=(',', ':')))
+        gz.write(']')
+    gzip_sec = time.perf_counter() - t0
+    size_mb = Path(local_cache_path).stat().st_size / 1_000_000
+    print(f"gzip sec: {gzip_sec:.2f} | size: {size_mb:.1f} MB", flush = True)
 
-  Path(local_cache_path).parent.mkdir(parents=True, exist_ok = True)
-  with open(local_cache_path, 'wb') as f:
-    f.write(gz_bytes)
+    # read back bytes for upload (bounded memory footprint)
+    with open(local_cache_path, 'rb') as f:
+        gz_bytes = f.read()
 
-  rel = ensure_release(Github_owner, Github_repo, Release_tag)
-  upload_asset(Github_owner, Github_repo, rel, Asset_name, gz_bytes)
+    # optional: quick progress prints
+    print(f"Built gzip file: {len(gz_bytes)/1_000_000:.1f} MB")
+
+    rel = ensure_release(Github_owner, Github_repo, Release_tag)
+    t1 = time.perf_counter()
+    upload_asset(Github_owner, Github_repo, rel, Asset_name, gz_bytes)
+    print(f"upload sec: {time.perf_counter() - t1:.2f}")
+  
 
 def load_articles_from_release(local_cache_path = 'Online_Extraction/all_RSS.json.gz'):
   rel = _get_release_by_tag(Github_owner, Github_repo, Release_tag)
