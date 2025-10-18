@@ -170,8 +170,7 @@ with sync_playwright() as p:
     browser = p.chromium.launch(headless = True)
     page = browser.new_page()
     page.goto("https://gohsep.la.gov/about/news/", wait_until = 'load', timeout = 60_000)
-    page.wait_for_load_state("networkidle")
-    news_items = page.locator("div.col-lg-9 ul li")
+    news_items = page.locator("div.col-lg-9 ul li", timeout = 30_000)
     extracted_gohsep_news = []
 
     for item in news_items.all():
@@ -185,7 +184,7 @@ with sync_playwright() as p:
 
     for news in extracted_gohsep_news:
         page.goto(news["url"], wait_until = 'load', timeout = 60_000)
-        page.wait_for_load_state("networkidle")
+        page.wait_for_selector('p', timeout = 30_000)
         try:
             paragraph = page.locator("p.MsoNormal span").all()
             content = " ".join([p.inner_text() for p in paragraph])
@@ -349,7 +348,7 @@ def _gh_headers():
 
 def _get_release_by_tag(owner, repo, tag):
   url = f'https://api.github.com/repos/{owner}/{repo}/releases/tags/{tag}'
-  r = requests.get(url, headers = _gh_headers())
+  r = requests.get(url, headers = _gh_headers(), timeout = 60)
   if r.status_code == 404:
     return None
   r.raise_for_status()
@@ -361,24 +360,24 @@ def ensure_release(owner, repo, tag):
     return rel
   url = f"https://api.github.com/repos/{owner}/{repo}/releases"
   payload = {"tag_name": tag, "name": tag, "prerelease": False, "draft": False}
-  r = requests.post(url, headers = _gh_headers(), json = payload)
+  r = requests.post(url, headers = _gh_headers(), json = payload, timeout = 60)
   r.raise_for_status()
   return r.json()
 
 def upload_asset(owner, repo, release, asset_name, data_bytes, content_type = 'application/gzip'):
   assets_api = release['assets_url']
-  r = requests.get(assets_api, headers = _gh_headers())
+  r = requests.get(assets_api, headers = _gh_headers(), timeout = 60)
   r.raise_for_status()
   for a in r.json():
     if a.get('name') == asset_name:
-      del_r = requests.delete(a['url'], headers = _gh_headers())
+      del_r = requests.delete(a['url'], headers = _gh_headers(), timeout = 60)
       del_r.raise_for_status()
       break
   upload_url = release['upload_url'].split('{')[0]
   params = {"name":asset_name}
   headers = _gh_headers()
   headers['Content-type'] = content_type
-  up = requests.post(upload_url, headers = headers, params = params, data = data_bytes)
+  up = requests.post(upload_url, headers = headers, params = params, data = data_bytes, timeout = 60)
   if not up.ok:
     raise RuntimeError(f"Upload failed{up.status_code}: {up.text[:500]}")
   return up.json()
@@ -643,7 +642,7 @@ def Ace():
           'Entities': ents,
           'Keyword': kws}
           )
-      return acenet_data
+  return acenet_data
 def Deloitte():
   url = "https://www.deloitte.com/us/en/insights/industry/articles-on-higher-education.html"
   with sync_playwright() as p:
@@ -1251,7 +1250,7 @@ def Chronicle(max_articles=None, save_format='csv'):
                       except:
                           continue
                   return list(set(entities))[:10]
-
+              spacy_doc = nlp(text or '')
               ents = [ent.text for ent in spacy_doc.ents if ent.label_ in ('ORG','PERSON','GPE','LAW','EVENT','MONEY')]
               kws  = [kw for kw in keywords if kw in (title + ' ' + text).lower()]
 
