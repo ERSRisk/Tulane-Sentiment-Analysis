@@ -198,10 +198,10 @@ with sync_playwright() as p:
         print(news['content'])
         rss_feed['Extracted_News'] = {}
 
-        if news['source'] not in rss_feed['RSS_Feeds']:
-          if news['source'] not in rss_feed["RSS_Feeds"][0]:
-            rss_feed["RSS_Feeds"][0][news['source']] = []
-          rss_feed["RSS_Feeds"][0][news['source']].append(news["url"])
+        #if news['source'] not in rss_feed['RSS_Feeds']:
+          #if news['source'] not in rss_feed["RSS_Feeds"][0]:
+            #rss_feed["RSS_Feeds"][0][news['source']] = []
+          #rss_feed["RSS_Feeds"][0][news['source']].append(news["url"])
     browser.close()
 
 paywalled = ['Economist']
@@ -848,7 +848,7 @@ async def process_feeds(feeds, session):
                     print(f"Skipping with no valid entry text {entry['link']}")
                     return None
 
-                doc = nlp(text)
+                doc = await asyncio.to_thread(nlp, text)
                 relevant_entities = ['ORG', 'PERSON', 'GPE', 'LAW', 'EVENT', 'MONEY']
                 entities = [ent.text for ent in doc.ents if ent.label_ in relevant_entities]
 
