@@ -170,7 +170,8 @@ with sync_playwright() as p:
     browser = p.chromium.launch(headless = True)
     page = browser.new_page()
     page.goto("https://gohsep.la.gov/about/news/", wait_until = 'load', timeout = 60_000)
-    news_items = page.locator("div.col-lg-9 ul li", timeout = 30_000)
+    page.wait_for_selector('div.col-lg-9 ul li', timeout = 30_000)
+    news_items = page.locator("div.col-lg-9 ul li")
     extracted_gohsep_news = []
 
     for item in news_items.all():
