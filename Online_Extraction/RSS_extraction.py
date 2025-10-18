@@ -444,6 +444,7 @@ def create_feeds(rss_feed):
     return feeds
 
 def COGR():
+  print("COGR started", flush = True)
   url = 'https://www.cogr.edu/categories/cogr-updates'
   r = requests.get(url)
   html = r.text
@@ -587,9 +588,11 @@ def COGR():
                       })
           else:
               for_rss.append({"Title": title, "Link": link, "Published": published, "Summary": content[:200], "Content": content, "Source": "COGR", "Entities": ents, "Keyword": kws})  
+  print("COGR ended", flush =  True)
   return for_rss
 
 def homeland_sec():
+  print("Homeland security started", flush = True)
   url = "https://nola.gov/next/homeland-security/news/"
   response = requests.get(url)
   soup = BeautifulSoup(response.content, 'html.parser')
@@ -626,8 +629,10 @@ def homeland_sec():
           'Entities': ents, 
           'Keyword': kws
       })
+  print("Homeland ended", flush = True)
   return nola_rss
 def Ace():
+  print("Starting Ace", flush = True)
   url = "https://www.acenet.edu/News-Room/Pages/default.aspx"
   response = requests.get(url)
   soup = BeautifulSoup(response.text, 'html.parser')
@@ -662,8 +667,10 @@ def Ace():
           'Entities': ents,
           'Keyword': kws}
           )
+  print("Ace done", flush = True)
   return acenet_data
 def Deloitte():
+  print("Starting Deloittle", flush = True)
   url = "https://www.deloitte.com/us/en/insights/industry/articles-on-higher-education.html"
   with sync_playwright() as p:
       browser = p.chromium.launch(headless=True)
@@ -696,6 +703,7 @@ def Deloitte():
       ents = [ent.text for ent in spacy_doc.ents if ent.label_ in ('ORG','PERSON','GPE','LAW','EVENT','MONEY')]
       kws  = [kw for kw in keywords if kw in (title + ' ' + text).lower()]
       rss_add.append({'Title': title, 'Link': link, 'Published':published, 'Summary':summary, 'Content':text, 'Source':'Deloitte Insights', 'Entities': ents, 'Keyword': kws})
+  print("Deloitte ended", flush = True)
   return rss_add
 def load_existing_articles():
     return load_articles_from_release()
@@ -869,21 +877,53 @@ async def process_feeds(feeds, session):
     return articles
 
 COOKIE_HEADER = os.getenv("COOKIE_HEADER")
-async def batch_process_feeds(feeds, batch_size = 15, concurrent_batches =5):
+async def batch_process_feeds(feeds, batch_size = 15, concurrent_batches =5, deadline_seconds = None, partial_path = Path('Online_Extraction/partial_all_RSS.json.gz')):
+    partial.path.parent.mkdir(parents = True, exist_ok = True)
     all_articles = []
+    seen_links = set()
     batches = [feeds[i:i + batch_size] for i in range(0, len(feeds), batch_size)]
+    client_timeout = aiohttp.ClientTimeout(
+      total = None,
+      connect = 20,
+      sock_connect = 20,
+      sock_read = 40,
+    )
     headers = {
     "Cookie": COOKIE_HEADER,
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
     }
-    async with aiohttp.ClientSession(headers=headers) as session:
+    start = time.perf_counter()
+    async with aiohttp.ClientSession(headers=headers, timeout = client_timeout) as session:
         for i in range(0, len(batches), concurrent_batches):
+            if deadline_seconds is not None and (time.perf_counter() - start) > deadline_seconds:
+              print("Soft deadline reached - stopping  after current progress", flush = True)
+              break
             batch_group = batches[i:i + concurrent_batches]
             print(f"Processing batch {i // batch_size + 1} with {len(batches)} feeds")
             tasks = [asyncio.create_task(process_feeds(batch, session)) for batch in batch_group]
             results = await asyncio.gather(*tasks)
-            for batch_articles in results:
-                all_articles.extend(batch_articles)
+            added = 0
+            for r in results:
+              if isinstance(r, Exception):
+                print(f"batch task error: {r}", flush = True)
+                continue
+              for item in r:
+                link = item.get('Link')
+                if link and link not in seen_links:
+                  seen_links.add(link)
+                  all_articles.append(item)
+                  added +=1
+            tmp = partial_path.with_suffix(partial_path.suffix + '.part')
+            try:
+              with gzip.open(tmp, 'wt', encoding = 'utf-8') as f:
+                json.dump(all_articles, f, ensure_ascii = False, separators = (',', ':'))
+                tmp.replace(partial_path)
+            finally:
+              if tmp.exists():
+                try:
+                  tmp.unlink()
+                except Exception:
+                  pass
     return all_articles
 
 def AAU_Press_Releases(max_articles=None, save_format='csv'):
@@ -1114,7 +1154,6 @@ def AAU_Press_Releases(max_articles=None, save_format='csv'):
                     'Entities': entities,
                     'Keyword': []
                 })
-                time.sleep(2)
 
             except Exception as e:
                 print(f"✗ Error processing press release: {e}")
@@ -1292,6 +1331,7 @@ def Chronicle(max_articles=None, save_format='csv'):
       print(f"Error: {e}")
       return []
 def highered():
+  print("Inside Higher Ed started", flush = True)
   data = []
   for i in range(0, 10):
       url = f'https://www.insidehighered.com/news?page={i}'
@@ -1327,9 +1367,11 @@ def highered():
               'Content': text if text else 'No Content Found',
               'Source': 'Inside Higher Ed'
           })
+  print("Inside Higher ed completed", flush = True)
   return data
 
 def Whitehouse():
+  print("Starting whitehouse", flush = True)
   url = 'https://www.whitehouse.gov/presidential-actions/executive-orders/'
 
   response = requests.get(url)
@@ -1366,6 +1408,7 @@ def Whitehouse():
               'Entities': ents,
               'Keyword': kws
           })
+  print("Whitehouse fniished", flush = True)
   return data
 feeds = create_feeds(rss_feed)
 cogr = COGR()
@@ -1377,10 +1420,18 @@ chronicle = Chronicle(max_articles=None, save_format='none')
 aau = AAU_Press_Releases(max_articles=None, save_format='none')
 highered = highered()
 
+def run_with_deadline(coro, seconds = 7200):
+  return asyncio.run(asyncio.wait_for(coro, timeout = seconds))
 try:
-    all_articles = asyncio.run(batch_process_feeds(feeds, batch_size=5, concurrent_batches=2))
-except Exception as e:
-    print(f"Fatal error {e}") 
+    all_articles = run_with_deadline(batch_process_feeds(feeds, batch_size=5, concurrent_batches=3, deadline_seconds = 1700), seconds = 1800)
+except asycio.TimeoutError:
+  print("RSS batch hard timeout")
+  p = Path('Online_Extraction/partial_all_RSS.json.gz')
+  if p.exists():
+    with gzip.open(p, 'rt', encoding = 'utf-8') as f:
+      all_articles = json.load(f)
+  else:
+    all_articles = []
 
 all_articles += cogr
 all_articles += deloitte
