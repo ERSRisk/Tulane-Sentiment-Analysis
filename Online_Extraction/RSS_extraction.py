@@ -879,7 +879,7 @@ async def process_feeds(feeds, session):
 
 COOKIE_HEADER = os.getenv("COOKIE_HEADER")
 async def batch_process_feeds(feeds, batch_size = 15, concurrent_batches =5, deadline_seconds = None, partial_path = Path('Online_Extraction/partial_all_RSS.json.gz')):
-    partial.path.parent.mkdir(parents = True, exist_ok = True)
+    partial_path.parent.mkdir(parents = True, exist_ok = True)
     all_articles = []
     seen_links = set()
     batches = [feeds[i:i + batch_size] for i in range(0, len(feeds), batch_size)]
