@@ -168,41 +168,41 @@ rss_feed =   {"RSS_Feeds":[{
                     #                 "http://associated-press.s3-website-us-east-1.amazonaws.com/world-news.xml"]}]
 
         }
-with sync_playwright() as p:
-    browser = p.chromium.launch(headless = True)
-    page = browser.new_page()
-    page.goto("https://gohsep.la.gov/about/news/", wait_until = 'load', timeout = 60_000)
-    page.wait_for_selector('div.col-lg-9 ul li', timeout = 30_000)
-    news_items = page.locator("div.col-lg-9 ul li")
-    extracted_gohsep_news = []
+#with sync_playwright() as p:
+#    browser = p.chromium.launch(headless = True)
+#    page = browser.new_page()
+#    page.goto("https://gohsep.la.gov/about/news/", wait_until = 'load', timeout = 60_000)
+#    page.wait_for_selector('div.col-lg-9 ul li', timeout = 30_000)
+#    news_items = page.locator("div.col-lg-9 ul li")
+#    extracted_gohsep_news = []
 
-    for item in news_items.all():
-        link = item.locator("a")
-        url = link.get_attribute("href")
-        url = url if url.startswith("http") else "https://gohsep.la.gov" + url
-        extracted_gohsep_news.append({
-            "source": "Gohsep",
-            "url": url
-        })
+#    for item in news_items.all():
+#        link = item.locator("a")
+#        url = link.get_attribute("href")
+#        url = url if url.startswith("http") else "https://gohsep.la.gov" + url
+#        extracted_gohsep_news.append({
+#            "source": "Gohsep",
+#            "url": url
+#        })
 
-    for news in extracted_gohsep_news:
-        page.goto(news["url"], wait_until = 'load', timeout = 60_000)
-        page.wait_for_selector('p', timeout = 30_000)
-        try:
-            paragraph = page.locator("p.MsoNormal span").all()
-            content = " ".join([p.inner_text() for p in paragraph])
-        except:
-            content = "Content not found"
+#    for news in extracted_gohsep_news:
+#        page.goto(news["url"], wait_until = 'load', timeout = 60_000)
+#        page.wait_for_selector('p', timeout = 30_000)
+#        try:
+#            paragraph = page.locator("p.MsoNormal span").all()
+#            content = " ".join([p.inner_text() for p in paragraph])
+#        except:
+#            content = "Content not found"
 
-        news['content'] = content
-        print(news['content'])
-        rss_feed['Extracted_News'] = {}
+#        news['content'] = content
+#        print(news['content'])
+#        rss_feed['Extracted_News'] = {}
 
         #if news['source'] not in rss_feed['RSS_Feeds']:
           #if news['source'] not in rss_feed["RSS_Feeds"][0]:
             #rss_feed["RSS_Feeds"][0][news['source']] = []
           #rss_feed["RSS_Feeds"][0][news['source']].append(news["url"])
-    browser.close()
+#    browser.close()
 
 paywalled = ['Economist']
 keywords = ['Civil Rights', 'Antisemitism', 'Federal Grants','federal grant',
