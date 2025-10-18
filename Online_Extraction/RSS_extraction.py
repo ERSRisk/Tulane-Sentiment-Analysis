@@ -1425,7 +1425,7 @@ def run_with_deadline(coro, seconds = 7200):
   return asyncio.run(asyncio.wait_for(coro, timeout = seconds))
 try:
     all_articles = run_with_deadline(batch_process_feeds(feeds, batch_size=5, concurrent_batches=3, deadline_seconds = 1700), seconds = 1800)
-except asycio.TimeoutError:
+except asyncio.TimeoutError:
   print("RSS batch hard timeout")
   p = Path('Online_Extraction/partial_all_RSS.json.gz')
   if p.exists():
