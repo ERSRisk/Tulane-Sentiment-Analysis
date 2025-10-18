@@ -821,7 +821,9 @@ async def process_feeds(feeds, session):
             print(f"Skipping video or podcast feed: {url}")
             continue
         try:
-            async with session.get(url, timeout=aiohttp.ClientTimeout(total=60)) as response:
+            req_timeout = aiohttp.ClientTimeout(total = 60, connect =20, sock_connect = 20, sock_read = 40)
+            resp =await asyncio.wait_for(session.get(url, timeout = req_timeout), timeout = 70)
+            async with resp as response:
                 text = await response.text()
                 if 'xml' not in response.headers.get('Content-Type', ''):
                     print(f"Skipping non-XML content: {url}")
@@ -872,8 +874,8 @@ async def process_feeds(feeds, session):
                 return None
 
         tasks = [process_entry(entry, name) for entry in feed_extract['entries']]
-        entry_results = await asyncio.gather(*tasks)
-        articles.extend([r for r in entry_results if r])
+        entry_results = await asyncio.gather(*tasks, return_exceptions = True)
+        articles.extend([r for r in entry_results if r and not isinstance(r, Exception)])
 
     return articles
 
