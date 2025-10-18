@@ -332,6 +332,9 @@ keywords = ['Civil Rights', 'Antisemitism', 'Federal Grants','federal grant',
 ]
 keywords = [k.lower() for k in keywords]
 
+ENTRY_SEM = asyncio.Semaphore(20)
+MAX_ENTRIES_PER_FEED = 100
+
 Github_owner = 'ERSRisk'
 Github_repo = 'Tulane-Sentiment-Analysis'
 Release_tag = 'rss_json'
@@ -726,12 +729,25 @@ def save_new_articles(existing_articles, new_articles):
 
 def fetch_content(article_url):
     try:
-        downloaded = trafilatura.fetch_url(article_url)
-        if downloaded:
-            extracted =  trafilatura.extract(downloaded)
-            if extracted:
-                return extracted
-        return None
+        # hard timeouts: 10s to connect, 30s total
+        r = requests.get(
+            article_url,
+            headers={"User-Agent": "Mozilla/5.0"},
+            timeout=(10, 30)
+        )
+        if not r.ok:
+            return None
+        html = r.text or ""
+        if not html.strip():
+            return None
+        extracted = trafilatura.extract(
+            html,
+            include_comments=False,
+            include_tables=False,
+            include_links=False,
+            favor_recall=True
+        )
+        return extracted if extracted else None
     except Exception as e:
         print(f"Error fetching content from {article_url}: {e}")
         return None
@@ -757,10 +773,11 @@ def get_available(entry, keys, default = None):
 final_articles = []
 async def fetch_article_content(url):
     try:
-        return await asyncio.wait_for(
-            asyncio.to_thread(fetch_content, url),
-            timeout=60
-        )
+        async with ENTRY_SEM:
+            return await asyncio.wait_for(
+                asyncio.to_thread(fetch_content, url),
+                timeout=60
+            )
     except asyncio.TimeoutError:
         print(f"⚠️ Timeout fetching article: {url}")
         return None
@@ -825,8 +842,9 @@ async def process_feeds(feeds, session):
             resp =await asyncio.wait_for(session.get(url, timeout = req_timeout), timeout = 70)
             async with resp as response:
                 text = await response.text()
-                if 'xml' not in response.headers.get('Content-Type', ''):
-                    print(f"Skipping non-XML content: {url}")
+                ctype = (response.headers.get('Content-Type') or '').lower()
+                if not any(t in ctype for t in ('xml', 'rss', 'atom')):
+                    print(f"Skipping non-XML content: {url} ({ctype})")
                     continue
                 feed_extract = await safe_feed_parse(text)
                 if not feed_extract:
@@ -873,7 +891,8 @@ async def process_feeds(feeds, session):
                 print(f"Error processing entry {entry.get('link')}: {e}")
                 return None
 
-        tasks = [process_entry(entry, name) for entry in feed_extract['entries']]
+        entries = feed_extract['entries'][:MAX_ENTRIES_PER_FEED]
+        tasks = [process_entry(entry, name) for entry in entries]
         entry_results = await asyncio.gather(*tasks, return_exceptions = True)
         articles.extend([r for r in entry_results if r and not isinstance(r, Exception)])
 
@@ -896,7 +915,8 @@ async def batch_process_feeds(feeds, batch_size = 15, concurrent_batches =5, dea
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
     }
     start = time.perf_counter()
-    async with aiohttp.ClientSession(headers=headers, timeout = client_timeout) as session:
+    connector = aiohttp.TCPConnector(limit=50, ttl_dns_cache=300, family=socket.AF_INET)
+    async with aiohttp.ClientSession(headers=headers, timeout=client_timeout, connector=connector) as session:
         for i in range(0, len(batches), concurrent_batches):
             if deadline_seconds is not None and (time.perf_counter() - start) > deadline_seconds:
               print("Soft deadline reached - stopping  after current progress", flush = True)
