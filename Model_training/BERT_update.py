@@ -813,11 +813,14 @@ def existing_risks_json(topic_name_pairs, topic_model):
                     token = os.getenv('TOKEN')
         )
 def risk_weights(df):
-
+    t0 = time.perf_counter()
+    print(f"[risk_weights] start: df = {df.shape}", flush = True)
 
     # ---------- Load config ----------
     with open('Model_training/risks.json', 'r', encoding='utf-8') as f:
         risks_cfg = json.load(f)
+
+    print("risk labels loaded", flush = True)
 
     # Sources accuracy map (string name -> numeric 0..5)
     accuracy_map = {}
@@ -1030,8 +1033,11 @@ def risk_weights(df):
         ).clip(0, 1)
     
         return enriched
+    t_rec = time.perf_counter()
+    print("attach_topic_risk_recency() start", flush = True)
     base = attach_topic_risk_recency(base) 
     base['Recency'] = (base['Recency_TR_Blended'] * 5).round(2)
+    print("[recency] attached in {time.perf_counter()-t_rec:.1f}s", flush = True)
 
     def _src_acc(row):
         src = str(row.get('Source','') or '')
@@ -1056,6 +1062,7 @@ def risk_weights(df):
 
         return min(best, 4.0)
     base['Source_Accuracy'] = base.apply(_src_acc, axis=1)
+    print('Source accuracy created', flush = True)
 
     def _loc_score(row):
         us_sources = ['foxnews','NIH', 'NOAA', 'FEMA', 'NASA', 'CISA', 'NIST', 'NCES', 'CMS', 'CDC', 'BEA', 'The Advocate', 'LA Illuminator', 'The Hill', 'NBC News', 'PBS', 'StatNews', 'NY Times', 'Washington Post', 'TruthOut', 'Politico', 'Inside Higher Ed', 'CNN', 'Yahoo News', 'FOX News', 'ABC News', 'Huffington Post', 'Business Insider', 'Bloomberg', 'AP News']
@@ -1080,6 +1087,7 @@ def risk_weights(df):
 
     base['Location'] = base.apply(_loc_score, axis=1)
     base['Location'] = pd.to_numeric(base['Location'], errors = 'coerce').fillna(0).astype(int)
+    print('Location created', flush = True)
 
     
 
@@ -1244,6 +1252,7 @@ def risk_weights(df):
 
     base = base.drop(columns = ['Acceleration_value_new'])
     base['Acceleration_value'] =base['Acceleration_value'].fillna(0).astype(int)
+    print('Acceleration value created', flush = True)
 
 
 
@@ -1375,6 +1384,7 @@ def risk_weights(df):
     
     # Final Industry_Risk = max(presence, peer)
     base['Industry_Risk'] = np.maximum(base['Industry_Risk_Presence'], base['Industry_Risk_Peer']).astype(int)
+    print('Industry risk created', flush = True)
 
 
 
@@ -1441,6 +1451,7 @@ def risk_weights(df):
             base[col] = 0
         base[col] = pd.to_numeric(base[col], errors = 'coerce').fillna(0).astype(int)
     base['Impact_Score'] = base.apply(impact_row, axis=1).astype(float)
+    print('Impact score computed', flush = True)
 
     # ---------- Final blended Risk_Score (0..5) per (article × risk) ----------
     w = {
@@ -1471,6 +1482,7 @@ def risk_weights(df):
 
     # stable ID for joining back if needed
     base = base.reset_index().rename(columns={'index':'ArticleID'})
+    print(f"[risk_weights] done: base = {base.shape} elapsed = {time.perf_counter()- t0:.1f}s", flush = True)
 
     return base
     
@@ -1925,15 +1937,15 @@ def load_midstep_from_release(local_cache_path = 'Model_training/Step1.csv.gz'):
     return pd.DataFrame()
 
 #Assign topics and probabilities to new_df
-print("✅ Starting transform_text on new data...", flush=True)
-new_df = transform_text(df)
+#print("✅ Starting transform_text on new data...", flush=True)
+#new_df = transform_text(df)
 #Fill missing topic/probability rows in the original df
-mask = (df['Topic'].isna()) | (df['Probability'].isna())
-df.loc[mask, ['Topic', 'Probability']] = new_df[['Topic', 'Probability']]
-df[['Topic', 'Probability']] = new_df[['Topic', 'Probability']]
+#mask = (df['Topic'].isna()) | (df['Probability'].isna())
+#df.loc[mask, ['Topic', 'Probability']] = new_df[['Topic', 'Probability']]
+#df[['Topic', 'Probability']] = new_df[['Topic', 'Probability']]
 #Save only new, non-duplicate rows
-print("✅ Saving new topics to CSV...", flush=True)
-df_combined = save_new_topics(df, new_df)
+#print("✅ Saving new topics to CSV...", flush=True)
+#df_combined = save_new_topics(df, new_df)
 
 #Double-check if there are still unmatched (-1) topics and assign a temporary model to assign topics to them
 def coerce_pub_utc(x):
@@ -1949,27 +1961,27 @@ def coerce_pub_utc(x):
     sx = re.sub(r'\s(EST|EDT|PDT|CDT|MDT|GMT)\b', '', sx, flags=re.I)
     return pd.to_datetime(sx, errors="coerce", utc=True)
    
-print("✅ Running double-check for unmatched topics (-1)...", flush=True)
-cutoff_utc = pd.Timestamp(datetime.utcnow() - timedelta(days = 30), tz = 'utc')
-df_combined['Published'] = df_combined['Published'].apply(coerce_pub_utc)
-recent_df = df_combined[df_combined['Published'].notna() & (df_combined['Published'] >= cutoff_utc)].copy()
-temp_model, topic_ids = double_check_articles(recent_df)
+#print("✅ Running double-check for unmatched topics (-1)...", flush=True)
+#cutoff_utc = pd.Timestamp(datetime.utcnow() - timedelta(days = 30), tz = 'utc')
+#df_combined['Published'] = df_combined['Published'].apply(coerce_pub_utc)
+#recent_df = df_combined[df_combined['Published'].notna() & (df_combined['Published'] >= cutoff_utc)].copy()
+#temp_model, topic_ids = double_check_articles(recent_df)
 #If there are unmatched topics, name them using Gemini
-print("✅ Checking for unmatched topics to name using Gemini...", flush=True)
-if temp_model and topic_ids:
-    topic_name_pairs = get_topic(temp_model, topic_ids)
-    existing_risks_json(topic_name_pairs, temp_model)
+#print("✅ Checking for unmatched topics to name using Gemini...", flush=True)
+#if temp_model and topic_ids:
+#    topic_name_pairs = get_topic(temp_model, topic_ids)
+#    existing_risks_json(topic_name_pairs, temp_model)
 #Assign weights to each article
-df = predict_risks(df_combined)
-df['Predicted_Risks'] = df.get('Predicted_Risks_new', '')
-print("✅ Applying risk_weights...", flush=True)
-atomic_write_csv('Model_training/Step1.csv.gz', df, compress = True)
-upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/Step1.csv.gz', GITHUB_TOKEN)
-#df = load_midstep_from_release()
+#df = predict_risks(df_combined)
+#df['Predicted_Risks'] = df.get('Predicted_Risks_new', '')
+#print("✅ Applying risk_weights...", flush=True)
+#atomic_write_csv('Model_training/Step1.csv.gz', df, compress = True)
+#upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/Step1.csv.gz', GITHUB_TOKEN)
+df = load_midstep_from_release()
 #df = pd.read_csv('Model_training/Step1.csv.gz', compression = 'gzip')
 results_df = load_university_label(df)
 results_df = results_df.drop(columns = ['Acceleration_value_x', 'Acceleration_value_y'], errors = 'ignore')
-atomic_write_csv('Model_training/initial_label.csv.gz', results_df, compress = True)
+upload_asset_to_releas(Github_owner, Github_repo, Release_tag, 'Model_training/initial_label.csv.gz', GITHUB_TOKEN)
 
 df = risk_weights(results_df)
 df = df.drop(columns = ['University Label_x', 'University Label_y'], errors = 'ignore')
