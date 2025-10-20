@@ -1736,7 +1736,20 @@ def track_over_time(df, week_anchor="W-MON", out_csv="Model_training/topic_trend
 def call_gemini(prompt):
     GEMINI_API_KEY = os.getenv('PAID_API_KEY')
     client = genai.Client(api_key=GEMINI_API_KEY)
-    return client.models.generate_content(model="gemini-2.0-flash", contents=[prompt])
+    return client.models.generate_content(model="gemini-2.0-flash", 
+                                          contents=[prompt],
+                                         generation_config ={
+                                             "response_mime_type":"application/json",
+                                             "reponse_schema":{
+                                                 "type":"object",
+                                                 "properties":{
+                                                     "university_label":{"type":"integer", "enum":[0,1]}
+                                                 },
+                                                 "required":["university_label"],
+                                                 "additionalProperties":False
+                                             }
+                                         }
+                                         )
 
 # 🧠 Async article processor
 @backoff.on_exception(backoff.expo,
@@ -1761,10 +1774,8 @@ async def process_article(article, sem, batch_number=None, total_batches=None, a
             Title: {title}
             Content: {" ".join(str(content).split()[:400])}
             Task: Decide if this is SPECIFICALLY about higher education/university news or university funding in the UNITED STATES ONLY.
-            Return a compact valid JSON with exactly these keys and no explanations:
+            Return ONLY valid JSON matching this schema:
             {{
-              "Title": "same title",
-              "Content": "same content",
               "University Label": 1 or 0
             }}
             
@@ -1780,44 +1791,21 @@ async def process_article(article, sem, batch_number=None, total_batches=None, a
             - If the article talks about sports, matches, sports results, return 0
             - If the article is a news wrap, a podcast, or a video, return 0
             - If the article is a general scientific discovery, return 0
-            
-            Output must be exactly:
-            {{
-              "Title": "same title",
-              "Content": "same content",
-              "University Label": 0 or 1
-            }}
             """
 
             response = await asyncio.to_thread(call_gemini, prompt)
-            if hasattr(response, "text") and response.text:
-                response_text = response.text
-                json_str = re.search(r"```json\s*(\{.*?\})\s*```", response_text, re.DOTALL)
-                raw = json_str.group(1) if json_str else response_text
-
-
-                try:
-                    rec = json.loads(raw)
-                except json.JSONDecodeError as e1:
-                    try:
-                        rec = ast.literal_eval(raw)
-                    except Exception as e2:
-                        print(f"⚠️ JSON decode fallback error: {e1} | Eval error: {e2}", flush=True)
-                        return None
-                title = rec.get('Title') or rec.get('title') or str(title)
-                content = rec.get('Content') or rec.get('content') or str(content)
-
-                ulabel = rec.get('University Label')
+            rec = json.loads(response.text)
+            ulabel = int(rec['University Label'])
+            
+            if ulabel is None:
+                ulabel = rec.get('university_label') or rec.get('University_label') or rec.get('university label') or 0
                 
-                if ulabel is None:
-                    ulabel = rec.get('university_label') or rec.get('University_label') or rec.get('university label') or 0
-                    
-                try:
-                    ulabel = int(ulabel)
-                    ulabel = 1 if ulabel ==1 else 0
-                except Exception:
-                    ulabel = 0
-                return {'Title': str(title), "Content": str(content), 'University Label': ulabel}
+            try:
+                ulabel = int(ulabel)
+                ulabel = 1 if ulabel ==1 else 0
+            except Exception:
+                ulabel = 0
+            return {'Title': str(title), "Content": str(content), 'University Label': ulabel}
         except Exception as e:
             print(f"🔥 Uncaught error in article {article_index} of batch {batch_number}: {e}", flush=True)
             return None
