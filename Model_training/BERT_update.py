@@ -1738,15 +1738,13 @@ def call_gemini(prompt):
     client = genai.Client(api_key=GEMINI_API_KEY)
     return client.models.generate_content(model="gemini-2.0-flash", 
                                           contents=[prompt],
-                                         generation_config ={
+                                          config ={
                                              "response_mime_type":"application/json",
                                              "reponse_schema":{
                                                  "type":"object",
                                                  "properties":{
                                                      "university_label":{"type":"integer", "enum":[0,1]}
-                                                 },
-                                                 "required":["university_label"],
-                                                 "additionalProperties":False
+                                                 }
                                              }
                                          }
                                          )
