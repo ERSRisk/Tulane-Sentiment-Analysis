@@ -1007,9 +1007,15 @@ def risk_weights(df):
         for c in ['last_seen_days','decayed_volume','recency_score_tr']:
             if c not in tr.columns:
                 tr[c] = np.nan
+        cols_to_drop = ["_RiskList","last_seen_days","decayed_volume",
+                    "recency_score_tr","recency_score_tr_x","recency_score_tr_y"]
+        df = df.drop(columns=[c for c in cols_to_drop if c in df.columns], errors="ignore")
     
-        enriched = df.merge(tr[['Topic','_RiskList','last_seen_days','decayed_volume','recency_score_tr']],
-                            on=['Topic','_RiskList'], how='left')
+        tr_small = tr[["Topic","_RiskList","last_seen_days","decayed_volume","recency_score_tr"]].rename(
+            columns={"recency_score_tr": "recency_score_tr_tr"}
+        )
+    
+        enriched = df.merge(tr_small, on="Topic", how="left")
     
         days = pd.to_numeric(enriched.get('Days_Ago', np.nan), errors='coerce').astype(float)
         enriched['article_freshness'] = np.exp(-np.log(2.0) * (days / 14.0)).fillna(0.0)
