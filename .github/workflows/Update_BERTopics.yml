@@ -67,6 +67,10 @@ jobs:
           PY
       - name: Run script
         env:
+          OMP_NUM_THREADS: "1"
+          MKL_NUM_THREADS: "1"
+          NUMEXPR_MAX_THREADS: "1"
+          TOKENIZERS_PARALLELISM: "false"
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY_NEWS }}
           GEMINI_API_KEY_X: ${{ secrets.GEMINI_API_KEY_X }}
           NEWS_API_KEY: ${{ secrets.NEWS_API_KEY }}
