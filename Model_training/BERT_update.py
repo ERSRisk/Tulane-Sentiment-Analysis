@@ -1985,7 +1985,7 @@ df = load_midstep_from_release()
 #atomic_write_csv('Model_training/initial_label.csv.gz', results_df, compress = True)
 #upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/initial_label.csv.gz', GITHUB_TOKEN)
 
-df = risk_weights(results_df)
+df = risk_weights(df)
 print("Finished assigning risk weights", flush = True)
 df = df.drop(columns = ['University Label_x', 'University Label_y'], errors = 'ignore')
 print("Saving BERTopic_results2.csv.gz", flush = True)
