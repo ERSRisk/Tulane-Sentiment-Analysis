@@ -1740,7 +1740,7 @@ def call_gemini(prompt):
                                           contents=[prompt],
                                           config ={
                                              "response_mime_type":"application/json",
-                                             "reponse_schema":{
+                                             "response_schema":{
                                                  "type":"object",
                                                  "properties":{
                                                      "university_label":{"type":"integer", "enum":[0,1]}
