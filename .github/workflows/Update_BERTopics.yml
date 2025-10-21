@@ -11,6 +11,7 @@ permissions:
 jobs:
   run-script:
     runs-on: ubuntu-latest
+    timeout-minutes: 360
 
     steps:
       - name: Checkout repo
@@ -78,8 +79,10 @@ jobs:
           COOKIE_HEADER: ${{ secrets.COOKIE_HEADER }}
           PAID_API_KEY: ${{ secrets.PAID_API_KEY }}
           TOKEN: ${{ secrets.TOKEN }}
+          PYTHONUBUFFERED: "1"
         run: |
-          python Model_training/BERT_update.py
+          python -u Model_training/BERT_update.py
+        timeout-minutes: 350
 
       - name: Commit and push (only small/compressed files)
         run: |
