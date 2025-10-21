@@ -1740,11 +1740,13 @@ def call_gemini(prompt):
                                           contents=[prompt],
                                           config ={
                                              "response_mime_type":"application/json",
-                                             "response_schema":{
-                                                 "type":"object",
-                                                 "properties":{
-                                                     "university_label":{"type":"integer", "enum":[0,1]}
-                                                 }
+                                             config={
+                                                "response_mime_type": "application/json",
+                                                "response_schema": Schema(
+                                                    type="OBJECT",
+                                                    properties={
+                                                        "university_label": Schema(type="INTEGER")  # no enum needed
+                                                    }
                                              }
                                          }
                                          )
@@ -1792,8 +1794,8 @@ async def process_article(article, sem, batch_number=None, total_batches=None, a
             """
 
             response = await asyncio.to_thread(call_gemini, prompt)
-            rec = json.loads(response.text)
-            ulabel = int(rec['University Label'])
+            payload = json.loads(response.text)
+            ulabel = 1 if int(payload.get("university_label", 0)) == 1 else 0
             
             if ulabel is None:
                 ulabel = rec.get('university_label') or rec.get('University_label') or rec.get('university label') or 0
