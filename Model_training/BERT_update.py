@@ -53,7 +53,7 @@ df = pd.DataFrame(articles)
 Path("Online_Extraction").mkdir(parents=True, exist_ok = True)
 with gzip.open('Online_Extraction/all_RSS.json.gz', 'wb') as f:
     f.write(response.content)
-    
+
 def gh_headers():
     token = os.getenv('TOKEN')
     if not token:
@@ -72,7 +72,7 @@ def ensure_release(owner, repo, tag:str, token):
     r.raise_for_status()
     rel = r.json()
     return rel
-    
+
 def upload_asset(owner, repo, release, asset_name, data_bytes, token, content_type = 'application/gzip'):
     assets_api = release['assets_url']
     r = requests.get(assets_api, headers = gh_headers())
@@ -90,7 +90,7 @@ def upload_asset(owner, repo, release, asset_name, data_bytes, token, content_ty
     if not up.ok:
         raise RuntimeError(f"Upload failed{up.status_code}: {up.text[:500]}")
     return up.json()
-    
+
 def upload_dir_model_zip(owner, repo, tag, token, dir_path=DIR_PATH, asset_name="bertopic_dir.zip"):
     # zip the directory model into memory
     buf = io.BytesIO()
@@ -106,7 +106,7 @@ def upload_dir_model_zip(owner, repo, tag, token, dir_path=DIR_PATH, asset_name=
     rel = ensure_release(owner, repo, tag, token)
     upload_asset(owner, repo, rel, asset_name, buf.getvalue(), token, content_type="application/zip")
     print(f"✅ Uploaded {asset_name} to release {tag}.")
-    
+
 def atomic_write_csv(path: str, df, compress: bool = False):
     p = Path(path)
     p.parent.mkdir(parents=True, exist_ok=True)
@@ -250,12 +250,12 @@ def get_topic(temp_model, topic_ids):
             return "❌ API failed after multiple attempts."
 
     return topic_name_pairs
-    
+
 def label_model_topics(topic_model, path = 'Model_training/topics_BERT.json'):
     with open(path, 'r') as f:
         topics_json = json.load(f)
     topic_map = {int(t['topic']): t for t in topics_json}
-    
+
     rep_docs = topic_model.get_representative_docs()
     print(rep_docs)
     patched = False
@@ -272,7 +272,7 @@ def label_model_topics(topic_model, path = 'Model_training/topics_BERT.json'):
         print(f"✅ Patched documents for {path}")
     else:
         print("ℹ️ No missing documents to patch.")
-    
+
 #if topic_model:
 #    label_model_topics(topic_model)
 if topic_model is None:
@@ -291,7 +291,7 @@ if topic_model is None:
 
 # Cosine similarity between topics
     S = cosine_similarity(c_tf_idf)
-    
+
     # Build groups to merge where similarity >= your_threshold
     thr = 0.80
     n_topics = S.shape[0]
@@ -307,7 +307,7 @@ if topic_model is None:
         visited.update(group)
         if len(group) > 1:
             groups.append(sorted(group))
-    
+
     # Merge the groups
     if groups:
         topic_model.merge_topics(df["Text"].tolist(), groups)
@@ -379,7 +379,7 @@ def transform_text(texts):
                 all_topics[i] = int(best)
     if any(t == -1 for t in all_topics):
         all_topics = topic_model.reduce_outliers(texts_list, all_topics, strategy = 'embeddings', threshold = 0.3)
-    
+
     remaining_idx = [i for i, t in enumerate(all_topics) if t==-1]
     def get_embedder(topic_model):
         if hasattr(topic_model, 'embedding_model_') and topic_model.embedding_model_ is not None:
@@ -389,8 +389,8 @@ def transform_text(texts):
         else:
             raise RuntimeError("Could not locate BERTopic's embedding model.")
         return embedder
-        
-        
+
+
     def embedding_dim(embedder):
         # Works for raw SentenceTransformer or BERTopic backends
         if hasattr(embedder, "get_sentence_embedding_dimension"):
@@ -405,7 +405,7 @@ def transform_text(texts):
         else:
             raise RuntimeError("Unknown embedder type; cannot determine embedding dim.")
         return int(v.shape[-1])
-    
+
     def encode(texts, embedder):
         # Normalize input
         if isinstance(texts, str):
@@ -414,11 +414,11 @@ def transform_text(texts):
             texts = []
         else:
             texts = [t.strip() if isinstance(t, str) else "" for t in texts]
-    
+
         if len(texts) == 0:
             d = embedding_dim(embedder)
             return np.zeros((0, d), dtype=np.float32)
-    
+
         # Support both raw SentenceTransformer and BERTopic backend
         if hasattr(embedder, "encode"):
             vecs = embedder.encode(texts, convert_to_numpy=True, normalize_embeddings=False,
@@ -427,7 +427,7 @@ def transform_text(texts):
             vecs = np.asarray(embedder.embed(texts))
         else:
             raise RuntimeError("Embedder has neither .encode nor .embed")
-    
+
         vecs = np.asarray(vecs)
         if vecs.ndim == 1:
             vecs = vecs.reshape(1, -1)
@@ -448,15 +448,15 @@ def transform_text(texts):
         texts['Topic'] = all_topics
         # ... continue assembling outputs as you already do
         return texts
-    
+
     embedder = get_embedder(topic_model)
-    
+
     # Build centroids from representative docs (NOT remaining_idx)
     centroids = []
     streamlit_topic_ids = []
     rep = topic_model.get_representative_docs()
     rep_map = {int(k): v for k, v in rep.items() if v} if isinstance(rep, dict) else {}
-    
+
     for t in topics_json:
         if t.get('source') != 'Streamlit':
             continue
@@ -468,7 +468,7 @@ def transform_text(texts):
         c = c / (np.linalg.norm(c) + 1e-12)
         centroids.append(c)
         streamlit_topic_ids.append(int(t['topic']))
-    
+
     if centroids:
         C = np.stack(centroids, axis=0)
         E = encode([texts_list[i] for i in remaining_idx], embedder)  # <-- pass embedder
@@ -479,16 +479,16 @@ def transform_text(texts):
             for row_pos, idx in enumerate(remaining_idx):
                 if s_best[row_pos] >= 0.40:
                     all_topics[idx] = int(streamlit_topic_ids[j_best[row_pos]])
-    
+
             st_cos = np.full(len(texts_list), np.nan, dtype=np.float32)
             for row_pos, idx in enumerate(remaining_idx):
                 st_cos[idx] = float(s_best[row_pos])
             texts["StreamlitCosine"] = st_cos
     else:
         print("[info] No Streamlit topics with usable centroids found; skipping cosine assignment.")
-            
-            
-    
+
+
+
     texts['Topic'] = all_topics
     assigned_probs = []
     for t, p in zip(all_topics, all_probs):
@@ -590,7 +590,7 @@ def fetch_release(owner, repo, tag:str, asset_name:str, token:str):
     a = next((x for x in assets if x.get("name") == asset_name), None)
     if not a:
         return []
-    
+
     url = a.get('browser_download_url')
     b = requests.get(url, headers = headers, timeout = 120)
     b.raise_for_status()
@@ -664,7 +664,7 @@ def existing_risks_json(topic_name_pairs, topic_model):
     # Compare each new name against known topics
 
     # Merge docs/keywords into matched existing topics
-    
+
     try:
         existing_unmatched = fetch_release(
             "ERSRisk", "tulane-sentiment-app-clean",
@@ -689,13 +689,13 @@ def existing_risks_json(topic_name_pairs, topic_model):
         if isinstance(item, dict) and 'name' in item:
             unmatched_names.append(item['name'])
             index_map.append(i)
-            
+
     discarded_names, discarded_index_map = [], []
     for i, item in enumerate(existing_discarded):
         if isinstance(item, dict) and 'name' in item:
             discarded_names.append(item['name'])
             discarded_index_map.append(i)
-            
+
     if unmatched_names:
         unmatched_embeddings = model.encode(unmatched_names, convert_to_tensor=True)
     else:
@@ -709,7 +709,7 @@ def existing_risks_json(topic_name_pairs, topic_model):
     to_upsert_discarded = []  
     seen_changed_unmatched = set()
     seen_changed_discarded = set()
-    
+
     to_check_discarded = []
     for topic_id, name in unmatched:
         new_emb = model.encode([name], convert_to_tensor=True)       # (1, d)
@@ -749,7 +749,7 @@ def existing_risks_json(topic_name_pairs, topic_model):
         else:
             to_check_discarded.append((topic_id, name))
 
-    
+
     for topic_id, name in to_check_discarded:
         new_emb = model.encode([name], convert_to_tensor=True)       # (1, d)
         new_docs = topic_model.get_representative_docs().get(topic_id, [])
@@ -948,7 +948,7 @@ def risk_weights(df):
     #mask = exploded['Risk_item'].notna() & (exploded['Risk_item'].astype(str).str.strip()!='')
     #exploded = exploded[mask].copy()
     #exploded['Risk_norm'] = exploded['Risk_item'].astype(str).str.strip().str.lower()
-    
+
 
     # Published -> datetime (robust coercion)
 
@@ -960,52 +960,52 @@ def risk_weights(df):
     base['Topic'] = base['Topic'].fillna(-1)
     def recency_features_topic_risk(df, now=None):
         fx = df.copy()
-    
+
         required = {'Topic', '_RiskList', 'Published', 'Days_Ago'}
         if not required.issubset(fx.columns) or fx.empty:
             return pd.DataFrame(columns=['Topic','_RiskList','last_seen_days','decayed_volume','recency_score_tr'])
-    
+
         if now is None:
             now = pd.Timestamp.utcnow()
-    
+
         # article weight
         art_w = 1.0
         if 'Probability' in fx.columns:
             art_w = pd.to_numeric(fx['Probability'], errors='coerce').fillna(0.0).clip(0, 1)
-    
+
         def half_life(risk):
             return risk_half_life.get(risk, 30)
-    
+
         hl  = fx['_RiskList'].map(lambda r: max(1.0, half_life(r)))
         lam = np.log(2.0) / hl
         w_decay = np.exp(-lam * fx['Days_Ago'])
         fx['_w'] = w_decay * art_w
-    
+
         grp = fx.groupby(['Topic', '_RiskList'], dropna=False)
         out = grp.agg(
             last_seen=('Days_Ago', 'min'),
             decayed_volume=('_w', 'sum'),
             mentions=('Published', 'count')
         ).reset_index()
-    
+
         out['hl'] = out['_RiskList'].map(lambda r: max(1.0, half_life(r)))
         out['freshness'] = np.exp(-np.log(2.0) * (out['last_seen'] / out['hl']))
-    
+
         def _safe_minmax(s):
             rng = s.max() - s.min()
             return (s - s.min()) / (rng + 1e-12)
-    
+
         out['decayed_z'] = out.groupby('_RiskList')['decayed_volume'].transform(_safe_minmax)
-    
+
         w_fresh, w_vol = 0.6, 0.4
         out['recency_score_tr'] = (w_fresh * out['freshness'] + w_vol * out['decayed_z']).clip(0, 1)
         out = out.rename(columns={'last_seen': 'last_seen_days'})
         return out[['Topic','_RiskList','last_seen_days','decayed_volume','recency_score_tr']]
-    
-    
+
+
     def attach_topic_risk_recency(df):
         tr = recency_features_topic_risk(df)
-    
+
         # ensure expected cols exist even if tr is empty
         for c in ['last_seen_days','decayed_volume','recency_score_tr']:
             if c not in tr.columns:
@@ -1013,25 +1013,25 @@ def risk_weights(df):
         cols_to_drop = ["_RiskList","last_seen_days","decayed_volume",
                     "recency_score_tr","recency_score_tr_x","recency_score_tr_y"]
         df = df.drop(columns=[c for c in cols_to_drop if c in df.columns], errors="ignore")
-    
+
         tr_small = tr[["Topic","_RiskList","last_seen_days","decayed_volume","recency_score_tr"]].rename(
             columns={"recency_score_tr": "recency_score_tr_tr"}
         )
-    
+
         enriched = df.merge(tr_small, on="Topic", how="left")
-    
+
         days = pd.to_numeric(enriched.get('Days_Ago', np.nan), errors='coerce').astype(float)
         enriched['article_freshness'] = np.exp(-np.log(2.0) * (days / 14.0)).fillna(0.0)
-    
+
         if 'recency_score_tr' not in enriched.columns:
             enriched['recency_score_tr'] = 0.0
-    
+
         alpha = 0.7
         enriched['Recency_TR_Blended'] = (
             alpha * enriched['recency_score_tr'].fillna(0.0)
             + (1 - alpha) * enriched['article_freshness']
         ).clip(0, 1)
-    
+
         return enriched
     t_rec = time.perf_counter()
     print("attach_topic_risk_recency() start", flush = True)
@@ -1067,7 +1067,7 @@ def risk_weights(df):
     def _loc_score(row):
         us_sources = ['foxnews','NIH', 'NOAA', 'FEMA', 'NASA', 'CISA', 'NIST', 'NCES', 'CMS', 'CDC', 'BEA', 'The Advocate', 'LA Illuminator', 'The Hill', 'NBC News', 'PBS', 'StatNews', 'NY Times', 'Washington Post', 'TruthOut', 'Politico', 'Inside Higher Ed', 'CNN', 'Yahoo News', 'FOX News', 'ABC News', 'Huffington Post', 'Business Insider', 'Bloomberg', 'AP News']
         raw = row.get('Entities', None)
-        
+
         if isinstance(raw, list):
             entities = [str(e).lower() for e in raw if e is not None]
         elif isinstance(raw, str) and raw.strip():
@@ -1089,7 +1089,7 @@ def risk_weights(df):
     base['Location'] = pd.to_numeric(base['Location'], errors = 'coerce').fillna(0).astype(int)
     print('Location created', flush = True)
 
-    
+
 
     def _window_tag(d):
         if d <= 30: return 'recent'
@@ -1248,7 +1248,7 @@ def risk_weights(df):
         base['Acceleration_value'] = base['Acceleration_value_new'].fillna(base['Acceleration_value'])
     else:
         base['Acceleration_value'] = base['Acceleration_value_new']
-    
+
 
     base = base.drop(columns = ['Acceleration_value_new'])
     base['Acceleration_value'] =base['Acceleration_value'].fillna(0).astype(int)
@@ -1310,33 +1310,33 @@ def risk_weights(df):
         (base['Detected_HigherEd_Categories'].apply(len) > 0) | (pd.to_numeric(ul, errors='coerce').fillna(0).astype(int) == 1),
         3, 0
     ).astype(int)
-    
+
     peers_list = risks_cfg.get('Peer_Institutions') or []
     peer_pat = re.compile(r'\b(' + '|'.join([re.escape(p) for p in peers_list]) + r')\b', flags=re.I) if peers_list else None
-    
+
     moderate_impact = re.compile(r'\b(outage|closure|lawsuit|probation|sanction|breach|evacuation|investigation)\b', re.I)
     substantial_impact = re.compile(r'\b(widespread|catastrophic|shutdown|bankrupt|insolvenc\w*|fatalit\w*|revocation|accreditation\s+revoked)\b', re.I)
     _text_all = (base['Title'].fillna('') + ' ' + base['Content'].fillna('')).astype(str)
     base['_tulane_flag'] = (base.get('Location', 0).astype(int).eq(5)) | _text_all.str.contains(r'\btulane\b', case=False, regex=True)
-    
+
     def find_peer(t):
         if not peer_pat:
             return ''
         m = peer_pat.search(t or '')
         return m.group(0) if m else ''
-    
+
     def severity(text):
         if substantial_impact.search(text or ''):
             return 'substantial'
         if moderate_impact.search(text or ''):
             return 'moderate'
         return ''
-    
+
     tmp_ind = base.loc[base['Week'].notna(), ['Week', 'Title', 'Content']].copy()
     tmp_ind['text_all'] = (tmp_ind['Title'] + ' ' + tmp_ind['Content']).fillna('')
     tmp_ind['peer'] = tmp_ind['text_all'].apply(find_peer)
     tmp_ind['sev'] = tmp_ind['text_all'].apply(severity)
-    
+
     # Count unique peers by severity per week
     agg = (
         tmp_ind.groupby(['Week', 'sev'])['peer']
@@ -1348,7 +1348,7 @@ def risk_weights(df):
         if c not in agg.columns:
             agg[c] = 0
     agg = agg.reset_index()
-    
+
     # Tulane mentions per week (for lag pressure)
     tulane_week = (
         base.loc[base['_tulane_flag'] & base['Week'].notna()]
@@ -1358,30 +1358,30 @@ def risk_weights(df):
         .reset_index()
     )
     agg = agg.merge(tulane_week, on='Week', how='left').fillna({'tulane_mentions': 0})
-    
+
     # Exponential decay for old peer activity (half-life ≈ 21 days)
     if not agg.empty:
         week_max = agg['Week'].max()
         agg['days_ago'] = (week_max - agg['Week']).dt.days.clip(lower=0)
         lam = np.log(2.0) / 21.0
         agg['decay_w'] = np.exp(-lam * agg['days_ago'])
-    
+
         # Weighted peer index: substantial > moderate, decay old events, downweight if Tulane already active
         agg['peer_index'] = agg['decay_w'] * (2 * agg['peers_sub'] + 1 * agg['peers_mod'])
         agg['sector_pressure'] = agg['peer_index'] / (1.0 + agg['tulane_mentions'])
-    
+
         # Robust scale → 0–5
         lo, hi = np.percentile(agg['sector_pressure'], [5, 95]) if agg['sector_pressure'].notna().any() else (0.0, 1.0)
         rng = max(1e-12, hi - lo)
         agg['Industry_Risk_Peer'] = (((agg['sector_pressure'] - lo) / rng).clip(0, 1) * 5).round().astype(int)
     else:
         agg['Industry_Risk_Peer'] = 0
-    
+
     # Merge back per row
     base = base.drop(columns=['Industry_Risk_Peer'], errors='ignore')
     base = base.merge(agg[['Week', 'Industry_Risk_Peer']], on='Week', how='left')
     base['Industry_Risk_Peer'] = base['Industry_Risk_Peer'].fillna(0).astype(int)
-    
+
     # Final Industry_Risk = max(presence, peer)
     base['Industry_Risk'] = np.maximum(base['Industry_Risk_Presence'], base['Industry_Risk_Peer']).astype(int)
     print('Industry risk created', flush = True)
@@ -1485,7 +1485,7 @@ def risk_weights(df):
     print(f"[risk_weights] done: base = {base.shape} elapsed = {time.perf_counter()- t0:.1f}s", flush = True)
 
     return base
-    
+
 def get_release_by_tag(owner, repo, tag):
     url = f'https://api.github.com/repos/{owner}/{repo}/releases/tags/{tag}'
     r = requests.get(url, headers = gh_headers())
@@ -1493,7 +1493,7 @@ def get_release_by_tag(owner, repo, tag):
         return None
     r.raise_for_status()
     return r.json()
-    
+
 def predict_risks(df):
     def load_model_bundle(owner, repo, tag, asset_name = 'model_bundle.pkl', local_cache_path = 'Model_training/artifacts/model_bundle.pkl'):
         P = Path(local_cache_path)
@@ -1533,17 +1533,17 @@ def predict_risks(df):
         second = tmp.max(axis=1)
         margin = top_val - second
         use_lr = (top_val >= prob_cut) & (margin >= margin_cut)
-    
+
         # Cosine decisions (open set)
         cos_all_max = cos_all.max(axis=1)
         cos_all_idx = cos_all.argmax(axis=1)
-    
+
         # Compose final label names
         lr_names  = np.array(trained_labels)[top_idx]
         cos_names = np.array(all_labels)[cos_all_idx]
         final_names = np.where(use_lr, lr_names, cos_names)
         final_names = np.where(~use_lr & (cos_all_max < tau), "No Risk", final_names)
-    
+
         return {
             "final_names": final_names,
             "use_lr": use_lr,
@@ -1552,7 +1552,7 @@ def predict_risks(df):
             "cos_all_idx": cos_all_idx,
             "cos_all_max": cos_all_max,
         }
-        
+
     #bundle = load_model_bundle(Github_owner, Github_repo, 'regression')
     #clf = bundle['clf']
     #scaler = bundle['scaler']
@@ -1568,14 +1568,14 @@ def predict_risks(df):
     #trained_label_txt = list(bundle['trained_label_text'])
     #all_labels = list(bundle['all_labels'])
     #all_label_txt = list(bundle['all_label_text'])
-    
-    
+
+
     #df = df.copy()
     #df['Title'] = df['Title'].fillna('').str.strip()
 
     #df['Content'] = df['Content'].fillna('').str.strip()
     #df['Text'] = (df['Title'] + '. ' + df['Content']).str.strip()
-    
+
     #df = df.reset_index(drop = True)
     #todo_mask = (df['Predicted_Risks_new'].isna()) | (df['Predicted_Risks_new'].eq('')) | (df['Predicted_Risks_new'].eq('No Risk'))
     #recent_cut = pd.Timestamp.now(tz='utc') - pd.Timedelta(days=30)
@@ -1610,6 +1610,7 @@ def predict_risks(df):
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     model = SentenceTransformer('all-mpnet-base-v2', device = device)
     # Encode articles and risks
+    #article_embeddings = model.encode(texts, convert_to_numpy = True, normalize_embeddings = True, show_progress_bar=True,  batch_size=256 if device=='cuda' else 32)
     article_embeddings = model.encode(texts, convert_to_numpy = True, normalize_embeddings = True, show_progress_bar=False,  batch_size=256 if device=='cuda' else 32)
     #C = article_embeddings
     risk_embeddings = model.encode(all_risks, convert_to_tensor=True)
@@ -1640,7 +1641,7 @@ def predict_risks(df):
     #topic_ohe = topic_ohe[ohe_cols_expected].to_numpy()
 
     #X_all = np.hstack([X_text_red, num_scaled, topic_ohe])
-    
+
     #proba = clf.predict_proba(X_all)
 
     #avg_emb = 0.5 * (article_embeddings + C)
@@ -1659,9 +1660,9 @@ def predict_risks(df):
 
     #df.loc[sub.index, ['pred_source', 'Predicted_Risks_new', 'Pred_LR_label', 'Pred_cos_label_all', 'Pred_cos_score_all']] = sub[
     #                    ['pred_source', 'Predicted_Risks_new', 'Pred_LR_label', 'Pred_cos_label_all', 'Pred_cos_score_all']].values
-    
 
-    
+
+
     # Calculate cosine similarity
     cosine_scores = util.cos_sim(article_embeddings, risk_embeddings)
 
@@ -1736,20 +1737,7 @@ def track_over_time(df, week_anchor="W-MON", out_csv="Model_training/topic_trend
 def call_gemini(prompt):
     GEMINI_API_KEY = os.getenv('PAID_API_KEY')
     client = genai.Client(api_key=GEMINI_API_KEY)
-    return client.models.generate_content(model="gemini-2.0-flash", 
-                                          contents=[prompt],
-                                          config ={
-                                             "response_mime_type":"application/json",
-                                             config={
-                                                "response_mime_type": "application/json",
-                                                "response_schema": Schema(
-                                                    type="OBJECT",
-                                                    properties={
-                                                        "university_label": Schema(type="INTEGER")  # no enum needed
-                                                    }
-                                             }
-                                         }
-                                         )
+    return client.models.generate_content(model="gemini-2.0-flash", contents=[prompt])
 
 # 🧠 Async article processor
 @backoff.on_exception(backoff.expo,
@@ -1774,8 +1762,10 @@ async def process_article(article, sem, batch_number=None, total_batches=None, a
             Title: {title}
             Content: {" ".join(str(content).split()[:400])}
             Task: Decide if this is SPECIFICALLY about higher education/university news or university funding in the UNITED STATES ONLY.
-            Return ONLY valid JSON matching this schema:
+            Return a compact valid JSON with exactly these keys and no explanations:
             {{
+              "Title": "same title",
+              "Content": "same content",
               "University Label": 1 or 0
             }}
             
@@ -1791,21 +1781,44 @@ async def process_article(article, sem, batch_number=None, total_batches=None, a
             - If the article talks about sports, matches, sports results, return 0
             - If the article is a news wrap, a podcast, or a video, return 0
             - If the article is a general scientific discovery, return 0
+            
+            Output must be exactly:
+            {{
+              "Title": "same title",
+              "Content": "same content",
+              "University Label": 0 or 1
+            }}
             """
 
             response = await asyncio.to_thread(call_gemini, prompt)
-            payload = json.loads(response.text)
-            ulabel = 1 if int(payload.get("university_label", 0)) == 1 else 0
-            
-            if ulabel is None:
-                ulabel = rec.get('university_label') or rec.get('University_label') or rec.get('university label') or 0
-                
-            try:
-                ulabel = int(ulabel)
-                ulabel = 1 if ulabel ==1 else 0
-            except Exception:
-                ulabel = 0
-            return {'Title': str(title), "Content": str(content), 'University Label': ulabel}
+            if hasattr(response, "text") and response.text:
+                response_text = response.text
+                json_str = re.search(r"```json\s*(\{.*?\})\s*```", response_text, re.DOTALL)
+                raw = json_str.group(1) if json_str else response_text
+
+
+                try:
+                    rec = json.loads(raw)
+                except json.JSONDecodeError as e1:
+                    try:
+                        rec = ast.literal_eval(raw)
+                    except Exception as e2:
+                        print(f"⚠️ JSON decode fallback error: {e1} | Eval error: {e2}", flush=True)
+                        return None
+                title = rec.get('Title') or rec.get('title') or str(title)
+                content = rec.get('Content') or rec.get('content') or str(content)
+
+                ulabel = rec.get('University Label')
+
+                if ulabel is None:
+                    ulabel = rec.get('university_label') or rec.get('University_label') or rec.get('university label') or 0
+
+                try:
+                    ulabel = int(ulabel)
+                    ulabel = 1 if ulabel ==1 else 0
+                except Exception:
+                    ulabel = 0
+                return {'Title': str(title), "Content": str(content), 'University Label': ulabel}
         except Exception as e:
             print(f"🔥 Uncaught error in article {article_index} of batch {batch_number}: {e}", flush=True)
             return None
@@ -1836,7 +1849,7 @@ def load_university_label(new_label):
     try:
         existing = pd.read_csv('BERTopic_before.csv')
         labeled_titles = set(existing['Title']) if 'Title' in existing else set()
-        
+
     except FileNotFoundError:
         existing = pd.DataFrame()
         existing = pd.DataFrame(columns = ['Title', 'University Label'])
@@ -1870,7 +1883,7 @@ def load_university_label(new_label):
             combined = labels_df
     else:
         combined = existing
-    
+
     combined.to_csv('BERTopic_before.csv', columns = ['Title', 'University Label'], index = False)
 
     return all_articles
@@ -1948,7 +1961,7 @@ def coerce_pub_utc(x):
     sx = str(x)
     sx = re.sub(r'\s(EST|EDT|PDT|CDT|MDT|GMT)\b', '', sx, flags=re.I)
     return pd.to_datetime(sx, errors="coerce", utc=True)
-   
+
 #print("✅ Running double-check for unmatched topics (-1)...", flush=True)
 #cutoff_utc = pd.Timestamp(datetime.utcnow() - timedelta(days = 30), tz = 'utc')
 #df_combined['Published'] = df_combined['Published'].apply(coerce_pub_utc)
