@@ -1588,8 +1588,8 @@ def predict_risks(df):
     df['Published_utc'] = pd.to_datetime(df['Published'], errors='coerce', utc = True)
     recent_mask = df['Published_utc'] >= recent_cut
     todo_mask &= recent_mask.fillna(False)
-    sub = df.loc[todo_mask].copy()
-    texts = df.loc[todo_mask, 'Text'].tolist()
+    sub = df[(df['University Label'] == 1) & todo_mask].copy()
+    texts = sub['Text'].tolist()
     change = texts
     if not texts:
         return df
