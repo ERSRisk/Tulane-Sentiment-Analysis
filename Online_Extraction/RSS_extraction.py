@@ -718,7 +718,13 @@ def save_new_articles(existing_articles, new_articles):
     
     # Keep articles newer than the newest in existing
     if existing_articles:
-        cutoff = max(pd.to_datetime(a.get('Published'), errors='coerce') for a in existing_articles)
+        cutoff = max(
+                        (
+                            pd.to_datetime(a.get('Published'), errors='coerce', utc=True)
+                            for a in existing_articles
+                        ),
+                        default=pd.Timestamp.min.tz_localize('UTC')
+                    )
     else:
         cutoff = pd.Timestamp.min
     
