@@ -1568,7 +1568,7 @@ def predict_risks(df):
     model_name = bundle['sentence_model_name']
     prob_cut = 0.85
     margin_cut = 0.25
-    tau = 0.28
+    tau = 0.12
     numeric_factors = list(bundle['numeric_factors'])
     trained_label_txt = list(bundle['trained_label_text'])
     all_labels = json_all_labels
@@ -1583,7 +1583,7 @@ def predict_risks(df):
 
     df = df.reset_index(drop = True)
     todo_mask = (df['Predicted_Risks_new'].isna()) | (df['Predicted_Risks_new'].eq('')) | (df['Predicted_Risks_new'].eq('No Risk'))
-    recent_cut = pd.Timestamp.now(tz='utc') - pd.Timedelta(days=30)
+    recent_cut = pd.Timestamp.now(tz='utc') - pd.Timedelta(days=40)
     df['Published_utc'] = pd.to_datetime(df['Published'], errors='coerce', utc = True)
     recent_mask = df['Published_utc'] >= recent_cut
     todo_mask &= recent_mask.fillna(False)
@@ -1602,9 +1602,8 @@ def predict_risks(df):
     model = SentenceTransformer('all-mpnet-base-v2', device = device)
     # Encode articles and risks
     #article_embeddings = model.encode(texts, convert_to_numpy = True, normalize_embeddings = True, show_progress_bar=True,  batch_size=256 if device=='cuda' else 32)
-    article_embeddings = model.encode(texts, convert_to_numpy = True, normalize_embeddings = True, show_progress_bar=False,  batch_size=256 if device=='cuda' else 32)
+    article_embeddings = model.encode(texts, convert_to_numpy = True, normalize_embeddings = True, show_progress_bar=True,  batch_size=256 if device=='cuda' else 32)
     C = article_embeddings
-    risk_embeddings = model.encode(all_risks, convert_to_tensor=True)
     X_text = np.hstack([article_embeddings, C])
     X_text_red = pca.transform(X_text) if pca is not None else X_text
     n = len(texts)
