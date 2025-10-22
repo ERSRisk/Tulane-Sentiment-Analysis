@@ -713,19 +713,33 @@ def load_existing_articles():
     return load_articles_from_release()
 
 def save_new_articles(existing_articles, new_articles):
-    existing_urls = {article['Link'] for article in existing_articles}
-    unique_new_articles = [article for article in new_articles if article['Link'] not in existing_urls]
+    existing_urls = {a.get('Link') for a in existing_articles}
+    existing_titles = {a.get('Title') for a in existing_articles}
+    
+    # Keep articles newer than the newest in existing
+    if existing_articles:
+        cutoff = max(pd.to_datetime(a.get('Published'), errors='coerce') for a in existing_articles)
+    else:
+        cutoff = pd.Timestamp.min
+    
+    unique_new_articles = [
+        a for a in new_articles
+        if a.get('Link') not in existing_urls
+        or pd.to_datetime(a.get('Published'), errors='coerce') > cutoff
+    ]
 
     print(f"Existing articles: {len(existing_articles)}")
-    print(f"New unique articles: {len(unique_new_articles)}")
+    print(f"New unique (link/date) articles: {len(unique_new_articles)}")
 
     if unique_new_articles:
         updated_articles = existing_articles + unique_new_articles
         print(f"Saving {len(updated_articles)} total articles to Releases")
         save_new_articles_to_release(updated_articles)
     else:
-        print("No new unique articles found.")
-    return []
+        print("No new unique or newer articles found.")
+
+    # ✅ return updated list instead of []
+    return existing_articles + unique_new_articles
 
 def fetch_content(article_url):
     try:
