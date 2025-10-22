@@ -1582,9 +1582,9 @@ def predict_risks(df):
     df['Text'] = (df['Title'] + '. ' + df['Content']).str.strip()
 
     df = df.reset_index(drop = True)
-    df = df[df['University Label'] == 1]
+
     todo_mask = (df['Predicted_Risks_new'].isna()) | (df['Predicted_Risks_new'].eq('')) | (df['Predicted_Risks_new'].eq('No Risk'))
-    recent_cut = pd.Timestamp.now(tz='utc') - pd.Timedelta(days=30)
+    recent_cut = pd.Timestamp.now(tz='utc') - pd.Timedelta(days=25)
     df['Published_utc'] = pd.to_datetime(df['Published'], errors='coerce', utc = True)
     recent_mask = df['Published_utc'] >= recent_cut
     todo_mask &= recent_mask.fillna(False)
