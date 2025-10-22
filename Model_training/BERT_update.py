@@ -1637,7 +1637,7 @@ def predict_risks(df):
     avg_emb = 0.5 * (article_embeddings + C)
     avg_emb = avg_emb / (np.linalg.norm(avg_emb, axis = 1, keepdims =True) + 1e-12)
     lbl_emb_trained = model.encode(trained_label_txt, show_progress_bar = True, normalize_embeddings = True, batch_size = 256)
-    lbl_emb_all = model.encode(all_label_txt, show_progress_bar = True, normalize_embeddings = True, batch_size = 256)
+    lbl_emb_all = model.encode(all_labels, show_progress_bar = True, normalize_embeddings = True, batch_size = 256)
 
     cos_all =soft_cosine_probs(avg_emb, lbl_emb_all)
 
