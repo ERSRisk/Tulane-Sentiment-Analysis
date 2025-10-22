@@ -1019,7 +1019,9 @@ def risk_weights(df):
         tr_small = tr[["Topic","_RiskList","last_seen_days","decayed_volume","recency_score_tr"]].rename(
             columns={"recency_score_tr": "recency_score_tr_tr"}
         )
-
+        overlap = [c for c in tr_small.columns if c in df.columns and c!= 'Topic']
+        if overlap:
+            df = df.drop(columns = overlap)
         enriched = df.merge(tr_small, on="Topic", how="left")
 
         days = pd.to_numeric(enriched.get('Days_Ago', np.nan), errors='coerce').astype(float)
