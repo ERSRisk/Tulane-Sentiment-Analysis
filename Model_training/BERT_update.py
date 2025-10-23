@@ -490,6 +490,7 @@ def transform_text(texts):
 
 
     texts['Topic'] = all_topics
+    
     assigned_probs = []
     for t, p in zip(all_topics, all_probs):
         if p is None or t < 0 or t >= len(p):
@@ -497,6 +498,8 @@ def transform_text(texts):
         else:
             assigned_probs.append(float(p[t]))   # pick prob of assigned topic
     texts['Probability'] = assigned_probs
+    if assigned_probs is None:
+        texts['Probability'] = texts.get('StreamlitCosine', pd.Series(0.0, index = texts.index)).astype(float)
     how = []
     for i, (t,p, sim) in enumerate(zip(texts['Topic'], texts['Probability'], texts.get('StreamlitCosine', [np.nan]*len(df)))):
         if t == -1:
@@ -1587,7 +1590,7 @@ def predict_risks(df):
     df = df.reset_index(drop = True)
 
     todo_mask = (df['Predicted_Risks_new'].isna()) | (df['Predicted_Risks_new'].eq('')) | (df['Predicted_Risks_new'].eq('No Risk'))
-    recent_cut = pd.Timestamp.now(tz='utc') - pd.Timedelta(days=25)
+    recent_cut = pd.Timestamp.now(tz='utc') - pd.Timedelta(days=30)
     df['Published_utc'] = pd.to_datetime(df['Published'], errors='coerce', utc = True)
     recent_mask = df['Published_utc'] >= recent_cut
     todo_mask &= recent_mask.fillna(False)
@@ -1931,15 +1934,15 @@ def load_midstep_from_release(local_cache_path = 'Model_training/Step1.csv.gz'):
     return pd.DataFrame()
 
 #Assign topics and probabilities to new_df
-#print("✅ Starting transform_text on new data...", flush=True)
-#new_df = transform_text(df)
+print("✅ Starting transform_text on new data...", flush=True)
+new_df = transform_text(df)
 ##Fill missing topic/probability rows in the original df
-#mask = (df['Topic'].isna()) | (df['Probability'].isna())
-#df.loc[mask, ['Topic', 'Probability']] = new_df[['Topic', 'Probability']]
-#df[['Topic', 'Probability']] = new_df[['Topic', 'Probability']]
+mask = (df['Topic'].isna()) | (df['Probability'].isna())
+df.loc[mask, ['Topic', 'Probability']] = new_df[['Topic', 'Probability']]
+df[['Topic', 'Probability']] = new_df[['Topic', 'Probability']]
 #Save only new, non-duplicate rows
-#print("✅ Saving new topics to CSV...", flush=True)
-#df_combined = save_new_topics(df, new_df)
+print("✅ Saving new topics to CSV...", flush=True)
+df_combined = save_new_topics(df, new_df)
 #
 #Double-check if there are still unmatched (-1) topics and assign a temporary model to assign topics to them
 def coerce_pub_utc(x):
@@ -1955,39 +1958,39 @@ def coerce_pub_utc(x):
     sx = re.sub(r'\s(EST|EDT|PDT|CDT|MDT|GMT)\b', '', sx, flags=re.I)
     return pd.to_datetime(sx, errors="coerce", utc=True)
 
-#print("✅ Running double-check for unmatched topics (-1)...", flush=True)
-#cutoff_utc = pd.Timestamp(datetime.utcnow() - timedelta(days = 30), tz = 'utc')
-#df_combined['Published'] = df_combined['Published'].apply(coerce_pub_utc)
-#recent_df = df_combined[df_combined['Published'].notna() & (df_combined['Published'] >= cutoff_utc)].copy()
-#temp_model, topic_ids = double_check_articles(recent_df)
+print("✅ Running double-check for unmatched topics (-1)...", flush=True)
+cutoff_utc = pd.Timestamp(datetime.utcnow() - timedelta(days = 30), tz = 'utc')
+df_combined['Published'] = df_combined['Published'].apply(coerce_pub_utc)
+recent_df = df_combined[df_combined['Published'].notna() & (df_combined['Published'] >= cutoff_utc)].copy()
+temp_model, topic_ids = double_check_articles(recent_df)
 #If there are unmatched topics, name them using Gemini
-#print("✅ Checking for unmatched topics to name using Gemini...", flush=True)
-#if temp_model and topic_ids:
-     #topic_name_pairs = get_topic(temp_model, topic_ids)
-     #existing_risks_json(topic_name_pairs, temp_model)
+print("✅ Checking for unmatched topics to name using Gemini...", flush=True)
+if temp_model and topic_ids:
+     topic_name_pairs = get_topic(temp_model, topic_ids)
+     existing_risks_json(topic_name_pairs, temp_model)
 ##Assign weights to each article
-#results_df = load_midstep_from_release()
-#results_df = predict_risks(df_combined)
-#df['Predicted_Risks'] = df.get('Predicted_Risks_new', '')
-#print("✅ Applying risk_weights...", flush=True)
-#atomic_write_csv('Model_training/Step1.csv.gz', df, compress = True)
-#upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/Step1.csv.gz', GITHUB_TOKEN)
-df = load_midstep_from_release()
+results_df = load_midstep_from_release()
+results_df = predict_risks(df_combined)
+results_df['Predicted_Risks'] = results_df.get('Predicted_Risks_new', '')
+print("✅ Applying risk_weights...", flush=True)
+atomic_write_csv('Model_training/Step1.csv.gz', results_df, compress = True)
+upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/Step1.csv.gz', GITHUB_TOKEN)
+#df = load_midstep_from_release()
 #df = load_midstep_from_release()
 #df = pd.read_csv('Model_training/Step1.csv.gz', compression = 'gzip')
-results_df = load_university_label(df)
-results_df = results_df.drop(columns = ['Acceleration_value_x', 'Acceleration_value_y'], errors = 'ignore')
-atomic_write_csv('Model_training/initial_label.csv.gz', results_df, compress = True)
-upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/initial_label.csv.gz', GITHUB_TOKEN)
+#results_df = load_university_label(df)
+#results_df = results_df.drop(columns = ['Acceleration_value_x', 'Acceleration_value_y'], errors = 'ignore')
+#atomic_write_csv('Model_training/initial_label.csv.gz', results_df, compress = True)
+#upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/initial_label.csv.gz', GITHUB_TOKEN)
 
-results_df['Predicted_Risks'] = results_df.get('Predicted_Risks_new', results_df.get('Predicted_Risks', ''))
-df = risk_weights(results_df)
-print("Finished assigning risk weights", flush = True)
-df = df.drop(columns = ['University Label_x', 'University Label_y'], errors = 'ignore')
-print("Saving BERTopic_results2.csv.gz", flush = True)
-atomic_write_csv("Model_training/BERTopic_results2.csv.gz", df, compress=True)
-print('Uploading to releases', flush=True)
-upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/BERTopic_results2.csv.gz', GITHUB_TOKEN)
+#results_df['Predicted_Risks'] = results_df.get('Predicted_Risks_new', results_df.get('Predicted_Risks', ''))
+#df = risk_weights(results_df)
+#print("Finished assigning risk weights", flush = True)
+#df = df.drop(columns = ['University Label_x', 'University Label_y'], errors = 'ignore')
+#print("Saving BERTopic_results2.csv.gz", flush = True)
+#atomic_write_csv("Model_training/BERTopic_results2.csv.gz", df, compress=True)
+#print('Uploading to releases', flush=True)
+#upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/BERTopic_results2.csv.gz', GITHUB_TOKEN)
 #Show the articles over time
-print("Articles over time", flush = True)
-track_over_time(df)
+#print("Articles over time", flush = True)
+#track_over_time(df)
