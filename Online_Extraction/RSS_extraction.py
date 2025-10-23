@@ -417,7 +417,7 @@ def save_new_articles_to_release(all_articles:list, local_cache_path='Online_Ext
     t1 = time.perf_counter()
     upload_asset(Github_owner, Github_repo, rel, Asset_name, gz_bytes)
     print(f"upload sec: {time.perf_counter() - t1:.2f}")
-  
+
 
 def load_articles_from_release(local_cache_path = 'Online_Extraction/all_RSS.json.gz'):
   rel = _get_release_by_tag(Github_owner, Github_repo, Release_tag)
@@ -713,42 +713,28 @@ def load_existing_articles():
     return load_articles_from_release()
 
 def save_new_articles(existing_articles, new_articles):
-    existing_urls = {a.get('Link') for a in existing_articles}
-    existing_titles = {a.get('Title') for a in existing_articles}
-    
-    # Keep articles newer than the newest in existing
-    if existing_articles:
-        cutoff = max(
-                        (
-                            pd.to_datetime(a.get('Published'), errors='coerce', utc=True)
-                            for a in existing_articles
-                        ),
-                        default=pd.Timestamp.min.tz_localize('UTC')
-                    )
-    else:
-        cutoff = pd.Timestamp.min
-    
-    unique_new_articles = [
-        a for a in new_articles
-        if a.get('Link') not in existing_urls
-        or pd.to_datetime(a.get('Published'), errors='coerce') > cutoff
-    ]
+    existing_urls = {article['Link'] for article in existing_articles}
+    unique_new_articles = [article for article in new_articles if article['Link'] not in existing_urls]
 
     print(f"Existing articles: {len(existing_articles)}")
-    print(f"New unique (link/date) articles: {len(unique_new_articles)}")
+    print(f"New unique articles: {len(unique_new_articles)}")
 
     if unique_new_articles:
         updated_articles = existing_articles + unique_new_articles
         print(f"Saving {len(updated_articles)} total articles to Releases")
         save_new_articles_to_release(updated_articles)
     else:
-        print("No new unique or newer articles found.")
-
-    # ✅ return updated list instead of []
-    return existing_articles + unique_new_articles
+        print("No new unique articles found.")
+    return []
 
 def fetch_content(article_url):
     try:
+        downloaded = trafilatura.fetch_url(article_url)
+        if downloaded:
+            extracted =  trafilatura.extract(downloaded)
+            if extracted:
+                return extracted
+        return None
         # hard timeouts: 10s to connect, 30s total
         r = requests.get(
             article_url,
@@ -793,6 +779,10 @@ def get_available(entry, keys, default = None):
 final_articles = []
 async def fetch_article_content(url):
     try:
+        return await asyncio.wait_for(
+            asyncio.to_thread(fetch_content, url),
+            timeout=60
+        )
         async with ENTRY_SEM:
             return await asyncio.wait_for(
                 asyncio.to_thread(fetch_content, url),
@@ -862,6 +852,8 @@ async def process_feeds(feeds, session):
             resp =await asyncio.wait_for(session.get(url, timeout = req_timeout), timeout = 70)
             async with resp as response:
                 text = await response.text()
+                if 'xml' not in response.headers.get('Content-Type', ''):
+                    print(f"Skipping non-XML content: {url}")
                 ctype = (response.headers.get('Content-Type') or '').lower()
                 if not any(t in ctype for t in ('xml', 'rss', 'atom')):
                     print(f"Skipping non-XML content: {url} ({ctype})")
@@ -911,6 +903,7 @@ async def process_feeds(feeds, session):
                 print(f"Error processing entry {entry.get('link')}: {e}")
                 return None
 
+        tasks = [process_entry(entry, name) for entry in feed_extract['entries']]
         entries = feed_extract['entries'][:MAX_ENTRIES_PER_FEED]
         tasks = [process_entry(entry, name) for entry in entries]
         entry_results = await asyncio.gather(*tasks, return_exceptions = True)
@@ -935,6 +928,7 @@ async def batch_process_feeds(feeds, batch_size = 15, concurrent_batches =5, dea
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
     }
     start = time.perf_counter()
+    async with aiohttp.ClientSession(headers=headers, timeout = client_timeout) as session:
     connector = aiohttp.TCPConnector(limit=50, ttl_dns_cache=300, family=socket.AF_INET)
     async with aiohttp.ClientSession(headers=headers, timeout=client_timeout, connector=connector) as session:
         for i in range(0, len(batches), concurrent_batches):
