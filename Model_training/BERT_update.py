@@ -574,6 +574,7 @@ def double_check_articles(df):
 
     topic_ids = temp_model.get_topic_info()
     topic_ids = topic_ids[topic_ids['Topic'] != -1]['Topic'].tolist()
+    print(f"[double_check] Found {len(topic_ids)} valid topics (excluding -1).", flush = True)
     return temp_model, topic_ids
 def fetch_release(owner, repo, tag:str, asset_name:str, token:str):
     headers = {'Authorization': f'token {token}',
@@ -1954,23 +1955,23 @@ def coerce_pub_utc(x):
     sx = re.sub(r'\s(EST|EDT|PDT|CDT|MDT|GMT)\b', '', sx, flags=re.I)
     return pd.to_datetime(sx, errors="coerce", utc=True)
 
-print("✅ Running double-check for unmatched topics (-1)...", flush=True)
+#print("✅ Running double-check for unmatched topics (-1)...", flush=True)
 cutoff_utc = pd.Timestamp(datetime.utcnow() - timedelta(days = 30), tz = 'utc')
 df_combined['Published'] = df_combined['Published'].apply(coerce_pub_utc)
 recent_df = df_combined[df_combined['Published'].notna() & (df_combined['Published'] >= cutoff_utc)].copy()
-temp_model, topic_ids = double_check_articles(recent_df)
+#temp_model, topic_ids = double_check_articles(recent_df)
 #If there are unmatched topics, name them using Gemini
-print("✅ Checking for unmatched topics to name using Gemini...", flush=True)
-if temp_model and topic_ids:
-     topic_name_pairs = get_topic(temp_model, topic_ids)
-     existing_risks_json(topic_name_pairs, temp_model)
+#print("✅ Checking for unmatched topics to name using Gemini...", flush=True)
+#if temp_model and topic_ids:
+     #topic_name_pairs = get_topic(temp_model, topic_ids)
+     #existing_risks_json(topic_name_pairs, temp_model)
 ##Assign weights to each article
 #results_df = load_midstep_from_release()
 results_df = predict_risks(df_combined)
-#df['Predicted_Risks'] = df.get('Predicted_Risks_new', '')
+df['Predicted_Risks'] = df.get('Predicted_Risks_new', '')
 #print("✅ Applying risk_weights...", flush=True)
-#atomic_write_csv('Model_training/Step1.csv.gz', df, compress = True)
-#upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/Step1.csv.gz', GITHUB_TOKEN)
+atomic_write_csv('Model_training/Step1.csv.gz', df, compress = True)
+upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/Step1.csv.gz', GITHUB_TOKEN)
 #df = load_midstep_from_release()
 #df = load_midstep_from_release()
 #df = pd.read_csv('Model_training/Step1.csv.gz', compression = 'gzip')
