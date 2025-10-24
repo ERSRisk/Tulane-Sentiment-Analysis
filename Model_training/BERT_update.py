@@ -1572,8 +1572,8 @@ def predict_risks(df):
     trained_labels = bundle['trained_label_names']
     risk_defs = bundle['risk_defs']
     model_name = bundle['sentence_model_name']
-    prob_cut = 0.85
-    margin_cut = 0.25
+    prob_cut = 0.70
+    margin_cut = 0.15
     tau = 0.12
     numeric_factors = list(bundle['numeric_factors'])
     trained_label_txt = list(bundle['trained_label_text'])
@@ -1593,7 +1593,7 @@ def predict_risks(df):
         todo_mask = (df['Predicted_Risks_new'].isna()) | (df['Predicted_Risks_new'].eq('')) | (df['Predicted_Risks_new'].eq('No Risk'))
     else:
         todo_mask = pd.Series(True, index=df.index)
-    recent_cut = pd.Timestamp.now(tz='utc') - pd.Timedelta(days=40)
+    recent_cut = pd.Timestamp.now(tz='utc') - pd.Timedelta(days=30)
     df['Published_utc'] = pd.to_datetime(df['Published'], errors='coerce', utc = True)
     recent_mask = df['Published_utc'] >= recent_cut
     todo_mask &= recent_mask.fillna(False)
