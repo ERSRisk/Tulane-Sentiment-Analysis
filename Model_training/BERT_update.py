@@ -1977,7 +1977,7 @@ def coerce_pub_utc(x):
      #existing_risks_json(topic_name_pairs, temp_model)
 ##Assign weights to each article
 results_df = load_midstep_from_release()
-results_df = predict_risks(df_combined)
+results_df = predict_risks(results_df)
 results_df['Predicted_Risks'] = results_df.get('Predicted_Risks_new', '')
 print("✅ Applying risk_weights...", flush=True)
 atomic_write_csv('Model_training/Step1.csv.gz', results_df, compress = True)
