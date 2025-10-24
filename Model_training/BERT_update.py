@@ -1976,7 +1976,7 @@ def coerce_pub_utc(x):
 #results_df = predict_risks(df_combined)
 #results_df['Predicted_Risks'] = results_df.get('Predicted_Risks_new', '')
 #print("✅ Applying risk_weights...", flush=True)
-atomic_write_csv('Model_training/Step1.csv.gz', results_df, compress = True)
+#atomic_write_csv('Model_training/Step1.csv.gz', results_df, compress = True)
 #upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/Step1.csv.gz', GITHUB_TOKEN)
 df = load_midstep_from_release()
 #df = load_midstep_from_release()
