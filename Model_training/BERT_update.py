@@ -940,15 +940,22 @@ def risk_weights(df):
         "Nepotism/Conflict of Interest": 15, 
         "Policy Misapplication": 15, 
         "Whistleblower Claims": 30 } 
-    pr_col = 'Predicted_Risks'
-    if pr_col not in base.columns:
-        base[pr_col] = ''
-    def _parse_tokens(s):
-        if s is None or pd.isna(s) or str(s).strip() == '':
-            return ""
-        return str(s).split(';', 1)[0].strip()
-    base['_RiskList'] = base[pr_col].fillna('').astype(str).apply(_parse_tokens)
-    base['Risk_item'] = base['_RiskList'].replace('', 'No Risk')
+    cand = base.get('Predicted_Risks_new', pd.Series('', index=base.index)).fillna('')
+    cand = np.where(cand=='', base.get('Predicted_Risks', ''), cand)
+    cand = pd.Series(cand, index=base.index).fillna('').astype(str)
+    
+    def _first_label(s):
+        s = s.strip()
+        if not s:
+            return ''
+        # strip brackets if list-string like "['X', 'Y']"
+        s = re.sub(r'^\[|\]$', '', s)
+        # split on ; or , and strip quotes/spaces
+        s = re.split(r'[;,]', s)[0].strip().strip("'\"")
+        return s
+    
+    base['_RiskList'] = cand.apply(_first_label)
+    base['Risk_item'] = np.where(base['_RiskList'].eq(''), 'No Risk', base['_RiskList'])
 
     #base = base.explode('_RiskList', ignore_index=False).rename(columns={'_RiskList':'Risk_item'})
     #mask = exploded['Risk_item'].notna() & (exploded['Risk_item'].astype(str).str.strip()!='')
@@ -1532,26 +1539,24 @@ def predict_risks(df):
         return cos/denom
 
     def predict_with_fallback(proba_lr, cos_all, prob_cut, margin_cut, tau, trained_labels, all_labels):
-        # LR confidence check
         top_idx = proba_lr.argmax(axis=1)
         top_val = proba_lr[np.arange(len(proba_lr)), top_idx]
-        # second best
         tmp = proba_lr.copy()
         tmp[np.arange(len(tmp)), top_idx] = -1
         second = tmp.max(axis=1)
         margin = top_val - second
         use_lr = (top_val >= prob_cut) & (margin >= margin_cut)
-
-        # Cosine decisions (open set)
+    
         cos_all_max = cos_all.max(axis=1)
         cos_all_idx = cos_all.argmax(axis=1)
-
-        # Compose final label names
+    
         lr_names  = np.array(trained_labels)[top_idx]
         cos_names = np.array(all_labels)[cos_all_idx]
+    
         final_names = np.where(use_lr, lr_names, cos_names)
-        final_names = np.where(~use_lr & (cos_all_max < tau), "No Risk", final_names)
-
+        # FIX: with raw cosine, compare against tau_raw
+        final_names = np.where(~use_lr & (cos_all_max < tau_raw), "No Risk", final_names)
+    
         return {
             "final_names": final_names,
             "use_lr": use_lr,
@@ -1572,9 +1577,9 @@ def predict_risks(df):
     trained_labels = bundle['trained_label_names']
     risk_defs = bundle['risk_defs']
     model_name = bundle['sentence_model_name']
-    prob_cut = 0.70
-    margin_cut = 0.15
-    tau = 0.12
+    prob_cut = 0.65
+    margin_cut = 0.10
+    tau = 0.25
     numeric_factors = list(bundle['numeric_factors'])
     trained_label_txt = list(bundle['trained_label_text'])
     all_labels = json_all_labels
@@ -1648,12 +1653,15 @@ def predict_risks(df):
 
     proba = clf.predict_proba(X_all)
 
-    avg_emb = 0.5 * (article_embeddings + C)
-    avg_emb = avg_emb / (np.linalg.norm(avg_emb, axis = 1, keepdims =True) + 1e-12)
+    avg_emb = article_embeddings
+    avg_emb = avg_emb / (np.linalg.norm(avg_emb, axis=1, keepdims=True) + 1e-12)
+    
+    lbl_emb_all = model.encode(all_label_txt, show_progress_bar=True, normalize_embeddings=True, batch_size=256)
+    
+    # FIX: raw cosine, NOT normalized to sum=1
+    cos_all = avg_emb @ lbl_emb_all.T
     lbl_emb_trained = model.encode(trained_label_txt, show_progress_bar = True, normalize_embeddings = True, batch_size = 256)
-    lbl_emb_all = model.encode(all_label_txt, show_progress_bar = True, normalize_embeddings = True, batch_size = 256)
 
-    cos_all =soft_cosine_probs(avg_emb, lbl_emb_all)
 
     out = predict_with_fallback(proba, cos_all, prob_cut, margin_cut, tau, trained_labels, all_labels)
     sub['pred_source'] = np.where(out['use_lr'], 'lr', 'cos')
