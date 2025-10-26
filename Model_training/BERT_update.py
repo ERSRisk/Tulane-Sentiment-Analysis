@@ -1555,7 +1555,7 @@ def predict_risks(df):
     
         final_names = np.where(use_lr, lr_names, cos_names)
         # FIX: with raw cosine, compare against tau_raw
-        final_names = np.where(~use_lr & (cos_all_max < tau_raw), "No Risk", final_names)
+        final_names = np.where(~use_lr & (cos_all_max < tau), "No Risk", final_names)
     
         return {
             "final_names": final_names,
