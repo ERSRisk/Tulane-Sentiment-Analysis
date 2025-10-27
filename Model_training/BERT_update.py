@@ -1949,19 +1949,6 @@ def save_dataset_to_releases(df:pd.DataFrame, local_cache_path = 'Model_training
     rel = ensure_release(Github_owner, Github_repo, Release_tag, GITHUB_TOKEN)
     upload_asset(Github_owner, Github_repo, rel, Asset_name, gz_bytes, GITHUB_TOKEN)
 
-def load_articles_from_release(local_cache_path = 'Model_training/BERTopic_results2.csv.gz'):
-    rel = get_release_by_tag(Github_owner, Github_repo, Release_tag)
-    if rel:
-        asset = next((a for a in rel.get('assets', []) if a['name']==Asset_name), None)
-        if asset:
-            r = requests.get(asset['browser_download_url'], timeout = 60)
-            if r.ok:
-                data = gzip.decompress(r.content).decode('utf-8')
-                return pd.read_csv(io.BytesIO(r.content), compression = 'gzip')
-    P = Path(local_cache_path)
-    if P.exists():
-        return pd.read_csv(local_cache_path, compression='gzip')
-    return pd.DataFrame()
 
 def load_midstep_from_release(local_cache_path = 'Model_training/Step1.csv.gz'):
     rel = get_release_by_tag(Github_owner, Github_repo, Release_tag)
