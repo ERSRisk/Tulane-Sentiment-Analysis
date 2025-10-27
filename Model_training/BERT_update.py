@@ -512,6 +512,34 @@ def transform_text(texts):
             how.append('other')
     texts['Assigned_how'] = how
     return texts
+def load_articles_from_release(local_cache_path='Model_training/BERTopic_results2.csv.gz',
+                               usecols=None, dtype=str):
+    rel = get_release_by_tag(Github_owner, Github_repo, Release_tag)
+    # 1) Try remote release asset (streamed)
+    if rel:
+        asset = next((a for a in rel.get('assets', []) if a['name'] == Asset_name), None)
+        if asset:
+            url = asset['browser_download_url']
+            # Stream to disk instead of holding in RAM
+            with requests.get(url, stream=True, timeout=120) as resp:
+                resp.raise_for_status()
+                Path(local_cache_path).parent.mkdir(parents=True, exist_ok=True)
+                with open(local_cache_path, 'wb') as f:
+                    for chunk in resp.iter_content(chunk_size=1024 * 1024):  # 1MB chunks
+                        if chunk:
+                            f.write(chunk)
+            # Read the gz file directly from disk
+            return pd.read_csv(local_cache_path, compression='gzip',
+                               low_memory=False, usecols=usecols, dtype=dtype)
+
+    # 2) Fallback to local cache if present
+    P = Path(local_cache_path)
+    if P.exists():
+        return pd.read_csv(local_cache_path, compression='gzip',
+                           low_memory=False, usecols=usecols, dtype=dtype)
+
+    # 3) Nothing available
+    return pd.DataFrame()
 def save_new_topics(existing_df, new_df, path = 'Model_training/BERTopic_results2.csv.gz'):
     if 'Link' in existing_df and 'Link' in new_df:
         unique_new = new_df[~new_df['Link'].isin(existing_df['Link'])]
