@@ -1992,7 +1992,7 @@ def coerce_pub_utc(x):
 print("✅ Running double-check for unmatched topics (-1)...", flush=True)
 cutoff_utc = pd.Timestamp(datetime.utcnow() - timedelta(days = 30), tz = 'utc')
 df_combined['Published'] = df_combined['Published'].apply(coerce_pub_utc)
-atomic_write_csv('Model_training/Step0.csv.gz', results_df, compress = True)
+atomic_write_csv('Model_training/Step0.csv.gz', df_combined, compress = True)
 upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/Step0.csv.gz', GITHUB_TOKEN)
 recent_df = df_combined[df_combined['Published'].notna() & (df_combined['Published'] >= cutoff_utc)].copy()
 temp_model, topic_ids = double_check_articles(recent_df)
