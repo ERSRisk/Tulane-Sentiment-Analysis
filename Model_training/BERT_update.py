@@ -1777,7 +1777,44 @@ def track_over_time(df, week_anchor="W-MON", out_csv="Model_training/topic_trend
 def call_gemini(prompt):
     GEMINI_API_KEY = os.getenv('PAID_API_KEY')
     client = genai.Client(api_key=GEMINI_API_KEY)
-    return client.models.generate_content(model="gemini-2.0-flash", contents=[prompt])
+    resp = client.models.generate_content(model="gemini-2.0-flash", contents=[prompt], config = {'response_mime_type':'application/json', 
+                                                                                                               "response_schema": {
+                                                                                                                                    "type": "object",
+                                                                                                                                    "properties": {
+                                                                                                                                        "Title": {"type": "string"},
+                                                                                                                                        "Content": {"type": "string"},
+                                                                                                                                        "University Label": {"type": "integer", "enum": [0, 1]},
+                                                                                                                                        "required": ["Title", "Content", "University Label"]
+                                                                                                                                    }}))
+    def _validate_rec(rec: dict) -> dict:
+    # Minimal local schema check
+        if not isinstance(rec, dict): 
+            raise ValueError("Model did not return a JSON object.")
+        for k in ("Title", "Content", "University Label"):
+            if k not in rec:
+                raise ValueError(f"Missing required key: {k}")
+        if not isinstance(rec["Title"], str):   raise ValueError("Title must be string.")
+        if not isinstance(rec["Content"], str): raise ValueError("Content must be string.")
+        try:
+            lbl = int(rec["University Label"])
+        except Exception:
+            raise ValueError("University Label must be 0 or 1.")
+        if lbl not in (0, 1): 
+            raise ValueError("University Label must be 0 or 1.")
+        # Normalize
+        rec["University Label"] = lbl
+        return rec
+    cand = getattr(resp, "candidates", None)
+    if not cand:
+        raise RuntimeError("No candidates returned.")
+    content = getattr(cand[0], "content", None)
+    parts = getattr(content, "parts", None) if content else None
+    if not parts or not getattr(parts[0], "text", None):
+        raise RuntimeError("Empty response body from model.")
+
+    raw = parts[0].text  # should be strict JSON due to MIME type + schema
+    rec = json.loads(raw)
+    return _validate_rec(rec)
 
 # 🧠 Async article processor
 @backoff.on_exception(backoff.expo,
@@ -1834,38 +1871,22 @@ async def process_article(article, sem, batch_number=None, total_batches=None, a
             }}
             """
 
-            response = await asyncio.to_thread(call_gemini, prompt)
-            if hasattr(response, "text") and response.text:
-                response_text = response.text
-                json_str = re.search(r"```json\s*(\{.*?\})\s*```", response_text, re.DOTALL)
-                raw = json_str.group(1) if json_str else response_text
-
-
+            try:
+                rec = await asyncio.to_thread(call_gemini, prompt)  # rec is already a dict
+                title_out   = str(rec.get("Title", title))
+                content_out = str(rec.get("Content", content))
+                ulabel      = rec.get("University Label", 0)
+            
                 try:
-                    rec = json.loads(raw)
-                except json.JSONDecodeError as e1:
-                    try:
-                        rec = ast.literal_eval(raw)
-                    except Exception as e2:
-                        print(f"⚠️ JSON decode fallback error: {e1} | Eval error: {e2}", flush=True)
-                        return None
-                title = rec.get('Title') or rec.get('title') or str(title)
-                content = rec.get('Content') or rec.get('content') or str(content)
-
-                ulabel = rec.get('University Label')
-
-                if ulabel is None:
-                    ulabel = rec.get('university_label') or rec.get('University_label') or rec.get('university label') or 0
-
-                try:
-                    ulabel = int(ulabel)
-                    ulabel = 1 if ulabel ==1 else 0
+                    ulabel = 1 if int(ulabel) == 1 else 0
                 except Exception:
                     ulabel = 0
-                return {'Title': str(title), "Content": str(content), 'University Label': ulabel}
-        except Exception as e:
-            print(f"🔥 Uncaught error in article {article_index} of batch {batch_number}: {e}", flush=True)
-            return None
+            
+                return {"Title": title_out, "Content": content_out, "University Label": ulabel}
+            
+            except Exception as e:
+                print(f"🔥 Uncaught error in article {article_index} of batch {batch_number}: {e}", flush=True)
+                return None
 
     # 🚀 Async batch runner
 async def university_label_async(articles, batch_size=15, concurrency=10):
