@@ -1810,15 +1810,19 @@ async def process_article(article, sem, batch_number=None, total_batches=None, a
             }}
             
             Labeling rules:
-            - Return 1 ONLY if the article reports higher-ed institution news in the United States (policy changes, leadership changes with institutional impact, governance, research/funding awards, budgets, grants, legislation/regulation affecting universities, campus safety incidents, admissions/tuition decisions, strikes/protests at universities, accreditation).
+            - Return 1 ONLY if the article reports higher-ed institution news in the United States.
+            - Return 1 if the article mentions Tulane University or clearly affects Tulane operations, funding, leadership, policy, legal exposure, or reputation.
+            - Return 1 if a US Federal/State policy or enforcement action applies to multiple universities and plausibly impacts peer institutions like Tulane.
             - Return 0 otherwise.
             
             Clauses (IMPORTANT!!):
+            - If the article is an executive order from the White House that affects education and higher education, return 1
+            - If the article comes from the Tulane Hullabaloo, return 1 if it reports any news that could be a risk to the organization
             - If the article is a professional/personal profile or staff/alumni spotlight (e.g., “Meet X…”, “X is a [role] at…”, bio pages, team/staff directory, “welcomes X to the team”, career journey, awards unrelated to institutional policy/funding) → return 0.
             - Return 1 for leadership announcements ONLY if they clearly indicate institutional impact (e.g., new president/provost with stated policy/strategy changes for the university). Otherwise return 0. (Hints that indicate a profile: “About [Name]”, “Meet [Name]”, “joined [org] as…”, “Biography/Profile”, “Our Team/Staff Directory”, CV-like education + roles with no institutional news.)
             - If the article is not in English, return 0.
             - If the article talks about general medical/healthcare advances that in no way impact university operations, return 0
-            - If the article talks about sports, matches, sports results, return 0
+            - If the article talks about sports news, matches, sports results, return 0
             - If the article is a news wrap, a podcast, or a video, return 0
             - If the article is a general scientific discovery, return 0
             
