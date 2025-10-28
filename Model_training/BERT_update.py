@@ -1607,7 +1607,7 @@ def predict_risks(df):
     model_name = bundle['sentence_model_name']
     prob_cut = 0.65
     margin_cut = 0.10
-    tau = 0.25
+    tau = 0.29
     numeric_factors = list(bundle['numeric_factors'])
     trained_label_txt = list(bundle['trained_label_text'])
     all_labels = json_all_labels
