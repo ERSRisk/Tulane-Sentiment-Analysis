@@ -1185,6 +1185,93 @@ def AAU_Press_Releases(max_articles=None, save_format='csv'):
     except Exception as e:
         print(f"Error: {e}")
         return []
+def hullabaloo():
+  print("Tulane Hullabaloo started", flush = True)
+  url = "https://tulanehullabaloo.com/category/news/"
+  response = requests.get(url)
+  soup = BeautifulSoup(response.content, 'html.parser')
+  articles = soup.find_all('div', class_='catlist-textarea-with-media')
+  blocks = [block for block in articles if block.find('a')]
+  links = [a['href'] for block in blocks for a in block.find_all('a', href=True)]
+  
+  
+  hullabaloo = []
+  for link in links:
+      if re.search(r"staff_name", link):
+          continue
+      r = requests.get(link, timeout=30)
+      r.raise_for_status()
+      soup = BeautifulSoup(r.text, "html.parser")
+      title = None
+  
+      # 1) Meta tags (most reliable)
+      for sel in ['meta[property="og:title"]', 'meta[name="twitter:title"]']:
+          m = soup.select_one(sel)
+          if m and m.get("content"):
+              title = m["content"].strip()
+              break
+  
+      # 2) Common headline selectors on SNO/WordPress themes
+      if not title:
+          for sel in ["h1.sno-title",
+                      "h1.entry-title",
+                      "h1.headline",
+                      "h1.post-title",
+                      "header .sno-story-headline h1",
+                      "h1"]:
+              h = soup.select_one(sel)
+              if h and h.get_text(strip=True):
+                  title = h.get_text(strip=True)
+                  break
+  
+      # 3) Fallback: feature image alt (present in your snippet)
+      if not title:
+          img = soup.select_one(".sno-story-photo-area img[alt]")
+          if img and img.get("alt"):
+              title = img["alt"].strip()
+  
+      # --- DATE & BYLINE (optional) ---
+      date = soup.select_one(".sno-story-date .time-wrapper")
+      date_text = date.get_text(strip=True) if date else None
+  
+      byline = soup.select_one(".sno-story-byline .byline-name")
+      byline_text = byline.get_text(strip=True) if byline else None
+  
+      # --- BODY CONTENT ---
+      body = soup.select_one("#sno-story-body-content")
+      content_text = ""
+      if body:
+          # remove junk blocks you don’t want in the article text
+          for junk_sel in [
+              "script", "style",
+              ".mailmunch-forms-before-post",
+              ".mailmunch-forms-in-post-middle",
+              ".mailmunch-forms-after-post",
+              ".inline-slideshow-area",
+              ".sno-story-photo-area",
+          ]:
+              for tag in body.select(junk_sel):
+                  tag.decompose()
+  
+          # collect readable paragraphs / lists / subheads
+          parts = []
+          for el in body.find_all(["p", "li", "h2", "h3"]):
+              txt = el.get_text(" ", strip=True)
+              if txt:
+                  parts.append(txt)
+  
+          content_text = "\n\n".join(parts)
+  
+      hullabaloo.append({
+          "Title": title or "No Title Found",
+          "Link": link,
+          "Published": date_text or "No Date Found",
+          "Summary": content_text[:200],
+          "Content": content_text,
+          "Source": "Tulane Hullabaloo"
+      })
+  print("Hulabaloo ended", flush = True)
+  return hullabaloo
 def Chronicle(max_articles=None, save_format='csv'):
   """Scrape articles from Chronicle of Higher Education and save to file
  
@@ -1464,6 +1551,7 @@ all_articles += data
 all_articles += chronicle
 all_articles += aau
 all_articles += highered
+all_articles += hullabaloo
 
 existing_articles = load_existing_articles()
 new_articles = save_new_articles(existing_articles, all_articles)
