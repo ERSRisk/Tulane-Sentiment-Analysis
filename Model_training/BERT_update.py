@@ -1607,7 +1607,7 @@ def predict_risks(df):
     model_name = bundle['sentence_model_name']
     prob_cut = 0.65
     margin_cut = 0.10
-    tau = 0.29
+    tau = 0.25
     numeric_factors = list(bundle['numeric_factors'])
     trained_label_txt = list(bundle['trained_label_text'])
     all_labels = json_all_labels
@@ -1777,7 +1777,44 @@ def track_over_time(df, week_anchor="W-MON", out_csv="Model_training/topic_trend
 def call_gemini(prompt):
     GEMINI_API_KEY = os.getenv('PAID_API_KEY')
     client = genai.Client(api_key=GEMINI_API_KEY)
-    return client.models.generate_content(model="gemini-2.0-flash", contents=[prompt])
+    resp = client.models.generate_content(model="gemini-2.0-flash", contents=[prompt], config = {'response_mime_type':'application/json', 
+                                                                                                               "response_schema": {
+                                                                                                                                    "type": "object",
+                                                                                                                                    "properties": {
+                                                                                                                                        "Title": {"type": "string"},
+                                                                                                                                        "Content": {"type": "string"},
+                                                                                                                                        "University Label": {"type": "integer", "enum": [0, 1]},
+                                                                                                                                        "required": ["Title", "Content", "University Label"]
+                                                                                                                                    }})
+    def _validate_rec(rec: dict) -> dict:
+    # Minimal local schema check
+        if not isinstance(rec, dict): 
+            raise ValueError("Model did not return a JSON object.")
+        for k in ("Title", "Content", "University Label"):
+            if k not in rec:
+                raise ValueError(f"Missing required key: {k}")
+        if not isinstance(rec["Title"], str):   raise ValueError("Title must be string.")
+        if not isinstance(rec["Content"], str): raise ValueError("Content must be string.")
+        try:
+            lbl = int(rec["University Label"])
+        except Exception:
+            raise ValueError("University Label must be 0 or 1.")
+        if lbl not in (0, 1): 
+            raise ValueError("University Label must be 0 or 1.")
+        # Normalize
+        rec["University Label"] = lbl
+        return rec
+    cand = getattr(resp, "candidates", None)
+    if not cand:
+        raise RuntimeError("No candidates returned.")
+    content = getattr(cand[0], "content", None)
+    parts = getattr(content, "parts", None) if content else None
+    if not parts or not getattr(parts[0], "text", None):
+        raise RuntimeError("Empty response body from model.")
+
+    raw = parts[0].text  # should be strict JSON due to MIME type + schema
+    rec = json.loads(raw)
+    return _validate_rec(rec)
 
 # 🧠 Async article processor
 @backoff.on_exception(backoff.expo,
@@ -1834,37 +1871,24 @@ async def process_article(article, sem, batch_number=None, total_batches=None, a
             }}
             """
 
-            response = await asyncio.to_thread(call_gemini, prompt)
-            if hasattr(response, "text") and response.text:
-                response_text = response.text
-                json_str = re.search(r"```json\s*(\{.*?\})\s*```", response_text, re.DOTALL)
-                raw = json_str.group(1) if json_str else response_text
-
-
+            try:
+                rec = await asyncio.to_thread(call_gemini, prompt)  # rec is already a dict
+                title_out   = str(rec.get("Title", title))
+                content_out = str(rec.get("Content", content))
+                ulabel      = rec.get("University Label", 0)
+            
                 try:
-                    rec = json.loads(raw)
-                except json.JSONDecodeError as e1:
-                    try:
-                        rec = ast.literal_eval(raw)
-                    except Exception as e2:
-                        print(f"⚠️ JSON decode fallback error: {e1} | Eval error: {e2}", flush=True)
-                        return None
-                title = rec.get('Title') or rec.get('title') or str(title)
-                content = rec.get('Content') or rec.get('content') or str(content)
-
-                ulabel = rec.get('University Label')
-
-                if ulabel is None:
-                    ulabel = rec.get('university_label') or rec.get('University_label') or rec.get('university label') or 0
-
-                try:
-                    ulabel = int(ulabel)
-                    ulabel = 1 if ulabel ==1 else 0
+                    ulabel = 1 if int(ulabel) == 1 else 0
                 except Exception:
                     ulabel = 0
-                return {'Title': str(title), "Content": str(content), 'University Label': ulabel}
+            
+                return {"Title": title_out, "Content": content_out, "University Label": ulabel}
+            
+            except Exception as e:
+                print(f"🔥 Uncaught error in article {article_index} of batch {batch_number}: {e}", flush=True)
+                return None
         except Exception as e:
-            print(f"🔥 Uncaught error in article {article_index} of batch {batch_number}: {e}", flush=True)
+            print(f'Error in process_article (batch {batch_number}, article {article_index}): {e}', flush = True)
             return None
 
     # 🚀 Async batch runner
@@ -1954,10 +1978,10 @@ def save_dataset_to_releases(df:pd.DataFrame, local_cache_path = 'Model_training
     upload_asset(Github_owner, Github_repo, rel, Asset_name, gz_bytes, GITHUB_TOKEN)
 
 
-def load_midstep_from_release(local_cache_path = 'Model_training/Step1.csv.gz'):
+def load_midstep_from_release(local_cache_path = 'Model_training/BERTopic_results2.csv.gz'):
     rel = get_release_by_tag(Github_owner, Github_repo, Release_tag)
     if rel:
-        asset = next((a for a in rel.get('assets', []) if a['name']=='Step1.csv.gz'), None)
+        asset = next((a for a in rel.get('assets', []) if a['name']=='BERTopic_results2.csv.gz'), None)
         if asset:
             r = requests.get(asset['browser_download_url'], timeout = 60)
             if r.ok:
@@ -1992,10 +2016,10 @@ def coerce_pub_utc(x):
     sx = str(x)
     sx = re.sub(r'\s(EST|EDT|PDT|CDT|MDT|GMT)\b', '', sx, flags=re.I)
     return pd.to_datetime(sx, errors="coerce", utc=True)
-#df_combined = load_midstep_from_release()
+df_combined = load_midstep_from_release()
 #print("✅ Running double-check for unmatched topics (-1)...", flush=True)
-#cutoff_utc = pd.Timestamp(datetime.utcnow() - timedelta(days = 30), tz = 'utc')
-#df_combined['Published'] = df_combined['Published'].apply(coerce_pub_utc)
+cutoff_utc = pd.Timestamp(datetime.utcnow() - timedelta(days = 30), tz = 'utc')
+df_combined['Published'] = df_combined['Published'].apply(coerce_pub_utc)
 #atomic_write_csv('Model_training/Step0.csv.gz', df_combined, compress = True)
 #upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/Step0.csv.gz', GITHUB_TOKEN)
 
@@ -2008,31 +2032,31 @@ def coerce_pub_utc(x):
      #existing_risks_json(topic_name_pairs, temp_model)
 ##Assign weights to each article
 #results_df = load_midstep_from_release()
-#results_df = predict_risks(df_combined)
-#results_df['Predicted_Risks'] = results_df.get('Predicted_Risks_new', '')
+results_df = predict_risks(df_combined)
+results_df['Predicted_Risks'] = results_df.get('Predicted_Risks_new', '')
 #print("✅ Applying risk_weights...", flush=True)
-#atomic_write_csv('Model_training/Step1.csv.gz', results_df, compress = True)
-#upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/Step1.csv.gz', GITHUB_TOKEN)
+atomic_write_csv('Model_training/BERTopic_results2.csv.gz', results_df, compress = True)
+upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/BERTopic_results2.csv.gz', GITHUB_TOKEN)
 #
-df = load_midstep_from_release()
+#df = load_midstep_from_release()
 #df = load_midstep_from_release()
 #df = pd.read_csv('Model_training/Step1.csv.gz', compression = 'gzip')
-results_df = load_university_label(df)
-results_df = results_df.drop(columns = ['Acceleration_value_x', 'Acceleration_value_y'], errors = 'ignore')
-atomic_write_csv('Model_training/initial_label.csv.gz', results_df, compress = True)
-upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/initial_label.csv.gz', GITHUB_TOKEN)
+#results_df = load_university_label(df)
+#results_df = results_df.drop(columns = ['Acceleration_value_x', 'Acceleration_value_y'], errors = 'ignore')
+#atomic_write_csv('Model_training/initial_label.csv.gz', results_df, compress = True)
+#upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/initial_label.csv.gz', GITHUB_TOKEN)
 
 #
-results_df['Predicted_Risks'] = results_df.get('Predicted_Risks_new', results_df.get('Predicted_Risks', ''))
-df = risk_weights(results_df)
-print("Finished assigning risk weights", flush = True)
-df = df.drop(columns = ['University Label_x', 'University Label_y'], errors = 'ignore')
-print("Saving BERTopic_results2.csv.gz", flush = True)
-atomic_write_csv("Model_training/BERTopic_results2.csv.gz", df, compress=True)
-print('Uploading to releases', flush=True)
-upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/BERTopic_results2.csv.gz', GITHUB_TOKEN)
+#results_df['Predicted_Risks'] = results_df.get('Predicted_Risks_new', results_df.get('Predicted_Risks', ''))
+#df = risk_weights(results_df)
+#print("Finished assigning risk weights", flush = True)
+#df = df.drop(columns = ['University Label_x', 'University Label_y'], errors = 'ignore')
+#print("Saving BERTopic_results2.csv.gz", flush = True)
+#atomic_write_csv("Model_training/BERTopic_results2.csv.gz", df, compress=True)
+#print('Uploading to releases', flush=True)
+#upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/BERTopic_results2.csv.gz', GITHUB_TOKEN)
 #Show the articles over time
 #
-print("Articles over time", flush = True)
+#print("Articles over time", flush = True)
 #
-track_over_time(df)
+#track_over_time(df)
