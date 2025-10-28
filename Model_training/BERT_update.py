@@ -1887,6 +1887,9 @@ async def process_article(article, sem, batch_number=None, total_batches=None, a
             except Exception as e:
                 print(f"🔥 Uncaught error in article {article_index} of batch {batch_number}: {e}", flush=True)
                 return None
+        except Exception as e:
+            print('Error': e)
+            continue
 
     # 🚀 Async batch runner
 async def university_label_async(articles, batch_size=15, concurrency=10):
