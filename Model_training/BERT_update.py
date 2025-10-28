@@ -1783,9 +1783,9 @@ def call_gemini(prompt):
                                                                                                                                     "properties": {
                                                                                                                                         "Title": {"type": "string"},
                                                                                                                                         "Content": {"type": "string"},
-                                                                                                                                        "University Label": {"type": "integer", "enum": [0, 1]},
-                                                                                                                                        "required": ["Title", "Content", "University Label"]
-                                                                                                                                    }}})
+                                                                                                                                        "University Label": {"type": "integer", "enum": [0, 1]}},
+                                                                                                                                    "required": ["Title", "Content", "University Label"]
+                                                                                                                                    }})
     def _validate_rec(rec: dict) -> dict:
     # Minimal local schema check
         if not isinstance(rec, dict): 
