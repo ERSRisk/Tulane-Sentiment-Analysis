@@ -1961,7 +1961,6 @@ def load_midstep_from_release(local_cache_path = 'Model_training/BERTopic_result
         if asset:
             r = requests.get(asset['browser_download_url'], timeout = 60)
             if r.ok:
-                data = gzip.decompress(r.content).decode('utf-8')
                 return pd.read_csv(io.BytesIO(r.content), compression = 'gzip')
     P = Path(local_cache_path)
     if P.exists():
