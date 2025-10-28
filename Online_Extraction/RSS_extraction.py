@@ -1529,6 +1529,7 @@ data = Whitehouse()
 chronicle = Chronicle(max_articles=None, save_format='none')
 aau = AAU_Press_Releases(max_articles=None, save_format='none')
 highered = highered()
+hullabaloo = hullabaloo()
 
 def run_with_deadline(coro, seconds = 7200):
   return asyncio.run(asyncio.wait_for(coro, timeout = seconds))
