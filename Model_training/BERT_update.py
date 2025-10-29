@@ -1343,7 +1343,7 @@ def risk_weights(df):
         pats = [phrase_to_pattern(p) for p in phrases]
         pats.append(phrase_to_pattern(cat))
         cat_regex[cat] = re.compile("(" + "|".join(pats) + ")", flags=re.I)
-
+    
     text_all = (base['Title'].fillna('') + ' ' + base['Content'].fillna('')).astype(str)
     detected_cats = [{cat for cat, rx in cat_regex.items() if rx.search(t)} for t in text_all]
     base['Detected_HigherEd_Categories'] = detected_cats
@@ -1565,7 +1565,25 @@ def predict_risks(df):
         cos = (cos + 1.0) / 2.0
         denom = cos.sum(axis = 1, keepdims = True) + 1e-12
         return cos/denom
-
+    def rule_route(text, label): 
+        t = text.lower() 
+        if any(k in t for k in ["shooting", "shots fired", "gunfire", "killed", "wounded", "lockdown", "shelter-in-place", "active shooter", "homecoming"]): 
+            return "Violence or Threats" 
+        if any(k in t for k in ["hazing", "pledge", "fraternity", "sorority"]) and ("student" in t or "chapter" in t or "greek" in t): 
+            return "Student Conduct Incident" # News about “AI at <university>” (strategy/ethics) shouldn't be Vendor Cyber Exposure 
+        if "artificial intelligence" in t or "ai " in t or " generative ai" in t: 
+            if any(k in t for k in ["teaching", "grading", "policy", "ethics", "bias", "governance", "academic integrity", "faculty", "students"]): 
+                return "Artificial Intelligence Ethics & Governance" # generic campus modernization 
+            if any(k in t for k in ["digital transformation", "modernization", "workflow", "automation"]): 
+                return "Rapid Speed of Disruptive Innovation" # Vendor Cyber Exposure should only trigger on vendor/SaaS/security words 
+        if label == "Vendor Cyber Exposure" and not any(k in t for k in ["vendor", "third-party", "saas", "hosting", "soc 2", "breach", "dpi a", "dpa", "pii", "cybersecurity", "supplier"]): # fall back to AI-governance if it's an AI campus piece 
+            if "ai" in t or "artificial intelligence" in t: 
+                return "Artificial Intelligence Ethics & Governance" # otherwise leave it; caller will keep cosine’s choice 
+            return label # Leadership Missteps should only appear if mishandling/contradiction is alleged
+        if label == "Leadership Missteps" and not any(k in t for k in ["apolog", "resign", "ethics", "contradict", "downplay", "memo", "statement", "press release", "evasive"]): # if it was a violent incident, route to Violence 
+            if any(k in t for k in ["shooting", "shots fired", "gunfire", "killed", "wounded", "lockdown"]): 
+                return "Violence or Threats" 
+        return label
     def predict_with_fallback(proba_lr, cos_all, prob_cut, margin_cut, tau, trained_labels, all_labels):
         top_idx = proba_lr.argmax(axis=1)
         top_val = proba_lr[np.arange(len(proba_lr)), top_idx]
@@ -1605,9 +1623,9 @@ def predict_risks(df):
     trained_labels = bundle['trained_label_names']
     risk_defs = bundle['risk_defs']
     model_name = bundle['sentence_model_name']
-    prob_cut = 0.65
+    prob_cut = 0.60
     margin_cut = 0.10
-    tau = 0.25
+    tau = 0.30
     numeric_factors = list(bundle['numeric_factors'])
     trained_label_txt = list(bundle['trained_label_text'])
     all_labels = json_all_labels
@@ -1619,7 +1637,7 @@ def predict_risks(df):
     df['Title'] = df['Title'].fillna('').str.strip()
 
     df['Content'] = df['Content'].fillna('').str.strip()
-    df['Text'] = (df['Title'] + '. ' + df['Content']).str.strip()
+    df['Text'] = (df['Title'] + '. ' + df['Title'] + '. ' + df['Content']).str.strip()
 
     df = df.reset_index(drop = True)
 
@@ -1633,6 +1651,7 @@ def predict_risks(df):
     todo_mask = recent_mask.fillna(False)
     sub = df.loc[todo_mask].copy()
     texts = df.loc[todo_mask, 'Text'].tolist()
+    
     print(f"[dbg] total rows: {len(df)}", flush = True)
     print(f"[dbg] parsable Published: {df['Published_utc'].notna().sum()}", flush = True)
     print(f"[dbg] recent (<=30d): {recent_mask.fillna(False).sum()}", flush = True)
@@ -1693,6 +1712,9 @@ def predict_risks(df):
 
 
     out = predict_with_fallback(proba, cos_all, prob_cut, margin_cut, tau, trained_labels, all_labels)
+    sub_texts = sub['Text'].tolist()
+    routed = [rule_route(txt, lbl) for txt, lbl in zip(sub_texts, np.asarray(out['final_names']).tolist())]
+    out['final_names'] = np.array(routed)
     sub['pred_source'] = np.where(out['use_lr'], 'lr', 'cos')
     sub['Predicted_Risks_new'] = out['final_names']
     sub['Pred_LR_label'] = out['lr_top_prob']
