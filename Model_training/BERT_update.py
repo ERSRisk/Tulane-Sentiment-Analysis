@@ -1584,33 +1584,44 @@ def predict_risks(df):
             if any(k in t for k in ["shooting", "shots fired", "gunfire", "killed", "wounded", "lockdown"]): 
                 return "Violence or Threats" 
         return label
-    def predict_with_fallback(proba_lr, cos_all, prob_cut, margin_cut, tau, trained_labels, all_labels):
+    def predict_with_fallback(proba_lr, cos_all, prob_cut, margin_cut, tau, tau_gray, trained_labels, all_labels):
         top_idx = proba_lr.argmax(axis=1)
         top_val = proba_lr[np.arange(len(proba_lr)), top_idx]
         tmp = proba_lr.copy()
         tmp[np.arange(len(tmp)), top_idx] = -1
         second = tmp.max(axis=1)
         margin = top_val - second
-        use_lr = (top_val >= prob_cut) & (margin >= margin_cut)
+        lr_mask = (top_val >= prob_cut) & (margin >= margin_cut)
     
         cos_all_max = cos_all.max(axis=1)
         cos_all_idx = cos_all.argmax(axis=1)
     
         lr_names  = np.array(trained_labels)[top_idx]
         cos_names = np.array(all_labels)[cos_all_idx]
-    
-        final_names = np.where(use_lr, lr_names, cos_names)
-        # FIX: with raw cosine, compare against tau_raw
-        final_names = np.where(~use_lr & (cos_all_max < tau), "No Risk", final_names)
+
+        route = np.full(len(top_val), 'norisk', dtype = object)
+        final = np.array(['No Risk']*len(top_val), dtype = object)
+
+        route[lr_mask] = 'lr'
+        final[lr_mask] = lr_names[lr_mask]
+
+        cos_hi = (~lr_mask) & (cos_all_max >= tau)
+        route[cos_hi] = "cos"
+        final[cos_hi] = cos_names[cos_hi]
+
+        gray = (~lr_mask) & (cos_all_max >= tau_gray) & (cos_all_max < tau)
+        route[gray] = "gray"
+
     
         return {
-            "final_names": final_names,
-            "use_lr": use_lr,
-            "lr_top_idx": top_idx,
-            "lr_top_prob": top_val,
-            "cos_all_idx": cos_all_idx,
-            "cos_all_max": cos_all_max,
-        }
+        "final_names": final,
+        "route": route,
+        "lr_top_prob": top_val,
+        "lr_top_idx": top_idx,
+        "cos_all_idx": cos_all_idx,
+        "cos_all_max": cos_all_max,
+        "cos_names": cos_names
+    }
     with open('Model_training/risks.json', 'r', encoding='utf-8') as f:
         risks_cfg = json.load(f)
 
@@ -1625,7 +1636,7 @@ def predict_risks(df):
     model_name = bundle['sentence_model_name']
     prob_cut = 0.60
     margin_cut = 0.10
-    tau = 0.30
+    tau = 0.45
     numeric_factors = list(bundle['numeric_factors'])
     trained_label_txt = list(bundle['trained_label_text'])
     all_labels = json_all_labels
@@ -1634,6 +1645,8 @@ def predict_risks(df):
 
     df = df.copy()
     df = df.drop_duplicates(subset = 'Title', keep ='last')
+    df['University Label'] = pd.to_numeric(df['University Label'], errors = 'coerce').fillna(0).astype(int)
+    df = df[df['University Label'] == 1]
     df['Title'] = df['Title'].fillna('').str.strip()
 
     df['Content'] = df['Content'].fillna('').str.strip()
@@ -1711,12 +1724,65 @@ def predict_risks(df):
     lbl_emb_trained = model.encode(trained_label_txt, show_progress_bar = True, normalize_embeddings = True, batch_size = 256)
 
 
-    out = predict_with_fallback(proba, cos_all, prob_cut, margin_cut, tau, trained_labels, all_labels)
-    sub_texts = sub['Text'].tolist()
-    routed = [rule_route(txt, lbl) for txt, lbl in zip(sub_texts, np.asarray(out['final_names']).tolist())]
-    out['final_names'] = np.array(routed)
-    sub['pred_source'] = np.where(out['use_lr'], 'lr', 'cos')
+    out = predict_with_fallback(proba, cos_all, prob_cut, margin_cut, tau, 0.3, trained_labels, all_labels)
+    sub['pred_source'] = out['route']
     sub['Predicted_Risks_new'] = out['final_names']
+    gray_mask = (out['route']=='gray')
+
+    if gray_mask.any():
+        gray_idx = sub.index[gray_mask]
+        gray_texts = sub.loc[gray_idx, 'Text'].tolist()
+
+        label_list = json.dumps(all_labels + ['No Risk'])
+
+        adjudicated = []
+        for txt in gray_texts:
+            prompt = f"""
+            You are labeling articles to assess the institutional risk they pose to a higher education institution.
+Return strictly JSON with: label.
+Choose label from this CLOSED LIST ONLY (no other strings allowed):
+{label_list}
+For reference here is an explanation of each risk as well: {all_label_txt}. Do not copy the explanations into the output.
+
+Article:
+{txt[:4000]}
+
+Rules:
+- If the article is not clearly about a risk to a US higher-education institution, return "No Risk".
+- Prefer the most specific risk (e.g., "Lab Incident" instead of "Environmental Exposure").
+- If guns/lockdown/active shooter → "Violence or Threats".
+- If hazing/Greek life/student misconduct → "Student Conduct Incident".
+- If third-party/SaaS vendor breach or supplier compromise → "Vendor Cyber Exposure".
+- If open storage / IAM / exposed endpoint → "Cloud Misconfiguration".
+- If the event is general AI use on campus policy/teaching → "Artificial Intelligence Ethics & Governance".
+- If none match confidently → "No Risk".
+"""
+            resp = client.models.generate_content(
+            model="gemini-2.0-flash",
+            contents=[prompt]
+            )
+            raw = getattr(resp, "text", "").strip()
+            # be robust to fencing
+            m = re.search(r"\{.*\}", raw, flags=re.S)
+            try:
+                obj = json.loads(m.group(0) if m else raw)
+                label = obj.get("label", "No Risk")
+                if label not in (all_labels + ["No Risk"]):
+                    label = "No Risk"
+            except Exception:
+                label = "No Risk"
+            adjudicated.append(label)
+        sub.loc[gray_idx, 'Predicted_Risks_new'] = adjudicated
+        sub.loc[gray_idx, 'pred_source'] = 'gemini'
+        # optional: store the top cosine suggestion for auditing
+        sub.loc[gray_idx, 'Pred_cos_label_all'] = np.array(all_labels)[out['cos_all_idx'][gray_mask]]
+        sub.loc[gray_idx, 'Pred_cos_score_all'] = out['cos_all_max'][gray_mask]
+   
+            
+    sub_texts = sub['Text'].tolist()
+    sub['Predicted_Risks_new'] = [rule_route(txt, lbl) for txt, lbl in zip(sub['Text'].tolist(), sub['Predicted_Risks_new'].to_list())]
+    
+    
     sub['Pred_LR_label'] = out['lr_top_prob']
     sub['Pred_cos_label_all'] = np.array(all_labels)[out['cos_all_idx']]
     sub['Pred_cos_score_all'] = out['cos_all_max']
