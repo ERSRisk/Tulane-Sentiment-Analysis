@@ -2096,7 +2096,7 @@ if temp_model and topic_ids:
 ##Assign weights to each article
 #results_df = load_midstep_from_release()
 df_combined = load_university_label(df_combined)
-atomic_write_csv('Model_training/initial_label.csv.gz', results_df, compress = True)
+atomic_write_csv('Model_training/initial_label.csv.gz', df_combined, compress = True)
 upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/initial_label.csv.gz', GITHUB_TOKEN)
 
 results_df = predict_risks(df_combined)
