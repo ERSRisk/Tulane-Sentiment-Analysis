@@ -2029,6 +2029,7 @@ def coerce_pub_utc(x):
      #existing_risks_json(topic_name_pairs, temp_model)
 ##Assign weights to each article
 #results_df = load_midstep_from_release()
+#results_df = load_university_label(results_df)
 #results_df = predict_risks(df_combined)
 #results_df['Predicted_Risks'] = results_df.get('Predicted_Risks_new', '')
 #print("✅ Applying risk_weights...", flush=True)
@@ -2038,7 +2039,7 @@ def coerce_pub_utc(x):
 #df = load_midstep_from_release()
 df = load_midstep_from_release()
 #df = pd.read_csv('Model_training/Step1.csv.gz', compression = 'gzip')
-results_df = load_university_label(df)
+
 results_df = results_df.drop(columns = ['Acceleration_value_x', 'Acceleration_value_y'], errors = 'ignore')
 atomic_write_csv('Model_training/initial_label.csv.gz', results_df, compress = True)
 upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/initial_label.csv.gz', GITHUB_TOKEN)
