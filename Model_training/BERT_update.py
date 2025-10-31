@@ -1658,7 +1658,7 @@ def predict_risks(df):
     #    todo_mask = (df['Predicted_Risks_new'].isna()) | (df['Predicted_Risks_new'].eq('')) | (df['Predicted_Risks_new'].eq('No Risk'))
     #else:
     #    todo_mask = pd.Series(True, index=df.index)
-    recent_cut = pd.Timestamp.now(tz='utc') - pd.Timedelta(days=30)
+    recent_cut = pd.Timestamp.now(tz='utc') - pd.Timedelta(days=90)
     df['Published_utc'] = pd.to_datetime(df['Published'], errors='coerce', utc = True)
     recent_mask = df['Published_utc'] >= recent_cut
     todo_mask = recent_mask.fillna(False)
@@ -2080,32 +2080,32 @@ def coerce_pub_utc(x):
     sx = re.sub(r'\s(EST|EDT|PDT|CDT|MDT|GMT)\b', '', sx, flags=re.I)
     return pd.to_datetime(sx, errors="coerce", utc=True)
 #df_combined = load_midstep_from_release()
-#print("✅ Running double-check for unmatched topics (-1)...", flush=True)
-#cutoff_utc = pd.Timestamp(datetime.utcnow() - timedelta(days = 120), tz = 'utc')
-#df_combined['Published'] = df_combined['Published'].apply(coerce_pub_utc)
-#atomic_write_csv('Model_training/Step0.csv.gz', df_combined, compress = True)
-#upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/Step0.csv.gz', GITHUB_TOKEN)
+print("✅ Running double-check for unmatched topics (-1)...", flush=True)
+cutoff_utc = pd.Timestamp(datetime.utcnow() - timedelta(days = 120), tz = 'utc')
+df_combined['Published'] = df_combined['Published'].apply(coerce_pub_utc)
+atomic_write_csv('Model_training/Step0.csv.gz', df_combined, compress = True)
+upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/Step0.csv.gz', GITHUB_TOKEN)
 
-##recent_df = df_combined[df_combined['Published'].notna() & (df_combined['Published'] >= cutoff_utc)].copy()
-#temp_model, topic_ids = double_check_articles(recent_df)
+recent_df = df_combined[df_combined['Published'].notna() & (df_combined['Published'] >= cutoff_utc)].copy()
+temp_model, topic_ids = double_check_articles(recent_df)
 #If there are unmatched topics, name them using Gemini
-#print("✅ Checking for unmatched topics to name using Gemini...", flush=True)
-#if temp_model and topic_ids:
-     #topic_name_pairs = get_topic(temp_model, topic_ids)
-     #existing_risks_json(topic_name_pairs, temp_model)
+print("✅ Checking for unmatched topics to name using Gemini...", flush=True)
+if temp_model and topic_ids:
+     topic_name_pairs = get_topic(temp_model, topic_ids)
+     existing_risks_json(topic_name_pairs, temp_model)
 ##Assign weights to each article
 #results_df = load_midstep_from_release()
-#df_combined = load_university_label(df_combined)
-#atomic_write_csv('Model_training/initial_label.csv.gz', df_combined, compress = True)
-#upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/initial_label.csv.gz', GITHUB_TOKEN)
+df_combined = load_university_label(df_combined)
+atomic_write_csv('Model_training/initial_label.csv.gz', df_combined, compress = True)
+upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/initial_label.csv.gz', GITHUB_TOKEN)
 
-#results_df = predict_risks(df_combined)
-#results_df['Predicted_Risks'] = results_df.get('Predicted_Risks_new', '')
-#print("✅ Applying risk_weights...", flush=True)
-#atomic_write_csv('Model_training/Step1.csv.gz', results_df, compress = True)
-#upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/Step1.csv.gz', GITHUB_TOKEN)
+results_df = predict_risks(df_combined)
+results_df['Predicted_Risks'] = results_df.get('Predicted_Risks_new', '')
+print("✅ Applying risk_weights...", flush=True)
+atomic_write_csv('Model_training/Step1.csv.gz', results_df, compress = True)
+upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/Step1.csv.gz', GITHUB_TOKEN)
 #
-df = load_midstep_from_release()
+#df = load_midstep_from_release()
 #df = load_midstep_from_release()
 #df = pd.read_csv('Model_training/Step1.csv.gz', compression = 'gzip')
 
