@@ -44,7 +44,7 @@
     },
     {
       "topic": 2,
-      "name": "Charlie Kirk and Political Violence",
+      "name": "Political Violence",
       "keywords": "kirk, charlie, kirks, charlie kirk, utah, violence, assassination, turning point, robinson, political",
       "documents": []
     },
@@ -86,7 +86,7 @@
     },
     {
       "topic": 9,
-      "name": "Putin and International Summits",
+      "name": "School Shootings and Violence",
       "keywords": "putin, alaska, summit, ukraine, meeting, russian, russia, vladimir, vladimir putin, trump putin",
       "documents": []
     },
@@ -170,7 +170,7 @@
     },
     {
       "topic": 23,
-      "name": "South Korean Labor Raid",
+      "name": "ICE and Immigration Officer Presence",
       "keywords": "korean, raid, south korean, south, hyundai, south korea, korea, workers, georgia, detained",
       "documents": []
     },
@@ -194,7 +194,7 @@
     },
     {
       "topic": 27,
-      "name": "Police Shootings",
+      "name": "Non-School Shootings",
       "keywords": "shooting, police, officers, suspect, man, scene, shot, county, york county, victim",
       "documents": []
     },
@@ -302,7 +302,7 @@
     },
     {
       "topic": 45,
-      "name": "Recognition of Palestinian Statehood",
+      "name": "Israel-Hamas Conflict",
       "keywords": "palestinian, palestinian state, recognition, palestine, israel, statehood, netanyahu, recognise, gaza, hamas",
       "documents": []
     },
@@ -461,7 +461,7 @@
     },
     {
       "topic": 57,
-      "name": "Pete Hegseth and Military Leadership",
+      "name": "Higher Education Leadership",
       "keywords": "hegseth, military, pete, defense secretary, generals, pete hegseth, hegseths, secretary pete, pentagon, defense",
       "documents": []
     },
@@ -1079,7 +1079,7 @@
     },
     {
       "topic": 120,
-      "name": "New Mexico Medicaid and SNAP Policies",
+      "name": "Changes in healthcare",
       "keywords": "medicaid, new mexico, care, snap, health, health care, work requirements, cuts, immigrants, legal status",
       "documents": []
     },
@@ -1209,7 +1209,7 @@
     },
     {
       "topic": 129,
-      "name": "Renewable and Clean Energy",
+      "name": "Climate Crisis",
       "keywords": "energy, coal, solar, wind solar, wind, environmental, renewable, clean energy, shall, renewable energy",
       "documents": []
     },
@@ -1512,7 +1512,7 @@
     },
     {
       "topic": 166,
-      "name": "Parasitic Infections and Diseases",
+      "name": "Disease Outbreaks",
       "keywords": "scholar, doipubmedgoogle scholar, doipubmedgoogle, parasite, infection, disease, et al, humans, larvae, dis",
       "documents": []
     },
@@ -1572,7 +1572,7 @@
     },
     {
       "topic": 176,
-      "name": "Phishing and Data Scams",
+      "name": "Data Security",
       "keywords": "scammers, scam, phishing, scams, breach, personal information, passwords, data, emails, personal",
       "documents": []
     },
@@ -1590,7 +1590,7 @@
     },
     {
       "topic": 179,
-      "name": "Media Defamation Lawsuits",
+      "name": "Antisemitism, Racism, and Free Speech in Universities",
       "keywords": "newsmax, lawsuit, defamation, york times, dominion, lawsuit new, fox, defamation lawsuit, election, libel",
       "documents": []
     },
@@ -1620,7 +1620,7 @@
     },
     {
       "topic": 184,
-      "name": "Student Academic Performance and Test Scores",
+      "name": "Student Success",
       "keywords": "school, students, reading, math, scores, spp, schools, grade, maths, high school",
       "documents": []
     },
@@ -1638,7 +1638,7 @@
     },
     {
       "topic": 187,
-      "name": "mRNA Vaccine Technology",
+      "name": "Immunization and Public Health Concerns",
       "keywords": "mrna, vaccines, vaccine, mrna vaccines, mrna technology, mrna vaccine, bhattacharya, kennedy, flu, covid",
       "documents": []
     },
@@ -1764,7 +1764,7 @@
     },
     {
       "topic": 208,
-      "name": "Oracle Stock Surge",
+      "name": "Political Violence",
       "keywords": "story appeared, stock surge, oracles, 20250911, caused, stock, appeared, tariffs impact, surge, oracles stock",
       "documents": []
     },
@@ -1782,7 +1782,7 @@
     },
     {
       "topic": 211,
-      "name": "Postal Shipping Exemptions",
+      "name": "Decline of Higher Education Enrollment and Admissions",
       "keywords": "postal, exemption, minimis, shipments, packages, postal service, postal services, parcels, duties, minimis exemption",
       "documents": []
     },
@@ -1806,7 +1806,7 @@
     },
     {
       "topic": 215,
-      "name": "Sovereign Credit Ratings",
+      "name": "Decline of Higher Education Enrollment and Admissions",
       "keywords": "moodys, fitch, polands, downgrade, melonis, rating, ratings, italy, meloni, outlook",
       "documents": []
     },
@@ -1926,7 +1926,7 @@
     },
     {
       "topic": 235,
-      "name": "Palestine Action Protests and Proscription",
+      "name": "Antisemitism, Racism, and Free Speech in Universities",
       "keywords": "palestine action, palestine, protest, action, kneecap, proscription, support palestine, terrorism, proscribed, arrested",
       "documents": []
     },
@@ -1968,7 +1968,7 @@
     },
     {
       "topic": 242,
-      "name": "Minneapolis Catholic School Shooting",
+      "name": "School Shootings and Violence",
       "keywords": "minneapolis, catholic school, annunciation, catholic, school, shooting, church, westman, shooter, ohara",
       "documents": []
     },
@@ -2088,7 +2088,7 @@
     },
     {
       "topic": 262,
-      "name": "Mosquito-Borne Diseases",
+      "name": "Disease Outbreaks",
       "keywords": "chikungunya, cases, dengue, virus, mosquito, cas, mosquitoes, fever, west nile, chikungunya virus",
       "documents": []
     },
@@ -2136,7 +2136,7 @@
     },
     {
       "topic": 270,
-      "name": "Measles",
+      "name": "Immunization and Public Health Concerns",
       "keywords": "que, la, en, el, measles, su, una, por, banda, del",
       "documents": []
     },
@@ -2629,7 +2629,7 @@
     },
     {
       "topic": 332,
-      "name": "Pentagon Media Restrictions",
+      "name": "Scientific Research Funding",
       "keywords": "pentagon, unclassified, restrictions, journalists, reporters, hegseth, media restrictions, credentialed, access, information",
       "documents": []
     },
@@ -2671,7 +2671,7 @@
     },
     {
       "topic": 339,
-      "name": "Melting Glaciers and Sea Ice",
+      "name": "Climate Crisis",
       "keywords": "glaciers, glacier, ice, sea ice, sea, antarctica, melting, co2, warming, arctic",
       "documents": []
     },
@@ -2689,7 +2689,7 @@
     },
     {
       "topic": 342,
-      "name": "Supreme Court Rulings on DEI and Grants",
+      "name": "Rulings on DEI and Grants",
       "keywords": "grants, court, supreme court, supreme, dei, nih, research grants, antidei, judges, cuts",
       "documents": []
     },
@@ -2791,13 +2791,13 @@
     },
     {
       "topic": 359,
-      "name": "Student Loan Forgiveness",
+      "name": "Financial Aid and Student Loan Forgiveness Obstacles",
       "keywords": "borrowers, student loan, loan, forgiveness, repayment, student, loans, debt, loan forgiveness, federal student",
       "documents": []
     },
     {
       "topic": 360,
-      "name": "Louisiana National Guard",
+      "name": "Louisiana's Universities News",
       "keywords": "landry, louisiana, national guard, guard, orleans, baton rouge, baton, new orleans, rouge, louisiana national",
       "documents": []
     },
@@ -2953,7 +2953,7 @@
     },
     {
       "topic": 372,
-      "name": "Letitia James Legal Cases",
+      "name": "Leadership Resignations",
       "keywords": "siebert, james, attorney, letitia james, letitia, eastern district, district virginia, virginia, general letitia, fraud",
       "documents": []
     },
@@ -3204,7 +3204,7 @@
     },
     {
       "topic": 399,
-      "name": "Charlie Kirk and Political Violence",
+      "name": "Political Violence",
       "keywords": "charlie, charlie kirk, kirk assassination, kirk shooting, kirk, assassination, shooting, 0244, utah gov, utah",
       "documents": []
     },
@@ -3300,7 +3300,7 @@
     },
     {
       "topic": 415,
-      "name": "Social Security Data Security",
+      "name": "Data Security",
       "keywords": "doge, social security, borges, whistleblower, sensitive, ssa, complaint, data, security data, sensitive data",
       "documents": []
     },
@@ -4183,7 +4183,7 @@
     },
     {
       "topic": 539,
-      "name": "Mike Waltz UN Ambassador Nomination",
+      "name": "DEI and Immigration Effects on Student Enrollment and Retention",
       "keywords": "waltz, mike waltz, ambassador, united nations, ambassador united, senate, mike, security adviser, confirmation, general assembly",
       "documents": []
     },
@@ -4285,7 +4285,7 @@
     },
     {
       "topic": 556,
-      "name": "OpenAI and ChatGPT",
+      "name": "Use of AI in Higher Education",
       "keywords": [
         "o",
         "p",
