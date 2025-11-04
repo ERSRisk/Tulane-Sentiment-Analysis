@@ -2081,7 +2081,7 @@ def coerce_pub_utc(x):
     return pd.to_datetime(sx, errors="coerce", utc=True)
 #df_combined = load_midstep_from_release()
 #print("✅ Running double-check for unmatched topics (-1)...", flush=True)
-#cutoff_utc = pd.Timestamp(datetime.utcnow() - timedelta(days = 120), tz = 'utc')
+cutoff_utc = pd.Timestamp(datetime.utcnow() - timedelta(days = 120), tz = 'utc')
 #df_combined['Published'] = df_combined['Published'].apply(coerce_pub_utc)
 #atomic_write_csv('Model_training/Step0.csv.gz', df_combined, compress = True)
 #upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/Step0.csv.gz', GITHUB_TOKEN)
