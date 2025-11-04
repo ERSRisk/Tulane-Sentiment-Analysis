@@ -2085,7 +2085,7 @@ def coerce_pub_utc(x):
 #df_combined['Published'] = df_combined['Published'].apply(coerce_pub_utc)
 #atomic_write_csv('Model_training/Step0.csv.gz', df_combined, compress = True)
 #upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/Step0.csv.gz', GITHUB_TOKEN)
-df = load_midstep_from_release()
+df_combined = load_midstep_from_release()
 recent_df = df_combined[df_combined['Published'].notna() & (df_combined['Published'] >= cutoff_utc)].copy()
 temp_model, topic_ids = double_check_articles(recent_df)
 #If there are unmatched topics, name them using Gemini
