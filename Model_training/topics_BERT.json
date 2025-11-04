@@ -50,7 +50,7 @@
     },
     {
       "topic": 3,
-      "name": "Washington D.C. Crime and Policing",
+      "name": "Police Takeover of Cities",
       "keywords": "dc, crime, national guard, guard, washington, police, bowser, takeover, police department, troops",
       "documents": []
     },
@@ -86,7 +86,7 @@
     },
     {
       "topic": 9,
-      "name": "School Shootings and Violence",
+      "name": "University Campus Shootings and Violence",
       "keywords": "putin, alaska, summit, ukraine, meeting, russian, russia, vladimir, vladimir putin, trump putin",
       "documents": []
     },
@@ -218,7 +218,7 @@
     },
     {
       "topic": 31,
-      "name": "Ukraine War and Security Guarantees",
+      "name": "Russian Attacks on Ukraine",
       "keywords": "ukraine, russia, putin, zelenskyy, russian, security guarantees, guarantees, ukrainian, european, peace",
       "documents": []
     },
@@ -260,7 +260,7 @@
     },
     {
       "topic": 38,
-      "name": "Texas Redistricting",
+      "name": "Texas Higher Education News",
       "keywords": "texas, redistricting, map, maps, democrats, congressional, abbott, seats, republicans, special session",
       "documents": []
     },
@@ -881,7 +881,7 @@
     },
     {
       "topic": 87,
-      "name": "Traffic Accidents",
+      "name": "Transportation Incidents",
       "keywords": "crash, driver, scene, vehicle, highway, road, truck, injuries, eastbound, pedestrian",
       "documents": []
     },
@@ -1073,7 +1073,7 @@
     },
     {
       "topic": 119,
-      "name": "Water Management and Drought",
+      "name": "Climate Crisis",
       "keywords": "water, river, dams, rivers, drought, rainwater, colorado, dam, reservoirs, irrigation",
       "documents": []
     },
@@ -1422,7 +1422,7 @@
     },
     {
       "topic": 151,
-      "name": "The Supreme Court",
+      "name": "Antisemitism, Racism, and Free Speech in Universities",
       "keywords": "supreme, court, supreme court, judges, barrett, courts, rulings, justices, cullen, judge",
       "documents": []
     },
@@ -1542,7 +1542,7 @@
     },
     {
       "topic": 171,
-      "name": "The Smithsonian Institution",
+      "name": "Historical Misinformation",
       "keywords": "smithsonian, museum, museums, history, institution, smithsonian institution, slavery, american history, national museum, smithsonians",
       "documents": []
     },
@@ -1596,7 +1596,7 @@
     },
     {
       "topic": 180,
-      "name": "Withholding Foreign Aid",
+      "name": "Scientific Research Funding",
       "keywords": "foreign aid, aid, foreign, withhold, rescission, freeze, court, congress, spend, appropriated",
       "documents": []
     },
@@ -1614,7 +1614,7 @@
     },
     {
       "topic": 183,
-      "name": "US Policy on the Israel-Gaza Conflict",
+      "name": "Higher Education Leadership",
       "keywords": "rubio, israel, gaza, qatar, israeli, hamas, netanyahu, israels, state department, visas",
       "documents": []
     },
@@ -1716,7 +1716,7 @@
     },
     {
       "topic": 200,
-      "name": "Temporary Protected Status for Venezuelans",
+      "name": "DEI and Immigration Effects on Student Enrollment and Retention",
       "keywords": "tps, venezuelans, protections, protected status, temporary protected, temporary, status, protected, migrants, court",
       "documents": []
     },
@@ -1788,7 +1788,7 @@
     },
     {
       "topic": 212,
-      "name": "University Campus Threats",
+      "name": "University Campus Schootings and Violence",
       "keywords": "lockdown, threats, naval academy, swatting, campus, active shooter, naval, academy, villanova, university",
       "documents": []
     },
@@ -1872,7 +1872,7 @@
     },
     {
       "topic": 226,
-      "name": "US Immigration and Visas",
+      "name": "International Student Enrollment",
       "keywords": "immigrants, immigration, uscis, visas, visa, citizenship, vetting, visa holders, 55 million, holders",
       "documents": []
     },
@@ -1968,7 +1968,7 @@
     },
     {
       "topic": 242,
-      "name": "School Shootings and Violence",
+      "name": "University Campus Shootings and Violence",
       "keywords": "minneapolis, catholic school, annunciation, catholic, school, shooting, church, westman, shooter, ohara",
       "documents": []
     },
@@ -2046,7 +2046,7 @@
     },
     {
       "topic": 255,
-      "name": "Trade Tariffs",
+      "name": "Trump's Tariffs",
       "keywords": "sectors, tariff rate, tariff, goods, effective, targeted, average, rate, details, furniture",
       "documents": []
     },
@@ -2496,7 +2496,7 @@
     },
     {
       "topic": 314,
-      "name": "US-China Trade Truce",
+      "name": "DEI and Immigration Effects on Student Enrollment and Retention",
       "keywords": "truce, china, tariffs, trade, 90 days, tariff, tariff truce, 90, chinese, pause",
       "documents": []
     },
@@ -2827,7 +2827,7 @@
     },
     {
       "topic": 365,
-      "name": "Uvalde School Shooting",
+      "name": "University Campus Shootings and Violence",
       "keywords": "uvalde, school, shooting, evergreen, school shooting, holly, high school, school district, kelley, records",
       "documents": []
     },
@@ -3192,7 +3192,7 @@
     },
     {
       "topic": 397,
-      "name": "US Public Broadcasting",
+      "name": "US General Free Speech Restrictions",
       "keywords": "cpb, npr, rank, public media, stations, friendliness, economic opportunities, public radio, pbs, public broadcasting",
       "documents": []
     },
@@ -3444,7 +3444,7 @@
     },
     {
       "topic": 420,
-      "name": "Tommy Robinson and UK Far-Right Activism",
+      "name": "Protests and Rallies",
       "keywords": "robinson, tommy robinson, farright, rally, tommy, unite kingdom, london, antiimmigration, yaxleylennon, stephen yaxleylennon",
       "documents": []
     },
@@ -3576,7 +3576,7 @@
     },
     {
       "topic": 442,
-      "name": "Texas Politics and Nicole Collier",
+      "name": "Antisemitism, Racism, and Free Speech in Universities",
       "keywords": "collier, texas, democrats, nicole collier, rep nicole, burrows, texas house, redistricting, nicole, rep",
       "documents": []
     },
@@ -3816,7 +3816,7 @@
     },
     {
       "topic": 482,
-      "name": "Virginia Politics",
+      "name": "Higher Education Leadership",
       "keywords": "jones, virginia, spanberger, earlesears, gilbert, jay, miyares, winsome, abigail, texts",
       "documents": []
     },
