@@ -1,0 +1,48 @@
+name: Retrain Risk Model
+
+on:
+  schedule:
+    - cron: '0.6 * * *'
+  workflow_dispatch:
+
+jobs:
+  retrain:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install sentence-transformers scikit-learn imbalanced-learn joblib requests numpy pandas torch
+
+    - name: Run script
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        echo "Starting nightly retrain..."
+        python Model_training/model_retraining.py
+
+    - name: Upload training_meta.json artifact
+      if: success()
+      uses: actions/upload-artifact@v4
+      with:
+        name: training_meta
+        path: Model_training/training_meta.json
+
+    - name: Commit updated meta to repo
+      if: success()
+      run: |
+        git config user.name "Github Actions"
+        git.config user.email "actions@github.com"
+        git add Model_training/training_meta.json
+        git commit -m "Nightly update: training_meta.json"
+        git push
