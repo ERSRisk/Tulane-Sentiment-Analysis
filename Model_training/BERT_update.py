@@ -1927,6 +1927,11 @@ async def process_article(article, sem, batch_number=None, total_batches=None, a
                 response_text = response.text
                 json_str = re.search(r"```json\s*(\{.*?\})\s*```", response_text, re.DOTALL)
                 raw = json_str.group(1) if json_str else response_text
+                raw = (raw.replace("“", '"').replace("”", '"')
+                   .replace("’", "'")
+                   .replace("\n", " "))
+                raw = re.sub(r",\s*}", "}", raw)
+                raw = re.sub(r",\s*]", "]", raw)
 
 
                 try:
