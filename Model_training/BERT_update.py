@@ -1996,8 +1996,8 @@ def load_university_label(new_label):
     labeled_titles = set(existing['Title']) if 'Title' in existing else set()
 
     # Only run labeling on unlabeled articles
-    #new_articles = all_articles[~all_articles['Title'].isin(labeled_titles)]
-    new_articles = all_articles[all_articles['University Label'] == 1]
+    new_articles = all_articles[~all_articles['Title'].isin(labeled_titles)]
+    #new_articles = all_articles[all_articles['University Label'] == 1]
     print(f"🔎 Total articles: {len(all_articles)} | Unlabeled: {len(new_articles)}", flush=True)
 
     results = asyncio.run(university_label_async(new_articles))
@@ -2043,10 +2043,10 @@ def save_dataset_to_releases(df:pd.DataFrame, local_cache_path = 'Model_training
     upload_asset(Github_owner, Github_repo, rel, Asset_name, gz_bytes, GITHUB_TOKEN)
 
 
-def load_midstep_from_release(local_cache_path = 'Model_training/Step0.csv.gz'):
+def load_midstep_from_release(local_cache_path = 'Model_training/initial_label.csv.gz'):
     rel = get_release_by_tag(Github_owner, Github_repo, Release_tag)
     if rel:
-        asset = next((a for a in rel.get('assets', []) if a['name']=='Step0.csv.gz'), None)
+        asset = next((a for a in rel.get('assets', []) if a['name']=='initial_label.csv.gz'), None)
         if asset:
             r = requests.get(asset['browser_download_url'], timeout = 60)
             if r.ok:
