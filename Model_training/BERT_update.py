@@ -1865,8 +1865,7 @@ def track_over_time(df, week_anchor="W-MON", out_csv="Model_training/topic_trend
 def call_gemini(prompt):
     GEMINI_API_KEY = os.getenv('PAID_API_KEY')
     client = genai.Client(api_key=GEMINI_API_KEY)
-    return client.models.generate_content(model="gemini-2.0-flash", contents=[prompt], config={
-        "response_mime_type": "application/json"})
+    return client.models.generate_content(model="gemini-2.0-flash", contents=[prompt])
 
 # 🧠 Async article processor
 @backoff.on_exception(backoff.expo,
