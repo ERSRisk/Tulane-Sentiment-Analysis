@@ -1996,7 +1996,8 @@ def load_university_label(new_label):
     labeled_titles = set(existing['Title']) if 'Title' in existing else set()
 
     # Only run labeling on unlabeled articles
-    new_articles = all_articles[~all_articles['Title'].isin(labeled_titles)]
+    #new_articles = all_articles[~all_articles['Title'].isin(labeled_titles)]
+    new_articles = all_articles[all_articles['University Label'] == 1]
     print(f"🔎 Total articles: {len(all_articles)} | Unlabeled: {len(new_articles)}", flush=True)
 
     results = asyncio.run(university_label_async(new_articles))
@@ -2016,7 +2017,7 @@ def load_university_label(new_label):
     else:
         combined = existing
 
-    combined.to_csv('BERTopic_before.csv', columns = ['Title', 'University Label'], index = False)
+    #combined.to_csv('BERTopic_before.csv', columns = ['Title', 'University Label'], index = False)
 
     return all_articles
 
