@@ -2098,7 +2098,7 @@ temp_model, topic_ids = double_check_articles(recent_df)
 print("✅ Checking for unmatched topics to name using Gemini...", flush=True)
 if temp_model and topic_ids:
     topic_name_pairs = get_topic(temp_model, topic_ids)
-     existing_risks_json(topic_name_pairs, temp_model)
+    existing_risks_json(topic_name_pairs, temp_model)
 ##Assign weights to each article
 #results_df = load_midstep_from_release()
 df_combined = load_university_label(df_combined)
