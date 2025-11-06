@@ -1742,19 +1742,20 @@ def predict_risks(df):
 Return strictly JSON with: label.
 Choose label from this CLOSED LIST ONLY (no other strings allowed):
 {label_list}
-For reference here is an explanation of each risk as well: {all_label_txt}. Do not copy the explanations into the output.
 
 Article:
 {txt[:4000]}
 
 Rules:
 - If the article is not clearly about a risk to a US higher-education institution, return "No Risk".
+- If the article is about sports results or leadership, return "No Risk"
 - Prefer the most specific risk (e.g., "Lab Incident" instead of "Environmental Exposure").
-- If guns/lockdown/active shooter → "Violence or Threats".
+- If guns/lockdown/active shooter/bombs/explosions on campus → "Violence or Threats".
+- If it is any lab materials spilled or lab subjects on the loose, research materials mishandled -> "Lab Incident"
 - If hazing/Greek life/student misconduct → "Student Conduct Incident".
 - If third-party/SaaS vendor breach or supplier compromise → "Vendor Cyber Exposure".
 - If open storage / IAM / exposed endpoint → "Cloud Misconfiguration".
-- If the event is general AI use on campus policy/teaching → "Artificial Intelligence Ethics & Governance".
+- If the event is general AI use on campus policy/teaching → "Artificial Intelligence Ethics & Governance". This topic should ONLY be used if AI/artificial intelligence is in the article
 - If none match confidently → "No Risk".
 """
             resp = client.models.generate_content(
