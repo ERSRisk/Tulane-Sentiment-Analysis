@@ -2010,6 +2010,16 @@ def load_university_label(new_label):
 
     if results:
         labels_df = pd.DataFrame(results)[['Title', 'University Label']]
+        labels_df['Title'] = labels_df['Title'].astype(str).str.strip()
+        new_articles['Title'] = new_articles['Title'].astype(str).str.strip()
+        missing_titles = set(new_articles['Title']) - set(labels_df['Title'])
+        if missing_titles:
+            missing_df = pd.DataFrame({
+                'Title':list(missing_titles),
+                'University Label': [0]*len(missing_titles)
+            })
+        labels_df = pd.concat([labels_df, missing_df], ignore_index = True)
+
         all_articles = all_articles.merge(labels_df, on='Title', how='left', suffixes=('', '_new'))
         if 'University Label_prev' not in all_articles.columns:
             all_articles['University Label_prev'] = pd.NA
