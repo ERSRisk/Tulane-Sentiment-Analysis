@@ -1567,22 +1567,22 @@ def predict_risks(df):
         return cos/denom
     def rule_route(text, label): 
         t = text.lower() 
-        if any(k in t for k in ["shooting", "shots fired", "gunfire", "killed", "wounded", "lockdown", "shelter-in-place", "active shooter", "homecoming"]): 
-            return "Violence or Threats" 
+        #if any(k in t for k in ["shooting", "shots fired", "gunfire", "killed", "wounded", "lockdown", "shelter-in-place", "active shooter", "homecoming"]): 
+            #return "Violence or Threats" 
         if any(k in t for k in ["hazing", "pledge", "fraternity", "sorority"]) and ("student" in t or "chapter" in t or "greek" in t): 
             return "Student Conduct Incident" # News about “AI at <university>” (strategy/ethics) shouldn't be Vendor Cyber Exposure 
-        if "artificial intelligence" in t or "ai " in t or " generative ai" in t: 
-            if any(k in t for k in ["teaching", "grading", "policy", "ethics", "bias", "governance", "academic integrity", "faculty", "students"]): 
-                return "Artificial Intelligence Ethics & Governance" # generic campus modernization 
-            if any(k in t for k in ["digital transformation", "modernization", "workflow", "automation"]): 
-                return "Rapid Speed of Disruptive Innovation" # Vendor Cyber Exposure should only trigger on vendor/SaaS/security words 
+        #if "artificial intelligence" in t or "ai " in t or " generative ai" in t: 
+            #if any(k in t for k in ["teaching", "grading", "policy", "ethics", "bias", "governance", "academic integrity", "faculty", "students"]): 
+                #return "Artificial Intelligence Ethics & Governance" # generic campus modernization 
+            #if any(k in t for k in ["digital transformation", "modernization", "workflow", "automation"]): 
+                #return "Rapid Speed of Disruptive Innovation" # Vendor Cyber Exposure should only trigger on vendor/SaaS/security words 
         if label == "Vendor Cyber Exposure" and not any(k in t for k in ["vendor", "third-party", "saas", "hosting", "soc 2", "breach", "dpi a", "dpa", "pii", "cybersecurity", "supplier"]): # fall back to AI-governance if it's an AI campus piece 
             if "ai" in t or "artificial intelligence" in t: 
                 return "Artificial Intelligence Ethics & Governance" # otherwise leave it; caller will keep cosine’s choice 
             return label # Leadership Missteps should only appear if mishandling/contradiction is alleged
-        if label == "Leadership Missteps" and not any(k in t for k in ["apolog", "resign", "ethics", "contradict", "downplay", "memo", "statement", "press release", "evasive"]): # if it was a violent incident, route to Violence 
-            if any(k in t for k in ["shooting", "shots fired", "gunfire", "killed", "wounded", "lockdown"]): 
-                return "Violence or Threats" 
+        #if label == "Leadership Missteps" and not any(k in t for k in ["apolog", "resign", "ethics", "contradict", "downplay", "memo", "statement", "press release", "evasive"]): # if it was a violent incident, route to Violence 
+            #if any(k in t for k in ["shooting", "shots fired", "gunfire", "killed", "wounded", "lockdown"]): 
+                #return "Violence or Threats" 
         return label
     def predict_with_fallback(proba_lr, cos_all, prob_cut, margin_cut, tau, tau_gray, trained_labels, all_labels):
         top_idx = proba_lr.argmax(axis=1)
