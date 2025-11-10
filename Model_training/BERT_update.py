@@ -2118,6 +2118,7 @@ df_combined = load_university_label(df_combined)
 #atomic_write_csv('Model_training/initial_label.csv.gz', df_combined, compress = True)
 #upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/initial_label.csv.gz', GITHUB_TOKEN)
 #df_combined = load_midstep_from_release()
+results_df['Predicted_Risks_new'] = ''
 results_df = predict_risks(df_combined)
 results_df['Predicted_Risks'] = results_df.get('Predicted_Risks_new', '')
 print("✅ Applying risk_weights...", flush=True)
