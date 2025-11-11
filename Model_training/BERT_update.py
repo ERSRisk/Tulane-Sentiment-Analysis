@@ -369,6 +369,9 @@ def transform_text(texts):
     for i in range(0, len(texts_list), batch_size):
         batch = texts_list[i:i+batch_size]
         topics, probs = topic_model.transform(batch)
+        if probs is None:
+            print("transform() return no probabilities", flush = True)
+            probs = topic_model.approximate_distribution(batch)
         all_topics.extend(topics)
         all_probs.extend(probs)
         print(f"✅ Transformed batch {i//batch_size + 1}/{(len(texts_list) // batch_size) + 1}")
@@ -2076,6 +2079,7 @@ def load_midstep_from_release(local_cache_path = 'Model_training/Step0.csv.gz'):
 
 #Assign topics and probabilities to new_df
 print("✅ Starting transform_text on new data...", flush=True)
+topic_model.calculate_probabilities = True
 new_df = transform_text(df)
 ##Fill missing topic/probability rows in the original df
 mask = (df['Topic'].isna()) | (df['Probability'].isna())
@@ -2101,8 +2105,14 @@ def coerce_pub_utc(x):
 #print("✅ Running double-check for unmatched topics (-1)...", flush=True)
 cutoff_utc = pd.Timestamp(datetime.utcnow() - timedelta(days = 120), tz = 'utc')
 df_combined['Published'] = df_combined['Published'].apply(coerce_pub_utc)
-#atomic_write_csv('Model_training/Step0.csv.gz', df_combined, compress = True)
-#upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/Step0.csv.gz', GITHUB_TOKEN)
+print(f"Length of dataset: {len(df_combined)}", flush = True)
+print(f"Length of recalculated topic names: {len(df_combined[df_combined['Probability'] < 0.15])}", flush = True)
+low_conf_mask = df_combined['Probability'] < 0.15
+df_combined.loc[low_conf_mask, 'Topic'] = -1
+
+
+atomic_write_csv('Model_training/Step0.csv.gz', df_combined, compress = True)
+upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/Step0.csv.gz', GITHUB_TOKEN)
 #df_combined = load_midstep_from_release()
 recent_df = df_combined[df_combined['Published'].notna() & (df_combined['Published'] >= cutoff_utc)].copy()
 temp_model, topic_ids = double_check_articles(recent_df)
