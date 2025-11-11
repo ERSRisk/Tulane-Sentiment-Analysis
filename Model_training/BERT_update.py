@@ -2075,15 +2075,15 @@ def load_midstep_from_release(local_cache_path = 'Model_training/Step0.csv.gz'):
     return pd.DataFrame()
 
 #Assign topics and probabilities to new_df
-#print("✅ Starting transform_text on new data...", flush=True)
-#new_df = transform_text(df)
+print("✅ Starting transform_text on new data...", flush=True)
+new_df = transform_text(df)
 ##Fill missing topic/probability rows in the original df
-#mask = (df['Topic'].isna()) | (df['Probability'].isna())
-#df.loc[mask, ['Topic', 'Probability']] = new_df[['Topic', 'Probability']]
-#df[['Topic', 'Probability']] = new_df[['Topic', 'Probability']]
+mask = (df['Topic'].isna()) | (df['Probability'].isna())
+df.loc[mask, ['Topic', 'Probability']] = new_df[['Topic', 'Probability']]
+df[['Topic', 'Probability']] = new_df[['Topic', 'Probability']]
 #Save only new, non-duplicate rows
-#print("✅ Saving new topics to CSV...", flush=True)
-#df_combined = save_new_topics(df, new_df)
+print("✅ Saving new topics to CSV...", flush=True)
+df_combined = save_new_topics(df, new_df)
 #
 #Double-check if there are still unmatched (-1) topics and assign a temporary model to assign topics to them
 def coerce_pub_utc(x):
