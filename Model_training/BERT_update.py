@@ -1750,13 +1750,13 @@ Rules:
 - If the article is not clearly about a risk to a US higher-education institution, return "No Risk".
 - If the article is about sports results or leadership, return "No Risk"
 - Prefer the most specific risk (e.g., "Lab Incident" instead of "Environmental Exposure").
+- DO NOT use "Unauthorized Access/Dat Breach" if the article does not refer to the digital space or cloud systems
 - If guns/lockdown/active shooter/bombs/explosions on educational institutions → "Violence or Threats".
 - If it is any lab materials spilled or lab subjects on the loose, research materials mishandled -> "Lab Incident"
 - If hazing/Greek life/student misconduct → "Student Conduct Incident".
 - If third-party/SaaS vendor breach or supplier compromise → "Vendor Cyber Exposure".
 - If open storage / IAM / exposed endpoint → "Cloud Misconfiguration".
 - If any policies or political interference is affecting school curricula and acivities, or if gender or race are mentioned in the context of academic programs or political policy changes -> "Policy or Political Interference" and NOT "Title IX/ADA Noncompliance"
-- "Unauthorized Access/Data Breach" refers ONLY to digital Data Privacy. DO NOT use "Unauthorized Access/Dat Breach" if the article does not refer to the digital space
 - If the event is general AI use on campus policy/teaching → "Artificial Intelligence Ethics & Governance". This topic should ONLY be used if AI/artificial intelligence is in the article
 - If none match confidently → "No Risk".
 """
