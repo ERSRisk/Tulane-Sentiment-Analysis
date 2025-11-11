@@ -2098,7 +2098,6 @@ def coerce_pub_utc(x):
     sx = str(x)
     sx = re.sub(r'\s(EST|EDT|PDT|CDT|MDT|GMT)\b', '', sx, flags=re.I)
     return pd.to_datetime(sx, errors="coerce", utc=True)
-df_combined = load_midstep_from_release()
 #print("✅ Running double-check for unmatched topics (-1)...", flush=True)
 cutoff_utc = pd.Timestamp(datetime.utcnow() - timedelta(days = 120), tz = 'utc')
 df_combined['Published'] = df_combined['Published'].apply(coerce_pub_utc)
