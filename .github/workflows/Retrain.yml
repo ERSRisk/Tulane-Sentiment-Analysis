@@ -42,7 +42,7 @@ jobs:
       if: success()
       run: |
         git config user.name "Github Actions"
-        git.config user.email "actions@github.com"
+        git config user.email "actions@github.com"
         git add Model_training/training_meta.json
         git commit -m "Nightly update: training_meta.json"
         git push
