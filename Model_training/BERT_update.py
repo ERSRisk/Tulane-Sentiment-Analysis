@@ -1667,7 +1667,8 @@ def predict_risks(df):
     df = df.copy()
     df = df.drop_duplicates(subset = 'Title', keep ='last')
     df['University Label'] = pd.to_numeric(df['University Label'], errors = 'coerce').fillna(0).astype(int)
-    df = df[df['University Label'] == 1]
+    mask_he = df['University Label'] == 1
+    
     df['Title'] = df['Title'].fillna('').str.strip()
 
     df['Content'] = df['Content'].fillna('').str.strip()
@@ -1683,8 +1684,10 @@ def predict_risks(df):
     df['Published_utc'] = pd.to_datetime(df['Published'], errors='coerce', utc = True)
     recent_mask = df['Published_utc'] >= recent_cut
     todo_mask = recent_mask.fillna(False)
+    todo_mask &= mask_he
     sub = df.loc[todo_mask].copy()
     texts = df.loc[todo_mask, 'Text'].tolist()
+    
     
     print(f"[dbg] total rows: {len(df)}", flush = True)
     print(f"[dbg] parsable Published: {df['Published_utc'].notna().sum()}", flush = True)
@@ -2006,6 +2009,8 @@ async def university_label_async(articles, batch_size=15, concurrency=10):
 
 def load_university_label(new_label):
     all_articles = new_label.copy()
+    cutoff = pd.Timestamp.utcnow() - pd.Timedelta(days = 30)
+    recent = all_articles[all_articles['Published_utc'] >= cutoff]
 
     try:
         existing = pd.read_csv('BERTopic_before.csv')
@@ -2025,9 +2030,10 @@ def load_university_label(new_label):
     labeled_titles = set(existing['Title']) if 'Title' in existing else set()
 
     # Only run labeling on unlabeled articles
-    new_articles = all_articles[~all_articles['Title'].isin(labeled_titles)]
+    new_articles = recent[~recent['Title'].isin(labeled_titles)].copy()
+    print(new_articles[['Title','Published_utc']].head())
     #new_articles = all_articles[all_articles['University Label'] == 1]
-    print(f"🔎 Total articles: {len(all_articles)} | Unlabeled: {len(new_articles)}", flush=True)
+    print(f"🔎 Total articles: {len(recent)} | Unlabeled: {len(new_articles)}", flush=True)
 
     results = asyncio.run(university_label_async(new_articles))
 
@@ -2056,7 +2062,7 @@ def load_university_label(new_label):
     else:
         combined = existing
 
-    #combined.to_csv('BERTopic_before.csv', columns = ['Title', 'University Label'], index = False)
+    combined.to_csv('BERTopic_before.csv', columns = ['Title', 'University Label'], index = False)
 
     return all_articles
 
