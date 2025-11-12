@@ -27,6 +27,7 @@ import tempfile
 import torch
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+import hashlib
 
 rss_url = "https://github.com/ERSRisk/Tulane-Sentiment-Analysis/releases/download/rss_json/all_RSS.json.gz"
 
@@ -692,7 +693,15 @@ def existing_risks_json(topic_name_pairs, topic_model):
     # Load existing named topics (for matching to *known* topics)
     with open('Model_training/topics_BERT.json', 'r', encoding='utf-8') as f:
         topics = json.load(f)
-
+    def doc_sig(doc:str) -> str:
+        return hashlib.mb5(doc.strip().lower().encode()).hexdigest()
+        
+    def is_mostly_seen(new_docs, known_doc_sigs, thresh=0.6):
+        if not new_docs:
+            return False
+        hits = sum(1 for d in new_docs if doc_sig(d) in known_doc_sigs)
+        return hits / max(1, len(new_docs)) >= thresh
+        
     existing_topic_names = [t['name'] for t in topics if 'name' in t]
     #existing_embeddings = model.encode(existing_topic_names, convert_to_tensor=True)
 
@@ -740,6 +749,7 @@ def existing_risks_json(topic_name_pairs, topic_model):
         model.encode(discarded_names, convert_to_tensor=True)
         if discarded_names else None
     )
+    
     to_upsert_unmatched = [] 
     to_upsert_discarded = []  
     seen_changed_unmatched = set()
@@ -821,12 +831,20 @@ def existing_risks_json(topic_name_pairs, topic_model):
             to_upsert_discarded.append(matched)
             seen_changed_discarded.add(matched.get('name',''))
         else:
-            to_upsert_unmatched.append({
-                'topic': topic_id,
-                'name': name,
-                'keywords': new_keywords,
-                'documents': new_docs
-            })
+            known_doc_sigs = set()
+            for u in existing_unmatched:
+                for d in u.get('documents', []):
+                    known_doc_sigs.add(doc_sig(d))
+            if not is_mostly_seen(new_docs, known_doc_sigs, thresh = 0.6):
+                to_upsert_unmatched.append({
+                    'topic': topic_id,
+                    'name': name,
+                    'keywords': new_keywords,
+                    'documents': new_docs
+                })
+            else:
+                print(f"skip Topic {name} looks already covered by existing unmatched topics", flush = True)
+            
     if to_upsert_unmatched:
         resp = upsert_single_big_json(
                     owner="ERSRisk",
@@ -2114,43 +2132,43 @@ df_combined.loc[low_conf_mask, 'Topic'] = -1
 atomic_write_csv('Model_training/Step0.csv.gz', df_combined, compress = True)
 upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/Step0.csv.gz', GITHUB_TOKEN)
 #df_combined = load_midstep_from_release()
-#recent_df = df_combined[df_combined['Published'].notna() & (df_combined['Published'] >= cutoff_utc)].copy()
-#temp_model, topic_ids = double_check_articles(recent_df)
+recent_df = df_combined[df_combined['Published'].notna() & (df_combined['Published'] >= cutoff_utc)].copy()
+temp_model, topic_ids = double_check_articles(recent_df)
 #If there are unmatched topics, name them using Gemini
-#print("✅ Checking for unmatched topics to name using Gemini...", flush=True)
-#if temp_model and topic_ids:
-#    topic_name_pairs = get_topic(temp_model, topic_ids)
-#    existing_risks_json(topic_name_pairs, temp_model)
+print("✅ Checking for unmatched topics to name using Gemini...", flush=True)
+if temp_model and topic_ids:
+    topic_name_pairs = get_topic(temp_model, topic_ids)
+    existing_risks_json(topic_name_pairs, temp_model)
 ##Assign weights to each article
 #results_df = load_midstep_from_release()
-#df_combined = load_university_label(df_combined)
-#atomic_write_csv('Model_training/initial_label.csv.gz', df_combined, compress = True)
-#upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/initial_label.csv.gz', GITHUB_TOKEN)
+df_combined = load_university_label(df_combined)
+atomic_write_csv('Model_training/initial_label.csv.gz', df_combined, compress = True)
+upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/initial_label.csv.gz', GITHUB_TOKEN)
 #df_combined = load_midstep_from_release()
-#df_combined['Predicted_Risks_new'] = ''
-#results_df = predict_risks(df_combined)
-#results_df['Predicted_Risks'] = results_df.get('Predicted_Risks_new', '')
-#print("✅ Applying risk_weights...", flush=True)
-#atomic_write_csv('Model_training/Step1.csv.gz', results_df, compress = True)
-#upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/Step1.csv.gz', GITHUB_TOKEN)
+df_combined['Predicted_Risks_new'] = ''
+results_df = predict_risks(df_combined)
+results_df['Predicted_Risks'] = results_df.get('Predicted_Risks_new', '')
+print("✅ Applying risk_weights...", flush=True)
+atomic_write_csv('Model_training/Step1.csv.gz', results_df, compress = True)
+upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/Step1.csv.gz', GITHUB_TOKEN)
 #
 #df = load_midstep_from_release()
 #df = load_midstep_from_release()
 #df = pd.read_csv('Model_training/Step1.csv.gz', compression = 'gzip')
 
-#results_df = results_df.drop(columns = ['Acceleration_value_x', 'Acceleration_value_y'], errors = 'ignore')
+results_df = results_df.drop(columns = ['Acceleration_value_x', 'Acceleration_value_y'], errors = 'ignore')
 
 #
-#results_df['Predicted_Risks'] = results_df.get('Predicted_Risks_new', results_df.get('Predicted_Risks', ''))
-#df = risk_weights(results_df)
-#print("Finished assigning risk weights", flush = True)
-#df = df.drop(columns = ['University Label_x', 'University Label_y'], errors = 'ignore')
-#print("Saving BERTopic_results2.csv.gz", flush = True)
-#atomic_write_csv("Model_training/BERTopic_results2.csv.gz", df, compress=True)
-#print('Uploading to releases', flush=True)
-#upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/BERTopic_results2.csv.gz', GITHUB_TOKEN)
+results_df['Predicted_Risks'] = results_df.get('Predicted_Risks_new', results_df.get('Predicted_Risks', ''))
+df = risk_weights(results_df)
+print("Finished assigning risk weights", flush = True)
+df = df.drop(columns = ['University Label_x', 'University Label_y'], errors = 'ignore')
+print("Saving BERTopic_results2.csv.gz", flush = True)
+atomic_write_csv("Model_training/BERTopic_results2.csv.gz", df, compress=True)
+print('Uploading to releases', flush=True)
+upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/BERTopic_results2.csv.gz', GITHUB_TOKEN)
 #Show the articles over time
 #
-#print("Articles over time", flush = True)
+print("Articles over time", flush = True)
 #
-#track_over_time(df)
+track_over_time(df)
