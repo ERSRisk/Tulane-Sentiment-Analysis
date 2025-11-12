@@ -102,7 +102,7 @@ def fetch_release(owner, repo, tag:str, asset_name:str, token:str):
 
 def get_model_and_meta(owner, repo, tag, token):
     try:
-        with open('training_meta.json', 'r', encoding = 'utf-8') as f:
+        with open('Model_training/training_meta.json', 'r', encoding = 'utf-8') as f:
             meta = json.load(f)
         if isinstance(meta, dict):
             print(meta['row_count'])
