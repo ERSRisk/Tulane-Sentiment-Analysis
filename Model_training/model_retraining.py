@@ -9,7 +9,7 @@ model_tag = 'regression'
 model_asset_name = 'model_bundle.pkl'
 meta_asset_name = 'training_meta.json'
 Github_owner = 'ERSRisk'
-Github_repo = 'Tulane-Sentiment-Analysis'
+Github_repo = 'tulane-sentiment-app-clean'
 GITHUB_TOKEN = os.getenv('GITHUB_TOKEN')
 
 
@@ -493,11 +493,11 @@ def retrain_and_publish(df):
     )
     print('Uploaded new model to releases', flush = True)
     meta = {
-        'row_count': int(row_count),
-        'threshold': retrain_threshold,
+        "row_count": int(row_count),
+        "threshold": retrain_threshold,
     }
     with open('Model_training/training_meta.json', 'w', encoding = 'utf-8') as f:
-        json.dump([{'__singleton__':1, **meta}], f)
+        json.dump([{"__singleton__":1, **meta}], f)
     print('Uploaded new training meta', flush = True)
     return True
 
