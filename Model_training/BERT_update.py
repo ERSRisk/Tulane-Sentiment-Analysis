@@ -1926,6 +1926,7 @@ async def process_article(article, sem, batch_number=None, total_batches=None, a
             
             Labeling rules:
             - Return 1 ONLY if the article reports higher-ed institution news in the United States.
+            - Return 1 if the article reports a significant U.S. federal acion--such as an executive order, new law, government shutdown, funding decision--that directly or plausibly affects higher-education institutions, even if no specific university is named.
             - Return 1 if the article mentions Tulane University or clearly affects Tulane operations, funding, leadership, policy, legal exposure, or reputation.
             - Return 1 if a US Federal/State policy or enforcement action applies to multiple universities and plausibly impacts peer institutions like Tulane.
             - Return 0 otherwise.
