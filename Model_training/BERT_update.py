@@ -517,7 +517,7 @@ def transform_text(texts):
     texts['Assigned_how'] = how
     return texts
 def load_articles_from_release(local_cache_path='Model_training/BERTopic_results2.csv.gz',
-                               usecols=None, dtype=str):
+                               usecols=None, dtype=None):
     rel = get_release_by_tag(Github_owner, Github_repo, Release_tag)
     # 1) Try remote release asset (streamed)
     if rel:
@@ -2112,6 +2112,7 @@ df[['Topic', 'Probability']] = new_df[['Topic', 'Probability']]
 #Save only new, non-duplicate rows
 print("✅ Saving new topics to CSV...", flush=True)
 df_combined = save_new_topics(df, new_df)
+df_combined['Probability'] = pd.to_numeric(df_combined['Probability'], errors = 'coerce')
 #
 #Double-check if there are still unmatched (-1) topics and assign a temporary model to assign topics to them
 def coerce_pub_utc(x):
