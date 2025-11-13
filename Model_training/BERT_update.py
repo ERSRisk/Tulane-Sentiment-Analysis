@@ -2011,6 +2011,8 @@ async def university_label_async(articles, batch_size=15, concurrency=10):
 def load_university_label(new_label):
     all_articles = new_label.copy()
     cutoff = pd.Timestamp.utcnow() - pd.Timedelta(days = 30)
+    all_articles['Published_utc'] = pd.to_datetime(all_articles['Published_utc'], errors = 'coerce', utc=True)
+    cutoff = pd.to_datetime(cutoff, utc=True)
     recent = all_articles[all_articles['Published_utc'] >= cutoff]
 
     try:
