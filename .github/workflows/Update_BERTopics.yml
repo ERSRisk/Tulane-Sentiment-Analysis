@@ -33,11 +33,23 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y jq
-
+      - name: Free up space
+        run: |
+          echo "Disk usage before:"
+          df -h
+          # Drop pip + HF caches
+          rm -rf ~/.cache/pip
+          rm -rf ~/.cache/huggingface
+          rm -rf ~/.cache/torch
+          # If you have big local artifacts from previous runs:
+          rm -rf Model_training/bertopic_dir
+          rm -rf Model_training/artifacts
+          echo "Disk usage after:"
+          df -h
       - name: Install Python deps
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install --no-cache-dir -r requirements.txt
 
       - name: Download risk model
         run: |
