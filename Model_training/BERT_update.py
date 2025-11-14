@@ -2034,9 +2034,9 @@ def load_university_label(new_label):
     labeled_titles = set(existing['Title']) if 'Title' in existing else set()
 
     # Only run labeling on unlabeled articles
-    new_articles = recent[~recent['Title'].isin(labeled_titles)].copy()
+    new_articles = recent[~(recent['Title'].isin(labeled_titles))].copy()
     print(new_articles[['Title','Published_utc']].head())
-    #new_articles = all_articles[all_articles['University Label'] == 1]
+    new_articles = new_articles[~(new_articles['University Label'] == 1)]
     print(f"🔎 Total articles: {len(recent)} | Unlabeled: {len(new_articles)}", flush=True)
 
     results = asyncio.run(university_label_async(new_articles))
