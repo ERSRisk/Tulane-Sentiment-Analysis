@@ -1025,8 +1025,7 @@ def risk_weights(df):
 
         required = {'Topic', '_RiskList', 'Published', 'Days_Ago'}
         if not required.issubset(fx.columns) or fx.empty:
-            r
-            eturn pd.DataFrame(columns=['Topic','_RiskList','last_seen_days','decayed_volume','recency_score_tr'])
+            return pd.DataFrame(columns=['Topic','_RiskList','last_seen_days','decayed_volume','recency_score_tr'])
 
         if now is None:
             now = pd.Timestamp.utcnow()
