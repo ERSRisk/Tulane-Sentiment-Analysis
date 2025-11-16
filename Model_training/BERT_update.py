@@ -1775,6 +1775,7 @@ Rules:
 - If the article is not clearly about a risk to a US higher-education institution, return "No Risk".
 - If the article is about sports results or leadership, return "No Risk"
 - Prefer the most specific risk (e.g., "Lab Incident" instead of "Environmental Exposure").
+- If the title refers to federal funding, ALWAYS return "Research Funding Disruption".
 - DO NOT use "Unauthorized Access/Dat Breach" if the article does not refer to the digital space or cloud systems
 - If guns/lockdown/active shooter/bombs/explosions on educational institutions → "Violence or Threats".
 - If it is any lab materials spilled or lab subjects on the loose, research materials mishandled -> "Lab Incident"
