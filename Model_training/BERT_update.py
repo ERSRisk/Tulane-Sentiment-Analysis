@@ -2169,19 +2169,19 @@ upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/
 #df = load_midstep_from_release()
 #df = pd.read_csv('Model_training/Step1.csv.gz', compression = 'gzip')
 
-#results_df = results_df.drop(columns = ['Acceleration_value_x', 'Acceleration_value_y'], errors = 'ignore')
+results_df = results_df.drop(columns = ['Acceleration_value_x', 'Acceleration_value_y'], errors = 'ignore')
 
 #
-#results_df['Predicted_Risks'] = results_df.get('Predicted_Risks_new', results_df.get('Predicted_Risks', ''))
-#df = risk_weights(results_df)
-#print("Finished assigning risk weights", flush = True)
-#df = df.drop(columns = ['University Label_x', 'University Label_y'], errors = 'ignore')
-#print("Saving BERTopic_results2.csv.gz", flush = True)
-#atomic_write_csv("Model_training/BERTopic_results2.csv.gz", df, compress=True)
-#print('Uploading to releases', flush=True)
-#upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/BERTopic_results2.csv.gz', GITHUB_TOKEN)
+results_df['Predicted_Risks'] = results_df.get('Predicted_Risks_new', results_df.get('Predicted_Risks', ''))
+df = risk_weights(results_df)
+print("Finished assigning risk weights", flush = True)
+df = df.drop(columns = ['University Label_x', 'University Label_y'], errors = 'ignore')
+print("Saving BERTopic_results2.csv.gz", flush = True)
+atomic_write_csv("Model_training/BERTopic_results2.csv.gz", df, compress=True)
+print('Uploading to releases', flush=True)
+upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/BERTopic_results2.csv.gz', GITHUB_TOKEN)
 ##Show the articles over time
 #
-#print("Articles over time", flush = True)
+print("Articles over time", flush = True)
 #
-#track_over_time(df)
+track_over_time(df)
