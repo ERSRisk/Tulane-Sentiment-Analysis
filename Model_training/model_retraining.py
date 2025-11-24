@@ -9,7 +9,7 @@ model_tag = 'regression'
 model_asset_name = 'model_bundle.pkl'
 meta_asset_name = 'training_meta.json'
 Github_owner = 'ERSRisk'
-Github_repo = 'tulane-sentiment-app-clean'
+Github_repo = 'Tulane-Sentiment-Analysis'
 GITHUB_TOKEN = os.getenv('GITHUB_TOKEN')
 
 
@@ -115,7 +115,7 @@ def get_model_and_meta(owner, repo, tag, token):
 
 def write_training_meta(owner, repo, tag, token, meta: dict):
     payload = [{'__singleton__':1, **meta}]
-    with open('training_meta.json', 'w', encoding = 'utf-8') as f:
+    with open('Model_training/training_meta.json', 'w', encoding = 'utf-8') as f:
         json.dump(payload, f)
     return True
 
