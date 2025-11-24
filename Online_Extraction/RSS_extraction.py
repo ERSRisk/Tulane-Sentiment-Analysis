@@ -35,7 +35,7 @@ from requests.utils import requote_uri
 
 
 rss_feed =   {"RSS_Feeds":[{
-              "WHO": ["https://www.who.int/rss-feeds/news-english.xml"],
+              "WHO": ["https://www.nytimes.com/svc/collections/v1/publish/https://www.nytimes.com/topic/organization/world-health-organization/rss.xml"],
               "NIH": ["https://grants.nih.gov/news-events/nih-extramural-nexus-news/rss-feed"],
               "NOAA": ["noaa.gov/rss.xml"],
               "FEMA": ["https://www.fema.gov/feeds/news.rss", "https://www.fema.gov/feeds/disasters-major.rss", "https://www.fema.gov/feeds/disasters-fire.rss"],
