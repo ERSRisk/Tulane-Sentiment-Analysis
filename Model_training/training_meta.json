@@ -1,4 +1,4 @@
 {
-"row_count": int(row_count),
-"threshold": retrain_threshold,
+"row_count": 383,
+"threshold": 200,
 }
