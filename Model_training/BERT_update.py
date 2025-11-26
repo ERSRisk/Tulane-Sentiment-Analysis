@@ -2179,6 +2179,10 @@ print("Saving BERTopic_results2.csv.gz", flush = True)
 atomic_write_csv("Model_training/BERTopic_results2.csv.gz", df, compress=True)
 print('Uploading to releases', flush=True)
 upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/BERTopic_results2.csv.gz', GITHUB_TOKEN)
+print("Saving dataset for Streamlit", flush= True)
+df_streamlit = df[df['University Label'] == 1]
+atomic_write_csv("Model_training/BERTopic_Streamlit.csv.gz", df_streamlit, compress = True)
+upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/BERTopic_Streamlit.csv.gz', GITHUB_TOKEN)
 ##Show the articles over time
 #
 print("Articles over time", flush = True)
