@@ -2011,7 +2011,7 @@ async def university_label_async(articles, batch_size=15, concurrency=10):
 
 def load_university_label(new_label):
     all_articles = new_label.copy()
-    cutoff = pd.Timestamp.utcnow() - pd.Timedelta(days=30)
+    cutoff = pd.Timestamp.utcnow() - pd.Timedelta(days=10)
     base_pub = all_articles.get('Published')
     all_articles['Published_utc'] = pd.to_datetime(base_pub, errors='coerce', utc=True)
     recent = all_articles[all_articles['Published_utc'] >= cutoff]
@@ -2059,24 +2059,39 @@ def load_university_label(new_label):
         all_articles = all_articles.merge(labels_df, on='Title', how='left', suffixes=('', '_new'))
 
         # 🔧 NEW: collapse any duplicate "University Label_prev" columns
-        prev_cols = [c for c in all_articles.columns if c.startswith('University Label_prev')]
+        prev_cols = [c for c in all_articles.columns
+                     if c.startswith('University Label_prev')]
         if prev_cols:
-            # Take the first non-null across all *_prev columns
+            # bfill across all prev columns, take first non-null
             combined_prev = all_articles[prev_cols].bfill(axis=1).iloc[:, 0]
+            # Drop all the old prev columns
+            all_articles.drop(columns=prev_cols, inplace=True, errors='ignore')
+            # Create a single canonical prev column
             all_articles['University Label_prev'] = combined_prev
-            # Drop extra *_prev columns, keep only the canonical one
-            extra_prev = [c for c in prev_cols if c != 'University Label_prev']
-            if extra_prev:
-                all_articles.drop(columns=extra_prev, inplace=True)
+        else:
+            # make sure the column exists (all null)
+            all_articles['University Label_prev'] = pd.NA
 
-        # Ensure "University Label" exists
-        if 'University Label' not in all_articles.columns:
+        # 🔧 2) Collapse ANY duplicate "University Label*" columns (excluding *_prev)
+        label_cols = [c for c in all_articles.columns
+                      if c.startswith('University Label') and not c.startswith('University Label_prev')]
+        if not label_cols:
+            # no label columns yet → create canonical one
             all_articles['University Label'] = pd.NA
+        else:
+            # bfill across all label columns, take first non-null
+            combined_label = all_articles[label_cols].bfill(axis=1).iloc[:, 0]
+            # Drop ALL old label columns
+            all_articles.drop(columns=label_cols, inplace=True, errors='ignore')
+            # Create single canonical "University Label"
+            all_articles['University Label'] = combined_label
 
-        # Now this is Series.fillna(Series), safe
+        # 🔧 3) Now safely fill nulls from prev
         all_articles['University Label'] = all_articles['University Label'].fillna(
             all_articles['University Label_prev']
         )
+
+        # we don't need prev anymore
         all_articles.drop(columns=['University Label_prev'], inplace=True, errors='ignore')
 
         if not existing.empty:
