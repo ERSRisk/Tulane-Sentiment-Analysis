@@ -10,6 +10,7 @@ model_asset_name = 'model_bundle.pkl'
 meta_asset_name = 'training_meta.json'
 Github_owner = 'ERSRisk'
 Github_repo = 'Tulane-Sentiment-Analysis'
+Github_repo_source = 'tulane-sentiment-app-clean'
 GITHUB_TOKEN = os.getenv('GITHUB_TOKEN')
 
 
@@ -503,5 +504,10 @@ def retrain_and_publish(df):
 
 import pandas as pd
 if __name__ == '__main__':
-    df = pd.read_csv('Model_training/BERTopic_changes.csv')
+    raw_url = "https://github.com/ERSRisk/tulane-sentiment-app-clean/blob/84b4fad913d5fa37de7de390bdac50b00bdcd646/Model_training/BERTopic_changes.csv"
+    headers = {"Authorization": f"token {GITHUB_TOKEN}"}
+    r = requests.get(raw_url, headers = headers, timeout = 60)
+    r.raise_for_status()
+    
+    df = pd.read_csv(io.StringIO(r.text))
     retrain_and_publish(df)
