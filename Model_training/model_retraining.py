@@ -505,7 +505,13 @@ def retrain_and_publish(df):
 
 import pandas as pd
 if __name__ == '__main__':
-    raw_url = "https://github.com/ERSRisk/tulane-sentiment-app-clean/blob/84b4fad913d5fa37de7de390bdac50b00bdcd646/Model_training/BERTopic_changes.csv"
+    raw_url = (
+        "https://raw.githubusercontent.com/"
+        "ERSRisk/tulane-sentiment-app-clean/"
+        "84b4fad913d5fa37de7de390bdac50b00bdcd646/"
+        "Model_training/BERTopic_changes.csv"
+    )
+
     headers = {"Authorization": f"token {GITHUB_TOKEN}"}
     r = requests.get(raw_url, headers = headers, timeout = 60)
     r.raise_for_status()
