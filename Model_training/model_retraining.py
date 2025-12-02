@@ -5,7 +5,7 @@ import tempfile
 import gzip
 import io
 
-retrain_threshold = 300
+retrain_threshold = 250
 model_tag = 'regression'
 model_asset_name = 'model_bundle.pkl'
 meta_asset_name = 'training_meta.json'
