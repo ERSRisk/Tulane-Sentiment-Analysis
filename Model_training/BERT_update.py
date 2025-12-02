@@ -2142,17 +2142,17 @@ def load_midstep_from_release(local_cache_path = 'Model_training/Step0.csv.gz'):
     return pd.DataFrame()
 
 #Assign topics and probabilities to new_df
-#print("✅ Starting transform_text on new data...", flush=True)
-#topic_model.calculate_probabilities = True
-#new_df = transform_text(df)
-##Fill missing topic/probability rows in the original df
-#mask = (df['Topic'].isna()) | (df['Probability'].isna())
-#df.loc[mask, ['Topic', 'Probability']] = new_df[['Topic', 'Probability']]
-#df[['Topic', 'Probability']] = new_df[['Topic', 'Probability']]
+print("✅ Starting transform_text on new data...", flush=True)
+topic_model.calculate_probabilities = True
+new_df = transform_text(df)
+#Fill missing topic/probability rows in the original df
+mask = (df['Topic'].isna()) | (df['Probability'].isna())
+df.loc[mask, ['Topic', 'Probability']] = new_df[['Topic', 'Probability']]
+df[['Topic', 'Probability']] = new_df[['Topic', 'Probability']]
 #Save only new, non-duplicate rows
-#print("✅ Saving new topics to CSV...", flush=True)
-#df_combined = save_new_topics(df, new_df)
-#df_combined['Probability'] = pd.to_numeric(df_combined['Probability'], errors = 'coerce')
+print("✅ Saving new topics to CSV...", flush=True)
+df_combined = save_new_topics(df, new_df)
+df_combined['Probability'] = pd.to_numeric(df_combined['Probability'], errors = 'coerce')
 #
 #Double-check if there are still unmatched (-1) topics and assign a temporary model to assign topics to them
 def coerce_pub_utc(x):
@@ -2167,18 +2167,18 @@ def coerce_pub_utc(x):
     sx = str(x)
     sx = re.sub(r'\s(EST|EDT|PDT|CDT|MDT|GMT)\b', '', sx, flags=re.I)
     return pd.to_datetime(sx, errors="coerce", utc=True)
-#print("✅ Running double-check for unmatched topics (-1)...", flush=True)
+print("✅ Running double-check for unmatched topics (-1)...", flush=True)
 cutoff_utc = pd.Timestamp(datetime.utcnow() - timedelta(days = 120), tz = 'utc')
-#df_combined['Published'] = df_combined['Published'].apply(coerce_pub_utc)
-#print(f"Length of dataset: {len(df_combined)}", flush = True)
-#print(f"Length of recalculated topic names: {len(df_combined[df_combined['Probability'] < 0.15])}", flush = True)
-#low_conf_mask = df_combined['Probability'] < 0.15
-#df_combined.loc[low_conf_mask, 'Topic'] = -1
+df_combined['Published'] = df_combined['Published'].apply(coerce_pub_utc)
+print(f"Length of dataset: {len(df_combined)}", flush = True)
+print(f"Length of recalculated topic names: {len(df_combined[df_combined['Probability'] < 0.15])}", flush = True)
+low_conf_mask = df_combined['Probability'] < 0.15
+df_combined.loc[low_conf_mask, 'Topic'] = -1
 
 
-#atomic_write_csv('Model_training/Step0.csv.gz', df_combined, compress = True)
-#upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/Step0.csv.gz', GITHUB_TOKEN)
-df_combined = load_midstep_from_release()
+atomic_write_csv('Model_training/Step0.csv.gz', df_combined, compress = True)
+upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/Step0.csv.gz', GITHUB_TOKEN)
+#df_combined = load_midstep_from_release()
 df_combined['Published'] = df_combined['Published'].apply(coerce_pub_utc)
 recent_df = df_combined[df_combined['Published'].notna() & (df_combined['Published'] >= cutoff_utc)].copy()
 temp_model, topic_ids = double_check_articles(recent_df)
