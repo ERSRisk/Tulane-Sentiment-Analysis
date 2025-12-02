@@ -3,6 +3,7 @@ import json
 import os
 import tempfile
 import gzip
+import io
 
 retrain_threshold = 300
 model_tag = 'regression'
