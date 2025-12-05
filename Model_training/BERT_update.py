@@ -554,7 +554,7 @@ def save_new_topics(existing_df, new_df, path = 'Model_training/BERTopic_results
     if on_disk is None or (isinstance(on_disk, pd.DataFrame) and on_disk.empty):
         on_disk = pd.read_csv(path, compression = 'gzip')
 
-    pieces = [p for p in [on_disk, existing_df, unique_new] if not (isinstance(p, pd.DataFrame) and p.empty)]
+    pieces = [p for p in [existing_df, unique_new, on_disk] if not (isinstance(p, pd.DataFrame) and p.empty)]
     combined = pd.concat(pieces, ignore_index = True) if pieces else pd.DataFrame()
 
     if not combined.empty and {'Title', 'Content'}.issubset(combined.columns):
@@ -2087,9 +2087,11 @@ def load_university_label(new_label):
             all_articles['University Label'] = combined_label
 
         # 🔧 3) Now safely fill nulls from prev
-        all_articles['University Label'] = all_articles['University Label'].fillna(
-            all_articles['University Label_prev']
-        )
+        mask_have_prev = all_articles['University Label_prev'].notna()
+# If current is 0 but prev is 1, use the 1
+        all_articles.loc[mask_have_prev & (all_articles['University Label'] == 0),
+                         'University Label'] = all_articles.loc[mask_have_prev & (all_articles['University Label'] == 0),
+                                                               'University Label_prev']
 
         # we don't need prev anymore
         all_articles.drop(columns=['University Label_prev'], inplace=True, errors='ignore')
