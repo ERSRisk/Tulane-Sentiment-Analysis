@@ -37,6 +37,15 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
+      - name: Free up extra disk
+        run: |
+          echo "Before:"; df -h
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf "/usr/local/lib/android"
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          rm -rf ~/.cache/pip ~/.cache/huggingface ~/.cache/torch
+          echo "After:"; df -h
           
       - name: Free up space
         run: |
