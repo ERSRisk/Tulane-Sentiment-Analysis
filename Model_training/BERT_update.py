@@ -54,7 +54,8 @@ df = pd.DataFrame(articles)
 Path("Online_Extraction").mkdir(parents=True, exist_ok = True)
 with gzip.open('Online_Extraction/all_RSS.json.gz', 'wb') as f:
     f.write(response.content)
-
+df = df[~(df['Source']=="Economist")]
+df['Text'] = df['Title'] + '. ' + df['Content']
 def gh_headers():
     token = os.getenv('TOKEN')
     if not token:
@@ -143,8 +144,7 @@ def estimate_tokens(text):
     # Approx 4 chars per token (rough estimate for English, GPT-like models)
     return len(text) / 4
 
-df = df[~(df['Source']=="Economist")]
-df['Text'] = df['Title'] + '. ' + df['Content']
+
 def save_to_json(topics, topic_names):
     topic_dict = []
 
@@ -208,7 +208,7 @@ def get_topic(temp_model, topic_ids):
             "\nReturn your response as a JSON array of names."
         )
 
-        tokens_estimate = estimate_tokens(prompt)  # ✅ Defined here BEFORE it's used
+        tokens_estimate = estimate_tokens(prompt)  
         print(f"🔹 Sending prompt with approx {int(tokens_estimate)} tokens...")
         if tokens_estimate > 10000:
             print("⚠️ Prompt too large, consider lowering chunk_size!")
@@ -340,19 +340,6 @@ else:
     print("✅ BERTopic directory model loaded.")
 
 
-
-
-
-
-
-bert_csv = Path('BERTopic_results.csv')
-if bert_csv.exists():
-    bert_art = pd.read_csv(bert_csv, encoding='utf-8')
-    df = pd.concat([df, bert_art], ignore_index=True).drop_duplicates(subset=['Title','Content'], keep='last')
-else:
-    print("ℹ️ BERTopic_results.csv not found; proceeding with current df.")
-
-
 if 'Source' not in df.columns:
     df['Source'] = ''
 
@@ -364,7 +351,7 @@ def transform_text(texts):
     texts = texts.drop(columns = 'Topic')
     print(f"Transforming {len(texts)} articles in batches...")
     all_topics, all_probs = [], []
-    batch_size = 100  # or smaller
+    batch_size = 100
     texts_list = texts['Text'].tolist()
 
     for i in range(0, len(texts_list), batch_size):
@@ -376,13 +363,8 @@ def transform_text(texts):
         all_topics.extend(topics)
         all_probs.extend(probs)
         print(f"✅ Transformed batch {i//batch_size + 1}/{(len(texts_list) // batch_size) + 1}")
-    for i, (t,p) in enumerate(zip(all_topics, all_probs)):
-        if t == -1 and p is not None:
-            best = p.argmax()
-            if p[best] >= 0.1:
-                all_topics[i] = int(best)
     if any(t == -1 for t in all_topics):
-        all_topics = topic_model.reduce_outliers(texts_list, all_topics, strategy = 'embeddings', threshold = 0.3)
+        all_topics = topic_model.reduce_outliers(texts_list, all_topics, strategy = 'embeddings', threshold = 0.4)
 
     remaining_idx = [i for i, t in enumerate(all_topics) if t==-1]
     def get_embedder(topic_model):
@@ -455,7 +437,6 @@ def transform_text(texts):
 
     embedder = get_embedder(topic_model)
 
-    # Build centroids from representative docs (NOT remaining_idx)
     centroids = []
     streamlit_topic_ids = []
     rep = topic_model.get_representative_docs()
@@ -475,7 +456,7 @@ def transform_text(texts):
 
     if centroids:
         C = np.stack(centroids, axis=0)
-        E = encode([texts_list[i] for i in remaining_idx], embedder)  # <-- pass embedder
+        E = encode([texts_list[i] for i in remaining_idx], embedder)
         if E.shape[0] > 0:
             sims = E @ C.T
             j_best = np.argmax(sims, axis=1)
@@ -500,7 +481,7 @@ def transform_text(texts):
         if p is None or t < 0 or t >= len(p):
             assigned_probs.append(np.nan)
         else:
-            assigned_probs.append(float(p[t]))   # pick prob of assigned topic
+            assigned_probs.append(float(p[t]))
     texts['Probability'] = assigned_probs
     if assigned_probs is None:
         texts['Probability'] = texts.get('StreamlitCosine', pd.Series(0.0, index = texts.index)).astype(float)
@@ -580,7 +561,7 @@ def double_check_articles(df):
         n_components=safe_components,
         min_dist=0.0,
         metric='cosine',
-        init='random',          # <-- avoids spectral eigendecomposition
+        init='random',
         random_state=42,
     )
     hdbscan_small = HDBSCAN(
@@ -703,11 +684,7 @@ def existing_risks_json(topic_name_pairs, topic_model):
         return hits / max(1, len(new_docs)) >= thresh
         
     existing_topic_names = [t['name'] for t in topics if 'name' in t]
-    #existing_embeddings = model.encode(existing_topic_names, convert_to_tensor=True)
 
-    # Compare each new name against known topics
-
-    # Merge docs/keywords into matched existing topics
 
     try:
         existing_unmatched = fetch_release(
@@ -726,9 +703,9 @@ def existing_risks_json(topic_name_pairs, topic_model):
             ) or []
     except Exception:
         existing_discarded = []
-    # Build a **list** of names aligned with existing_unmatched indices
+   
     unmatched_names = []
-    index_map = []  # map from names-list index -> existing_unmatched index
+    index_map = [] 
     for i, item in enumerate(existing_unmatched):
         if isinstance(item, dict) and 'name' in item:
             unmatched_names.append(item['name'])
@@ -757,7 +734,7 @@ def existing_risks_json(topic_name_pairs, topic_model):
 
     to_check_discarded = []
     for topic_id, name in unmatched:
-        new_emb = model.encode([name], convert_to_tensor=True)       # (1, d)
+        new_emb = model.encode([name], convert_to_tensor=True)
         new_docs = topic_model.get_representative_docs().get(topic_id, [])
         new_keywords_pairs = topic_model.get_topic(topic_id) or []
         new_keywords = [w for (w, _) in new_keywords_pairs]
@@ -2035,8 +2012,6 @@ def load_university_label(new_label):
             suffixes=('', '_prev')
         )
 
-    labeled_titles = set(existing['Title']) if 'Title' in existing else set()
-
     new_articles = recent[~(recent['Title'].isin(labeled_titles))].copy()
     print(new_articles[['Title', 'Published_utc']].head())
     new_articles = new_articles[~(new_articles['University Label'] == 1)]
@@ -2058,42 +2033,42 @@ def load_university_label(new_label):
 
         all_articles = all_articles.merge(labels_df, on='Title', how='left', suffixes=('', '_new'))
 
-        # 🔧 NEW: collapse any duplicate "University Label_prev" columns
+
         prev_cols = [c for c in all_articles.columns
                      if c.startswith('University Label_prev')]
         if prev_cols:
-            # bfill across all prev columns, take first non-null
+
             combined_prev = all_articles[prev_cols].bfill(axis=1).iloc[:, 0]
-            # Drop all the old prev columns
+
             all_articles.drop(columns=prev_cols, inplace=True, errors='ignore')
-            # Create a single canonical prev column
+
             all_articles['University Label_prev'] = combined_prev
         else:
-            # make sure the column exists (all null)
+
             all_articles['University Label_prev'] = pd.NA
 
-        # 🔧 2) Collapse ANY duplicate "University Label*" columns (excluding *_prev)
+
         label_cols = [c for c in all_articles.columns
                       if c.startswith('University Label') and not c.startswith('University Label_prev')]
         if not label_cols:
-            # no label columns yet → create canonical one
+
             all_articles['University Label'] = pd.NA
         else:
-            # bfill across all label columns, take first non-null
+
             combined_label = all_articles[label_cols].bfill(axis=1).iloc[:, 0]
-            # Drop ALL old label columns
+
             all_articles.drop(columns=label_cols, inplace=True, errors='ignore')
-            # Create single canonical "University Label"
+
             all_articles['University Label'] = combined_label
 
-        # 🔧 3) Now safely fill nulls from prev
+
         mask_have_prev = all_articles['University Label_prev'].notna()
-# If current is 0 but prev is 1, use the 1
+
         all_articles.loc[mask_have_prev & (all_articles['University Label'] == 0),
                          'University Label'] = all_articles.loc[mask_have_prev & (all_articles['University Label'] == 0),
                                                                'University Label_prev']
 
-        # we don't need prev anymore
+
         all_articles.drop(columns=['University Label_prev'], inplace=True, errors='ignore')
 
         if not existing.empty:
@@ -2161,11 +2136,10 @@ def coerce_pub_utc(x):
     if pd.isna(x):
         return pd.NaT
     if isinstance(x, (int, float)):
-        if x > 1e12:  # ms
+        if x > 1e12:  
             return pd.to_datetime(x, unit="ms", errors="coerce", utc=True)
-        if x > 1e9:   # s
+        if x > 1e9: 
             return pd.to_datetime(x, unit="s", errors="coerce", utc=True)
-    # strip common tz words, then parse to UTC
     sx = str(x)
     sx = re.sub(r'\s(EST|EDT|PDT|CDT|MDT|GMT)\b', '', sx, flags=re.I)
     return pd.to_datetime(sx, errors="coerce", utc=True)
@@ -2181,7 +2155,6 @@ df_combined.loc[low_conf_mask, 'Topic'] = -1
 atomic_write_csv('Model_training/Step0.csv.gz', df_combined, compress = True)
 upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/Step0.csv.gz', GITHUB_TOKEN)
 #df_combined = load_midstep_from_release()
-df_combined['Published'] = df_combined['Published'].apply(coerce_pub_utc)
 recent_df = df_combined[df_combined['Published'].notna() & (df_combined['Published'] >= cutoff_utc)].copy()
 temp_model, topic_ids = double_check_articles(recent_df)
 #If there are unmatched topics, name them using Gemini
