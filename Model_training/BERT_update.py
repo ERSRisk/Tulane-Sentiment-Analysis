@@ -348,7 +348,6 @@ df['Source'] = df['Source'].astype('string').fillna('')
 
 def transform_text(texts):
     texts = texts.copy()
-    texts = texts.drop(columns = 'Topic')
     print(f"Transforming {len(texts)} articles in batches...")
     all_topics, all_probs = [], []
     batch_size = 100
