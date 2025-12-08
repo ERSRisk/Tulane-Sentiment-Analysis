@@ -1707,7 +1707,7 @@ Rules:
 - If none match confidently → "No Risk".
 """
             resp = client.models.generate_content(
-            model="gemini-2.0-flash",
+            model="gemini-2.5-flash",
             contents=[prompt]
             )
             raw = getattr(resp, "text", "").strip()
