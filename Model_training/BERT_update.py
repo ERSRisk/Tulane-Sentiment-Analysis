@@ -1523,6 +1523,8 @@ def predict_risks(df):
 
         if any(k in t for k in ["hazing", "pledge", "fraternity", "sorority"]) and ("student" in t or "chapter" in t or "greek" in t): 
             return "Student Conduct Incident"
+        if any(k in t for k in ["D.E.I.", "DEI"]):
+            return "DEI Program Backlash"
         if label == "Vendor Cyber Exposure" and not any(k in t for k in ["vendor", "third-party", "saas", "hosting", "soc 2", "breach", "dpi a", "dpa", "pii", "cybersecurity", "supplier"]):
             if "ai" in t or "artificial intelligence" in t: 
                 return "Artificial Intelligence Ethics & Governance"
@@ -1600,14 +1602,14 @@ def predict_risks(df):
 
     df = df.reset_index(drop = True)
 
-    if 'Predicted_Risks_new' in df.columns:
-        todo_mask = (df['Predicted_Risks_new'].isna()) | (df['Predicted_Risks_new'].eq('')) | (df['Predicted_Risks_new'].eq('No Risk'))
-    else:
-        todo_mask = pd.Series(True, index=df.index)
+    #if 'Predicted_Risks_new' in df.columns:
+    #    todo_mask = (df['Predicted_Risks_new'].isna()) | (df['Predicted_Risks_new'].eq('')) | (df['Predicted_Risks_new'].eq('No Risk'))
+    #else:
+    #    todo_mask = pd.Series(True, index=df.index)
     recent_cut = pd.Timestamp.now(tz='utc') - pd.Timedelta(days=365)
     df['Published_utc'] = pd.to_datetime(df['Published'], errors='coerce', utc = True)
     recent_mask = df['Published_utc'] >= recent_cut
-    todo_mask &= recent_mask.fillna(False)
+    todo_mask = recent_mask.fillna(False)
     todo_mask &= mask_he
     sub = df.loc[todo_mask].copy()
     texts = df.loc[todo_mask, 'Text'].tolist()
