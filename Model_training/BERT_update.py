@@ -1177,7 +1177,6 @@ def risk_weights(df):
         #w_sent_delta, w_sent_slope = 0.6, 0.4
         #ts_sent['accel_score_sent'] = (w_sent_delta*ts_sent['sent_delta_norm'] + w_sent_slope*ts_sent['sent_slope_norm']).clip(0,1)
 
-        ts = ts.merge(ts_sent[['Risk_item','Week','accel_score']], on=['Risk_item','Week'], how='left')
         ts['accel_score'] = ts['accel_score'].fillna(0.0)
 
 
