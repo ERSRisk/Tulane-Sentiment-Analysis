@@ -2052,6 +2052,10 @@ print("✅ Starting transform_text on new data...", flush=True)
 topic_model.calculate_probabilities = True
 new_df = transform_text(df)
 #Fill missing topic/probability rows in the original df
+for c in ['Topic', 'Probability']:
+    if c not in df.columns:
+        df[c] = np.nan
+    
 mask = (df['Topic'].isna()) | (df['Probability'].isna())
 df.loc[mask, ['Topic', 'Probability']] = new_df[['Topic', 'Probability']]
 df[['Topic', 'Probability']] = new_df[['Topic', 'Probability']]
