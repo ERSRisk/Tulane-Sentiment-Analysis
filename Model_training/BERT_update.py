@@ -852,15 +852,11 @@ def risk_weights(df):
     json_all_labels = [r['name'] for block in risks_cfg.get('new_risks', []) for _, items in block.items() for r in items]
 
     print("risk labels loaded", flush = True)
-
-    # Sources accuracy map (string name -> numeric 0..5)
     accuracy_map = {}
     for s in risks_cfg.get('sources', []):
         name = str(s.get('name', '') or '')
         acc = s.get('accuracy', 0) or 0
         accuracy_map[name] = acc
-
-    # Risk level map (risk name -> level 0..5), supports string levels too
     level_name_map = {"low":1, "medium low":2, "medium":3, "medium high":4, "high":5}
     risks_map = {}
     for r in risks_cfg.get('risks', []):
@@ -875,9 +871,8 @@ def risk_weights(df):
         if nm:
             risks_map[nm] = lvl
 
-    higher_ed_dict = risks_cfg.get('HigherEdRisks', None)  # optional spaCy phrase dict
+    higher_ed_dict = risks_cfg.get('HigherEdRisks', None)
 
-    # ---------- Base sanitation ----------
     base = df.copy()
     for col in ['Title','Content','Source']:
         if col not in base.columns:
@@ -898,11 +893,10 @@ def risk_weights(df):
         return pd.to_datetime(sx, errors='coerce', utc=True) 
     if 'Published' not in base.columns: 
         base['Published'] = pd.NaT 
-    base['Published_raw'] = base['Published'] 
     base['Published'] = base['Published'].apply(_coerce_pub) 
     if pd.api.types.is_datetime64tz_dtype(base['Published']): 
         base['Published'] = base['Published'].dt.tz_convert('UTC').dt.tz_localize(None) 
-    # ---------- Per-article features (computed once, broadcast to base rows) ---------- 
+
     now_naive = datetime.utcnow() 
     base['Days_Ago'] = (now_naive - base['Published']).dt.days 
     base['Days_Ago'] = base['Days_Ago'].fillna(10_000).astype(int) 
@@ -973,25 +967,12 @@ def risk_weights(df):
         s = s.strip()
         if not s:
             return ''
-        # strip brackets if list-string like "['X', 'Y']"
         s = re.sub(r'^\[|\]$', '', s)
-        # split on ; or , and strip quotes/spaces
         s = re.split(r'[;,]', s)[0].strip().strip("'\"")
         return s
     
     base['_RiskList'] = cand.apply(_first_label)
     base['Risk_item'] = np.where(base['_RiskList'].eq(''), 'No Risk', base['_RiskList'])
-
-    #base = base.explode('_RiskList', ignore_index=False).rename(columns={'_RiskList':'Risk_item'})
-    #mask = exploded['Risk_item'].notna() & (exploded['Risk_item'].astype(str).str.strip()!='')
-    #exploded = exploded[mask].copy()
-    #exploded['Risk_norm'] = exploded['Risk_item'].astype(str).str.strip().str.lower()
-
-
-    # Published -> datetime (robust coercion)
-
-
-
 
     if 'Topic' not in base.columns:
         base['Topic'] = -1
@@ -1006,10 +987,9 @@ def risk_weights(df):
         if now is None:
             now = pd.Timestamp.utcnow()
 
-        # article weight
         art_w = 1.0
-        if 'Probability' in fx.columns:
-            art_w = pd.to_numeric(fx['Probability'], errors='coerce').fillna(0.0).clip(0, 1)
+        if 'Impact_Score' in base.columns:
+            art_w = pd.to_numeric(base['Impact_Score'], errors='coerce').fillna(0.0).clip(0, 1)
 
         def half_life(risk):
             return risk_half_life.get(risk, 30)
@@ -1043,8 +1023,6 @@ def risk_weights(df):
 
     def attach_topic_risk_recency(df):
         tr = recency_features_topic_risk(df)
-
-        # ensure expected cols exist even if tr is empty
         for c in ['last_seen_days','decayed_volume','recency_score_tr']:
             if c not in tr.columns:
                 tr[c] = np.nan
@@ -1063,21 +1041,17 @@ def risk_weights(df):
         days = pd.to_numeric(enriched.get('Days_Ago', np.nan), errors='coerce').astype(float)
         enriched['article_freshness'] = np.exp(-np.log(2.0) * (days / 14.0)).fillna(0.0)
 
-        if 'recency_score_tr' not in enriched.columns:
-            enriched['recency_score_tr'] = 0.0
+        if 'recency_score_tr_tr' not in enriched.columns:
+            enriched['recency_score_tr_tr'] = 0.0
 
         alpha = 0.7
         enriched['Recency_TR_Blended'] = (
-            alpha * enriched['recency_score_tr'].fillna(0.0)
+            alpha * enriched['recency_score_tr_tr'].fillna(0.0)
             + (1 - alpha) * enriched['article_freshness']
         ).clip(0, 1)
 
         return enriched
-    t_rec = time.perf_counter()
-    print("attach_topic_risk_recency() start", flush = True)
-    base = attach_topic_risk_recency(base) 
-    base['Recency'] = (base['Recency_TR_Blended'] * 5).round(2)
-    print("[recency] attached in {time.perf_counter()-t_rec:.1f}s", flush = True)
+    
 
     def _src_acc(row):
         src = str(row.get('Source','') or '')
@@ -1142,7 +1116,6 @@ def risk_weights(df):
         if c not in topic_counts.columns:
             topic_counts[c] = 0
 
-    ##acceleration calculation
     periods = base['Published'].dt.to_period('W-MON')
     base['Week'] = periods.dt.to_timestamp(how = 'start')
     ts = (
@@ -1161,9 +1134,9 @@ def risk_weights(df):
             x = np.arange(len(counts), dtype=float)
             out = np.zeros(len(counts), dtype=float)
             for i in range(len(counts)):
-                lo = max(0, i - min(k, i) + 1)  # smaller early windows allowed
+                lo = max(0, i - min(k, i) + 1) 
                 xi = x[lo:i+1]; yi = counts[lo:i+1].astype(float)
-                if len(xi) >= 2:  # allow 2 points early
+                if len(xi) >= 2: 
                     m, _ = np.polyfit(xi, yi, 1)
                     out[i] = m
             return out
@@ -1171,7 +1144,6 @@ def risk_weights(df):
         ts['Slope'] = ts.groupby('Risk_item', group_keys = False)['n'].apply(lambda g: pd.Series(slope(g.values, k=6), index = g.index)).astype(float)
 
         def normalize_groupwise(s, by):
-            # per-risk 95th percentile cap
             return s.groupby(by, group_keys=False).rank(pct = True).fillna(0.0)
 
         ts['emwa_norm']  = normalize_groupwise(ts['EMWA'].clip(lower=0),  ts['Risk_item'])
@@ -1179,40 +1151,35 @@ def risk_weights(df):
 
         w_emwa, w_slope = 0.6, 0.4
         ts['accel_score'] = (w_emwa*ts['emwa_norm'] + w_slope * ts['slope_norm']).clip(0,1)
+        weeks_seen = ts.groupby('Risk_item')['Week'].transform('nunique')
+        ts.loc[weeks_seen < 4, 'accel_score'] *= 0.6
 
-        short = ts.groupby('Risk_item')['Week'].transform('count') < 4
-        ts.loc[short, 'accel_score'] *= 0.6
 
-        # ---- Sentiment acceleration (added) ----
-        if 'Sentiment Score' not in base.columns:
-            base['Sentiment Score'] = 0.0
-        ts_sent = (
-            base.loc[base['Week'].notna()]
-            .groupby(['Risk_item','Week'])
-            .agg(sent_mean=('Sentiment Score','mean'))
-            .reset_index()
-            .sort_values(['Risk_item','Week'])
-        )
-        ts_sent['sent_flipped'] = -ts_sent['sent_mean']
-        ts_sent['sent_ewma'] = ts_sent.groupby('Risk_item')['sent_flipped'].transform(
-            lambda s: s.ewm(span=4, adjust=False).mean()
-        )
-        ts_sent['sent_delta'] = ts_sent.groupby('Risk_item')['sent_ewma'].diff().fillna(0.0)
-        ts_sent['sent_slope'] = ts_sent.groupby('Risk_item', group_keys=False)['sent_flipped'] \
-            .apply(lambda g: pd.Series(slope(g.values, k=6), index=g.index)) \
-            .astype(float)
-        ts_sent['sent_delta_norm'] = normalize_groupwise(ts_sent['sent_delta'], ts_sent['Risk_item'])
-        ts_sent['sent_slope_norm'] = normalize_groupwise(ts_sent['sent_slope'], ts_sent['Risk_item'])
-        w_sent_delta, w_sent_slope = 0.6, 0.4
-        ts_sent['accel_score_sent'] = (w_sent_delta*ts_sent['sent_delta_norm'] + w_sent_slope*ts_sent['sent_slope_norm']).clip(0,1)
+        #if 'Sentiment Score' not in base.columns:
+        #    base['Sentiment Score'] = 0.0
+        #ts_sent = (
+        #    base.loc[base['Week'].notna()]
+        #    .groupby(['Risk_item','Week'])
+        #    .agg(sent_mean=('Sentiment Score','mean'))
+        #    .reset_index()
+        #    .sort_values(['Risk_item','Week'])
+        #)
+        #ts_sent['sent_flipped'] = -ts_sent['sent_mean']
+        #ts_sent['sent_ewma'] = ts_sent.groupby('Risk_item')['sent_flipped'].transform(
+        #    lambda s: s.ewm(span=4, adjust=False).mean()
+        #)
+        #ts_sent['sent_delta'] = ts_sent.groupby('Risk_item')['sent_ewma'].diff().fillna(0.0)
+        #ts_sent['sent_slope'] = ts_sent.groupby('Risk_item', group_keys=False)['sent_flipped'] \
+        #    .apply(lambda g: pd.Series(slope(g.values, k=6), index=g.index)) \
+        #    .astype(float)
+        #ts_sent['sent_delta_norm'] = normalize_groupwise(ts_sent['sent_delta'], ts_sent['Risk_item'])
+        #ts_sent['sent_slope_norm'] = normalize_groupwise(ts_sent['sent_slope'], ts_sent['Risk_item'])
+        #w_sent_delta, w_sent_slope = 0.6, 0.4
+        #ts_sent['accel_score_sent'] = (w_sent_delta*ts_sent['sent_delta_norm'] + w_sent_slope*ts_sent['sent_slope_norm']).clip(0,1)
 
-        ts = ts.merge(ts_sent[['Risk_item','Week','accel_score_sent']], on=['Risk_item','Week'], how='left')
-        ts['accel_score_sent'] = ts['accel_score_sent'].fillna(0.0)
+        ts = ts.merge(ts_sent[['Risk_item','Week','accel_score']], on=['Risk_item','Week'], how='left')
+        ts['accel_score'] = ts['accel_score'].fillna(0.0)
 
-        # blend volume accel with sentiment accel (keep same thresholds below)
-        w_vol, w_sent = 0.7, 0.3
-        ts['accel_score'] = (w_vol*ts['accel_score'] + w_sent*ts['accel_score_sent']).clip(0,1)
-        # ---- end sentiment acceleration (added) ----
 
 
         def _acc_value(d):
@@ -1295,15 +1262,6 @@ def risk_weights(df):
     print('Acceleration value created', flush = True)
 
 
-
-
-    # Location (entities preferred; fallback text)
-
-
-    # ---------- Explode to one row per risk ----------
-
-
-    # ---------- Frequency_Score per risk (qcut over counts) ----------
     if base.empty:
         base['Frequency_Score'] = 0
     else:
@@ -1321,7 +1279,6 @@ def risk_weights(df):
         freq_map = dict(zip(counts['Risk_item'], counts['Frequency_Score']))
         base['Frequency_Score'] = base['Risk_item'].map(freq_map).fillna(0).astype(int)
 
-    # ---------- Industry_Risk via spaCy matches (per article, then applied per risk) ----------
     hed = risks_cfg.get('HigherEdRisks') or {}
     hed_norm = {
         str(cat).strip().lower(): [str(p).strip().lower() for p in (phr_list or []) if str(p).strip()]
@@ -1389,7 +1346,7 @@ def risk_weights(df):
             agg[c] = 0
     agg = agg.reset_index()
 
-    # Tulane mentions per week (for lag pressure)
+    
     tulane_week = (
         base.loc[base['_tulane_flag'] & base['Week'].notna()]
         .groupby('Week')
@@ -1399,36 +1356,35 @@ def risk_weights(df):
     )
     agg = agg.merge(tulane_week, on='Week', how='left').fillna({'tulane_mentions': 0})
 
-    # Exponential decay for old peer activity (half-life ≈ 21 days)
+
     if not agg.empty:
         week_max = agg['Week'].max()
         agg['days_ago'] = (week_max - agg['Week']).dt.days.clip(lower=0)
         lam = np.log(2.0) / 21.0
         agg['decay_w'] = np.exp(-lam * agg['days_ago'])
 
-        # Weighted peer index: substantial > moderate, decay old events, downweight if Tulane already active
+        
         agg['peer_index'] = agg['decay_w'] * (2 * agg['peers_sub'] + 1 * agg['peers_mod'])
         agg['sector_pressure'] = agg['peer_index'] / (1.0 + agg['tulane_mentions'])
 
-        # Robust scale → 0–5
+        
         lo, hi = np.percentile(agg['sector_pressure'], [5, 95]) if agg['sector_pressure'].notna().any() else (0.0, 1.0)
         rng = max(1e-12, hi - lo)
         agg['Industry_Risk_Peer'] = (((agg['sector_pressure'] - lo) / rng).clip(0, 1) * 5).round().astype(int)
     else:
         agg['Industry_Risk_Peer'] = 0
 
-    # Merge back per row
+
     base = base.drop(columns=['Industry_Risk_Peer'], errors='ignore')
     base = base.merge(agg[['Week', 'Industry_Risk_Peer']], on='Week', how='left')
     base['Industry_Risk_Peer'] = base['Industry_Risk_Peer'].fillna(0).astype(int)
 
-    # Final Industry_Risk = max(presence, peer)
+
     base['Industry_Risk'] = np.maximum(base['Industry_Risk_Presence'], base['Industry_Risk_Peer']).astype(int)
     print('Industry risk created', flush = True)
 
 
 
-    # ---------- Impact_Score per risk ----------
     impact_weights = {"financial": 0.35, "reputational": 0.15, "academic": 0.25, "operational": 0.25}
     new_risks = risks_cfg.get('new_risks')
     risk_dims_map = {}
@@ -1493,7 +1449,13 @@ def risk_weights(df):
     base['Impact_Score'] = base.apply(impact_row, axis=1).astype(float)
     print('Impact score computed', flush = True)
 
-    # ---------- Final blended Risk_Score (0..5) per (article × risk) ----------
+    t_rec = time.perf_counter()
+    print("attach_topic_risk_recency() start", flush = True)
+    base = attach_topic_risk_recency(base) 
+    base['Recency'] = (base['Recency_TR_Blended'] * 5).round(2)
+    print("[recency] attached in {time.perf_counter()-t_rec:.1f}s", flush = True)
+
+
     w = {
         'Recency': 0.15,
         'Source_Accuracy': 0.10,
@@ -1503,7 +1465,7 @@ def risk_weights(df):
         'Industry_Risk': 0.05,
         'Frequency_Score': 0.05
     }
-    weight_sum = sum(w.values())  # 0.90
+    weight_sum = sum(w.values()) 
 
     num = (
         base['Recency'] * w['Recency'] +
@@ -1515,13 +1477,8 @@ def risk_weights(df):
         base['Frequency_Score'] * w['Frequency_Score']
     )
     base['Risk_Score'] = (num / weight_sum).clip(0,5).round(3)
-    base['Weights'] = base['Risk_Score']  # back-compat
+    base['Weights'] = base['Risk_Score']
 
-    # helpful: keep original full risk list too
-    base['Predicted_Risk_Single'] = base['Risk_item']
-
-    # stable ID for joining back if needed
-    base = base.reset_index().rename(columns={'index':'ArticleID'})
     print(f"[risk_weights] done: base = {base.shape} elapsed = {time.perf_counter()- t0:.1f}s", flush = True)
 
     return base
@@ -1564,23 +1521,15 @@ def predict_risks(df):
         return cos/denom
     def rule_route(text, label): 
         t = text.lower() 
-        #if any(k in t for k in ["shooting", "shots fired", "gunfire", "killed", "wounded", "lockdown", "shelter-in-place", "active shooter", "homecoming"]): 
-            #return "Violence or Threats" 
+
         if any(k in t for k in ["hazing", "pledge", "fraternity", "sorority"]) and ("student" in t or "chapter" in t or "greek" in t): 
-            return "Student Conduct Incident" # News about “AI at <university>” (strategy/ethics) shouldn't be Vendor Cyber Exposure 
-        #if "artificial intelligence" in t or "ai " in t or " generative ai" in t: 
-            #if any(k in t for k in ["teaching", "grading", "policy", "ethics", "bias", "governance", "academic integrity", "faculty", "students"]): 
-                #return "Artificial Intelligence Ethics & Governance" # generic campus modernization 
-            #if any(k in t for k in ["digital transformation", "modernization", "workflow", "automation"]): 
-                #return "Rapid Speed of Disruptive Innovation" # Vendor Cyber Exposure should only trigger on vendor/SaaS/security words 
-        if label == "Vendor Cyber Exposure" and not any(k in t for k in ["vendor", "third-party", "saas", "hosting", "soc 2", "breach", "dpi a", "dpa", "pii", "cybersecurity", "supplier"]): # fall back to AI-governance if it's an AI campus piece 
+            return "Student Conduct Incident"
+        if label == "Vendor Cyber Exposure" and not any(k in t for k in ["vendor", "third-party", "saas", "hosting", "soc 2", "breach", "dpi a", "dpa", "pii", "cybersecurity", "supplier"]):
             if "ai" in t or "artificial intelligence" in t: 
-                return "Artificial Intelligence Ethics & Governance" # otherwise leave it; caller will keep cosine’s choice 
-            return label # Leadership Missteps should only appear if mishandling/contradiction is alleged
-        #if label == "Leadership Missteps" and not any(k in t for k in ["apolog", "resign", "ethics", "contradict", "downplay", "memo", "statement", "press release", "evasive"]): # if it was a violent incident, route to Violence 
-            #if any(k in t for k in ["shooting", "shots fired", "gunfire", "killed", "wounded", "lockdown"]): 
-                #return "Violence or Threats" 
+                return "Artificial Intelligence Ethics & Governance"
+            return label
         return label
+        
     def predict_with_fallback(proba_lr, cos_all, prob_cut, margin_cut, tau, tau_gray, trained_labels, all_labels):
         top_idx = proba_lr.argmax(axis=1)
         top_val = proba_lr[np.arange(len(proba_lr)), top_idx]
@@ -1642,7 +1591,6 @@ def predict_risks(df):
 
     df = df.copy()
     df = df.sort_values('Published_utc').drop_duplicates('Title', keep = 'last').reset_index(drop=True)
-    df = df.drop_duplicates(subset = 'Title', keep ='last')
     df['University Label'] = pd.to_numeric(df['University Label'], errors = 'coerce').fillna(0).astype(int)
     mask_he = df['University Label'] == 1
     
@@ -1653,14 +1601,14 @@ def predict_risks(df):
 
     df = df.reset_index(drop = True)
 
-    #if 'Predicted_Risks_new' in df.columns:
-    #    todo_mask = (df['Predicted_Risks_new'].isna()) | (df['Predicted_Risks_new'].eq('')) | (df['Predicted_Risks_new'].eq('No Risk'))
-    #else:
-    #    todo_mask = pd.Series(True, index=df.index)
+    if 'Predicted_Risks_new' in df.columns:
+        todo_mask = (df['Predicted_Risks_new'].isna()) | (df['Predicted_Risks_new'].eq('')) | (df['Predicted_Risks_new'].eq('No Risk'))
+    else:
+        todo_mask = pd.Series(True, index=df.index)
     recent_cut = pd.Timestamp.now(tz='utc') - pd.Timedelta(days=365)
     df['Published_utc'] = pd.to_datetime(df['Published'], errors='coerce', utc = True)
     recent_mask = df['Published_utc'] >= recent_cut
-    todo_mask = recent_mask.fillna(False)
+    todo_mask &= recent_mask.fillna(False)
     todo_mask &= mask_he
     sub = df.loc[todo_mask].copy()
     texts = df.loc[todo_mask, 'Text'].tolist()
@@ -1674,17 +1622,15 @@ def predict_risks(df):
     if not texts:
         return df
 
-    
-    with open('Model_training/risks.json', 'r') as f:
-        risks_data = json.load(f)
 
-    all_risks = [risk['name'] for group in risks_data['new_risks'] for risks in group.values() for risk in risks]
+    all_risks = [risk['name'] for group in risks_cfg['new_risks'] for risks in group.values() for risk in risks]
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     model = SentenceTransformer('all-mpnet-base-v2', device = device)
     # Encode articles and risks
     #article_embeddings = model.encode(texts, convert_to_numpy = True, normalize_embeddings = True, show_progress_bar=True,  batch_size=256 if device=='cuda' else 32)
     article_embeddings = model.encode(texts, convert_to_numpy = True, normalize_embeddings = True, show_progress_bar=True,  batch_size=256 if device=='cuda' else 32)
-    C = article_embeddings
+    A = article_embeddings
+    C = np.zeros_like(A)
     X_text = np.hstack([article_embeddings, C])
     X_text_red = pca.transform(X_text) if pca is not None else X_text
     n = len(texts)
@@ -1720,9 +1666,7 @@ def predict_risks(df):
     
     lbl_emb_all = model.encode(all_label_txt, show_progress_bar=True, normalize_embeddings=True, batch_size=256)
     
-    # FIX: raw cosine, NOT normalized to sum=1
     cos_all = avg_emb @ lbl_emb_all.T
-    lbl_emb_trained = model.encode(trained_label_txt, show_progress_bar = True, normalize_embeddings = True, batch_size = 256)
 
 
     out = predict_with_fallback(proba, cos_all, prob_cut, margin_cut, tau, 0.3, trained_labels, all_labels)
@@ -1779,7 +1723,6 @@ Rules:
             adjudicated.append(label)
         sub.loc[gray_idx, 'Predicted_Risks_new'] = adjudicated
         sub.loc[gray_idx, 'pred_source'] = 'gemini'
-        # optional: store the top cosine suggestion for auditing
         sub.loc[gray_idx, 'Pred_cos_label_all'] = np.array(all_labels)[out['cos_all_idx'][gray_mask]]
         sub.loc[gray_idx, 'Pred_cos_score_all'] = out['cos_all_max'][gray_mask]
    
@@ -1794,19 +1737,6 @@ Rules:
     for col in ['pred_source', 'Predicted_Risks_new', 'Pred_LR_label', 'Pred_cos_label_all', 'Pred_cos_score_all']:
         df.loc[sub.index, col] = sub[col]
 
-
-    # Calculate cosine similarity
-    #cosine_scores = util.cos_sim(article_embeddings, risk_embeddings)
-
-    #if 'Predicted_Risks_new' not in df.columns:
-    #    df['Predicted_Risks_new'] = ''
-    # Assign risks based on threshold
-    #threshold = 0.35  # you can tune this
-    #out = []
-    #for row in cosine_scores:
-    #    matched = [all_risks[j] for j, s in enumerate(row) if float(s) >= threshold]
-    #    out.append('; '.join(matched) if matched else 'No Risk')
-    #df.loc[todo_mask, 'Predicted_Risks_new'] = out
     return df
 def track_over_time(df, week_anchor="W-MON", out_csv="Model_training/topic_trend.csv"):
 
@@ -2172,14 +2102,9 @@ results_df['Predicted_Risks'] = results_df.get('Predicted_Risks_new', '')
 print("✅ Applying risk_weights...", flush=True)
 atomic_write_csv('Model_training/Step1.csv.gz', results_df, compress = True)
 upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/Step1.csv.gz', GITHUB_TOKEN)
-#
-#df = load_midstep_from_release()
-#df = load_midstep_from_release()
-#df = pd.read_csv('Model_training/Step1.csv.gz', compression = 'gzip')
 
 results_df = results_df.drop(columns = ['Acceleration_value_x', 'Acceleration_value_y'], errors = 'ignore')
 
-#
 results_df['Predicted_Risks'] = results_df.get('Predicted_Risks_new', results_df.get('Predicted_Risks', ''))
 df = risk_weights(results_df)
 print("Finished assigning risk weights", flush = True)
