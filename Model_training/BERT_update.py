@@ -179,18 +179,16 @@ def get_topic(temp_model, topic_ids):
                 docs = temp_model.get_representative_docs()[topic]
             except Exception:
                 docs = []
-        docs = docs[:5]
+        docs = docs[:2]
         keywords = ', '.join([word for word, _ in words])
         doc_list = '\n'.join([f"- {doc}" for doc in docs])
         block = (
             f"---\n"
             f"TopicID: {topic}\n"
             f"Keywords: {keywords}\n"
-            f"Representative Documents: {doc_list}\n"
         )
         topic_blocks.append((topic, block))
 
-    # Chunk your topic blocks (e.g., 5 topics per call)
     chunk_size = 1
     topic_name_pairs = []
     print(f"✅ Starting Gemini API calls on {len(topic_blocks)} topics...", flush=True)
@@ -215,7 +213,7 @@ def get_topic(temp_model, topic_ids):
         max_attempts = 5
         for attempt in range(max_attempts):
             try:
-                response = client.models.generate_content(model="gemini-2.5-pro", contents=[prompt])
+                response = client.models.generate_content(model="gemini-2.5-flash", contents=[prompt])
                 output_text = response.candidates[0].content.parts[0].text
                 output_text = re.sub(r"^```(?:json)?\s*", "", output_text)
                 output_text = re.sub(r"\s*```$", "", output_text)
