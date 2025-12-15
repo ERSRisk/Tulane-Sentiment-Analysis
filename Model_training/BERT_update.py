@@ -213,7 +213,7 @@ def get_topic(temp_model, topic_ids):
         max_attempts = 5
         for attempt in range(max_attempts):
             try:
-                response = client.models.generate_content(model="gemini-2.5-flash", contents=[prompt])
+                response = client.models.generate_content(model="gemini-2.0-flash", contents=[prompt])
                 output_text = response.candidates[0].content.parts[0].text
                 output_text = re.sub(r"^```(?:json)?\s*", "", output_text)
                 output_text = re.sub(r"\s*```$", "", output_text)
@@ -1706,7 +1706,7 @@ Rules:
 - If none match confidently → "No Risk".
 """
             resp = client.models.generate_content(
-            model="gemini-2.5-flash",
+            model="gemini-2.0-flash",
             contents=[prompt]
             )
             raw = getattr(resp, "text", "").strip()
