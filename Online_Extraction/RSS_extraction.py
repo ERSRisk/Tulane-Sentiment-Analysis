@@ -34,6 +34,7 @@ import pandas as pd
 from requests.utils import requote_uri
 from datetime import datetime, date, timedelta
 from dateutil import parser
+from newspaper import Article
 
 NEWS_API_KEY = os.getenv("NEWS_API_KEY")
 search = 'Tulane'
