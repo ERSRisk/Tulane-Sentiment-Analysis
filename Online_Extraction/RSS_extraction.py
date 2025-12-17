@@ -32,6 +32,35 @@ import fitz
 from urllib.parse import urljoin
 import pandas as pd
 from requests.utils import requote_uri
+from datetime import datetime, date, timedelta
+from dateutil import parser
+
+NEWS_API_KEY = os.getenv("NEWS_API_KEY")
+search = 'Tulane'
+start_date = (datetime.date.today() - timedelta(days = 7))
+end_date = datetime.date.today()
+timezone_option = 'CDT'
+def fetch_news(search, start_date, end_date):
+    news_url = (
+            f"https://newsapi.org/v2/everything?q={search} NOT sports NOT Football NOT basketball&"
+            f"from={start_date}&to={end_date}&sortBy=popularity&apiKey={NEWS_API_KEY}"
+        )
+    response = requests.get(news_url)
+    if response.status_code == 200:
+        news_data = response.json()
+        return news_data.get("articles", [])  # Return the articles
+    else:
+        return []
+    
+def fetch_content_news(url):
+    try:
+        article = Article(url)
+        article.download()
+        article.parse()
+        return article.text
+    except Exception as e:
+        return None
+    
 
 
 rss_feed =   {"RSS_Feeds":[{
@@ -594,7 +623,58 @@ def COGR():
               for_rss.append({"Title": title, "Link": link, "Published": published, "Summary": content[:200], "Content": content, "Source": "COGR", "Entities": ents, "Keyword": kws})  
   print("COGR ended", flush =  True)
   return for_rss
+def get_articles_with_full_content(articles, timezone="CDT"):
+    """Replace truncated content with full article text and extract formatted date and time"""
+    updated_articles = []
+    seen_titles = set()
 
+    #Determine offset based on selected timezone
+    if timezone == "UTC":
+        offset = timedelta(hours=0)
+        tz_label = "UTC"
+    elif timezone == "CST":
+        offset = timedelta(hours=-6)
+        tz_label = "CST"
+    elif timezone == "CDT":
+        offset = timedelta(hours=-5)
+        tz_label = "CDT"
+    else:
+        offset = timedelta(hours=0)
+        tz_label = "UTC"
+
+    for article in articles:
+        title = article["title"]
+        if title in seen_titles:
+            continue  # Skip duplicate
+        seen_titles.add(title)
+
+        #Get full text if the content is truncated
+        full_text = fetch_content_news(article['url']) or article.get('content')
+        #Parse publishedAt and split into date and time
+        original_dt_str = article.get("publishedAt", "N/A")
+        #try to parse and convert
+        try:
+            original_dt = parser.parse(original_dt_str)
+            adjusted_dt = original_dt + offset  # Convert from UTC to CST
+            adjusted_date = adjusted_dt.strftime("%m/%d/%Y")
+            adjusted_time = adjusted_dt.strftime("%I:%M %p ") + tz_label
+        except Exception:
+            adjusted_date = "N/A"
+            adjusted_time = "N/A"
+        ents = [ent.text for ent in spacy_doc.ents if ent.label_ in ('ORG','PERSON','GPE','LAW','EVENT','MONEY')]
+        kws  = [kw for kw in keywords if kw in (title + ' ' + text).lower()]
+
+        updated_articles.append({
+            "Title": article["title"],
+            "Link": article["url"],
+            "Published": adjusted_date + " " + adjusted_time,
+            "Summary": article.get("description", "No description available."),
+            "Content": full_text if full_text else article["content"],
+            "Source": article["source"]["name"] if article.get("source") else "N/A",
+            "Entities": ents,
+            "Keywords": kws
+        })
+    return updated_articles
 def homeland_sec():
   print("Homeland security started", flush = True)
   url = "https://nola.gov/next/homeland-security/news/"
@@ -1521,6 +1601,16 @@ def Whitehouse():
   print("Whitehouse fniished", flush = True)
   return data
 feeds = create_feeds(rss_feed)
+articles = fetch_news(search, start_date, end_date)
+articles = get_articles_with_full_content(articles, timezone=timezone_option)
+unique_articles = []
+seen_titles = set()
+for article in articles:
+    if article['Title'] not in seen_titles:
+        unique_articles.append(article)
+        seen_titles.add(article['Title'])
+articles = unique_articles
+
 cogr = COGR()
 deloitte = Deloitte()
 homeland = homeland_sec()
@@ -1545,6 +1635,7 @@ except asyncio.TimeoutError:
     all_articles = []
 
 all_articles += cogr
+all_articles += articles
 all_articles += deloitte
 all_articles += homeland
 all_articles += ace
