@@ -38,8 +38,8 @@ from newspaper import Article
 
 NEWS_API_KEY = os.getenv("NEWS_API_KEY")
 search = 'Tulane'
-start_date = (datetime.date.today() - timedelta(days = 7))
-end_date = datetime.date.today()
+start_date = (date.today() - timedelta(days = 7))
+end_date = date.today()
 timezone_option = 'CDT'
 def fetch_news(search, start_date, end_date):
     news_url = (
