@@ -109,6 +109,10 @@ jobs:
             echo 'Model_training/BERTopic_results.csv'
             echo 'Online_Extraction/all_RSS.json'
             echo 'Model_training/BERTopic_model'
+            echo 'Model_training/Canonical_Stories_with_Summaries.csv'
+            echo 'Model_training/Story_Clusters_backup.csv'
+            echo 'Model_training/Articles_with_Stories.csv.gz'
+            echo 'Model_training/Story_Clusters.csv.gz'
           } | while read -r p; do
                grep -qxF "$p" .gitignore || echo "$p" >> .gitignore
             done
@@ -138,7 +142,11 @@ jobs:
             Model_training/topics_BERT.json \
             Model_training/unmatched_topics.json \
             Model_training/label_initial.csv.gz\
-            BERTopic_before.csv
+            BERTopic_before.csv\
+            Model_training/Canonical_Stories_with_Summaries.csv\
+            Model_training/Story_Clusters_backup.csv\
+            Model_training/Articles_with_Stories.csv.gz\
+            Model_training/Story_Clusters.csv.gz
 
           echo "== git status (porcelain) =="
           git status --porcelain=1 -uall || true
