@@ -113,6 +113,10 @@ jobs:
             echo 'Model_training/Story_Clusters_backup.csv'
             echo 'Model_training/Articles_with_Stories.csv.gz'
             echo 'Model_training/Story_Clusters.csv.gz'
+            echo 'Model_training/dashboard_stories.csv.gz'
+            echo 'Model_training/dashboard_dropdown.csv.gz'
+            echo 'Model_training/dashboard_articles.csv.gz'
+
           } | while read -r p; do
                grep -qxF "$p" .gitignore || echo "$p" >> .gitignore
             done
@@ -146,7 +150,10 @@ jobs:
             Model_training/Canonical_Stories_with_Summaries.csv\
             Model_training/Story_Clusters_backup.csv\
             Model_training/Articles_with_Stories.csv.gz\
-            Model_training/Story_Clusters.csv.gz
+            Model_training/Story_Clusters.csv.gz\
+            Model_training/dashboard_stories.csv.gz\
+            Model_training/dashboard_dropdown.csv.gz\
+            Model_training/dashboard_articles.csv.gz
 
           echo "== git status (porcelain) =="
           git status --porcelain=1 -uall || true
