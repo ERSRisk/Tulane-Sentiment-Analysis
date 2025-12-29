@@ -2033,10 +2033,10 @@ def save_dataset_to_releases(df:pd.DataFrame, local_cache_path = 'Model_training
     upload_asset(Github_owner, Github_repo, rel, Asset_name, gz_bytes, GITHUB_TOKEN)
 
 
-def load_midstep_from_release(local_cache_path = 'Model_training/Step1.csv.gz'):
+def load_midstep_from_release(local_cache_path = 'Model_training/BERTopic_Streamlit.csv.gz'):
     rel = get_release_by_tag(Github_owner, Github_repo, Release_tag)
     if rel:
-        asset = next((a for a in rel.get('assets', []) if a['name']=='Step1.csv.gz'), None)
+        asset = next((a for a in rel.get('assets', []) if a['name']=='BERTopic_Streamlit.csv.gz'), None)
         if asset:
             r = requests.get(asset['browser_download_url'], timeout = 60)
             if r.ok:
@@ -2121,8 +2121,457 @@ print("Saving dataset for Streamlit", flush= True)
 df_streamlit = df[df['University Label'] == 1]
 atomic_write_csv("Model_training/BERTopic_Streamlit.csv.gz", df_streamlit, compress = True)
 upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/BERTopic_Streamlit.csv.gz', GITHUB_TOKEN)
+
+def build_stories():
+    model = SentenceTransformer("all-MiniLM-L6-v2")
+
+
+
+    trash_topics = [95,94,76,75,52,44,17,10,7,0,559,527,515,503,481,474,469,462,
+                461,452,450,445,438,434,395,389,354,349,345,323,315,301,299,
+                258,257,254,249,236,234,228,224,208,198,191,188,186,178,177,
+                174,172,167,164,156,154,140,136,135,130,125,110,101,90,84,73,
+                60,59,56,54,50,24,22,18,568,565,550,526,518,505,484,477,458,
+                456,387,245,239,226,196,155,144,123,117,109,105,85,61,33,28,
+                25,16,14]
+    df = load_midstep_from_release()
+
+    if Path('Model_training/Articles_with_Stories.csv.gz').exists():
+        old_df = pd.read_csv('Model_training/Articles_with_Stories.csv.gz', compression='gzip')
+    else:
+        old_df = pd.DataFrame(columns=df.columns.tolist() + ['story_id'] + ['_key'])
+
+
+
+
+    df = df[df['Published_utc'].notna()]
+    df['orig_idx'] = df.index
+    df['story_id'] = np.nan
+    already_labeled = old_df[old_df['story_id'].notna()].copy()
+    new_articles = df[df['story_id'].isna()].copy()
+
+    new_articles['_key'] = list(zip(new_articles['Title'], new_articles['Link']))
+    already_labeled['_key'] = list(zip(already_labeled['Title'], already_labeled['Link']))
+
+    new_articles = new_articles[
+        ~new_articles['_key'].isin(already_labeled['_key'])
+    ].drop(columns='_key')
+
+    df = pd.concat([already_labeled, new_articles], ignore_index = True)
+
+    if Path('Model_training/Story_Clusters.csv.gz').exists():
+        stories_df = pd.read_csv('Model_training/Story_Clusters.csv.gz', compression='gzip')
+    else:
+        stories_df = pd.DataFrame(columns=[
+        'story_id', 'canonical_title', 'canonical_link', 'canonical_published',
+        'article_count', 'first_seen', 'last_seen'
+    ])
+
+    if Path('Model_training/Canonical_Stories_with_Summaries.csv').exists():
+        canonical_titles = pd.read_csv('Model_training/Canonical_Stories_with_Summaries.csv')
+    else:
+        canonical_titles = pd.DataFrame(columns=['story_id', 'canonical_title'])
+
+    stories_df = stories_df.drop(columns = ['canonical_title'], errors = 'ignore')
+    stories_df = stories_df.merge(
+        canonical_titles[['story_id', 'canonical_title']],
+        on = 'story_id',
+        how = 'left'
+    )
+
+    story_id_counter = int(stories_df['story_id'].max()) + 1 if not stories_df.empty else 1
+    open_stories = []
+
+    def norm_text(x):
+        x = (x or '')
+        x = re.sub(r'\s+', ' ', x).strip()
+        return x
+
+    open_stories = []
+
+    article_embeddings = model.encode(df['Title'].fillna('').tolist(), convert_to_numpy = True, normalize_embeddings = True)
+    df['story_embeddings'] = list(article_embeddings)
+
+    articles_by_story = (df[df['story_id'].notna()].groupby('story_id').apply(lambda g: g.to_dict('records')).to_dict())
+
+
+    for _, row in stories_df.iterrows():
+        sid = int(row['story_id'])
+
+        rows = articles_by_story.get(sid, [])
+
+        texts = [norm_text(f"{str(r.get('Title') or '')} {str(r.get('Summary') or '')}") for r in rows]
+
+        first_seen = min(pd.to_datetime(r['Published_utc'], errors = 'coerce') for r in rows)
+        last_seen = max(pd.to_datetime(r['Published_utc'], errors = 'coerce') for r in rows)
+        centroid = model.encode(texts, convert_to_numpy = True, normalize_embeddings = True).mean(axis = 0)
+        n = len(rows)
+        open_stories.append({
+            "id": sid,
+            "centroid": centroid,
+            "rows": rows,
+            "n": n,
+            "first_seen": pd.to_datetime(first_seen, errors = 'coerce'),
+            "last_seen": pd.to_datetime(last_seen, errors = 'coerce'),
+            "canonical_title": row.get('canonical_title', None)
+        })
+
+
+
+    def build_story_clusters(df, min_sim = 0.6):
+        global open_stories, story_id_counter, stories_df
+        df = df.copy()
+
+
+        df['text_for_embedding'] = (df['Title'].fillna('') + ' ' + df['Summary'].fillna('')).apply(norm_text)
+        df['date_bucket'] = df['Published_utc'].dt.floor('D')
+        df.sort_values(by='Published_utc', inplace=True)
+
+        embeddings = model.encode(df['text_for_embedding'].tolist(), convert_to_numpy=True, batch_size=64,
+                    show_progress_bar=True,
+                    normalize_embeddings=True)
+
+        story_rows = []
+        article_story_ids = []
+    
+
+    
+        MAX_GAP_DAYS = 10
+    
+
+        df = df.copy()
+        for pos, (idx, row) in enumerate(df.iterrows()):
+            best_sim = -1
+            best_story = None
+            embed_i = embeddings[pos]
+            pub_i = row["Published_utc"]
+
+
+            candidate_stories = [
+                s for s in open_stories
+                if pd.isna(pub_i)
+                or pd.isna(s["last_seen"])
+                or (pub_i - s["last_seen"]).days <= MAX_GAP_DAYS
+            ]
+
+        
+            for s in candidate_stories:
+                sim = float(np.dot(embed_i, s["centroid"]))
+                if sim > best_sim:
+                    best_sim = sim
+                    best_story = s
+
+            if best_sim >= min_sim:
+                # assign
+                n = best_story["n"]
+                centroid = (best_story["centroid"] * n + embed_i) / (n + 1)
+                best_story["centroid"] = centroid / np.linalg.norm(centroid)
+                best_story["rows"].append(row.to_dict())
+                best_story["n"] += 1
+                best_story["first_seen"] = min(best_story["first_seen"], pub_i)
+                best_story["last_seen"] = max(best_story["last_seen"], pub_i)
+                article_story_ids.append((idx, best_story))
+            else:
+                # new story
+            
+                sid = story_id_counter
+                story_id_counter += 1
+                new_story = {
+                    "id": sid,
+                    "centroid": embed_i.copy(),
+                    "rows": [row.to_dict()],
+                    "n": 1,
+                    "first_seen": pub_i,
+                    "last_seen": pub_i
+                }
+
+                open_stories.append(new_story)
+                article_story_ids.append((idx, new_story))
+    
+        best_story = None
+        best_sim = -1
+        MERGE_SIM = 0.65
+        MERGE_GAP_DAYS = 14
+
+        merged = True
+        while merged:
+            merged = False
+
+            for i in range(len(open_stories)):
+                if merged:
+                    break
+
+                s1 = open_stories[i]
+
+                for j in range(i + 1, len(open_stories)):
+                    s2 = open_stories[j]
+
+                    # time constraint
+                    if (
+                        pd.notna(s1["last_seen"])
+                        and pd.notna(s2["first_seen"])
+                        and abs((s1["last_seen"] - s2["first_seen"]).days) > MERGE_GAP_DAYS
+                    ):
+                        continue
+    
+                    # semantic similarity
+                    sim = float(np.dot(s1["centroid"], s2["centroid"]))
+    
+                    if sim >= MERGE_SIM:
+                        # merge s2 into s1
+                        n1, n2 = s1["n"], s2["n"]
+                        centroid = (s1["centroid"] * n1 + s2["centroid"] * n2)
+                        s1["centroid"] = centroid / np.linalg.norm(centroid)
+                        s1["rows"].extend(s2["rows"])
+                        s1["n"] = n1 + n2
+                        s1["last_seen"] = max(s1["last_seen"], s2["last_seen"])
+                        s1["first_seen"] = min(s1["first_seen"], s2["first_seen"])
+    
+                        # update article → story mapping
+                        for k, (a_idx, sid) in enumerate(article_story_ids):
+                            if article_story_ids[k][1] is s2:
+                                article_story_ids[k] = (a_idx, s1)
+    
+                        open_stories.pop(j)
+
+                    
+                        merged = True
+                        break
+        story_id_map = {
+        id(s): s["id"]
+        for s in open_stories
+        }
+        for s in open_stories:
+            rows = s["rows"]
+            def canonical_key(r):
+                title_ok = 1 if pd.notna(r.get("Title")) else 0
+                content_len = len(str(r.get("Summary") or ""))
+                return (title_ok, content_len)
+
+            can_row = max(rows, key=canonical_key)
+
+            existing = stories_df.loc[
+                stories_df["story_id"] == s["id"], "canonical_title"
+            ]
+
+            canonical_title = (
+                existing.values[0]
+                if not existing.empty and pd.notna(existing.values[0])
+                else can_row["Title"]
+            )
+
+            story_rows.append({
+                "story_id": s["id"],
+                "canonical_title": canonical_title,
+                "canonical_link": can_row["Link"],
+                "canonical_published": can_row["Published_utc"],
+                "article_count": len(rows),
+                "first_seen": s["first_seen"],
+                "last_seen": s["last_seen"]
+            })
+        new_stories_df = pd.DataFrame(story_rows)
+
+
+        stories_df = stories_df.merge(
+        new_stories_df, 
+        on = 'story_id',
+        how = 'outer',
+        suffixes = ('', '_new')   
+        )
+
+        for col in ["canonical_title", "canonical_link", "canonical_published",
+                "article_count", "first_seen", "last_seen"]:
+            stories_df[col] = stories_df[f"{col}_new"].combine_first(stories_df[col])
+    
+        stories_df = stories_df[
+        [c for c in stories_df.columns if not c.endswith("_new")]
+        ]
+            
+
+        aid = pd.DataFrame(
+            [(idx, story_id_map[id(story_ref)])
+            for idx, story_ref in article_story_ids],
+            columns=["orig_idx", "story_id"]
+        ).set_index("orig_idx")
+
+        df_w = df.join(aid.rename(columns={"story_id": "story_id_new"}), how="left")
+        df_w['story_id'] = df_w['story_id'].fillna(df_w['story_id_new'])
+        df_w = df_w.drop(columns = ['story_id_new'])
+        assert df_w['story_id'].notna().all()
+
+        return df_w, new_stories_df, open_stories
+
+
+
+    df['Published_utc'] = pd.to_datetime(df['Published_utc'], errors='coerce')
+    filtered_df = df.drop_duplicates(subset = 'Link', keep = 'last').reset_index(drop = True)
+    articles_with_stories, stories_df, open_stories = build_story_clusters(filtered_df, min_sim = 0.6)
+    articles_with_stories.to_csv("Model_training/Articles_with_Stories.csv.gz", index = False, compression = 'gzip')
+
+    df = articles_with_stories
+    print(df.columns.tolist())
+    merged = pd.merge(df, stories_df, on='story_id', how='left')
+    merged = merged.sort_values(by='Published_utc', ascending=False)
+    grouped = merged.groupby('story_id')
+    
+    
+    score_factors = []
+    for story_id, group in grouped:
+        if group.shape[0] > 2:
+            avg_risk_score = group['Risk_Score'].mean()
+            avg_frequency = group['Frequency_Score'].mean()
+            avg_acceleration = group['Acceleration_value'].mean()
+            recency = group.sort_values(by='Published_utc', ascending=False).iloc[0]['Recency']
+            avg_source_acc = group['Source_Accuracy'].mean()
+            avg_impact = group['Impact_Score'].mean()
+            avg_industry = group['Industry_Risk'].mean() 
+            avg_location = group['Location'].mean()
+    
+            score_factors.append({
+                "story_id": story_id,
+                "avg_risk_score": avg_risk_score,
+                "avg_frequency": avg_frequency,
+                "avg_acceleration": avg_acceleration,
+                "avg_recency":  recency,
+                "avg_source_accuracy": avg_source_acc,
+                "avg_impact_score": avg_impact,
+                "avg_industry_risk": avg_industry,
+                "avg_location": avg_location
+            })
+    
+    if score_factors:
+        score_df = pd.DataFrame(score_factors)
+        stories_df = stories_df.merge(score_df, on="story_id", how="left")
+        assert stories_df["canonical_title"].notna().all()
+    
+    stories_df.to_csv("Model_training/Story_Clusters.csv.gz", index = False, compression = 'gzip')
+    
+    api_key = os.getenv('PAID_API_KEY')
+    client = genai.Client(api_key = api_key)
+    
+    df = pd.read_csv('Model_training/Articles_with_Stories.csv.gz', compression='gzip')
+    df = df.drop_duplicates(subset=["Link"], keep="last")
+    df_stories = pd.read_csv('Model_training/Story_Clusters.csv.gz', compression='gzip')
+    df_stories.to_csv('Model_training/Story_Clusters_backup.csv', index=False)
+    
+    
+    if Path('Model_training/Canonical_Stories_with_Summaries.csv').exists():
+        canonical_titles = pd.read_csv('Model_training/Canonical_Stories_with_Summaries.csv')
+        canonical_titles['canonical_source'] = canonical_titles['canonical_source'].fillna('unlabeled')
+    else:
+        canonical_titles = pd.DataFrame(columns=['story_id', 'canonical_title', 'summary', 'average_risk_score', 'average_recency', 'articles', 'canonical_source'])
+    df_stories = df_stories.merge(
+        canonical_titles[['story_id', 'canonical_title', 'canonical_source']],
+        on='story_id',
+        how='left',
+        suffixes = ('', '_new'),
+        validate='one_to_one'
+    )
+    df_stories['canonical_title'] = df_stories['canonical_title_new'].fillna(df_stories['canonical_title'])
+    df_stories = df_stories.drop(columns=['canonical_title_new'], errors='ignore')
+    df_stories['canonical_title'] = df_stories['canonical_title'].astype('string')
+    df_stories = (
+        df_stories
+        .sort_values("last_seen", ascending=False)
+        .drop_duplicates(subset=["story_id"], keep="first")
+    )
+    
+    
+    df = df[['Title', 'story_id', 'Published_utc']]
+    df['Published_utc'] = pd.to_datetime(df['Published_utc'], errors='coerce')
+    df = df[df['Published_utc'] > pd.Timestamp('2025-12-01', tz = 'UTC')]
+    
+    
+    
+    STORY_AGG_COLS = [
+        "avg_risk_score",
+        "avg_frequency",
+        "avg_acceleration",
+        "avg_recency",
+        "avg_source_accuracy",
+        "avg_impact_score",
+        "avg_industry_risk",
+        "avg_location"
+    ]
+    df = df.drop(columns=STORY_AGG_COLS, errors="ignore")
+    merged = df.merge(
+        df_stories,
+        on="story_id",
+        how="left",
+        validate="many_to_one"   
+    )
+    
+    
+    grouped = merged.groupby('story_id')
+    
+    canonical_stories = []
+    for story_id, group in grouped:
+        if group.shape[0] > 2:
+            canonical_source = group['canonical_source'].iloc[0]
+            if canonical_source == 'gemini':
+                continue
+            if story_id in canonical_titles['story_id'].values:
+                continue
+            existing_title = group['canonical_title'].iloc[0]
+            print(f"Story ID: {story_id}")
+            titles = group['Title'].tolist()
+            prompt = f"For each of these groups, read the titles of all the articles and generate a concise canonical title that summarizes the main topic of the story. Here's the titles: {titles}"
+            try:
+                response = client.models.generate_content(
+                    model = 'gemini-2.5-flash',
+                    contents = prompt)
+            except ClientError as e:
+                 if "RESOURCE_EXHAUSTED" in str(e):
+                    wait_time = 60  
+                    retry_delay_match = re.search(r"'retryDelay': '(\d+)s'", str(e))
+                    if retry_delay_match:
+                        wait_time = int(retry_delay_match.group(1))  # Use API's recommended delay#
+    
+                    print(f"⚠️ API quota exceeded. Retrying in {wait_time} seconds...")
+                    time.sleep(wait_time)
+            prompt2 = f"Based on the following titles: {titles}, generate a 100 word summary that takes into account all the titles."
+            response2 = client.models.generate_content(
+                model = 'gemini-2.5-flash',
+                contents = prompt2
+            )
+            canonical_title = response.text.strip()
+            print(f"Canonical Title: {canonical_title}")
+            summary = response2.text.strip()
+            print(f"Summary: {summary}")
+            print(f"Average Risk Score: {group['avg_risk_score'].iloc[0]:.2f}")
+            print(f"Average Recency: {group['avg_recency'].iloc[0]:.2f}")
+            print("Articles:")
+            for _, row in group.iterrows():
+                print(f" - {row['Published_utc']}: {row['Title']}")
+            print("\n")
+           
+            canonical_stories.append({
+                "story_id": story_id,
+                "canonical_title": canonical_title,
+                "summary": summary,
+                "average_risk_score": group['avg_risk_score'].iloc[0],
+                "average_recency": group['avg_recency'].iloc[0],
+                "articles": [{row['Published_utc']: row['Title']} for _, row in group.iterrows()],
+                "canonical_source": 'gemini'
+            })
+    if canonical_stories:
+        new_df = pd.DataFrame(canonical_stories)
+        try:
+            existing = pd.read_csv("Model_training/Canonical_Stories_with_Summaries.csv")
+            final = pd.concat([existing, new_df], ignore_index=True)
+            final = final.drop_duplicates(subset=['story_id'], keep='last')
+            final.to_csv("Model_training/Canonical_Stories_with_Summaries.csv", index=False)
+        except FileNotFoundError:
+            final = new_df
+            final.to_csv("Model_training/Canonical_Stories_with_Summaries.csv", index=False)
+    else:
+        print("No new titles were generated.")
+    
+    return None
+
 ##Show the articles over time
-#
+stories = build_stories()
+
 print("Articles over time", flush = True)
 #
 track_over_time(df)
