@@ -148,7 +148,6 @@ jobs:
             Model_training/label_initial.csv.gz\
             BERTopic_before.csv\
             Model_training/Canonical_Stories_with_Summaries.csv\
-            Model_training/Story_Clusters_backup.csv\
             Model_training/Articles_with_Stories.csv.gz\
             Model_training/Story_Clusters.csv.gz\
             Model_training/dashboard_stories.csv.gz\
