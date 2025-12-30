@@ -2582,12 +2582,16 @@ canonical = pd.read_csv("Model_training/Canonical_Stories_with_Summaries.csv")
 articles = articles.merge(article_story_map[['Title', 'Link', 'story_id']], on =['Title','Link'], how='left', validate='many_to_one')
 
 story_sizes = (articles.groupby("story_id").size().rename("story_articles_count").reset_index())
+score_cols = ["avg_risk_score", "avg_frequency", "avg_recency"]
 
-articles = articles.merge(canonical[["story_id","canonical_title", "summary"]], on = "story_id", how = 'left', validate = 'many_to_one')
+articles = articles.merge(canonical[["story_id","canonical_title", "summary"] + score_cols], on = "story_id", how = 'left', validate = 'many_to_one')
 
 articles = articles.merge(story_sizes, on = "story_id", how = 'left')
 
 canonical_articles = articles[articles['story_articles_count'] > 3].copy()
+
+
+
 
 dashboard_stories = (canonical_articles.groupby("story_id").agg(
     canonical_title = ("canonical_title", "first"),
