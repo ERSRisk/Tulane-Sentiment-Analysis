@@ -2579,7 +2579,7 @@ articles = load_midstep_from_release()
 article_story_map = pd.read_csv("Model_training/Articles_with_Stories.csv.gz", compression = 'gzip')
 canonical = pd.read_csv("Model_training/Canonical_Stories_with_Summaries.csv")
 score_cols = ["avg_risk_score", "avg_frequency", "avg_recency"]
-canonical = canonical.merge(story_df[["story_id"]+ score_cols], on = "story_id", how = "left")
+canonical = canonical.merge(stories_df[["story_id"]+ score_cols], on = "story_id", how = "left")
 
 articles = articles.merge(article_story_map[['Title', 'Link', 'story_id']], on =['Title','Link'], how='left', validate='many_to_one')
 
