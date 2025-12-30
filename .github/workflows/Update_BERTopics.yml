@@ -109,13 +109,7 @@ jobs:
             echo 'Model_training/BERTopic_results.csv'
             echo 'Online_Extraction/all_RSS.json'
             echo 'Model_training/BERTopic_model'
-            echo 'Model_training/Canonical_Stories_with_Summaries.csv'
             echo 'Model_training/Story_Clusters_backup.csv'
-            echo 'Model_training/Articles_with_Stories.csv.gz'
-            echo 'Model_training/Story_Clusters.csv.gz'
-            echo 'Model_training/dashboard_stories.csv.gz'
-            echo 'Model_training/dashboard_dropdown.csv.gz'
-            echo 'Model_training/dashboard_articles.csv.gz'
 
           } | while read -r p; do
                grep -qxF "$p" .gitignore || echo "$p" >> .gitignore
