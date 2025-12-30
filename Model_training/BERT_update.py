@@ -2579,7 +2579,7 @@ articles = load_midstep_from_release()
 article_story_map = pd.read_csv("Model_training/Articles_with_Stories.csv.gz", compression = 'gzip')
 canonical = pd.read_csv("Model_training/Canonical_Stories_with_Summaries.csv")
 
-articles = articles.merge(article_story_map[['Title', 'Link', 'story_id']], on =['Title','Link'], how='left', validate='one_to_one')
+articles = articles.merge(article_story_map[['Title', 'Link', 'story_id']], on =['Title','Link'], how='left', validate='many_to_one')
 
 story_sizes = (articles.groupby("story_id").size().rename("story_articles_count").reset_index())
 
