@@ -2590,7 +2590,7 @@ articles = articles.merge(article_story_map[['Title', 'Link', 'story_id']], on =
 story_sizes = (articles.groupby("story_id").size().rename("story_articles_count").reset_index())
 
 
-articles = articles.merge(canonical[["story_id","canonical_title", "summary"]], on = "story_id", how = 'left', validate = 'many_to_one')
+articles = articles.merge(canonical[["story_id","canonical_title", "summary"] + score_cols], on = "story_id", how = 'left', validate = 'many_to_one')
 
 articles = articles.merge(story_sizes, on = "story_id", how = 'left')
 
