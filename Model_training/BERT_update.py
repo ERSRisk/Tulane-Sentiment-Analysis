@@ -2222,8 +2222,7 @@ def build_stories():
 
 
 
-    def build_story_clusters(df, open_stories, min_sim = 0.6):
-        global story_id_counter, stories_df
+    def build_story_clusters(df, open_stories, story_id_counter, stories_df, min_sim = 0.6):
         df = df.copy()
 
 
@@ -2409,7 +2408,7 @@ def build_stories():
 
     df['Published_utc'] = pd.to_datetime(df['Published_utc'], errors='coerce')
     filtered_df = df.drop_duplicates(subset = 'Link', keep = 'last').reset_index(drop = True)
-    articles_with_stories, stories_df, open_stories = build_story_clusters(filtered_df, open_stories, min_sim = 0.6)
+    articles_with_stories, stories_df, open_stories = build_story_clusters(filtered_df, open_stories, story_id_counter, stories_df, min_sim = 0.6)
     articles_with_stories.to_csv("Model_training/Articles_with_Stories.csv.gz", index = False, compression = 'gzip')
 
     df = articles_with_stories
