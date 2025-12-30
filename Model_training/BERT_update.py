@@ -2578,13 +2578,15 @@ stories = build_stories()
 articles = load_midstep_from_release()
 article_story_map = pd.read_csv("Model_training/Articles_with_Stories.csv.gz", compression = 'gzip')
 canonical = pd.read_csv("Model_training/Canonical_Stories_with_Summaries.csv")
+score_cols = ["avg_risk_score", "avg_frequency", "avg_recency"]
+canonical = canonical.merge(story_df[["story_id"]+ score_cols], on = "story_id", how = "left")
 
 articles = articles.merge(article_story_map[['Title', 'Link', 'story_id']], on =['Title','Link'], how='left', validate='many_to_one')
 
 story_sizes = (articles.groupby("story_id").size().rename("story_articles_count").reset_index())
-score_cols = ["avg_risk_score", "avg_frequency", "avg_recency"]
 
-articles = articles.merge(canonical[["story_id","canonical_title", "summary"] + score_cols], on = "story_id", how = 'left', validate = 'many_to_one')
+
+articles = articles.merge(canonical[["story_id","canonical_title", "summary"]], on = "story_id", how = 'left', validate = 'many_to_one')
 
 articles = articles.merge(story_sizes, on = "story_id", how = 'left')
 
