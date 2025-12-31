@@ -2415,20 +2415,40 @@ def build_stories():
     print(df.columns.tolist())
     merged = pd.merge(df, stories_df, on='story_id', how='left')
     merged = merged.sort_values(by='Published_utc', ascending=False)
+        NUMERIC_COLS = [
+    "Risk_Score",
+    "Frequency_Score",
+    "Acceleration_value",
+    "Recency",
+    "Source_Accuracy",
+    "Impact_Score",
+    "Industry_Risk",
+    "Location"
+]
+    for c in NUMERIC_COLS:
+        if c in merged.columns:
+            merged[c] = pd.to_numeric(merged[c], errors = 'coerce')
+            
     grouped = merged.groupby('story_id')
     
-    
+
     score_factors = []
     for story_id, group in grouped:
         if group.shape[0] > 2:
-            avg_risk_score = group['Risk_Score'].mean()
-            avg_frequency = group['Frequency_Score'].mean()
-            avg_acceleration = group['Acceleration_value'].mean()
-            recency = group.sort_values(by='Published_utc', ascending=False).iloc[0]['Recency']
-            avg_source_acc = group['Source_Accuracy'].mean()
-            avg_impact = group['Impact_Score'].mean()
-            avg_industry = group['Industry_Risk'].mean() 
-            avg_location = group['Location'].mean()
+            avg_risk_score = group['Risk_Score'].mean(skipna = True)
+            avg_frequency = group['Frequency_Score'].mean(skipna = True)
+            avg_acceleration = group['Acceleration_value'].mean(skipna = True)
+            recency = (group.sort_values(by='Published_utc', ascending=False)['Recency'].dropna().iloc[0] if group['recency'].notna().any() else np.nan)
+            avg_source_acc = group['Source_Accuracy'].mean(skipna = True)
+            avg_impact = group['Impact_Score'].mean(skipna = True)
+            avg_industry = group['Industry_Risk'].mean(skipna = True) 
+            avg_location = group['Location'].mean(skipna = True)
+
+            if pd.isna(avg_risk_score):
+            print(
+                f"Story {story_id} has no numeric Risk_Score:",
+                group["Risk_Score"].unique()[:5], flush = True
+            )
     
             score_factors.append({
                 "story_id": story_id,
@@ -2576,7 +2596,9 @@ def build_stories():
 stories = build_stories()
 
 articles = load_midstep_from_release()
+articles = articles.drop_duplicates(subset = ['Title', 'Link'], keep = 'last')
 article_story_map = pd.read_csv("Model_training/Articles_with_Stories.csv.gz", compression = 'gzip')
+article_story_map = article_story_map.drop_duplicates(subset = ['Title', 'Link'], keep = 'last')
 canonical = pd.read_csv("Model_training/Canonical_Stories_with_Summaries.csv")
 score_cols = ["avg_risk_score", "avg_frequency", "avg_recency"]
 stories_df = pd.read_csv(
