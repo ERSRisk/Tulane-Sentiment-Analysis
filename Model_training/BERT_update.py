@@ -2415,7 +2415,7 @@ def build_stories():
     print(df.columns.tolist())
     merged = pd.merge(df, stories_df, on='story_id', how='left')
     merged = merged.sort_values(by='Published_utc', ascending=False)
-        NUMERIC_COLS = [
+    NUMERIC_COLS = [
     "Risk_Score",
     "Frequency_Score",
     "Acceleration_value",
