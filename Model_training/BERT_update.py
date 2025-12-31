@@ -2445,10 +2445,10 @@ def build_stories():
             avg_location = group['Location'].mean(skipna = True)
 
             if pd.isna(avg_risk_score):
-            print(
-                f"Story {story_id} has no numeric Risk_Score:",
-                group["Risk_Score"].unique()[:5], flush = True
-            )
+                print(
+                    f"Story {story_id} has no numeric Risk_Score:",
+                    group["Risk_Score"].unique()[:5], flush = True
+                )
     
             score_factors.append({
                 "story_id": story_id,
