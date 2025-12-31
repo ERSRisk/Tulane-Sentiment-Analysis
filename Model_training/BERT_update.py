@@ -2635,8 +2635,8 @@ dropdown_table = canonical_articles[["story_id", "Title", "Link", "Published_utc
 
 standalone_articles = articles[articles["story_articles_count"] <3].copy()
 
-canonical_articles.to_csv("Model_training/dashboard_stories.csv.gz", compression = 'gzip')
-dashboard_stories.to_csv("Model_training/dashboard_dropdown.csv.gz", compression = 'gzip')
+dashboard_stories.to_csv("Model_training/dashboard_stories.csv.gz", compression = 'gzip')
+dropdown_table.to_csv("Model_training/dashboard_dropdown.csv.gz", compression = 'gzip')
 standalone_articles.to_csv("Model_training/dashboard_articles.csv.gz", compression = 'gzip')
 
 articles_only = articles[articles['story_articles_count']<3].copy()
