@@ -2438,7 +2438,7 @@ def build_stories():
             avg_risk_score = group['Risk_Score'].mean(skipna = True)
             avg_frequency = group['Frequency_Score'].mean(skipna = True)
             avg_acceleration = group['Acceleration_value'].mean(skipna = True)
-            recency = (group.sort_values(by='Published_utc', ascending=False)['Recency'].dropna().iloc[0] if group['recency'].notna().any() else np.nan)
+            recency = (group.sort_values(by='Published_utc', ascending=False)['Recency'].dropna().iloc[0] if group['Recency'].notna().any() else np.nan)
             avg_source_acc = group['Source_Accuracy'].mean(skipna = True)
             avg_impact = group['Impact_Score'].mean(skipna = True)
             avg_industry = group['Industry_Risk'].mean(skipna = True) 
