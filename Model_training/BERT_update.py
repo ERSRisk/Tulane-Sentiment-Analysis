@@ -2671,7 +2671,7 @@ dashboard_stories = (
       .reset_index()
 )
 
-dropdown_table = canonical_articles[["story_id", "Title","Topic", "Link", "Published_utc", "Risk_score",'Recency', 'Source_Accuracy', 'Impact_Score', 'Acceleration_value', 'Location','Industry_Risk', 'Frequency_Score', "Predicted_Risks_new"]].sort_values("Published_utc", ascending = False)
+dropdown_table = canonical_articles[["story_id", "Title","Topic", "Link", "Published_utc", "Risk_Score",'Recency', 'Source_Accuracy', 'Impact_Score', 'Acceleration_value', 'Location','Industry_Risk', 'Frequency_Score', "Predicted_Risks_new"]].sort_values("Published_utc", ascending = False)
 
 standalone_articles = articles[articles["story_articles_count"] <3].copy()
 
