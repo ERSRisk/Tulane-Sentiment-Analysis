@@ -2620,7 +2620,7 @@ story_scores = (articles.groupby("story_id").agg(
     risk_label = ("Predicted_Risks_new", safe_mode)).reset_index())
 canonical = pd.read_csv("Model_training/Canonical_Stories_with_Summaries.csv")
 
-canonical = canonical.merge(story_scores, on = "story_id", how = 'left', validation= "one_to_one")
+canonical = canonical.merge(story_scores, on = "story_id", how = 'left', validate= "one_to_one")
 canonical.to_csv("Model_training/Canonical_stories_with_Summaries.csv", index = False)
 articles = load_midstep_from_release()
 articles = articles.drop_duplicates(subset = ['Title', 'Link'], keep = 'last')
