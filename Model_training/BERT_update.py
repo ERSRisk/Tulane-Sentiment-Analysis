@@ -2648,21 +2648,28 @@ canonical_articles = articles[articles['story_articles_count'] > 3].copy()
 
 
 
-dashboard_stories = (canonical_articles.groupby("story_id").agg(
-    canonical_title = ("canonical_title", "first"),
-    summary = ("summary", "first"),
-    article_count = ("story_articles_count", "first"),
-    avg_risk_score = ("avg_risk_score", "mean"),
-    avg_frequency = ("avg_frequency", "mean"),
-    avg_recency = ("avg_recency", "mean"),
-    avg_acceleration = ("avg_acceleration", "max"),
-    avg_source_accuracy = ("avg_source_accuracy", "mean"),
-    avg_impact_score = ("avg_impact_score", "mean"),
-    avg_industry_risk = ("avg_industry_risk", "mean"),
-    avg_location = ("avg_location", "mean"),
-    risk_label = ("risk_label", safe_mode),
-    last_seen = ("Published_utc", "max")
-).reset_index())
+dashboard_stories = (
+    canonical_articles
+      .groupby("story_id")
+      .agg(
+          canonical_title = ("canonical_title", "first"),
+          summary = ("summary", "first"),
+          article_count = ("story_articles_count", "first"),
+
+          avg_risk_score = ("Risk_Score", "mean"),
+          avg_frequency = ("Frequency_Score", "mean"),
+          avg_recency = ("Recency", "mean"),
+          avg_acceleration = ("Acceleration_value", "max"),
+          avg_source_accuracy = ("Source_Accuracy", "mean"),
+          avg_impact_score = ("Impact_Score", "mean"),
+          avg_industry_risk = ("Industry_Risk", "mean"),
+          avg_location = ("Location", "mean"),
+
+          risk_label = ("Predicted_Risks_new", safe_mode),
+          last_seen = ("Published_utc", "max")
+      )
+      .reset_index()
+)
 
 dropdown_table = canonical_articles[["story_id", "Title","Topic", "Link", "Published_utc", "avg_risk_score", "avg_recency"]].sort_values("Published_utc", ascending = False)
 
