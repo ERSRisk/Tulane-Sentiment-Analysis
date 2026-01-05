@@ -2608,7 +2608,7 @@ score_cols = [
         "avg_industry_risk",
         "avg_location"
     ]
-existing = [c for c in score_cols if c in article.columns]
+existing = [c for c in score_cols if c in articles.columns]
 articles[existing] = articles[existing].apply(pd.to_numeric, errors = 'coerce')
 story_scores = (articles.groupby("story_id").agg(
     avg_frequency = ("Frequency_Score", "mean"),
