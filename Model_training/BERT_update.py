@@ -2659,7 +2659,7 @@ dashboard_stories = (canonical_articles.groupby("story_id").agg(
     avg_impact_score = ("avg_impact_score", "mean"),
     avg_industry_risk = ("avg_industry_risk", "mean"),
     avg_location = ("avg_location", "mean"),
-    risk_label = ("risk_label", safe_mode)
+    risk_label = ("risk_label", safe_mode),
     last_seen = ("Published_utc", "max")
 ).reset_index())
 
