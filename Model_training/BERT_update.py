@@ -2632,14 +2632,14 @@ stories_df = pd.read_csv(
     "Model_training/Story_Clusters.csv.gz",
     compression="gzip"
 )
-canonical = canonical.merge(stories_df[["story_id"]+ score_cols], on = "story_id", how = "left")
+canonical = canonical.merge(stories_df[["story_id"]], on = "story_id", how = "left")
 
 articles = articles.merge(article_story_map[['Title', 'Link', 'story_id']], on =['Title','Link'], how='left', validate='many_to_one')
 
 story_sizes = (articles.groupby("story_id").size().rename("story_articles_count").reset_index())
 
 
-articles = articles.merge(canonical[["story_id","canonical_title", "summary"] + score_cols], on = "story_id", how = 'left', validate = 'many_to_one')
+articles = articles.merge(canonical, on = "story_id", how = 'left', validate = 'many_to_one')
 
 articles = articles.merge(story_sizes, on = "story_id", how = 'left')
 
