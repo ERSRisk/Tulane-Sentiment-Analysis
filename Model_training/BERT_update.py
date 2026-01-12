@@ -2146,8 +2146,9 @@ def build_stories():
     df = df[df['Published_utc'].notna()]
     df['orig_idx'] = df.index
     df['story_id'] = np.nan
-    already_labeled = old_df[old_df['story_id'].notna()].copy()
-    new_articles = df[df['story_id'].isna()].copy()
+    already_labeled = old_df[['Title','Link','story_id']].dropna(subset=['story_id'])
+    cutoff = old_df['Published_utc'].max()
+    new_articles = df[df['Published_utc'] > cutoff].copy()
 
     new_articles['_key'] = list(zip(new_articles['Title'], new_articles['Link']))
     already_labeled['_key'] = list(zip(already_labeled['Title'], already_labeled['Link']))
@@ -2221,7 +2222,7 @@ def build_stories():
 
 
 
-    def build_story_clusters(df, open_stories, story_id_counter, stories_df, min_sim = 0.6):
+    def build_story_clusters(df, open_stories, story_id_counter, stories_df, min_sim = 0.52):
         df = df.copy()
 
 
@@ -2238,7 +2239,7 @@ def build_stories():
     
 
     
-        MAX_GAP_DAYS = 10
+        MAX_GAP_DAYS = 21
     
 
         df = df.copy()
@@ -2397,7 +2398,7 @@ def build_stories():
         ).set_index("orig_idx")
 
         df_w = df.join(aid.rename(columns={"story_id": "story_id_new"}), how="left")
-        df_w['story_id'] = df_w['story_id'].fillna(df_w['story_id_new'])
+        df_w.loc[df_w['story_id'].isna(), 'story_id'] = df_w['story_id_new']
         df_w = df_w.drop(columns = ['story_id_new'])
         assert df_w['story_id'].notna().all()
 
@@ -2406,8 +2407,8 @@ def build_stories():
 
 
     df['Published_utc'] = pd.to_datetime(df['Published_utc'], errors='coerce')
-    filtered_df = df.drop_duplicates(subset = 'Link', keep = 'last').reset_index(drop = True)
-    articles_with_stories, stories_df, open_stories = build_story_clusters(filtered_df, open_stories, story_id_counter, stories_df, min_sim = 0.6)
+    #filtered_df = df.drop_duplicates(subset = 'Link', keep = 'last').reset_index(drop = True)
+    articles_with_stories, stories_df, open_stories = build_story_clusters(df, open_stories, story_id_counter, stories_df, min_sim = 0.6)
     articles_with_stories.to_csv("Model_training/Articles_with_Stories.csv.gz", index = False, compression = 'gzip')
 
     df = articles_with_stories
@@ -2433,7 +2434,7 @@ def build_stories():
 
     score_factors = []
     for story_id, group in grouped:
-        if group.shape[0] > 2:
+        if group.shape[0] >= 2:
             avg_risk_score = group['Risk_Score'].mean(skipna = True)
             avg_frequency = group['Frequency_Score'].mean(skipna = True)
             avg_acceleration = group['Acceleration_value'].mean(skipna = True)
@@ -2472,7 +2473,7 @@ def build_stories():
     client = genai.Client(api_key = api_key)
     
     df = pd.read_csv('Model_training/Articles_with_Stories.csv.gz', compression='gzip')
-    df = df.drop_duplicates(subset=["Link"], keep="last")
+    df = df.drop_duplicates(subset=["Title", "Published_utc"], keep="last")
     df_stories = pd.read_csv('Model_training/Story_Clusters.csv.gz', compression='gzip')
     df_stories.to_csv('Model_training/Story_Clusters_backup.csv', index=False)
     
@@ -2501,7 +2502,7 @@ def build_stories():
     
     df = df[['Title', 'story_id', 'Published_utc']]
     df['Published_utc'] = pd.to_datetime(df['Published_utc'], errors='coerce')
-    df = df[df['Published_utc'] > pd.Timestamp('2025-12-01', tz = 'UTC')]
+    df = df[df['Published_utc'] > (pd.Timestamp.utcnow() - pd.Timedelta(days=90))]
     
     
     
@@ -2642,7 +2643,7 @@ articles = articles.merge(canonical, on = "story_id", how = 'left', validate = '
 
 articles = articles.merge(story_sizes, on = "story_id", how = 'left')
 
-canonical_articles = articles[articles['story_articles_count'] > 3].copy()
+canonical_articles = articles[articles['story_articles_count'] >= 2].copy()
 
 
 
@@ -2672,7 +2673,7 @@ dashboard_stories = (
 
 dropdown_table = canonical_articles[["story_id", "Title","Topic", "Link", "Published_utc", "Risk_Score",'Recency', 'Source_Accuracy', 'Impact_Score', 'Acceleration_value', 'Location','Industry_Risk', 'Frequency_Score', "Predicted_Risks_new"]].sort_values("Published_utc", ascending = False)
 
-standalone_articles = articles[articles["story_articles_count"] <3].copy()
+standalone_articles = articles[articles["story_articles_count"] == 1].copy()
 
 dashboard_stories.to_csv("Model_training/dashboard_stories.csv.gz", compression = 'gzip')
 dropdown_table.to_csv("Model_training/dashboard_dropdown.csv.gz", compression = 'gzip')
