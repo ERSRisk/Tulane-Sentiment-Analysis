@@ -2121,7 +2121,20 @@ def load_midstep_from_release(local_cache_path = 'Model_training/BERTopic_Stream
 #df_streamlit = df[df['University Label'] == 1]
 #atomic_write_csv("Model_training/BERTopic_Streamlit.csv.gz", df_streamlit, compress = True)
 #upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/BERTopic_Streamlit.csv.gz', GITHUB_TOKEN)
+def ensure_risk_scores(df: pd.DataFrame) -> pd.DataFrame:
+    if 'Risk_Score' not in df.columns:
+        print("Risk Score missing -- recomputing", flush = True)
+        return risk_weights(df)
+    if df['Risk_Score'].isna.all():
+        print("Risk Score all NaN -- recomputing", flush = True)
+        return risk_weights(df)
+    nan_ratio = df['Risk_Score'].isna().mean()
+    if nan_ratio > 0.2:
+        print(f"Risk Score {nan_ratio: .1%} NaN -- recomputing", flush = True)
+        return risk_weights(df)
+    return df
 def build_stories():
+    
     model = SentenceTransformer("all-MiniLM-L6-v2")
 
 
@@ -2134,6 +2147,7 @@ def build_stories():
                 456,387,245,239,226,196,155,144,123,117,109,105,85,61,33,28,
                 25,16,14]
     df = load_midstep_from_release()
+    df = ensure_risk_scores(df)
 
     if Path('Model_training/Articles_with_Stories.csv.gz').exists():
         old_df = pd.read_csv('Model_training/Articles_with_Stories.csv.gz', compression='gzip')
@@ -2625,6 +2639,7 @@ canonical = pd.read_csv("Model_training/Canonical_Stories_with_Summaries.csv")
 canonical = canonical.merge(story_scores, on = "story_id", how = 'left', validate= "one_to_one")
 canonical.to_csv("Model_training/Canonical_stories_with_Summaries.csv", index = False)
 articles = load_midstep_from_release()
+articles = ensure_risk_scores()
 articles = articles.drop_duplicates(subset = ['Title', 'Link'], keep = 'last')
 article_story_map = pd.read_csv("Model_training/Articles_with_Stories.csv.gz", compression = 'gzip')
 article_story_map = article_story_map.drop_duplicates(subset = ['Title', 'Link'], keep = 'last')
