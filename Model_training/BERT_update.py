@@ -2125,7 +2125,7 @@ def ensure_risk_scores(df: pd.DataFrame) -> pd.DataFrame:
     if 'Risk_Score' not in df.columns:
         print("Risk Score missing -- recomputing", flush = True)
         return risk_weights(df)
-    if df['Risk_Score'].isna.all():
+    if df['Risk_Score'].isna().all():
         print("Risk Score all NaN -- recomputing", flush = True)
         return risk_weights(df)
     nan_ratio = df['Risk_Score'].isna().mean()
