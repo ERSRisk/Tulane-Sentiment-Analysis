@@ -2148,6 +2148,8 @@ def build_stories():
                 25,16,14]
     df = load_midstep_from_release()
     df = ensure_risk_scores(df)
+    df['Published_utc'] = pd.to_datetime(df['Published_utc'], errors = 'coerce', utc = True)
+    df = df[df['Published_utc'].notna()]
 
     
 
@@ -2173,6 +2175,7 @@ def build_stories():
     cutoff = old_df['Published_utc'].max()
     if pd.isna(cutoff):
         cutoff = pd.Timestamp.min
+    
     new_articles = df[df['Published_utc'] > cutoff].copy()
     new_articles['story_id'] = np.nan
 
@@ -2663,7 +2666,7 @@ canonical = pd.read_csv("Model_training/Canonical_Stories_with_Summaries.csv")
 canonical = canonical.merge(story_scores, on = "story_id", how = 'left', validate= "one_to_one")
 canonical.to_csv("Model_training/Canonical_stories_with_Summaries.csv", index = False)
 articles = load_midstep_from_release()
-articles = ensure_risk_scores()
+articles = ensure_risk_scores(articles)
 articles = articles.drop_duplicates(subset = ['Title', 'Link'], keep = 'last')
 article_story_map = pd.read_csv("Model_training/Articles_with_Stories.csv.gz", compression = 'gzip')
 article_story_map = article_story_map.drop_duplicates(subset = ['Title', 'Link'], keep = 'last')
