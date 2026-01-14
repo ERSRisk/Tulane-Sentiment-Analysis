@@ -2584,7 +2584,7 @@ def build_stories():
 
     for story_id, group in grouped:
         canonical_source = group['canonical_source'].iloc[0]
-        caonical_title = group['canonical_title'].iloc[0]
+        canonical_title = group['canonical_title'].iloc[0]
         needs_label = (
             canonical_source != 'gemini'
             and (
