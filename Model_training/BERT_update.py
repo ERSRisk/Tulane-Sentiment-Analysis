@@ -2586,8 +2586,7 @@ def build_stories():
     for story_id, group in grouped:
         canonical_source = group['canonical_source'].iloc[0]
         caonical_title = group['canonical_title'].iloc[0]
-        needs_label = (pd.isna(canonical_source) 
-                       or canonical_source != 'gemini' 
+        needs_label = (pd.isna(canonical_source) or pd.isna(canonical_title)
                        or (isinstance(canonical_title, str) and canonical_title.strip().lower().startswith("story ")))
         if group.shape[0] >= 2:
             
