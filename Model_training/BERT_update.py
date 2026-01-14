@@ -2531,7 +2531,6 @@ def build_stories():
     
     if Path('Model_training/Canonical_Stories_with_Summaries.csv').exists():
         canonical_titles = pd.read_csv('Model_training/Canonical_Stories_with_Summaries.csv')
-        canonical_titles['canonical_source'] = canonical_titles['canonical_source'].fillna('unlabeled')
     else:
         canonical_titles = pd.DataFrame(columns=['story_id', 'canonical_title', 'summary', 'average_risk_score', 'average_recency', 'articles', 'canonical_source'])
     df_stories = df_stories.merge(
@@ -2586,8 +2585,13 @@ def build_stories():
     for story_id, group in grouped:
         canonical_source = group['canonical_source'].iloc[0]
         caonical_title = group['canonical_title'].iloc[0]
-        needs_label = (pd.isna(canonical_source) or pd.isna(canonical_title)
-                       or (isinstance(canonical_title, str) and canonical_title.strip().lower().startswith("story ")))
+        needs_label = (
+            canonical_source != 'gemini'
+            and (
+                pd.isna(canonical_title)
+                or canonical_title.strip().lower().startswith("story ")
+            )
+        )
         if group.shape[0] >= 2:
             
             if not needs_label:
