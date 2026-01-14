@@ -2165,6 +2165,13 @@ def build_stories():
             old_df = pd.DataFrame(columns=df.columns.tolist() + ['story_id', '_key'])
     else:
         old_df = pd.DataFrame(columns=df.columns.tolist() + ['story_id'] + ['_key'])
+
+    if 'Published_utc' in old_df.columns:
+        old_df['Published_utc'] = pd.to_datetime(
+            old_df['Published_utc'],
+            errors = 'coerce',
+            utc=True
+        )
     
 
 
