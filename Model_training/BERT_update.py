@@ -2174,8 +2174,10 @@ def build_stories():
     already_labeled = old_df.dropna(subset=['story_id'])
     cutoff = old_df['Published_utc'].max()
     if pd.isna(cutoff):
-        cutoff = pd.Timestamp.min
-    
+        cutoff = pd.Timestamp.min.tz_localize("UTC")
+    elif cutoff.tzinfo is None:
+        cutoff = cutoff.tz_localize("UTC")
+        
     new_articles = df[df['Published_utc'] > cutoff].copy()
     new_articles['story_id'] = np.nan
 
