@@ -2149,11 +2149,21 @@ def build_stories():
     df = load_midstep_from_release()
     df = ensure_risk_scores(df)
 
-    if Path('Model_training/Articles_with_Stories.csv.gz').exists():
+    
+
+    stories_df_exists = Path('Model_training/Story_Clusters.csv.gz').exists()
+    articles_with_stories_exists = Path('Model_training/Articles_with_Stories.csv.gz').exists()
+
+    if stories_df_exists and articles_with_stories_exists:
         old_df = pd.read_csv('Model_training/Articles_with_Stories.csv.gz', compression='gzip')
+        if old_df['story_id'].notna().sum() == 0:
+            print("INVALID STATE: stories exist but no articles reference them. RESETTING.")
+            Path("Model_training/Story_Clusters.csv.gz").unlink(missing_ok = True)
+            Path("Model_training/Articles_with_Stories.csv.gz").unlink(missing_ok = True)
+            old_df = pd.DataFrame(columns=df.columns.tolist() + ['story_id', '_key'])
     else:
         old_df = pd.DataFrame(columns=df.columns.tolist() + ['story_id'] + ['_key'])
-
+    
 
 
 
@@ -2161,6 +2171,8 @@ def build_stories():
     df['orig_idx'] = df.index
     already_labeled = old_df.dropna(subset=['story_id'])
     cutoff = old_df['Published_utc'].max()
+    if pd.isna(cutoff):
+        cutoff = pd.Timestamp.min
     new_articles = df[df['Published_utc'] > cutoff].copy()
     new_articles['story_id'] = np.nan
 
@@ -2180,6 +2192,9 @@ def build_stories():
         'story_id', 'canonical_title', 'canonical_link', 'canonical_published',
         'article_count', 'first_seen', 'last_seen'
     ])
+
+    if df['story_id'].notna().sum() == 0:
+        stories_df = pd.DataFrame(columns = stories_df.columns)
 
     if Path('Model_training/Canonical_Stories_with_Summaries.csv').exists():
         canonical_titles = pd.read_csv('Model_training/Canonical_Stories_with_Summaries.csv')
@@ -2206,7 +2221,14 @@ def build_stories():
     article_embeddings = model.encode(df['Title'].fillna('').tolist(), convert_to_numpy = True, normalize_embeddings = True)
     df['story_embeddings'] = list(article_embeddings)
 
-    articles_by_story = (df[df['story_id'].notna()].groupby('story_id').apply(lambda g: g.to_dict('records')).to_dict())
+    articles_by_story = {}
+
+    if df['story_id'].notna().sum() > 0:
+        articles_by_story = (df[df['story_id'].notna()].groupby('story_id').apply(lambda g: g.to_dict('records')).to_dict())
+
+    if not articles_by_story:
+        print("No existing story assignments - starting fresh clustering", flush = True)
+        stories_df = stories_df.iloc[0:0]
 
 
     for _, row in stories_df.iterrows():
@@ -2423,6 +2445,9 @@ def build_stories():
     df['Published_utc'] = pd.to_datetime(df['Published_utc'], errors='coerce')
     #filtered_df = df.drop_duplicates(subset = 'Link', keep = 'last').reset_index(drop = True)
     articles_with_stories, stories_df, open_stories = build_story_clusters(df, open_stories, story_id_counter, stories_df, min_sim = 0.6)
+    assigned = articles_with_stories['story_id'].notna().sum()
+    if assigned == 0:
+        raise RuntimeError("CRITICAL: build_story_clusters produced zero story assignments.")
     articles_with_stories.to_csv("Model_training/Articles_with_Stories.csv.gz", index = False, compression = 'gzip')
 
     df = articles_with_stories
