@@ -2159,10 +2159,10 @@ def build_stories():
 
     df = df[df['Published_utc'].notna()]
     df['orig_idx'] = df.index
-    df['story_id'] = np.nan
     already_labeled = old_df.dropna(subset=['story_id'])
     cutoff = old_df['Published_utc'].max()
     new_articles = df[df['Published_utc'] > cutoff].copy()
+    new_articles['story_id'] = np.nan
 
     new_articles['_key'] = list(zip(new_articles['Title'], new_articles['Link']))
     already_labeled['_key'] = list(zip(already_labeled['Title'], already_labeled['Link']))
