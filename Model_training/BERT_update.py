@@ -2214,11 +2214,20 @@ def build_stories():
         canonical_titles = pd.DataFrame(columns=['story_id', 'canonical_title'])
 
     stories_df = stories_df.merge(
-        canonical_titles[['story_id', 'canonical_title', 'canonical_source']],
-        on = 'story_id',
-        how = 'left',
-        validate = 'one_to_one'
+    canonical_titles[['story_id', 'canonical_title', 'canonical_source']],
+    on='story_id',
+    how='left',
+    suffixes=('', '_gemini'),
+    validate='one_to_one'
     )
+    
+    # Prefer Gemini canonical_title when present, otherwise keep existing
+    if 'canonical_title_gemini' in stories_df.columns:
+        stories_df['canonical_title'] = stories_df['canonical_title_gemini'].fillna(stories_df['canonical_title'])
+    
+    # Keep canonical_source (new column)
+    # (canonical_source is only in canonical_titles, so it won't conflict)
+    stories_df.drop(columns=[c for c in stories_df.columns if c.endswith('_gemini')], inplace=True, errors='ignore')
 
     story_id_counter = int(stories_df['story_id'].max()) + 1 if not stories_df.empty else 1
     open_stories = []
@@ -2532,7 +2541,8 @@ def build_stories():
         suffixes = ('', '_new'),
         validate='one_to_one'
     )
-    df_stories['canonical_title'] = df_stories['canonical_title_new'] if df_stories['canonical_title_new'] else df_stories['canonical_title']
+    if 'canonical_title_new' in df_stories.columns:
+        df_stories['canonical_title'] = df_stories['canonical_title_new'].fillna(df_stories['canonical_title'])
 
     df_stories['canonical_title'] = df_stories['canonical_title'].astype('string')
     df_stories = (
