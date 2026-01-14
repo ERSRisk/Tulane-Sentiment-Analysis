@@ -2160,7 +2160,7 @@ def build_stories():
     df = df[df['Published_utc'].notna()]
     df['orig_idx'] = df.index
     df['story_id'] = np.nan
-    already_labeled = old_df[['Title','Link','story_id']].dropna(subset=['story_id'])
+    already_labeled = old_df.dropna(subset=['story_id'])
     cutoff = old_df['Published_utc'].max()
     new_articles = df[df['Published_utc'] > cutoff].copy()
 
@@ -2545,11 +2545,10 @@ def build_stories():
     
     canonical_stories = []
     for story_id, group in grouped:
-        if group.shape[0] > 2:
+        if group.shape[0] >= 2:
             canonical_source = group['canonical_source'].iloc[0]
-            if canonical_source == 'gemini':
-                continue
-            if story_id in canonical_titles['story_id'].values:
+            if (story_id in canonical_titles['story_id'].values
+                and canonical_source == 'gemini'):
                 continue
             existing_title = group['canonical_title'].iloc[0]
             print(f"Story ID: {story_id}")
