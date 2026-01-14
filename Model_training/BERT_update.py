@@ -2532,8 +2532,8 @@ def build_stories():
         suffixes = ('', '_new'),
         validate='one_to_one'
     )
-    df_stories['canonical_title'] = df_stories['canonical_title_new'].fillna(df_stories['canonical_title'])
-    df_stories = df_stories.drop(columns=['canonical_title_new'], errors='ignore')
+    df_stories['canonical_title'] = df_stories['canonical_title_new'] if df_stories['canonical_title_new'] else df_stories['canonical_title']
+
     df_stories['canonical_title'] = df_stories['canonical_title'].astype('string')
     df_stories = (
         df_stories
