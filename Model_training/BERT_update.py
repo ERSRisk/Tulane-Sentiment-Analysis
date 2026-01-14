@@ -2589,7 +2589,7 @@ def build_stories():
         canonical_title = group['canonical_title'].iloc[0]
         if group.shape[0] >= 2:
             
-            if canonical_source == 'gemini':
+            if pd.notna(canonical_title):
                 continue
             existing_title = group['canonical_title'].iloc[0]
             print(f"Story ID: {story_id}")
