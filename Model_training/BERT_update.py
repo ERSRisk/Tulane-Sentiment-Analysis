@@ -2574,11 +2574,16 @@ def build_stories():
     grouped = merged.groupby('story_id')
     
     canonical_stories = []
+
     for story_id, group in grouped:
+        canonical_source = group['canonical_source'].iloc[0]
+        caonical_title = group['canonical_title'].iloc[0]
+        needs_label = (pd.isna(canonical_source) 
+                       or canonical_source != 'gemini' 
+                       or (isinstance(canonical_title, str) and canonical_title.strip().lower().startswith("story ")))
         if group.shape[0] >= 2:
-            canonical_source = group['canonical_source'].iloc[0]
-            if (story_id in canonical_titles['story_id'].values
-                and canonical_source == 'gemini'):
+            
+            if not needs_label:
                 continue
             existing_title = group['canonical_title'].iloc[0]
             print(f"Story ID: {story_id}")
@@ -2622,6 +2627,7 @@ def build_stories():
                 "articles": [{row['Published_utc']: row['Title']} for _, row in group.iterrows()],
                 "canonical_source": 'gemini'
             })
+            print(f"Gemini Check story ={story_id}, needs label {needs_label}, title {canonical_title}, source {canonical_source}", flush = True)
     if canonical_stories:
         new_df = pd.DataFrame(canonical_stories)
         try:
