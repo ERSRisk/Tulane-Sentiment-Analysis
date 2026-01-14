@@ -2655,94 +2655,94 @@ def build_stories():
     return None
 
 ##Show the articles over time
-stories = build_stories()
+#stories = build_stories()
 def safe_mode(series):
     s = series.dropna()
     return s.mode().iloc[0] if not s.empty else None
-articles = pd.read_csv("Model_training/Articles_with_Stories.csv.gz", compression = 'gzip')
-score_cols = [
-        "avg_risk_score",
-        "avg_frequency",
-        "avg_acceleration",
-        "avg_recency",
-        "avg_source_accuracy",
-        "avg_impact_score",
-        "avg_industry_risk",
-        "avg_location"
-    ]
-existing = [c for c in score_cols if c in articles.columns]
-articles[existing] = articles[existing].apply(pd.to_numeric, errors = 'coerce')
-story_scores = (articles.groupby("story_id").agg(
-    avg_frequency = ("Frequency_Score", "mean"),
-    avg_acceleration = ("Acceleration_value", "max"),
-    avg_source_accuracy = ("Source_Accuracy", "mean"),
-    avg_impact_score = ("Impact_Score", "mean"),
-    avg_industry_risk = ("Industry_Risk", "mean"),
-    avg_location = ("Location", "mean"),
-    risk_label = ("Predicted_Risks_new", safe_mode)).reset_index())
-canonical = pd.read_csv("Model_training/Canonical_Stories_with_Summaries.csv")
+#articles = pd.read_csv("Model_training/Articles_with_Stories.csv.gz", compression = 'gzip')
+#score_cols = [
+#        "avg_risk_score",
+#        "avg_frequency",
+#        "avg_acceleration",
+#        "avg_recency",
+#        "avg_source_accuracy",
+#        "avg_impact_score",
+#        "avg_industry_risk",
+#        "avg_location"
+#    ]
+#existing = [c for c in score_cols if c in articles.columns]
+#articles[existing] = articles[existing].apply(pd.to_numeric, errors = 'coerce')
+#story_scores = (articles.groupby("story_id").agg(
+#    avg_frequency = ("Frequency_Score", "mean"),
+#    avg_acceleration = ("Acceleration_value", "max"),
+#    avg_source_accuracy = ("Source_Accuracy", "mean"),
+#    avg_impact_score = ("Impact_Score", "mean"),
+#    avg_industry_risk = ("Industry_Risk", "mean"),
+#    avg_location = ("Location", "mean"),
+#    risk_label = ("Predicted_Risks_new", safe_mode)).reset_index())
+#canonical = pd.read_csv("Model_training/Canonical_Stories_with_Summaries.csv")
 
-canonical = canonical.merge(story_scores, on = "story_id", how = 'left', validate= "one_to_one")
-canonical.to_csv("Model_training/Canonical_stories_with_Summaries.csv", index = False)
-articles = load_midstep_from_release()
-articles = ensure_risk_scores(articles)
-articles = articles.drop_duplicates(subset = ['Title', 'Link'], keep = 'last')
-article_story_map = pd.read_csv("Model_training/Articles_with_Stories.csv.gz", compression = 'gzip')
-article_story_map = article_story_map.drop_duplicates(subset = ['Title', 'Link'], keep = 'last')
-canonical = pd.read_csv("Model_training/Canonical_Stories_with_Summaries.csv")
-score_cols = ["avg_risk_score", "avg_frequency", "avg_recency"]
-stories_df = pd.read_csv(
-    "Model_training/Story_Clusters.csv.gz",
-    compression="gzip"
-)
-canonical = canonical.merge(stories_df[["story_id"]], on = "story_id", how = "left")
+#canonical = canonical.merge(story_scores, on = "story_id", how = 'left', validate= "one_to_one")
+#canonical.to_csv("Model_training/Canonical_stories_with_Summaries.csv", index = False)
+#articles = load_midstep_from_release()
+#articles = ensure_risk_scores(articles)
+#articles = articles.drop_duplicates(subset = ['Title', 'Link'], keep = 'last')
+#article_story_map = pd.read_csv("Model_training/Articles_with_Stories.csv.gz", compression = 'gzip')
+#article_story_map = article_story_map.drop_duplicates(subset = ['Title', 'Link'], keep = 'last')
+#canonical = pd.read_csv("Model_training/Canonical_Stories_with_Summaries.csv")
+#score_cols = ["avg_risk_score", "avg_frequency", "avg_recency"]
+#stories_df = pd.read_csv(
+#    "Model_training/Story_Clusters.csv.gz",
+#    compression="gzip"
+#)
+#canonical = canonical.merge(stories_df[["story_id"]], on = "story_id", how = "left")
 
-articles = articles.merge(article_story_map[['Title', 'Link', 'story_id']], on =['Title','Link'], how='left', validate='many_to_one')
+#articles = articles.merge(article_story_map[['Title', 'Link', 'story_id']], on =['Title','Link'], how='left', validate='many_to_one')
 
-story_sizes = (articles.groupby("story_id").size().rename("story_articles_count").reset_index())
-
-
-articles = articles.merge(canonical, on = "story_id", how = 'left', validate = 'many_to_one')
-
-articles = articles.merge(story_sizes, on = "story_id", how = 'left')
-
-canonical_articles = articles[articles['story_articles_count'] >= 2].copy()
+#story_sizes = (articles.groupby("story_id").size().rename("story_articles_count").reset_index())
 
 
+#articles = articles.merge(canonical, on = "story_id", how = 'left', validate = 'many_to_one')
+
+#articles = articles.merge(story_sizes, on = "story_id", how = 'left')
+
+#canonical_articles = articles[articles['story_articles_count'] >= 2].copy()
 
 
-dashboard_stories = (
-    canonical_articles
-      .groupby("story_id")
-      .agg(
-          canonical_title = ("canonical_title", "first"),
-          summary = ("summary", "first"),
-          article_count = ("story_articles_count", "first"),
 
-          avg_risk_score = ("Risk_Score", "mean"),
-          avg_frequency = ("Frequency_Score", "mean"),
-          avg_recency = ("Recency", "mean"),
-          avg_acceleration = ("Acceleration_value", "max"),
-          avg_source_accuracy = ("Source_Accuracy", "mean"),
-          avg_impact_score = ("Impact_Score", "mean"),
-          avg_industry_risk = ("Industry_Risk", "mean"),
-          avg_location = ("Location", "mean"),
 
-          risk_label = ("Predicted_Risks_new", safe_mode),
-          last_seen = ("Published_utc", "max")
-      )
-      .reset_index()
-)
+#dashboard_stories = (
+#    canonical_articles
+#      .groupby("story_id")
+#      .agg(
+#          canonical_title = ("canonical_title", "first"),
+#          summary = ("summary", "first"),
+#          article_count = ("story_articles_count", "first"),
 
-dropdown_table = canonical_articles[["story_id", "Title","Topic", "Link", "Published_utc", "Risk_Score",'Recency', 'Source_Accuracy', 'Impact_Score', 'Acceleration_value', 'Location','Industry_Risk', 'Frequency_Score', "Predicted_Risks_new"]].sort_values("Published_utc", ascending = False)
+#          avg_risk_score = ("Risk_Score", "mean"),
+#          avg_frequency = ("Frequency_Score", "mean"),
+#          avg_recency = ("Recency", "mean"),
+#          avg_acceleration = ("Acceleration_value", "max"),
+#          avg_source_accuracy = ("Source_Accuracy", "mean"),
+#          avg_impact_score = ("Impact_Score", "mean"),
+#          avg_industry_risk = ("Industry_Risk", "mean"),
+#          avg_location = ("Location", "mean"),
 
-standalone_articles = articles[articles["story_articles_count"] == 1].copy()
+#          risk_label = ("Predicted_Risks_new", safe_mode),
+#          last_seen = ("Published_utc", "max")
+#      )
+#      .reset_index()
+#)
 
-dashboard_stories.to_csv("Model_training/dashboard_stories.csv.gz", compression = 'gzip')
-dropdown_table.to_csv("Model_training/dashboard_dropdown.csv.gz", compression = 'gzip')
-standalone_articles.to_csv("Model_training/dashboard_articles.csv.gz", compression = 'gzip')
+#dropdown_table = canonical_articles[["story_id", "Title","Topic", "Link", "Published_utc", "Risk_Score",'Recency', 'Source_Accuracy', 'Impact_Score', 'Acceleration_value', 'Location','Industry_Risk', 'Frequency_Score', "Predicted_Risks_new"]].sort_values("Published_utc", ascending = False)
 
-articles_only = articles[articles['story_articles_count']<3].copy()
+#standalone_articles = articles[articles["story_articles_count"] == 1].copy()
+
+#dashboard_stories.to_csv("Model_training/dashboard_stories.csv.gz", compression = 'gzip')
+#dropdown_table.to_csv("Model_training/dashboard_dropdown.csv.gz", compression = 'gzip')
+#standalone_articles.to_csv("Model_training/dashboard_articles.csv.gz", compression = 'gzip')
+
+#articles_only = articles[articles['story_articles_count']<3].copy()
 print("Articles over time", flush = True)
 #
 track_over_time(df)
