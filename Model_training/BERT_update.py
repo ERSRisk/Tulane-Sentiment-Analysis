@@ -2401,14 +2401,7 @@ def build_stories():
 
             can_row = max(rows, key=canonical_key)
 
-            existing = stories_df.loc[
-                stories_df["story_id"] == s["id"], "canonical_title"
-            ]
-
-            if not existing.empty and pd.notna(existing_values[0]):
-                canonical_title = existing.values[0]
-            else:
-                canoncal_title = can_row['Title']
+            canonical_title = can_row["Title"]
 
             story_rows.append({
                 "story_id": s["id"],
