@@ -2154,10 +2154,10 @@ def build_stories():
     
 
     stories_df_exists = Path('Model_training/Story_Clusters.csv.gz').exists()
-    articles_with_stories_exists = Path('Model_training/Articles_with_Stories.csv.gz').exists()
+    articles_with_stories_exists = Path('Model_training/dashboard_dropdown.csv.gz').exists()
 
     if stories_df_exists and articles_with_stories_exists:
-        old_df = pd.read_csv('Model_training/Articles_with_Stories.csv.gz', compression='gzip')
+        old_df = pd.read_csv('Model_training/dashboard_dropdown.csv.gz', compression='gzip')
         if old_df['story_id'].notna().sum() == 0:
             print("INVALID STATE: stories exist but no articles reference them. RESETTING.")
             Path("Model_training/Story_Clusters.csv.gz").unlink(missing_ok = True)
@@ -2551,7 +2551,7 @@ def build_stories():
     )
     
     
-    df = df[['Title', 'story_id', 'Published_utc']]
+    df = df[['Title', 'story_id', 'Published_utc', 'Risk_Score']]
     df['Published_utc'] = pd.to_datetime(df['Published_utc'], errors='coerce', utc = True)
     cutoff = pd.Timestamp.now(tz='UTC') - pd.Timedelta(days=90)
     
@@ -2577,7 +2577,8 @@ def build_stories():
         validate="many_to_one"   
     )
     
-    
+    valid_story_ids = set(merged['story_id'].unique())
+    df_stories = df_stories[df_stories['story_id'].isin(valid_story_ids)]
     grouped = merged.groupby('story_id')
     
     canonical_stories = []
