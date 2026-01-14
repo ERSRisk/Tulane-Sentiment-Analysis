@@ -2544,7 +2544,7 @@ def build_stories():
     
     df = df[['Title', 'story_id', 'Published_utc']]
     df['Published_utc'] = pd.to_datetime(df['Published_utc'], errors='coerce', utc = True)
-    cutoff = pd.Timestamp.utcnow() - pd.Timedelta(days=90)
+    cutoff = pd.Timestamp.now(tz='UTC') - pd.Timedelta(days=90)
     
     df = df[df['Published_utc'] > cutoff]
     
