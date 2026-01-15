@@ -2205,13 +2205,13 @@ def build_stories():
         'article_count', 'first_seen', 'last_seen'
     ])
 
-    if df['story_id'].notna().sum() == 0:
-        stories_df = pd.DataFrame(columns = stories_df.columns)
+    #if df['story_id'].notna().sum() == 0:
+        #stories_df = pd.DataFrame(columns = stories_df.columns)
 
     if Path('Model_training/Canonical_Stories_with_Summaries.csv').exists():
         canonical_titles = pd.read_csv('Model_training/Canonical_Stories_with_Summaries.csv')
-    else:
-        canonical_titles = pd.DataFrame(columns=['story_id', 'canonical_title'])
+    #else:
+        #canonical_titles = pd.DataFrame(columns=['story_id', 'canonical_title'])
 
     stories_df = stories_df.merge(
     canonical_titles[['story_id', 'canonical_title', 'canonical_source']],
@@ -2410,7 +2410,7 @@ def build_stories():
 
             can_row = max(rows, key=canonical_key)
 
-            canonical_title = can_row["Title"]
+            canonical_title = f"Story {s['id']}" 
 
             story_rows.append({
                 "story_id": s["id"],
@@ -2433,7 +2433,7 @@ def build_stories():
 
         for col in ["canonical_title", "canonical_link", "canonical_published",
                 "article_count", "first_seen", "last_seen"]:
-            stories_df[col] = stories_df[f"{col}_new"].combine_first(stories_df[col])
+            stories_df[col] = stories_df[col].fillna(stories_df[f"{col}_new"])
     
         stories_df = stories_df[
         [c for c in stories_df.columns if not c.endswith("_new")]
@@ -2526,14 +2526,14 @@ def build_stories():
     
     df = pd.read_csv('Model_training/Articles_with_Stories.csv.gz', compression='gzip')
     df = df.drop_duplicates(subset=["Title", "Published_utc"], keep="last")
-    df_stories = pd.read_csv('Model_training/Story_Clusters.csv.gz', compression='gzip')
+    df_stories = pd.read_csv('Model_training/dashboard_stories.csv.gz', compression='gzip')
     df_stories.to_csv('Model_training/Story_Clusters_backup.csv', index=False)
     
     
     if Path('Model_training/Canonical_Stories_with_Summaries.csv').exists():
         canonical_titles = pd.read_csv('Model_training/Canonical_Stories_with_Summaries.csv')
-    else:
-        canonical_titles = pd.DataFrame(columns=['story_id', 'canonical_title', 'summary', 'average_risk_score', 'average_recency', 'articles', 'canonical_source'])
+    #else:
+        #canonical_titles = pd.DataFrame(columns=['story_id', 'canonical_title', 'summary', 'average_risk_score', 'average_recency', 'articles', 'canonical_source'])
     df_stories = df_stories.merge(
         canonical_titles[['story_id', 'canonical_title', 'canonical_source']],
         on='story_id',
