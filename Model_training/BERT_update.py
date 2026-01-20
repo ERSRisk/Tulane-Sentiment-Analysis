@@ -2050,7 +2050,7 @@ def load_midstep_from_release(local_cache_path = 'Model_training/BERTopic_Stream
 print("✅ Starting transform_text on new data...", flush=True)
 topic_model.calculate_probabilities = True
 new_df = transform_text(df)
-Fill missing topic/probability rows in the original df
+#Fill missing topic/probability rows in the original df
 for c in ['Topic', 'Probability']:
     if c not in df.columns:
         df[c] = np.nan
