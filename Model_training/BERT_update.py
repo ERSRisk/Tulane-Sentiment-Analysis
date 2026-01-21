@@ -2063,7 +2063,7 @@ print("✅ Saving new topics to CSV...", flush=True)
 df_combined = save_new_topics(df, new_df)
 df_combined['Probability'] = pd.to_numeric(df_combined['Probability'], errors = 'coerce')
 
-Double-check if there are still unmatched (-1) topics and assign a temporary model to assign topics to them
+#Double-check if there are still unmatched (-1) topics and assign a temporary model to assign topics to them
 def coerce_pub_utc(x):
     if pd.isna(x):
         return pd.NaT
