@@ -1394,6 +1394,9 @@ def Chronicle():
             published = (published.replace('/xa0', '').strip())
             published = pd.to_datetime(published, errors = 'coerce')
             published = published.strftime('%Y-%m-%d') if pd.notnull(published) else 'Unknown'
+        spacy_doc = nlp(text or '')
+        ents = [ent.text for ent in spacy_doc.ents if ent.label_ in ('ORG','PERSON','GPE','LAW','EVENT','MONEY')]
+        kws  = [kw for kw in keywords if kw in (title + ' ' + text).lower()]
         
         Chronicle.append({
             'Title': title,
@@ -1401,7 +1404,9 @@ def Chronicle():
                   'Published': published,
                   'Summary': summary,
                   'Content': text if text else 'No Content Found',
-                  'Source': 'Chronicle of Higher Education'
+                  'Source': 'Chronicle of Higher Education',
+                'Entities': ents,
+            'Keywords': kws
         })
     return Chronicle
 
@@ -1524,7 +1529,7 @@ all_articles += articles
 all_articles += deloitte
 all_articles += homeland
 all_articles += ace
-#all_articles += data
+all_articles += data
 all_articles += chronicle
 all_articles += aau
 all_articles += highered
