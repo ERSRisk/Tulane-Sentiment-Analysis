@@ -1471,6 +1471,8 @@ def Whitehouse():
           response = requests.get(article)
           soup = BeautifulSoup(response.content, 'html.parser')
           title = soup.find('h1', class_='wp-block-whitehouse-topper__headline').get_text(strip = True)
+          if title is None:
+              continue
           text = trafilatura.extract(response.text)
           published = soup.find('div', class_='wp-block-post-date').get_text(strip = True)
           published = pd.to_datetime(published, format = '%B %d, %Y', errors = 'coerce')
