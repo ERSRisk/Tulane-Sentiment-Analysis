@@ -146,7 +146,8 @@ jobs:
             Model_training/Story_Clusters.csv.gz\
             Model_training/dashboard_stories.csv.gz\
             Model_training/dashboard_dropdown.csv.gz\
-            Model_training/dashboard_articles.csv.gz
+            Model_training/dashboard_articles.csv.gz\
+            Model_training/subtopics.csv
 
           echo "== git status (porcelain) =="
           git status --porcelain=1 -uall || true
