@@ -50,6 +50,8 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install --no-cache-dir -r requirements.txt
+      - name: Install spaCy English model
+        run: python -m spacy download en_core_web_sm
 
       - name: Download risk model
         run: |
