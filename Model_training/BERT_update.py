@@ -28,6 +28,7 @@ import torch
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import hashlib
+import spacy
 
 rss_url = "https://github.com/ERSRisk/Tulane-Sentiment-Analysis/releases/download/rss_json/all_RSS.json.gz"
 
@@ -2729,6 +2730,183 @@ dropdown_table.to_csv("Model_training/dashboard_dropdown.csv.gz", compression = 
 standalone_articles.to_csv("Model_training/dashboard_articles.csv.gz", compression = 'gzip')
 
 articles_only = articles[articles['story_articles_count']<3].copy()
+
+def build_subtopic_clusters(df, subtopics, model, min_sim=0.6):
+    df = df.copy()
+
+    
+
+    df['Published_utc'] = pd.to_datetime(df['Published_utc'], errors = 'coerce', utc = True)
+    df = df.dropna(subset= ['Published_utc'])
+
+    subtopics['Published_utc'] = pd.to_datetime(subtopics['Published_utc'], errors = 'coerce', utc = True)
+    subtopics = subtopics.dropna(subset = ['Published_utc'])
+
+
+    df['Window'] = (df['Published_utc'].dt.to_period('W-MON').dt.start_time)
+
+    df['Window'] = df['Window'].dt.tz_localize('UTC')
+
+
+    df = df.drop_duplicates(subset = ['Title'], keep = 'last')
+    clusters_meta = (
+        subtopics.groupby('Cluster').agg(
+            Last_Seen = ('Published_utc', 'max'),
+            Event_Label = ('Event_Label', 'first')
+        )
+        .reset_index()
+    )
+
+    current_time = df['Published_utc'].max()
+
+    active_clusters = set(clusters_meta[
+        (current_time - clusters_meta['Last_Seen']).dt.days <= 60
+    ]['Cluster'])
+
+    
+
+    
+
+    df = df.merge(subtopics[['Title', 'Link','Cluster','Event_Severity','Event_Label']], on =['Title', 'Link'], how = 'left')
+    df['is_historical'] = df['Cluster'].notna()
+    df['Embeddings'] = list(model.encode(
+        (df['Title'].fillna('') + ' ' + df['Content'].fillna('')).tolist(),
+        show_progress_bar=True,
+        convert_to_numpy=True
+    ))
+    centroid_df = df[
+        df['is_historical'] &
+        df['Cluster'].isin(active_clusters)
+    ]
+
+    centroids = (
+        centroid_df
+        .groupby('Cluster')['Embeddings']
+        .apply(lambda x: np.mean(np.vstack(x), axis=0))
+    )
+    if centroids.empty:
+        df['Cluster'] = df['Cluster'].fillna(-1)
+        return df
+
+    
+    def cluster_embeddings(embeddings, threshold=0.60):
+        normalized_embeddings = normalize(embeddings)
+        similarity_matrix = cosine_similarity(normalized_embeddings)
+    
+        n = similarity_matrix.shape[0]
+        visited = [False] * n
+        clusters = []
+    
+        for i in range(n):
+            if not visited[i]:
+                cluster = []
+                queue = [i]
+                visited[i] = True
+            
+                while queue:
+                    node = queue.pop(0)
+                    cluster.append(node)
+                
+                    for j in range(n):
+                        if not visited[j] and similarity_matrix[node][j] >= threshold:
+                            visited[j] = True
+                            queue.append(j)
+            
+                clusters.append(cluster)
+    
+        return clusters
+    if len(centroids) == 0:
+        df['Cluster'] = df['Cluster'].fillna(-1)
+    else: 
+        for idx, row in df[df['Cluster'].isna()].iterrows():
+            if not isinstance(row['Embeddings'], np.ndarray):
+                text = f"{row.get('Title','')} {row.get('Content','')}"
+                emb = model.encode(text, convert_to_numpy=True)
+                df.at[idx, 'Embeddings'] = emb
+            else:
+                emb = row['Embeddings']
+            sims = cosine_similarity(emb.reshape(1, -1), np.vstack(centroids.values))[0]
+
+            if sims.max() >= min_sim:
+                assigned = centroids.index[sims.argmax()]
+                df.at[idx, 'Cluster'] = assigned
+                df.at[idx, 'Event_Label'] = subtopics.loc[subtopics['Cluster'] == assigned, 'Event_Label'].iloc[0]
+            else:
+                df.at[idx, 'Cluster'] = -1
+        
+    leftovers = df[df['Cluster'] == -1]
+
+    if len(leftovers) > 1:
+        bad = leftovers['Embeddings'].apply(lambda x: not isinstance(x, np.ndarray))
+        if bad.any():
+            raise ValueError("Some embeddings are not numpy arrays.")
+        X = normalize(np.vstack(leftovers['Embeddings']))
+        sub_clusters = cluster_embeddings(X, threshold=0.6)
+        next_cluster_id = int(df['Cluster'].max) + 1
+
+        for group in sub_clusters:
+            df.loc[leftovers.index[group], 'Cluster'] = next_cluster_id
+            next_cluster_id = next_cluster_id + 1
+
+    for cluster_id, group in df.groupby('Cluster'):
+        if cluster_id == -1:
+            continue
+        existing_label = group['Event_Label'].dropna()
+        if len(existing_label) > 0:
+            continue
+
+        titles = group['Title'].dropna().tolist()
+
+        # If only one article, just use its title
+        if len(titles) == 1:
+            label = titles[0]
+
+        else:
+            combined_text = ' | '.join(titles)  # cap for safety
+
+            prompt = (
+                "Given the following news article titles, provide ONE concise label "
+                "that summarizes the shared event or topic. "
+                "Do NOT include explanations.\n\n"
+                f"{combined_text}"
+            )
+
+            response = client.models.generate_content(
+                model='gemini-2.0-flash',
+                contents=[prompt]
+            )
+
+            label = re.sub(r'[\n"]+', ' ', response.text).strip()[:120]
+
+        df.loc[group.index, 'Event_Label'] = label
+
+    for (window, risk, cluster), group in df.groupby(['Window', 'Predicted_Risks_new', 'Cluster']):
+        risk_scores = pd.to_numeric(group['Risk_Score'], errors='coerce').fillna(0)
+        event_severity = risk_scores.mean()
+        df.loc[group.index, 'Event_Severity'] = event_severity
+    return df
+
+if Path('Model_training/subtopics.csv').exists():
+    subtopics = pd.read_csv('Model_training/subtopics.csv')
+else:
+    subtopics = pd.DataFrame(columns = ['Title', 'Link','Cluster','Event_Severity','Event_Label'])
+
+articles = load_midstep_from_release()
+
+nlp = spacy.load("en_core_web_sm")
+model = SentenceTransformer('all-MiniLM-L6-v2')
+
+articles = build_subtopic_clusters(articles, subtopics, model)
+
+atomic_write_csv("Model_training/BERTopic_Streamlit.csv.gz", articles, compress = True)
+atomic_write_csv("Model_training/subtopics.csv", articles, compress = False)
+upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/BERTopic_Streamlit.csv.gz', GITHUB_TOKEN)
+
+
+
+
+
+
 print("Articles over time", flush = True)
 #
 track_over_time(df)
