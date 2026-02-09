@@ -2843,7 +2843,7 @@ def build_subtopic_clusters(df, subtopics, model, min_sim=0.6):
             raise ValueError("Some embeddings are not numpy arrays.")
         X = normalize(np.vstack(leftovers['Embeddings']))
         sub_clusters = cluster_embeddings(X, threshold=0.6)
-        next_cluster_id = int(df['Cluster'].max) + 1
+        next_cluster_id = int(df['Cluster'].max()) + 1
 
         for group in sub_clusters:
             df.loc[leftovers.index[group], 'Cluster'] = next_cluster_id
