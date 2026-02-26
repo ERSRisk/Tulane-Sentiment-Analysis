@@ -348,153 +348,179 @@ df['Source'] = df['Source'].astype('string').fillna('')
 
 def transform_text(texts):
     texts = texts.copy()
-    print(f"Transforming {len(texts)} articles in batches...")
-    all_topics, all_probs = [], []
+    print(f"Transforming {len(texts)} articles in batches...", flush=True)
+
     batch_size = 100
-    texts_list = texts['Text'].tolist()
+    texts_list = texts["Text"].tolist()
+    n = len(texts_list)
 
-    for i in range(0, len(texts_list), batch_size):
-        batch = texts_list[i:i+batch_size]
+    # Pre-allocate lightweight arrays (NOT lists of big objects)
+    topics_out = np.full(n, -1, dtype=np.int32)
+    prob_out   = np.full(n, np.nan, dtype=np.float32)
+
+    # ---- 1) Transform in batches, but keep ONLY the assigned prob ----
+    for start in range(0, n, batch_size):
+        end = min(start + batch_size, n)
+        batch = texts_list[start:end]
+
         topics, probs = topic_model.transform(batch)
+
+        # If probs missing, approximate per-batch
         if probs is None:
-            print("transform() return no probabilities", flush = True)
+            print("[info] transform() returned no probabilities; using approximate_distribution()", flush=True)
             probs = topic_model.approximate_distribution(batch)
-        all_topics.extend(topics)
-        all_probs.extend(probs)
-        print(f"✅ Transformed batch {i//batch_size + 1}/{(len(texts_list) // batch_size) + 1}")
-    if any(t == -1 for t in all_topics):
-        all_topics = topic_model.reduce_outliers(texts_list, all_topics, strategy = 'embeddings', threshold = 0.4)
 
-    remaining_idx = [i for i, t in enumerate(all_topics) if t==-1]
+        topics = np.asarray(topics, dtype=np.int32)
+        topics_out[start:end] = topics
+
+        # probs is usually (batch, n_topics). Extract only prob of assigned topic.
+        # For outliers (-1), keep NaN.
+        if probs is not None:
+            probs = np.asarray(probs)
+            row_idx = np.arange(len(batch))
+            valid = topics >= 0
+            # Guard against weird shapes
+            if probs.ndim == 2 and probs.shape[0] == len(batch):
+                prob_out[start:end][valid] = probs[row_idx[valid], topics[valid]].astype(np.float32)
+
+        print(f"✅ Transformed batch {start//batch_size + 1}/{(n + batch_size - 1)//batch_size}", flush=True)
+
+        # free batch objects
+        del batch, topics, probs
+        gc.collect()
+
+    # ---- 2) OPTIONAL: Outlier reduction is expensive. If you must, do it on a CAP. ----
+    # If reduce_outliers is causing trouble, either skip it on GitHub or cap it.
+    # Example cap:
+    # if (topics_out == -1).sum() > 0:
+    #     cap = 3000
+    #     idx = np.where(topics_out == -1)[0][:cap]
+    #     tmp_topics = topic_model.reduce_outliers([texts_list[i] for i in idx],
+    #                                             topics_out[idx].tolist(),
+    #                                             strategy="embeddings",
+    #                                             threshold=0.4)
+    #     topics_out[idx] = np.asarray(tmp_topics, dtype=np.int32)
+    #     del tmp_topics
+    #     gc.collect()
+
+    # ---- 3) Streamlit cosine assignment, batched ----
     def get_embedder(topic_model):
-        if hasattr(topic_model, 'embedding_model_') and topic_model.embedding_model_ is not None:
-            embedder = topic_model.embedding_model_
-        elif hasattr(topic_model, 'embedding_model') and topic_model.embedding_model is not None:
-            embedder = topic_model.embedding_model
-        else:
-            raise RuntimeError("Could not locate BERTopic's embedding model.")
-        return embedder
-
+        if hasattr(topic_model, "embedding_model_") and topic_model.embedding_model_ is not None:
+            return topic_model.embedding_model_
+        if hasattr(topic_model, "embedding_model") and topic_model.embedding_model is not None:
+            return topic_model.embedding_model
+        raise RuntimeError("Could not locate BERTopic's embedding model.")
 
     def embedding_dim(embedder):
-        # Works for raw SentenceTransformer or BERTopic backends
         if hasattr(embedder, "get_sentence_embedding_dimension"):
             return embedder.get_sentence_embedding_dimension()
         if hasattr(embedder, "embedding_model") and hasattr(embedder.embedding_model, "get_sentence_embedding_dimension"):
             return embedder.embedding_model.get_sentence_embedding_dimension()
-        # Last resort: probe once
-        if hasattr(embedder, "encode"):
-            v = np.asarray(embedder.encode(["x"], convert_to_numpy=True))
-        elif hasattr(embedder, "embed"):
-            v = np.asarray(embedder.embed(["x"]))
-        else:
-            raise RuntimeError("Unknown embedder type; cannot determine embedding dim.")
+        v = np.asarray(embedder.encode(["x"], convert_to_numpy=True))
         return int(v.shape[-1])
 
-    def encode(texts, embedder):
-        # Normalize input
-        if isinstance(texts, str):
-            texts = [texts]
-        elif texts is None:
-            texts = []
-        else:
-            texts = [t.strip() if isinstance(t, str) else "" for t in texts]
-
-        if len(texts) == 0:
+    def encode(texts_, embedder):
+        if isinstance(texts_, str):
+            texts_ = [texts_]
+        texts_ = [t.strip() if isinstance(t, str) else "" for t in (texts_ or [])]
+        if len(texts_) == 0:
             d = embedding_dim(embedder)
             return np.zeros((0, d), dtype=np.float32)
 
-        # Support both raw SentenceTransformer and BERTopic backend
         if hasattr(embedder, "encode"):
-            vecs = embedder.encode(texts, convert_to_numpy=True, normalize_embeddings=False,
-                                   batch_size=64, show_progress_bar=False)
+            vecs = embedder.encode(
+                texts_, convert_to_numpy=True, normalize_embeddings=False,
+                batch_size=64, show_progress_bar=False
+            )
         elif hasattr(embedder, "embed"):
-            vecs = np.asarray(embedder.embed(texts))
+            vecs = np.asarray(embedder.embed(texts_))
         else:
             raise RuntimeError("Embedder has neither .encode nor .embed")
 
-        vecs = np.asarray(vecs)
+        vecs = np.asarray(vecs, dtype=np.float32)
         if vecs.ndim == 1:
             vecs = vecs.reshape(1, -1)
         norms = np.linalg.norm(vecs, axis=1, keepdims=True) + 1e-12
         return vecs / norms
 
+    # Load Streamlit topic list
     try:
-        with open('Model_training/topics_BERT.json', 'r', encoding = 'utf-8') as f:
-            topics_json = json.load(f)['topics']
+        with open("Model_training/topics_BERT.json", "r", encoding="utf-8") as f:
+            topics_json = json.load(f).get("topics", [])
     except Exception as e:
         topics_json = []
-        print(f"[warn] Could not read {topics_json_path}: {e}")
+        print(f"[warn] Could not read Model_training/topics_BERT.json: {e}", flush=True)
 
-    remaining_idx = [i for i, t in enumerate(all_topics) if t == -1]
+    remaining_idx = np.where(topics_out == -1)[0]
+    if len(remaining_idx) > 0 and len(topics_json) > 0:
+        embedder = get_embedder(topic_model)
 
-    # Short-circuit if nothing to assign
-    if not remaining_idx:
-        texts['Topic'] = all_topics
-        # ... continue assembling outputs as you already do
-        return texts
+        rep = topic_model.get_representative_docs()
+        rep_map = {int(k): v for k, v in rep.items() if v} if isinstance(rep, dict) else {}
 
-    embedder = get_embedder(topic_model)
+        centroids = []
+        streamlit_topic_ids = []
 
-    centroids = []
-    streamlit_topic_ids = []
-    rep = topic_model.get_representative_docs()
-    rep_map = {int(k): v for k, v in rep.items() if v} if isinstance(rep, dict) else {}
+        for t in topics_json:
+            if t.get("source") != "Streamlit":
+                continue
+            tid = int(t["topic"])
+            reps = rep_map.get(tid) or [f"{t.get('name','')} ; {t.get('keywords','')}"]
+            E_rep = encode(reps, embedder)
+            if E_rep.shape[0] == 0:
+                continue
+            c = E_rep.mean(axis=0)
+            c = c / (np.linalg.norm(c) + 1e-12)
+            centroids.append(c.astype(np.float32))
+            streamlit_topic_ids.append(tid)
 
-    for t in topics_json:
-        if t.get('source') != 'Streamlit':
-            continue
-        reps = rep_map.get(int(t['topic'])) or [f"{t.get('name','')} ; {t.get('keywords','')}"]
-        E_rep = encode(reps, embedder)
-        if E_rep.shape[0] == 0:
-            continue
-        c = E_rep.mean(axis=0)
-        c = c / (np.linalg.norm(c) + 1e-12)
-        centroids.append(c)
-        streamlit_topic_ids.append(int(t['topic']))
+        if centroids:
+            C = np.stack(centroids, axis=0).astype(np.float32)
 
-    if centroids:
-        C = np.stack(centroids, axis=0)
-        E = encode([texts_list[i] for i in remaining_idx], embedder)
-        if E.shape[0] > 0:
-            sims = E @ C.T
-            j_best = np.argmax(sims, axis=1)
-            s_best = sims[np.arange(sims.shape[0]), j_best]
-            for row_pos, idx in enumerate(remaining_idx):
-                if s_best[row_pos] >= 0.40:
-                    all_topics[idx] = int(streamlit_topic_ids[j_best[row_pos]])
+            # Batch the remaining embeddings
+            st_cos = np.full(n, np.nan, dtype=np.float32)
+            cos_batch = 256  # tune down if needed
 
-            st_cos = np.full(len(texts_list), np.nan, dtype=np.float32)
-            for row_pos, idx in enumerate(remaining_idx):
-                st_cos[idx] = float(s_best[row_pos])
+            for start in range(0, len(remaining_idx), cos_batch):
+                idx_batch = remaining_idx[start:start+cos_batch]
+                texts_batch = [texts_list[i] for i in idx_batch]
+                E = encode(texts_batch, embedder).astype(np.float32)
+                if E.shape[0] == 0:
+                    continue
+
+                sims = E @ C.T
+                j_best = np.argmax(sims, axis=1)
+                s_best = sims[np.arange(sims.shape[0]), j_best]
+
+                for row_pos, doc_i in enumerate(idx_batch):
+                    if s_best[row_pos] >= 0.40:
+                        topics_out[doc_i] = int(streamlit_topic_ids[j_best[row_pos]])
+                        st_cos[doc_i] = float(s_best[row_pos])
+
+                del texts_batch, E, sims, j_best, s_best
+                gc.collect()
+
             texts["StreamlitCosine"] = st_cos
-    else:
-        print("[info] No Streamlit topics with usable centroids found; skipping cosine assignment.")
-
-
-
-    texts['Topic'] = all_topics
-    
-    assigned_probs = []
-    for t, p in zip(all_topics, all_probs):
-        if p is None or t < 0 or t >= len(p):
-            assigned_probs.append(np.nan)
         else:
-            assigned_probs.append(float(p[t]))
-    texts['Probability'] = assigned_probs
-    if assigned_probs is None:
-        texts['Probability'] = texts.get('StreamlitCosine', pd.Series(0.0, index = texts.index)).astype(float)
+            print("[info] No Streamlit topics with usable centroids found; skipping cosine assignment.", flush=True)
+
+    # ---- 4) Final assembly ----
+    texts["Topic"] = topics_out
+    texts["Probability"] = prob_out
+
     how = []
-    for i, (t,p, sim) in enumerate(zip(texts['Topic'], texts['Probability'], texts.get('StreamlitCosine', [np.nan]*len(df)))):
+    stcos = texts.get("StreamlitCosine", pd.Series(np.nan, index=texts.index)).to_numpy()
+    for t, p, sim in zip(texts["Topic"].to_numpy(), texts["Probability"].to_numpy(), stcos):
         if t == -1:
-            how.append('Unassigned')
+            how.append("Unassigned")
         elif not np.isnan(p):
-            how.append('bertopic')
+            how.append("bertopic")
         elif not np.isnan(sim):
-            how.append('streamlit-cosine')
+            how.append("streamlit-cosine")
         else:
-            how.append('other')
-    texts['Assigned_how'] = how
+            how.append("other")
+    texts["Assigned_how"] = how
+
     return texts
 def load_articles_from_release(local_cache_path='Model_training/BERTopic_results2.csv.gz',
                                usecols=None, dtype=None):
