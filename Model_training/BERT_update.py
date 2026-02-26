@@ -1629,14 +1629,14 @@ def predict_risks(df):
 
     df = df.reset_index(drop = True)
 
-    if 'Predicted_Risks_new' in df.columns:
-        todo_mask = (df['Predicted_Risks_new'].isna()) | (df['Predicted_Risks_new'].eq('')) | (df['Predicted_Risks_new'].eq('No Risk'))
-    else:
-        todo_mask = pd.Series(True, index=df.index)
-    recent_cut = pd.Timestamp.now(tz='utc') - pd.Timedelta(days=365)
+    #if 'Predicted_Risks_new' in df.columns:
+     #   todo_mask = (df['Predicted_Risks_new'].isna()) | (df['Predicted_Risks_new'].eq('')) | (df['Predicted_Risks_new'].eq('No Risk'))
+    #else:
+    todo_mask = pd.Series(True, index=df.index)
+    #recent_cut = pd.Timestamp.now(tz='utc') - pd.Timedelta(days=365)
     df['Published_utc'] = pd.to_datetime(df['Published'], errors='coerce', utc = True)
-    recent_mask = df['Published_utc'] >= recent_cut
-    todo_mask &= recent_mask.fillna(False)
+    #recent_mask = df['Published_utc'] >= recent_cut
+    #todo_mask &= recent_mask.fillna(False)
     todo_mask &= mask_he
     sub = df.loc[todo_mask].copy()
     texts = df.loc[todo_mask, 'Text'].tolist()
@@ -1733,6 +1733,10 @@ Rules:
 - If any policies or political interference is affecting school curricula and acivities, or if gender or race are mentioned in the context of academic programs or political policy changes -> "Policy or Political Interference" and NOT "Title IX/ADA Noncompliance"
 - If the event is general AI use on campus policy/teaching → "Artificial Intelligence Ethics & Governance". This topic should ONLY be used if AI/artificial intelligence is in the article
 - If none match confidently → "No Risk".
+
+MANDATORY READ CAREFULLY:
+- The following risks should be applied WHEN AND ONLY WHEN Tulane University or the leadership of Tulane University is explicitly mentioned: 
+("High Profile Litigation", "Emergency Preparedness", "Unexpected Expenditures", "Leadership Missteps", "Revenue Loss", "Institutional Alignment","Controversial Public Incident"). DO NOT, and I repeat, DO NOT assign these risks UNLESS Tulane University, Tulane, or Tulane University leadership are EXPLICITLY mentioned.
 """
             resp = client.models.generate_content(
             model="gemini-2.0-flash",
