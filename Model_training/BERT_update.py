@@ -553,22 +553,33 @@ def load_articles_from_release(local_cache_path='Model_training/BERTopic_results
     # 3) Nothing available
     return pd.DataFrame()
 def save_new_topics(existing_df, new_df, path = 'Model_training/BERTopic_results2.csv.gz'):
-    if 'Link' in existing_df and 'Link' in new_df:
-        unique_new = new_df[~new_df['Link'].isin(existing_df['Link'])]
-    else:
-        unique_new = new_df
-
     on_disk = load_articles_from_release()
+
     if on_disk is None or (isinstance(on_disk, pd.DataFrame) and on_disk.empty):
-        on_disk = pd.read_csv(path, compression = 'gzip')
+        try:
+            on_disk = pd.read_csv(path, compression='gzip')
+        except Exception:
+            on_disk = pd.DataFrame()
 
-    pieces = [p for p in [existing_df, unique_new, on_disk] if not (isinstance(p, pd.DataFrame) and p.empty)]
-    combined = pd.concat(pieces, ignore_index = True) if pieces else pd.DataFrame()
+    # Only append truly new links
+    if 'Link' in on_disk.columns and 'Link' in new_df.columns:
+        new_rows = new_df[~new_df['Link'].isin(on_disk['Link'])]
+    else:
+        new_rows = new_df
 
-    if not combined.empty and {'Title', 'Content'}.issubset(combined.columns):
-        combined = combined.drop_duplicates(subset = ['Title', 'Content'], keep = 'last')
+    # Append only new rows
+    if not new_rows.empty:
+        combined = pd.concat([on_disk, new_rows], ignore_index=True)
+    else:
+        combined = on_disk.copy()
 
-    combined.to_csv(path, index = False, compression = 'gzip')
+    # Dedupe ONLY by Link
+    if 'Link' in combined.columns:
+        combined = combined.drop_duplicates(subset=['Link'], keep='last')
+
+    # Write directly to disk (no in-memory gzip)
+    combined.to_csv(path, index=False, compression='gzip')
+
     return combined
 
 def double_check_articles(df):
