@@ -552,35 +552,18 @@ def load_articles_from_release(local_cache_path='Model_training/BERTopic_results
 
     # 3) Nothing available
     return pd.DataFrame()
-def save_new_topics(existing_df, new_df, path = 'Model_training/BERTopic_results2.csv.gz'):
-    on_disk = load_articles_from_release()
+def save_new_topics(new_df, path="Model_training/BERTopic_results3.csv.gz"):
+    file_exists = Path(path).exists()
 
-    if on_disk is None or (isinstance(on_disk, pd.DataFrame) and on_disk.empty):
-        try:
-            on_disk = pd.read_csv(path, compression='gzip')
-        except Exception:
-            on_disk = pd.DataFrame()
+    new_df.to_csv(
+        path,
+        mode="a" if file_exists else "w",
+        index=False,
+        header=not file_exists,
+        compression={"method": "gzip", "compresslevel": 1}
+    )
 
-    # Only append truly new links
-    if 'Link' in on_disk.columns and 'Link' in new_df.columns:
-        new_rows = new_df[~new_df['Link'].isin(on_disk['Link'])]
-    else:
-        new_rows = new_df
-
-    # Append only new rows
-    if not new_rows.empty:
-        combined = pd.concat([on_disk, new_rows], ignore_index=True)
-    else:
-        combined = on_disk.copy()
-
-    if not new_rows.empty():
-        file_exists = Path(path).exists()
-
-        new_rows.to_csv(
-            path, mode = 'a' if file_exists else 'w',
-            index = False, header = not file_exists, compression = {'method': 'gzip', "compresslevel": 1}
-        )
-
+    return new_df
 def double_check_articles(df):
     double_check = df[df['Topic'] == -1]['Text'].dropna()
     double_check = [text for text in double_check if text.strip()]
@@ -2090,6 +2073,14 @@ def load_midstep_from_release(local_cache_path = 'Model_training/BERTopic_Stream
         return pd.read_csv(local_cache_path, compression='gzip')
     return pd.DataFrame()
 
+def load_full_topics():
+    files = [
+        "Model_training/BERTopic_results2_old.csv.gz",   # frozen
+        "Model_training/BERTopic_results3.csv.gz"        # new growing file
+    ]
+    dfs = [pd.read_csv(f, compression="gzip") for f in files if Path(f).exists()]
+    return pd.concat(dfs, ignore_index=True) if dfs else pd.DataFrame()
+
 #Assign topics and probabilities to new_df
 existing_df = load_articles_from_release()
 
@@ -2120,8 +2111,9 @@ df.drop(columns=['Topic_new','Probability_new'], inplace=True)
 
 #Save only new, non-duplicate rows
 print("✅ Saving new topics to CSV...", flush=True)
-df_combined = save_new_topics(df, new_df)
+df_combined = save_new_topics(new_df)
 print("Completed save_new_topics", flush = True)
+df_combined = load_full_topics()
 df_combined['Probability'] = pd.to_numeric(df_combined['Probability'], errors = 'coerce')
 
 #Double-check if there are still unmatched (-1) topics and assign a temporary model to assign topics to them
@@ -2203,7 +2195,7 @@ def build_stories():
                 60,59,56,54,50,24,22,18,568,565,550,526,518,505,484,477,458,
                 456,387,245,239,226,196,155,144,123,117,109,105,85,61,33,28,
                 25,16,14]
-    df = load_midstep_from_release()
+    df = load_full_topics()
     df = ensure_risk_scores(df)
     df['Published_utc'] = pd.to_datetime(df['Published_utc'], errors = 'coerce', utc = True)
     df = df[df['Published_utc'].notna()]
@@ -2735,7 +2727,7 @@ story_scores = (articles.groupby("story_id").agg(
 canonical = pd.read_csv("Model_training/Canonical_Stories_with_Summaries.csv")
 canonical = canonical.merge(story_scores, on = "story_id", how = 'left', validate= "one_to_one")
 canonical.to_csv("Model_training/Canonical_stories_with_Summaries.csv", index = False)
-articles = load_midstep_from_release()
+articles = load_full_topics()
 articles = ensure_risk_scores(articles)
 articles = articles.drop_duplicates(subset = ['Title', 'Link'], keep = 'last')
 article_story_map = pd.read_csv("Model_training/Articles_with_Stories.csv.gz", compression = 'gzip')
@@ -2949,7 +2941,7 @@ if Path('Model_training/subtopics.csv').exists():
 else:
     subtopics = pd.DataFrame(columns = ['Title', 'Link','Cluster','Event_Severity','Event_Label'])
 
-articles = load_midstep_from_release()
+articles = load_full_topics()
 
 nlp = spacy.load("en_core_web_sm")
 model = SentenceTransformer('all-MiniLM-L6-v2')
