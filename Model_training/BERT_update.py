@@ -553,7 +553,7 @@ def load_articles_from_release(local_cache_path='Model_training/BERTopic_results
     # 3) Nothing available
     return pd.DataFrame()
 def save_new_topics(existing_df, new_df, path="Model_training/BERTopic_results3.csv.gz"):
-
+    existing_df = existing_df.drop_duplicates(subset = ['Link'], keep = 'last')
     if existing_df is not None and not existing_df.empty:
         combined = pd.concat([existing_df, new_df], ignore_index=True)
     else:
