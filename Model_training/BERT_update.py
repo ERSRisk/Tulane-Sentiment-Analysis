@@ -1655,7 +1655,7 @@ def predict_risks(df):
     
     print(f"[dbg] total rows: {len(df)}", flush = True)
     print(f"[dbg] parsable Published: {df['Published_utc'].notna().sum()}", flush = True)
-    print(f"[dbg] recent (<=30d): {recent_mask.fillna(False).sum()}", flush = True)
+    #print(f"[dbg] recent (<=30d): {recent_mask.fillna(False).sum()}", flush = True)
     print(f"[dbg] to score (todo_mask): {todo_mask.sum()}", flush = True)
     change = texts
     if not texts:
