@@ -2091,38 +2091,38 @@ def load_midstep_from_release(local_cache_path = 'Model_training/BERTopic_Stream
     return pd.DataFrame()
 
 #Assign topics and probabilities to new_df
-existing_df = load_articles_from_release()
+#existing_df = load_articles_from_release()
 
-if existing_df is None or existing_df.empty:
-    existing_df = pd.DataFrame()
+#if existing_df is None or existing_df.empty:
+#    existing_df = pd.DataFrame()
 
-if not existing_df.empty and 'Link' in existing_df.columns:
-    processed_links = set(existing_df['Link'])
-    df_to_transform = df[~df['Link'].isin(processed_links)].copy()
-    print(f"Dataframe to transform is removing already preprocessed articles.", flush = True)
-else:
-    df_to_transform = df.copy()
-    print(f"Dataframe to transform has no articles to remove.", flush = True)
-print("✅ Starting transform_text on new data...", flush=True)
-topic_model.calculate_probabilities = True
-new_df = transform_text(df_to_transform)
+#if not existing_df.empty and 'Link' in existing_df.columns:
+#    processed_links = set(existing_df['Link'])
+#    df_to_transform = df[~df['Link'].isin(processed_links)].copy()
+#    print(f"Dataframe to transform is removing already preprocessed articles.", flush = True)
+#else:
+#    df_to_transform = df.copy()
+#    print(f"Dataframe to transform has no articles to remove.", flush = True)
+#print("✅ Starting transform_text on new data...", flush=True)
+#topic_model.calculate_probabilities = True
+#new_df = transform_text(df_to_transform)
 
 #Fill missing topic/probability rows in the original df
-for c in ['Topic', 'Probability']:
-    if c not in df.columns:
-        df[c] = np.nan
+#for c in ['Topic', 'Probability']:
+#    if c not in df.columns:
+#        df[c] = np.nan
     
-update_cols = new_df[['Link', 'Topic', 'Probability']].dropna(subset=['Link'])
-df = df.merge(update_cols, on='Link', how='left', suffixes=('', '_new'))
-df['Topic'] = df['Topic_new'].combine_first(df['Topic'])
-df['Probability'] = df['Probability_new'].combine_first(df['Probability'])
-df.drop(columns=['Topic_new','Probability_new'], inplace=True)
+#update_cols = new_df[['Link', 'Topic', 'Probability']].dropna(subset=['Link'])
+#df = df.merge(update_cols, on='Link', how='left', suffixes=('', '_new'))
+#df['Topic'] = df['Topic_new'].combine_first(df['Topic'])
+#df['Probability'] = df['Probability_new'].combine_first(df['Probability'])
+#df.drop(columns=['Topic_new','Probability_new'], inplace=True)
 
 #Save only new, non-duplicate rows
-print("✅ Saving new topics to CSV...", flush=True)
-df_combined = save_new_topics(df, new_df)
-print("Completed save_new_topics", flush = True)
-df_combined['Probability'] = pd.to_numeric(df_combined['Probability'], errors = 'coerce')
+#print("✅ Saving new topics to CSV...", flush=True)
+#df_combined = save_new_topics(df, new_df)
+#print("Completed save_new_topics", flush = True)
+#df_combined['Probability'] = pd.to_numeric(df_combined['Probability'], errors = 'coerce')
 
 #Double-check if there are still unmatched (-1) topics and assign a temporary model to assign topics to them
 def coerce_pub_utc(x):
@@ -2136,25 +2136,25 @@ def coerce_pub_utc(x):
     sx = str(x)
     sx = re.sub(r'\s(EST|EDT|PDT|CDT|MDT|GMT)\b', '', sx, flags=re.I)
     return pd.to_datetime(sx, errors="coerce", utc=True)
-print("✅ Running double-check for unmatched topics (-1)...", flush=True)
-cutoff_utc = pd.Timestamp(datetime.utcnow() - timedelta(days = 120), tz = 'utc')
-df_combined['Published'] = df_combined['Published'].apply(coerce_pub_utc)
-print(f"Length of dataset: {len(df_combined)}", flush = True)
-print(f"Length of recalculated topic names: {len(df_combined[df_combined['Probability'] < 0.15])}", flush = True)
-low_conf_mask = df_combined['Probability'] < 0.15
-df_combined.loc[low_conf_mask, 'Topic'] = -1
-atomic_write_csv('Model_training/Step0.csv.gz', df_combined, compress = True)
-upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/Step0.csv.gz', GITHUB_TOKEN)
+#print("✅ Running double-check for unmatched topics (-1)...", flush=True)
+#cutoff_utc = pd.Timestamp(datetime.utcnow() - timedelta(days = 120), tz = 'utc')
+#df_combined['Published'] = df_combined['Published'].apply(coerce_pub_utc)
+#print(f"Length of dataset: {len(df_combined)}", flush = True)
+#print(f"Length of recalculated topic names: {len(df_combined[df_combined['Probability'] < 0.15])}", flush = True)
+#low_conf_mask = df_combined['Probability'] < 0.15
+#df_combined.loc[low_conf_mask, 'Topic'] = -1
+#atomic_write_csv('Model_training/Step0.csv.gz', df_combined, compress = True)
+#upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/Step0.csv.gz', GITHUB_TOKEN)
 #df_combined = load_midstep_from_release()
-recent_df = df_combined[df_combined['Published'].notna() & (df_combined['Published'] >= cutoff_utc)].copy()
-temp_model, topic_ids = double_check_articles(recent_df)
+#recent_df = df_combined[df_combined['Published'].notna() & (df_combined['Published'] >= cutoff_utc)].copy()
+#temp_model, topic_ids = double_check_articles(recent_df)
 #If there are unmatched topics, name them using Gemini
-print("✅ Checking for unmatched topics to name using Gemini...", flush=True)
-if temp_model and topic_ids:
-    topic_name_pairs = get_topic(temp_model, topic_ids)
-    existing_risks_json(topic_name_pairs, temp_model)
+#print("✅ Checking for unmatched topics to name using Gemini...", flush=True)
+#if temp_model and topic_ids:
+#    topic_name_pairs = get_topic(temp_model, topic_ids)
+#    existing_risks_json(topic_name_pairs, temp_model)
 #Assign weights to each article
-#results_df = load_midstep_from_release()
+df_combined = load_midstep_from_release()
 df_combined = load_university_label(df_combined)
 atomic_write_csv('Model_training/initial_label.csv.gz', df_combined, compress = True)
 upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/initial_label.csv.gz', GITHUB_TOKEN)
