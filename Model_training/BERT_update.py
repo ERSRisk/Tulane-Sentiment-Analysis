@@ -349,6 +349,7 @@ df['Source'] = df['Source'].astype('string').fillna('')
 
 def transform_text(texts):
     texts = texts.copy()
+    
     print(f"Transforming {len(texts)} articles in batches...", flush=True)
 
     batch_size = 100
@@ -2080,9 +2081,26 @@ def load_midstep_from_release(local_cache_path = 'Model_training/BERTopic_Stream
     return pd.DataFrame()
 
 #Assign topics and probabilities to new_df
+existing_df = load_articles_from_release()
+
+if existing_df is None or existing_df.empty:
+    existing_df = pd.DataFrame()
+
+if not existing_df.empty and 'Link' in existing_df.columns:
+    processed_links = set(existing_df['Link'])
+    df_to_transform = df[~df['Link'].isin(processed_links)].copy()
+    print(f"Dataframe to transform is removing already preprocessed articles.", flush = True)
+else:
+    df_to_transform = df.copy()
+    print(f"Dataframe to transform has no articles to remove.", flush = True)
 print("✅ Starting transform_text on new data...", flush=True)
 topic_model.calculate_probabilities = True
-new_df = transform_text(df)
+new_df = transform_text(df_to_transform)
+
+if not existing_df.empty:
+    new_df = pd.concat([existing_df, new_df], ignore_index = True)
+else:
+    new_df = new_df
 #Fill missing topic/probability rows in the original df
 for c in ['Topic', 'Probability']:
     if c not in df.columns:
@@ -2090,7 +2108,7 @@ for c in ['Topic', 'Probability']:
     
 mask = (df['Topic'].isna()) | (df['Probability'].isna())
 df.loc[mask, ['Topic', 'Probability']] = new_df[['Topic', 'Probability']]
-df[['Topic', 'Probability']] = new_df[['Topic', 'Probability']]
+
 #Save only new, non-duplicate rows
 print("✅ Saving new topics to CSV...", flush=True)
 df_combined = save_new_topics(df, new_df)
