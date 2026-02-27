@@ -573,14 +573,13 @@ def save_new_topics(existing_df, new_df, path = 'Model_training/BERTopic_results
     else:
         combined = on_disk.copy()
 
-    # Dedupe ONLY by Link
-    if 'Link' in combined.columns:
-        combined = combined.drop_duplicates(subset=['Link'], keep='last')
-    print("saving combined to csv", flush = True)
-    # Write directly to disk (no in-memory gzip)
-    combined.to_csv(path, index=False, compression={"method": 'gzip', 'compresslevel': 1})
+    if not new_rows.empty():
+        file_exists = Path(path).exists()
 
-    return combined
+        new_rows.to_csv(
+            path, mode = 'a' if file_exists else 'w',
+            index = False, header = not file_exists, compression = {'method': 'gzip', "compresslevel": 1}
+        )
 
 def double_check_articles(df):
     double_check = df[df['Topic'] == -1]['Text'].dropna()
