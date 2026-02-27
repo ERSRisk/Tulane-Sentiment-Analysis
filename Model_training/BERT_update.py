@@ -552,15 +552,14 @@ def load_articles_from_release(local_cache_path='Model_training/BERTopic_results
 
     # 3) Nothing available
     return pd.DataFrame()
-def save_new_topics(new_df, path="Model_training/BERTopic_results3.csv.gz"):
-    release_df = load_articles_from_release()
-    
-    if release_df is not None and not release_df.empty:
-        combined = pd.concat([release_df, new_df], ignore_index=True)
+def save_new_topics(existing_df, new_df, path="Model_training/BERTopic_results3.csv.gz"):
+
+    if existing_df is not None and not existing_df.empty:
+        combined = pd.concat([existing_df, new_df], ignore_index=True)
     else:
         combined = new_df.copy()
-
-    combined.to_csv("BERTopic_results3.csv.gz", index=False, compression="gzip")
+    print("It worked", flush = True)
+    combined.to_csv(path, index=False, compression="gzip")
     return combined
     
 def double_check_articles(df):
@@ -2115,7 +2114,7 @@ df.drop(columns=['Topic_new','Probability_new'], inplace=True)
 
 #Save only new, non-duplicate rows
 print("✅ Saving new topics to CSV...", flush=True)
-df_combined = save_new_topics(new_df)
+df_combined = save_new_topics(existing_df, new_df)
 print("Completed save_new_topics", flush = True)
 print("Merged both dfs", flush = True)
 df_combined['Probability'] = pd.to_numeric(df_combined['Probability'], errors = 'coerce')
