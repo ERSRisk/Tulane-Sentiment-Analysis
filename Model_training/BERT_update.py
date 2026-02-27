@@ -2079,9 +2079,11 @@ def load_full_topics():
     if Path(new_path).exists():
         new_df = pd.read_csv(new_path, compression="gzip")
         dfs.append(new_df)
+    print("About to do the big one", flush = True)
     old_df = load_articles_from_release()  # this pulls BERTopic_results2.csv.gz
     if old_df is not None and not old_df.empty:
         dfs.append(old_df)
+    print("Big one completed", flush = True)
     return pd.concat(dfs, ignore_index=True) if dfs else pd.DataFrame()
 
 #Assign topics and probabilities to new_df
@@ -2117,6 +2119,7 @@ print("✅ Saving new topics to CSV...", flush=True)
 df_combined = save_new_topics(new_df)
 print("Completed save_new_topics", flush = True)
 df_combined = load_full_topics()
+print("Merged both dfs", flush = True)
 df_combined['Probability'] = pd.to_numeric(df_combined['Probability'], errors = 'coerce')
 
 #Double-check if there are still unmatched (-1) topics and assign a temporary model to assign topics to them
