@@ -553,17 +553,16 @@ def load_articles_from_release(local_cache_path='Model_training/BERTopic_results
     # 3) Nothing available
     return pd.DataFrame()
 def save_new_topics(new_df, path="Model_training/BERTopic_results3.csv.gz"):
-    file_exists = Path(path).exists()
+    release_df = load_articles_from_release()
+    
+    if release_df is not None and not release_df.empty:
+        combined = pd.concat([release_df, new_df], ignore_index=True)
+    else:
+        combined = new_df.copy()
 
-    new_df.to_csv(
-        path,
-        mode="a" if file_exists else "w",
-        index=False,
-        header=not file_exists,
-        compression={"method": "gzip", "compresslevel": 1}
-    )
-
-    return new_df
+    combined.to_csv("BERTopic_results3.csv.gz", index=False, compression="gzip")
+    return combined
+    
 def double_check_articles(df):
     double_check = df[df['Topic'] == -1]['Text'].dropna()
     double_check = [text for text in double_check if text.strip()]
@@ -2100,7 +2099,7 @@ else:
     df_to_transform = df.copy()
     print(f"Dataframe to transform has no articles to remove.", flush = True)
 print("✅ Starting transform_text on new data...", flush=True)
-topic_model.calculate_probabilities = True
+topic_model.calculate_probabilities = False
 new_df = transform_text(df_to_transform)
 
 #Fill missing topic/probability rows in the original df
@@ -2118,7 +2117,6 @@ df.drop(columns=['Topic_new','Probability_new'], inplace=True)
 print("✅ Saving new topics to CSV...", flush=True)
 df_combined = save_new_topics(new_df)
 print("Completed save_new_topics", flush = True)
-df_combined = load_full_topics()
 print("Merged both dfs", flush = True)
 df_combined['Probability'] = pd.to_numeric(df_combined['Probability'], errors = 'coerce')
 
@@ -2201,7 +2199,7 @@ def build_stories():
                 60,59,56,54,50,24,22,18,568,565,550,526,518,505,484,477,458,
                 456,387,245,239,226,196,155,144,123,117,109,105,85,61,33,28,
                 25,16,14]
-    df = load_full_topics()
+    df = df_combined
     df = ensure_risk_scores(df)
     df['Published_utc'] = pd.to_datetime(df['Published_utc'], errors = 'coerce', utc = True)
     df = df[df['Published_utc'].notna()]
@@ -2733,7 +2731,7 @@ story_scores = (articles.groupby("story_id").agg(
 canonical = pd.read_csv("Model_training/Canonical_Stories_with_Summaries.csv")
 canonical = canonical.merge(story_scores, on = "story_id", how = 'left', validate= "one_to_one")
 canonical.to_csv("Model_training/Canonical_stories_with_Summaries.csv", index = False)
-articles = load_full_topics()
+articles = df_combined
 articles = ensure_risk_scores(articles)
 articles = articles.drop_duplicates(subset = ['Title', 'Link'], keep = 'last')
 article_story_map = pd.read_csv("Model_training/Articles_with_Stories.csv.gz", compression = 'gzip')
@@ -2947,7 +2945,7 @@ if Path('Model_training/subtopics.csv').exists():
 else:
     subtopics = pd.DataFrame(columns = ['Title', 'Link','Cluster','Event_Severity','Event_Label'])
 
-articles = load_full_topics()
+articles = df_combined
 
 nlp = spacy.load("en_core_web_sm")
 model = SentenceTransformer('all-MiniLM-L6-v2')
