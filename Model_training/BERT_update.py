@@ -576,9 +576,9 @@ def save_new_topics(existing_df, new_df, path = 'Model_training/BERTopic_results
     # Dedupe ONLY by Link
     if 'Link' in combined.columns:
         combined = combined.drop_duplicates(subset=['Link'], keep='last')
-
+    print("saving combined to csv", flush = True)
     # Write directly to disk (no in-memory gzip)
-    combined.to_csv(path, index=False, compression='gzip')
+    combined.to_csv(path, index=False, compression={"method": 'gzip', 'compresslevel': 1})
 
     return combined
 
@@ -2108,21 +2108,21 @@ print("✅ Starting transform_text on new data...", flush=True)
 topic_model.calculate_probabilities = True
 new_df = transform_text(df_to_transform)
 
-if not existing_df.empty:
-    new_df = pd.concat([existing_df, new_df], ignore_index = True)
-else:
-    new_df = new_df
 #Fill missing topic/probability rows in the original df
 for c in ['Topic', 'Probability']:
     if c not in df.columns:
         df[c] = np.nan
     
-mask = (df['Topic'].isna()) | (df['Probability'].isna())
-df.loc[mask, ['Topic', 'Probability']] = new_df[['Topic', 'Probability']]
+update_cols = new_df[['Link', 'Topic', 'Probability']].dropna(subset=['Link'])
+df = df.merge(update_cols, on='Link', how='left', suffixes=('', '_new'))
+df['Topic'] = df['Topic_new'].combine_first(df['Topic'])
+df['Probability'] = df['Probability_new'].combine_first(df['Probability'])
+df.drop(columns=['Topic_new','Probability_new'], inplace=True)
 
 #Save only new, non-duplicate rows
 print("✅ Saving new topics to CSV...", flush=True)
 df_combined = save_new_topics(df, new_df)
+print("Completed save_new_topics", flush = True)
 df_combined['Probability'] = pd.to_numeric(df_combined['Probability'], errors = 'coerce')
 
 #Double-check if there are still unmatched (-1) topics and assign a temporary model to assign topics to them
