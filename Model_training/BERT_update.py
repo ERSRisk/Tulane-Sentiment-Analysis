@@ -2075,7 +2075,7 @@ def load_midstep_from_release(local_cache_path = 'Model_training/BERTopic_Stream
 
 def load_full_topics():
     files = [
-        "Model_training/BERTopic_results2_old.csv.gz",   # frozen
+        "Model_training/BERTopic_results2.csv.gz",   # frozen
         "Model_training/BERTopic_results3.csv.gz"        # new growing file
     ]
     dfs = [pd.read_csv(f, compression="gzip") for f in files if Path(f).exists()]
