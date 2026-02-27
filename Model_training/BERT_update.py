@@ -2074,11 +2074,14 @@ def load_midstep_from_release(local_cache_path = 'Model_training/BERTopic_Stream
     return pd.DataFrame()
 
 def load_full_topics():
-    files = [
-        "Model_training/BERTopic_results2.csv.gz",   # frozen
-        "Model_training/BERTopic_results3.csv.gz"        # new growing file
-    ]
-    dfs = [pd.read_csv(f, compression="gzip") for f in files if Path(f).exists()]
+    dfs = []
+    new_path = "Model_training/BERTopic_results3.csv.gz"
+    if Path(new_path).exists():
+        new_df = pd.read_csv(new_path, compression="gzip")
+        dfs.append(new_df)
+    old_df = load_articles_from_release()  # this pulls BERTopic_results2.csv.gz
+    if old_df is not None and not old_df.empty:
+        dfs.append(old_df)
     return pd.concat(dfs, ignore_index=True) if dfs else pd.DataFrame()
 
 #Assign topics and probabilities to new_df
