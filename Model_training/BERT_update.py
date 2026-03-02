@@ -524,7 +524,7 @@ def transform_text(texts):
     texts["Assigned_how"] = how
 
     return texts
-def load_articles_from_release(local_cache_path='Model_training/BERTopic_results2.csv.gz',
+def load_articles_from_release(local_cache_path='Model_training/BERTopic_results.8.csv.gz',
                                usecols=None, dtype=None):
     rel = get_release_by_tag(Github_owner, Github_repo, Release_tag)
     # 1) Try remote release asset (streamed)
