@@ -39,7 +39,7 @@ DIR_PATH = Path("Model_training/bertopic_dir")
 Github_owner = 'ERSRisk'
 Github_repo = 'Tulane-Sentiment-Analysis'
 Release_tag = 'BERTopic_results'
-Asset_name = 'BERTopic_results2.csv.gz'
+Asset_name = 'BERTopic_results2.csv_part1.csv.gz'
 GITHUB_TOKEN = os.getenv('TOKEN')
 
 GEMINI_API_KEY = os.getenv("PAID_API_KEY")
@@ -524,9 +524,30 @@ def transform_text(texts):
     texts["Assigned_how"] = how
 
     return texts
-def load_articles_from_release(local_cache_path='Model_training/BERTopic_results.8.csv.gz',
-                               usecols=None, dtype=None):
+def load_articles_from_release(local_cache_path='Model_training/BERTopic_results.csv_part1.csv.gz',
+                               usecols=None, dtype=None, Asset_name = 'BERTopic_results2.csv_part1.csv.gz'):
+    def create_github_release(owner, repo, tag, token):
+        url = f"https://api.github.com/repos/{owner}/{repo}/releases"
+        headers = {
+            "Authorization": f"token {token}",
+            "Accept": "application/vnd.github+json"
+        }
+    
+        payload = {
+            "tag_name": tag,
+            "name": tag,
+            "draft": False,
+            "prerelease": False
+        }
+    
+        response = requests.post(url, json=payload, headers=headers)
+        response.raise_for_status()
+        print("Release created successfully.", flush=True)
     rel = get_release_by_tag(Github_owner, Github_repo, Release_tag)
+    if not rel:
+        print("Release does not exist. Creating new release...", flush=True)
+        create_github_release(Github_owner, Github_repo, Release_tag, GITHUB_TOKEN)
+        return pd.DataFrame()
     # 1) Try remote release asset (streamed)
     if rel:
         asset = next((a for a in rel.get('assets', []) if a['name'] == Asset_name), None)
@@ -551,6 +572,7 @@ def load_articles_from_release(local_cache_path='Model_training/BERTopic_results
                            low_memory=False, usecols=usecols, dtype=dtype)
 
     # 3) Nothing available
+    print(f"{Asset_name} does not exist yet. Returning empty DataFrame.", flush=True)
     return pd.DataFrame()
 def save_new_topics(existing_df, new_df, path="Model_training/BERTopic_results3.csv.gz"):
     existing_df = existing_df.drop_duplicates(subset = ['Link'], keep = 'last')
@@ -2071,14 +2093,17 @@ def load_midstep_from_release(local_cache_path = 'Model_training/BERTopic_Stream
         return pd.read_csv(local_cache_path, compression='gzip')
     return pd.DataFrame()
 
-def load_full_topics():
+def load_full_topics(existing_df):
     dfs = []
     new_path = "Model_training/BERTopic_results3.csv.gz"
     if Path(new_path).exists():
         new_df = pd.read_csv(new_path, compression="gzip")
         dfs.append(new_df)
     print("About to do the big one", flush = True)
-    old_df = load_articles_from_release()  # this pulls BERTopic_results2.csv.gz
+    old_df = existing_df
+    old_df2 = load_articles_from_release(local_cache_path = 'Model_training/BERTopic_results2.csv_part2.csv.gz', Asset_name = 'BERTopic_results2.csv_part2.csv.gz')
+    old_df3 = load_articles_from_release(local_cache_path = 'Model_training/BERTopic_results3.csv.gz', Asset_name = 'BERTopic_results3.csv.gz')
+    old_df = pd.concat([old_df, old_df2, old_df3], ignore_index = True)
     if old_df is not None and not old_df.empty:
         dfs.append(old_df)
     print("Big one completed", flush = True)
@@ -2100,6 +2125,8 @@ else:
 print("✅ Starting transform_text on new data...", flush=True)
 topic_model.calculate_probabilities = False
 new_df = transform_text(df_to_transform)
+new_links = set(new_df['Link'])
+
 
 #Fill missing topic/probability rows in the original df
 for c in ['Topic', 'Probability']:
@@ -2165,10 +2192,13 @@ results_df['Predicted_Risks'] = results_df.get('Predicted_Risks_new', results_df
 df = risk_weights(results_df)
 print("Finished assigning risk weights", flush = True)
 df = df.drop(columns = ['University Label_x', 'University Label_y'], errors = 'ignore')
-print("Saving BERTopic_results2.csv.gz", flush = True)
-atomic_write_csv("Model_training/BERTopic_results2.csv.gz", df, compress=True)
+df_new_final = df[df['Link'].isin(new_links)].copy()
+existing_new_version = load_articles_from_release(local_cache_path = 'Model_training/BERTopic_results3.csv.gz', Asset_name = 'BERTopic_results3.csv.gz')
+df_new_version = pd.concat([existing_new_version, df_new_final], ignore_index = True)
+print("Saving BERTopic_results3.csv.gz", flush = True)
+atomic_write_csv("Model_training/BERTopic_results3.csv.gz", df_new_version, compress = True)
 print('Uploading to releases', flush=True)
-upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/BERTopic_results2.csv.gz', GITHUB_TOKEN)
+upload_asset_to_release(Github_owner, Github_repo, Release_tag, "Model_training/BERTopic_results3.csv.gz", GITHUB_TOKEN)
 print("Saving dataset for Streamlit", flush= True)
 df_streamlit = df[df['University Label'] == 1]
 atomic_write_csv("Model_training/BERTopic_Streamlit.csv.gz", df_streamlit, compress = True)
