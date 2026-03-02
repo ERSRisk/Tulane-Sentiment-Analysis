@@ -524,8 +524,8 @@ def transform_text(texts):
     texts["Assigned_how"] = how
 
     return texts
-def load_articles_from_release(local_cache_path='Model_training/BERTopic_results.csv_part1.csv.gz',
-                               usecols=None, dtype=None, Asset_name = 'BERTopic_results2.csv_part1.csv.gz'):
+def load_articles_from_release(local_cache_path='Model_training/BERTopic_results2.csv.gz',
+                               usecols=None, dtype=None, Asset_name = 'BERTopic_results2.csv.gz'):
     def create_github_release(owner, repo, tag, token):
         url = f"https://api.github.com/repos/{owner}/{repo}/releases"
         headers = {
@@ -2101,9 +2101,6 @@ def load_full_topics(existing_df):
         dfs.append(new_df)
     print("About to do the big one", flush = True)
     old_df = existing_df
-    old_df2 = load_articles_from_release(local_cache_path = 'Model_training/BERTopic_results2.csv_part2.csv.gz', Asset_name = 'BERTopic_results2.csv_part2.csv.gz')
-    old_df3 = load_articles_from_release(local_cache_path = 'Model_training/BERTopic_results3.csv.gz', Asset_name = 'BERTopic_results3.csv.gz')
-    old_df = pd.concat([old_df, old_df2, old_df3], ignore_index = True)
     if old_df is not None and not old_df.empty:
         dfs.append(old_df)
     print("Big one completed", flush = True)
