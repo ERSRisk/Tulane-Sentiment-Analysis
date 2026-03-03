@@ -2673,28 +2673,68 @@ def build_stories():
             existing_title = group['canonical_title'].iloc[0]
             print(f"Story ID: {story_id}")
             titles = group['Title'].tolist()
-            prompt = f"For each of these groups, read the titles of all the articles and generate a concise canonical title that summarizes the main topic of the story. Here's the titles: {titles}"
-            try:
-                response = client.models.generate_content(
-                    model = 'gemini-2.5-flash',
-                    contents = prompt)
-            except ClientError as e:
-                 if "RESOURCE_EXHAUSTED" in str(e):
-                    wait_time = 60  
-                    retry_delay_match = re.search(r"'retryDelay': '(\d+)s'", str(e))
-                    if retry_delay_match:
-                        wait_time = int(retry_delay_match.group(1))  # Use API's recommended delay#
-    
-                    print(f"⚠️ API quota exceeded. Retrying in {wait_time} seconds...")
-                    time.sleep(wait_time)
-            prompt2 = f"Based on the following titles: {titles}, generate a 100 word summary that takes into account all the titles."
-            response2 = client.models.generate_content(
-                model = 'gemini-2.5-flash',
-                contents = prompt2
-            )
-            canonical_title = response.text.strip()
+            prompt = f"For each of these groups, read the titles of all the articles and generate ONLY ONE concise canonical title that summarizes the main topic of the story. No bullets. No preface. No list. Here's the titles: {titles}"
+            prompt2 = f"Based on the following titles: {titles}, generate a 100 word summary that takes into account all the titles. No bullets. No headings."
+            max_attempts = 6
+            response = None
+            response2 = None
+            for attempt in range(max_attempts):
+                try:
+                    response = client.models.generate_content(
+                        model = 'gemini-2.5-flash',
+                        contents = prompt)
+                    response2 = client.models.generate_content(
+                        model = 'gemini-2.5-flash',
+                        contents = prompt2
+                        )
+                    
+        
+                    title_txt = getattr(response, "text", None)
+                    if not title_txt:
+                        try:
+                            title_txt = response.candidates[0].content.parts[0].text
+                        except Exception:
+                            title_txt = None
+                    
+                    summary_txt = getattr(response2, "text", None)
+                    if not summary_txt:
+                        try:
+                            summary_txt = response2.candidates[0].content.parts[0].text
+                        except Exception:
+                            summary_txt = None
+                    
+                    # ---- validate ----
+                    if title_txt and str(title_txt).strip():
+                        canonical_title = str(title_txt).strip()
+                        summary = str(summary_txt).strip() if (summary_txt and str(summary_txt).strip()) else ""
+                        break
+                    
+                    raise RuntimeError("Gemini returned empty/None text")
+                except Exception as e:
+                    s = str(e).lower()
+            
+                    # quota / 429 handling
+                    if ("resource_exhausted" in s) or ("quota" in s) or ("429" in s):
+                        wait_time = 60
+                        retry_delay_match = re.search(r"retrydelay['\"]?:\s*['\"]?(\d+)s", str(e), flags=re.I)
+                        if retry_delay_match:
+                            wait_time = int(retry_delay_match.group(1))
+                        print(f"⚠️ Gemini quota hit. Retrying in {wait_time}s... (attempt {attempt+1}/{max_attempts})", flush=True)
+                        time.sleep(wait_time)
+                        continue
+            
+                    # transient-ish
+                    wait = 2 ** attempt
+                    print(f"⚠️ Gemini error: {e}. Retrying in {wait}s... (attempt {attempt+1}/{max_attempts})", flush=True)
+                    time.sleep(wait)
+            
+            else:
+    # hard fallback so you NEVER crash on .strip()
+                canonical_title = f"Story {story_id}"
+                summary = ""
+                print(f"⚠️ Gemini failed after {max_attempts} attempts for story {story_id}. Using fallback title.", flush=True)
+        
             print(f"Canonical Title: {canonical_title}")
-            summary = response2.text.strip()
             print(f"Summary: {summary}")
             print(f"Average Risk Score: {group['avg_risk_score'].iloc[0]:.2f}")
             print(f"Average Recency: {group['avg_recency'].iloc[0]:.2f}")
@@ -2713,6 +2753,7 @@ def build_stories():
                 "canonical_source": 'gemini'
             })
             print(f"Gemini Check story ={story_id}, title {canonical_title}, source {canonical_source}", flush = True)
+        
     if canonical_stories:
         new_df = pd.DataFrame(canonical_stories)
         try:
