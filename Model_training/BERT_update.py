@@ -1753,6 +1753,7 @@ MANDATORY READ CAREFULLY:
 ("High Profile Litigation", "Emergency Preparedness", "Unexpected Expenditures", "Leadership Missteps", "Revenue Loss", "Institutional Alignment","Controversial Public Incident"). DO NOT, and I repeat, DO NOT assign these risks UNLESS Tulane University, Tulane, or Tulane University leadership are EXPLICITLY mentioned.
 """
             max_tries = 6
+            last_err = None
             
             for attempt in range(1, max_tries +1):
                 try:
@@ -1760,6 +1761,7 @@ MANDATORY READ CAREFULLY:
                     model="gemini-2.0-flash",
                     contents=[prompt]
                     )
+                    break
                 except ClientError as e:
                     msg = str(e).lower()
                     if ("resource exhausted" in msg) or ("quota" in msg) or ("429" in msg):
@@ -1788,7 +1790,7 @@ MANDATORY READ CAREFULLY:
                     time.sleep(wait)
                     last_err = e
                     continue
-
+            else:
                 raise RuntimeError(f"Gemini failed after {max_tries} attempts. Last error: {last_err}")
             
             raw = getattr(resp, "text", "").strip()
