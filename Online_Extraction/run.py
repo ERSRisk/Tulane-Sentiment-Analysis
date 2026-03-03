@@ -18,7 +18,7 @@ X_API_KEY = os.getenv("X_API_KEY")
 COOKIE_HEADER = os.getenv("COOKIE_HEADER")
 
 client = genai.Client(api_key=GEMINI_API_KEY)
-search = 'Tulane'
+search = 'Tulane University'
 start_date = (datetime.date.today() - timedelta(days = 7))
 start_date_X = (datetime.date.today() - timedelta(days = 6))
 end_date = datetime.date.today()
