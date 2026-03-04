@@ -2982,14 +2982,13 @@ def build_subtopic_clusters(df, subtopics, model, min_sim=0.6):
 
     
     def cluster_embeddings(embeddings, threshold=0.60):
-        normalized_embeddings = normalize(embeddings)
-        similarity_matrix = cosine_similarity(normalized_embeddings)
-    
-        n = similarity_matrix.shape[0]
-        visited = [False] * n
+        N = embeddings.shape[0]
+        visited = [False] * N
         clusters = []
-    
-        for i in range(n):
+
+        chunks = 512
+
+        for i in range(N):
             if not visited[i]:
                 cluster = []
                 queue = [i]
@@ -2999,13 +2998,19 @@ def build_subtopic_clusters(df, subtopics, model, min_sim=0.6):
                     node = queue.pop(0)
                     cluster.append(node)
                 
-                    for j in range(n):
-                        if not visited[j] and similarity_matrix[node][j] >= threshold:
-                            visited[j] = True
-                            queue.append(j)
-            
+                    node_vec = embeddings[node].reshape(1, -1)
+                    unvisited_idx = [j for j in range(N) if not visited[j]]
+
+                    for chunk_start in range(0, len(unvisited_idx), chunks):
+                        chunk_idx = unvisited_idx[chunk_start:chunk_start + chunks]
+                        chunk_vecs = embeddings[chunk_idx]
+                        sims = (chunk_vecs @ node_vec.T).ravel()
+
+                        for k, j in enumerate(chunk_idx):
+                            if sims[k] > threshold:
+                                visited[j] = True
+                                queue.append(j)
                 clusters.append(cluster)
-    
         return clusters
     if len(centroids) == 0:
         df['Cluster'] = df['Cluster'].fillna(-1)
