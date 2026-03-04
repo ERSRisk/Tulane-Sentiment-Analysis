@@ -2296,7 +2296,7 @@ def build_stories():
                 60,59,56,54,50,24,22,18,568,565,550,526,518,505,484,477,458,
                 456,387,245,239,226,196,155,144,123,117,109,105,85,61,33,28,
                 25,16,14]
-    df = df_combined
+    df = load_full_topics(load_articles_from_release())
     df = ensure_risk_scores(df)
     df['Published_utc'] = pd.to_datetime(df['Published_utc'], errors = 'coerce', utc = True)
     df = df[df['Published_utc'].notna()]
