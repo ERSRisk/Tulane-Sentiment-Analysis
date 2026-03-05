@@ -2371,6 +2371,7 @@ def build_stories():
 
     if Path('Model_training/Canonical_Stories_with_Summaries.csv').exists():
         canonical_titles = pd.read_csv('Model_training/Canonical_Stories_with_Summaries.csv')
+        canonical_titles['story_id'] = canonical_titles['story_id'].astype(int)
     #else:
         #canonical_titles = pd.DataFrame(columns=['story_id', 'canonical_title'])
 
@@ -2381,6 +2382,7 @@ def build_stories():
     suffixes=('', '_gemini'),
     validate='one_to_one'
     )
+    stories_df['story_id'] = stories_df['story_id'].astype(int)
     
     # Prefer Gemini canonical_title when present, otherwise keep existing
     if 'canonical_title_gemini' in stories_df.columns:
@@ -2739,7 +2741,7 @@ def build_stories():
     )
     
     
-    df = df[['Title', 'story_id', 'Published_utc', 'Risk_Score']]
+    df = df[['Title', 'story_id', 'Published_utc', 'Risk_Score', 'University Label']]
     df['Published_utc'] = pd.to_datetime(df['Published_utc'], errors='coerce', utc = True)
     cutoff = pd.Timestamp.now(tz='UTC') - pd.Timedelta(days=90)
     
@@ -2776,8 +2778,11 @@ def build_stories():
         canonical_title = group['canonical_title'].iloc[0]
         if group.shape[0] >= 2:
             
-            if pd.notna(canonical_title):
+            if pd.notna(canonical_title) and str(canonical_title).strip() not in ('', 'nan'):
                 continue
+            if 'University Label' in group.columns:
+                if not (group['University Label'] == 1).any():
+                    continue
             existing_title = group['canonical_title'].iloc[0]
             print(f"Story ID: {story_id}")
             titles = group['Title'].tolist()
@@ -2951,6 +2956,7 @@ dashboard_stories = (
       .reset_index()
 )
 
+
 dropdown_table = canonical_articles[["story_id", "Title","Topic", "Link", "Published_utc", "Risk_Score",'Recency', 'Source_Accuracy', 'Impact_Score', 'Acceleration_value', 'Location','Industry_Risk', 'Frequency_Score', "Predicted_Risks_new"]].sort_values("Published_utc", ascending = False)
 standalone_articles = articles[articles["story_articles_count"] == 1].copy()
 
@@ -3083,10 +3089,11 @@ def build_subtopic_clusters(df, subtopics, model, min_sim=0.6):
             next_cluster_id = next_cluster_id + 1
     
     for cluster_id, group in df.groupby('Cluster'):
-        has_university = (group['University_Label'] == 1).any()
+        has_university = (group['University Label'] == 1).any()
         if cluster_id == -1:
             continue
         existing_label = group['Event_Label'].dropna()
+        existing_label = existing_label[existing_label.str.strip() != '']
         if len(existing_label) > 0:
             continue
 
