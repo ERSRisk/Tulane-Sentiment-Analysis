@@ -2431,8 +2431,8 @@ def build_stories():
 
     for _, row in stories_df.iterrows():
         sid = int(row['story_id'])
-        row = articles_by_story.get(sid, [])
-        if not row:
+        rows = articles_by_story.get(sid, [])
+        if not rows:
             continue
 
         if sid in centroid_map:
