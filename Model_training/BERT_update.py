@@ -31,6 +31,7 @@ from sklearn.preprocessing import normalize
 import hashlib
 import spacy
 import gc
+import pickle
 
 rss_url = "https://github.com/ERSRisk/Tulane-Sentiment-Analysis/releases/download/rss_json/all_RSS.json.gz"
 
@@ -123,6 +124,16 @@ def atomic_write_csv(path: str, df, compress: bool = False):
     os.replace(tmp, p)
     print(f"✅ Wrote {p} ({p.stat().st_size/1e6:.2f} MB)")
 
+def atomic_write_pickle(path: str, obj):
+    p = Path(path)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    tmp = p.with_suffix(p.suffix + ".tmp")
+    import pickle
+    with open(tmp, 'wb') as f:
+        pickle.dump(obj, f)
+    os.replace(tmp, p)
+    print(f"✅ Wrote {p} ({p.stat().st_size/1e6:.2f} MB)")
+    
 def load_dir_model():
     # load from disk if present
     if DIR_PATH.exists() and any(DIR_PATH.iterdir()):
@@ -2389,8 +2400,16 @@ def build_stories():
 
     open_stories = []
 
-    article_embeddings = model.encode(df['Title'].fillna('').tolist(), convert_to_numpy = True, normalize_embeddings = True)
-    df['story_embeddings'] = list(article_embeddings)
+    already_labeled['story_embeddings'] = None
+
+    if not new_articles.empty:
+        new_embeddings = model.encode(new_articles['Title'].fillna('').tolist(), convert_to_numpy = True, normalize_embeddings = True, show_progress_bar = True)
+        new_articles['story_embeddings'] = list(new_embeddings)
+
+    else:
+        new_articles['story_embeddings'] = []
+
+    
 
     articles_by_story = {}
 
@@ -2402,28 +2421,40 @@ def build_stories():
         stories_df = stories_df.iloc[0:0]
 
 
+    if Path('Model_training/story_centroids.pkl').exists():
+        with open('Model_training/story_centroids.pkl', 'rb') as f:
+            centroids_df = pickle.load(f)
+        centroid_map = {int(row['story_id']): np.array(row['centroid']) for _, row in centroids_df.iterrows()}
+
+    else:
+        centroid_map = {}
+
     for _, row in stories_df.iterrows():
         sid = int(row['story_id'])
-
-        rows = articles_by_story.get(sid, [])
-
+        row = articles_by_story.get(sid, [])
         if not rows:
-            print(f"Skipping story {sid}: no articles found")
             continue
 
-        texts = [norm_text(f"{str(r.get('Title') or '')} {str(r.get('Summary') or '')}") for r in rows]
+        if sid in centroid_map:
+            centroid = centroid_map[sid]
+        else:
+            texts = [norm_text(f"{str(r.get('Title') or '')} {str(r.get('Summary') or '')}") 
+                 for r in rows]
+            centroid = model.encode(
+                texts, convert_to_numpy=True, normalize_embeddings=True
+            ).mean(axis=0)
+            centroid = centroid / np.linalg.norm(centroid)
 
-        first_seen = min(pd.to_datetime(r['Published_utc'], errors = 'coerce') for r in rows)
-        last_seen = max(pd.to_datetime(r['Published_utc'], errors = 'coerce') for r in rows)
-        centroid = model.encode(texts, convert_to_numpy = True, normalize_embeddings = True).mean(axis = 0)
-        n = len(rows)
+        first_seen = min(pd.to_datetime(r['Published_utc'], errors='coerce') for r in rows)
+        last_seen = max(pd.to_datetime(r['Published_utc'], errors='coerce') for r in rows)
+
         open_stories.append({
             "id": sid,
             "centroid": centroid,
             "rows": rows,
-            "n": n,
-            "first_seen": pd.to_datetime(first_seen, errors = 'coerce'),
-            "last_seen": pd.to_datetime(last_seen, errors = 'coerce'),
+            "n": len(rows),
+            "first_seen": pd.to_datetime(first_seen, errors='coerce'),
+            "last_seen": pd.to_datetime(last_seen, errors='coerce'),
             "canonical_title": row.get('canonical_title', None)
         })
 
@@ -2437,9 +2468,6 @@ def build_stories():
         df['date_bucket'] = df['Published_utc'].dt.floor('D')
         df.sort_values(by='Published_utc', inplace=True)
 
-        embeddings = model.encode(df['text_for_embedding'].tolist(), convert_to_numpy=True, batch_size=64,
-                    show_progress_bar=True,
-                    normalize_embeddings=True)
 
         story_rows = []
         article_story_ids = []
@@ -2453,7 +2481,10 @@ def build_stories():
         for pos, (idx, row) in enumerate(df.iterrows()):
             best_sim = -1
             best_story = None
-            embed_i = embeddings[pos]
+            embed_i = row['story_embeddings']
+            if not isinstance(embed_i, np.ndarray):
+                embed_i = model.encode([row['Title'] or ''], convert_to_numpy=True, normalize_embeddings=True
+                )[0]
             pub_i = row["Published_utc"]
 
 
@@ -2607,7 +2638,13 @@ def build_stories():
 
     df['Published_utc'] = pd.to_datetime(df['Published_utc'], errors='coerce')
     #filtered_df = df.drop_duplicates(subset = 'Link', keep = 'last').reset_index(drop = True)
-    articles_with_stories, stories_df, open_stories = build_story_clusters(df, open_stories, story_id_counter, stories_df, min_sim = 0.6)
+    articles_with_stories, stories_df, open_stories = build_story_clusters(new_articles, open_stories, story_id_counter, stories_df, min_sim = 0.6)
+    articles_with_stories = pd.concat([already_labeled, articles_with_stories], ignore_index = True)
+
+    #Saving centroids for future reference
+    centroid_records = [{"story_id": s["id"], "centroid": s["centroid"].tolist()} for s in open_stories]
+    atomic_write_pickle("Model_training/story_centroids.pkl", centroid_records)
+    
     assigned = articles_with_stories['story_id'].notna().sum()
     if assigned == 0:
         raise RuntimeError("CRITICAL: build_story_clusters produced zero story assignments.")
