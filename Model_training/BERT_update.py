@@ -2966,7 +2966,7 @@ standalone_articles.to_csv("Model_training/dashboard_articles.csv.gz", compressi
 
 articles_only = articles[articles['story_articles_count']<3].copy()
 
-def build_subtopic_clusters(df, subtopics, model, min_sim=0.6):
+def build_subtopic_clusters(df, subtopics, model, min_sim=0.6, subtopic_centroids = None):
     df = df.copy()
 
     
@@ -3003,25 +3003,33 @@ def build_subtopic_clusters(df, subtopics, model, min_sim=0.6):
     
 
     df = df.merge(subtopics[['Title', 'Link','Cluster','Event_Severity','Event_Label']], on =['Title', 'Link'], how = 'left')
-    df['is_historical'] = df['Cluster'].notna()
     df['Embeddings'] = list(model.encode(
         (df['Title'].fillna('') + ' ' + df['Content'].fillna('')).tolist(),
         show_progress_bar=True,
         convert_to_numpy=True
     ))
-    centroid_df = df[
-        df['is_historical'] &
-        df['Cluster'].isin(active_clusters)
-    ]
+    if subtopic_centroids is not None and len(subtopic_centroids) > 0:
+        centroids = subtopic_centroids
+    else:
+        if not subtopics.empty:
+            print("Building subtopic centroids from scratch...", flush=True)
+            sub_embs = model.encode(
+                (subtopics['Title'].fillna('') + ' ' + subtopics['Content'].fillna('')).tolist(),
+                convert_to_numpy=True
+            )
+            subtopics = subtopics.copy()
+            subtopics['_emb'] = list(sub_embs)
+            centroids = (
+                subtopics[subtopics['Cluster'].isin(active_clusters)]
+                .groupby('Cluster')['_emb']
+                .apply(lambda x: np.mean(np.vstack(x), axis=0))
+            )
+        else:
+            centroids = pd.Series(dtype=object)
 
-    centroids = (
-        centroid_df
-        .groupby('Cluster')['Embeddings']
-        .apply(lambda x: np.mean(np.vstack(x), axis=0))
-    )
     if centroids.empty:
         df['Cluster'] = df['Cluster'].fillna(-1)
-        return df
+        return df, centroids
 
     
     def cluster_embeddings(embeddings, threshold=0.60):
@@ -3128,17 +3136,37 @@ def build_subtopic_clusters(df, subtopics, model, min_sim=0.6):
         df.loc[group.index, 'Event_Severity'] = event_severity
     return df
 
-if Path('Model_training/subtopics.csv').exists():
-    subtopics = pd.read_csv('Model_training/subtopics.csv')
-else:
-    subtopics = pd.DataFrame(columns = ['Title', 'Link','Cluster','Event_Severity','Event_Label'])
-
 articles = load_full_topics(load_articles_from_release())
 
 nlp = spacy.load("en_core_web_sm")
 model = SentenceTransformer('all-MiniLM-L6-v2')
+if Path('Model_training/subtopics.csv').exists():
+    subtopics = pd.read_csv('Model_training/subtopics.csv')
+else:
+    subtopics = pd.DataFrame(columns=['Title', 'Link', 'Cluster', 'Event_Severity', 'Event_Label'])
 
-articles = build_subtopic_clusters(articles, subtopics, model)
+
+# Split into already labeled and new
+already_clustered = articles[articles['Title'].isin(subtopics['Title']) & 
+                             articles['Link'].isin(subtopics['Link'])]
+new_only = articles[~(articles['Title'].isin(subtopics['Title']) & 
+                      articles['Link'].isin(subtopics['Link']))].copy()
+
+print(f"Already clustered: {len(already_clustered)}, New: {len(new_only)}", flush=True)
+if Path('Model_training/subtopic_centroids.pkl').exists():
+    with open('Model_training/subtopic_centroids.pkl', 'rb') as f:
+        saved = pickle.load(f)
+    subtopic_centroids = pd.Series({k: np.array(v) for k, v in saved.items()})
+else:
+    subtopic_centroids = None
+articles, updated_centroids = build_subtopic_clusters(new_only, subtopics, model, subtopic_centroids=subtopic_centroids)
+atomic_write_pickle('Model_training/subtopic_centroids.pkl', {int(k): v.tolist() for k, v in subtopic_centroids.items()})
+already_clustered = already_clustered.merge(subtopics[['Title', 'Link', 'Cluster', 'Event_Label', 'Event_Severity']],
+    on=['Title', 'Link'],
+    how='left'
+)
+articles = pd.concat([already_clustered, articles], ignore_index=True)
+
 
 atomic_write_csv("Model_training/BERTopic_Streamlit.csv.gz", articles, compress = True)
 atomic_write_csv("Model_training/subtopics.csv", articles, compress = False)
