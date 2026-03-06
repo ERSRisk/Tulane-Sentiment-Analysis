@@ -3134,7 +3134,29 @@ def build_subtopic_clusters(df, subtopics, model, min_sim=0.6, subtopic_centroid
         risk_scores = pd.to_numeric(group['Risk_Score'], errors='coerce').fillna(0)
         event_severity = risk_scores.mean()
         df.loc[group.index, 'Event_Severity'] = event_severity
-    return df
+    for idx, row in df[df['Cluster'].notna() & (df['Cluster'] != -1)].iterrows():
+        cid = row['Cluster']
+        emb = row['Embeddings']
+        if not isinstance(emb, np.ndarray):
+            continue
+        if cid in centroids.index:
+            # Running mean update
+            old = centroids[cid]
+            centroids[cid] = (old + emb) / 2
+        
+    # Compute centroids for brand new leftover clusters
+    new_cluster_ids = set(df['Cluster'].unique()) - set(centroids.index) - {-1}
+    if new_cluster_ids:
+        new_centroid_records = {}
+        for cid in new_cluster_ids:
+            cluster_embs = np.vstack(
+                df[df['Cluster'] == cid]['Embeddings'].values
+            )
+            new_centroid_records[int(cid)] = cluster_embs.mean(axis=0)
+        new_series = pd.Series(new_centroid_records)
+        centroids = pd.concat([centroids, new_series])
+
+    return df, centroids
 
 articles = load_full_topics(load_articles_from_release())
 
@@ -3160,7 +3182,18 @@ if Path('Model_training/subtopic_centroids.pkl').exists():
 else:
     subtopic_centroids = None
 articles, updated_centroids = build_subtopic_clusters(new_only, subtopics, model, subtopic_centroids=subtopic_centroids)
-atomic_write_pickle('Model_training/subtopic_centroids.pkl', {int(k): v.tolist() for k, v in subtopic_centroids.items()})
+
+if subtopic_centroids is not None:
+    merged_centroids = {int(k): v.tolist() for k, v in subtopic_centroids.items()}
+else:
+    merged_centroids = []
+
+if updated_centroids is not None:
+    for k, v in updated_centroids.items():
+        merged_centroids[int(k)] = v.tolist() if isinstance(v, np.ndarray) else v
+    
+
+atomic_write_pickle('Model_training/subtopic_centroids.pkl', merged_centroids)
 already_clustered = already_clustered.merge(subtopics[['Title', 'Link', 'Cluster', 'Event_Label', 'Event_Severity']],
     on=['Title', 'Link'],
     how='left'
