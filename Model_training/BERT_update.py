@@ -3170,8 +3170,10 @@ else:
 
 # Split into already labeled and new
 already_clustered = articles[articles['Title'].isin(subtopics['Title'])]
-new_only = articles[~(articles['Title'].isin(subtopics['Title']) & 
-                      (articles['University Label'] == 1)].copy()
+new_only = articles[
+    ~articles['Title'].isin(subtopics['Title']) & 
+    (articles['University Label'] == 1)
+].copy()
 
 print(f"Already clustered: {len(already_clustered)}, New: {len(new_only)}", flush=True)
 if Path('Model_training/subtopic_centroids.pkl').exists():
