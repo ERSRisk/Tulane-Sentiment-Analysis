@@ -3187,7 +3187,7 @@ articles, updated_centroids = build_subtopic_clusters(new_only, subtopics, model
 updated_subtopics = pd.concat([subtopics, articles[['Title', 'Link','Cluster', 'Event_Severity', 'Event_Label', 'Published_utc']]],
                              ignore_index = True).drop_duplicates(subset = ['Title', 'Link'], keep = 'last')
 
-updated_topics.to_csv('Model_training/subtopics.csv', index = False)
+updated_subtopics.to_csv('Model_training/subtopics.csv', index = False)
 print(f"Saved {len(updated_subtopics)} total subtopics ({len(updated_subtopics) - len(subtopics)} new)", flush=True)
 
 if subtopic_centroids is not None:
