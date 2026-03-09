@@ -3169,10 +3169,9 @@ else:
 
 
 # Split into already labeled and new
-already_clustered = articles[articles['Title'].isin(subtopics['Title']) & 
-                             articles['Link'].isin(subtopics['Link'])]
+already_clustered = articles[articles['Title'].isin(subtopics['Title'])]
 new_only = articles[~(articles['Title'].isin(subtopics['Title']) & 
-                      articles['Link'].isin(subtopics['Link']))].copy()
+                      (articles['University Label'] == 1)].copy()
 
 print(f"Already clustered: {len(already_clustered)}, New: {len(new_only)}", flush=True)
 if Path('Model_training/subtopic_centroids.pkl').exists():
@@ -3182,6 +3181,12 @@ if Path('Model_training/subtopic_centroids.pkl').exists():
 else:
     subtopic_centroids = None
 articles, updated_centroids = build_subtopic_clusters(new_only, subtopics, model, subtopic_centroids=subtopic_centroids)
+
+updated_subtopics = pd.concat([subtopics, articles[['Title', 'Link','Cluster', 'Event_Severity', 'Event_Label', 'Published_utc']]],
+                             ignore_index = True).drop_duplicates(subset = ['Title', 'Link'], keep = 'last')
+
+updated_topics.to_csv('Model_training/subtopics.csv', index = False)
+print(f"Saved {len(updated_subtopics)} total subtopics ({len(updated_subtopics) - len(subtopics)} new)", flush=True)
 
 if subtopic_centroids is not None:
     merged_centroids = {int(k): v.tolist() for k, v in subtopic_centroids.items()}
