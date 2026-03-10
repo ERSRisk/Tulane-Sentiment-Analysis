@@ -2427,7 +2427,7 @@ def build_stories():
             centroids_df = pickle.load(f)
         if isinstance(centroids_df, list):
             centroid_map = centroid_map = {int(row['story_id']): np.array(row['centroid']) for row in centroids_df}
-        if isinstance(centroid_df, pd.DataFrame):
+        if isinstance(centroids_df, pd.DataFrame):
             centroid_map = {int(row['story_id']): np.array(row['centroid']) for _, row in centroids_df.iterrows()}
         elif isinstance(centroids_df, dict):
             centroid_map = {int(k): np.array(v) for k, v in centroids_df.items()}
