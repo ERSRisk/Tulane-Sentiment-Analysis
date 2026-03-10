@@ -2719,21 +2719,25 @@ def build_stories():
     
     df = pd.read_csv('Model_training/Articles_with_Stories.csv.gz', compression='gzip')
     df = df.drop_duplicates(subset=["Title", "Published_utc"], keep="last")
-    df_stories = pd.read_csv('Model_training/dashboard_stories.csv.gz', compression='gzip')
-    df_stories.to_csv('Model_training/Story_Clusters_backup.csv', index=False)
+    if Path('Model_training/dashboard_stories.csv.gz').exists():  
+        df_stories = pd.read_csv('Model_training/dashboard_stories.csv.gz', compression='gzip')
+    else:
+        df_stories = pd.DataFrame(columns=['story_id', 'canonical_title', 'canonical_source', 
+                                            'last_seen', 'avg_risk_score', 'avg_recency'])
+        df_stories.to_csv('Model_training/Story_Clusters_backup.csv', index=False)
     
     
     if Path('Model_training/Canonical_Stories_with_Summaries.csv').exists():
         canonical_titles = pd.read_csv('Model_training/Canonical_Stories_with_Summaries.csv')
-    #else:
-        #canonical_titles = pd.DataFrame(columns=['story_id', 'canonical_title', 'summary', 'average_risk_score', 'average_recency', 'articles', 'canonical_source'])
-    df_stories = df_stories.merge(
-        canonical_titles[['story_id', 'canonical_title', 'canonical_source']],
-        on='story_id',
-        how='left',
-        suffixes = ('', '_new'),
-        validate='one_to_one'
-    )
+        canonical_titles['story_id'] = canonical_titles['story_id'].astype(int)
+        stories_df = stories_df.merge(
+            canonical_titles[['story_id', 'canonical_title', 'canonical_source']],
+            on='story_id', how='left', suffixes=('', '_gemini'), validate='one_to_one'
+        )
+        if 'canonical_title_gemini' in stories_df.columns:
+            stories_df['canonical_title'] = stories_df['canonical_title_gemini'].fillna(stories_df['canonical_title'])
+        stories_df.drop(columns=[c for c in stories_df.columns if c.endswith('_gemini')], inplace=True, errors='ignore')
+    
     if 'canonical_title_new' in df_stories.columns:
         df_stories['canonical_title'] = df_stories['canonical_title_new'].fillna(df_stories['canonical_title'])
 
@@ -2770,7 +2774,9 @@ def build_stories():
         how="left",
         validate="many_to_one"   
     )
-    
+    for col in ['canonical_source', 'canonical_title', 'avg_risk_score', 'avg_recency']:
+        if col not in merged.columns:
+            merged[col] = np.nan
     valid_story_ids = set(merged['story_id'].unique())
     df_stories = df_stories[df_stories['story_id'].isin(valid_story_ids)]
     grouped = merged.groupby('story_id')
