@@ -2308,7 +2308,9 @@ def build_stories():
                 25,16,14]
     df = load_full_topics(load_articles_from_release())
     df = ensure_risk_scores(df)
-    df['Published_utc'] = pd.to_datetime(df['Published_utc'], errors = 'coerce', utc = True)
+    df['University Label'] = pd.to_numeric(df['University Label'], errors='coerce').fillna(0).astype(int)
+    df = df[df['University Label'] == 1].copy()  # ← only cluster university-relevant articles
+    df['Published_utc'] = pd.to_datetime(df['Published_utc'], errors='coerce', utc=True)
     df = df[df['Published_utc'].notna()]
 
     
@@ -2371,16 +2373,14 @@ def build_stories():
     if Path('Model_training/Canonical_Stories_with_Summaries.csv').exists():
         canonical_titles = pd.read_csv('Model_training/Canonical_Stories_with_Summaries.csv')
         canonical_titles['story_id'] = canonical_titles['story_id'].astype(int)
-    #else:
-        #canonical_titles = pd.DataFrame(columns=['story_id', 'canonical_title'])
-
-    stories_df = stories_df.merge(
-    canonical_titles[['story_id', 'canonical_title', 'canonical_source']],
-    on='story_id',
-    how='left',
-    suffixes=('', '_gemini'),
-    validate='one_to_one'
-    )
+        stories_df = stories_df.merge(
+            canonical_titles[['story_id', 'canonical_title', 'canonical_source']],
+            on='story_id', how='left', suffixes=('', '_gemini'), validate='one_to_one'
+        )
+        if 'canonical_title_gemini' in stories_df.columns:
+            stories_df['canonical_title'] = stories_df['canonical_title_gemini'].fillna(stories_df['canonical_title'])
+        stories_df.drop(columns=[c for c in stories_df.columns if c.endswith('_gemini')], inplace=True, errors='ignore')
+    
     stories_df['story_id'] = stories_df['story_id'].astype(int)
     
     # Prefer Gemini canonical_title when present, otherwise keep existing
