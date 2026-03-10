@@ -3213,7 +3213,6 @@ articles = pd.concat([already_clustered, articles], ignore_index=True)
 
 
 atomic_write_csv("Model_training/BERTopic_Streamlit.csv.gz", articles, compress = True)
-atomic_write_csv("Model_training/subtopics.csv", articles, compress = False)
 upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/BERTopic_Streamlit.csv.gz', GITHUB_TOKEN)
 
 
