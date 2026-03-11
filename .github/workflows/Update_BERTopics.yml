@@ -151,7 +151,8 @@ jobs:
             Model_training/dashboard_articles.csv.gz\
             Model_training/subtopics.csv\
             Model_training/story_centroids.pkl\
-            Model_training/subtopic_centroids.pkl
+            Model_training/subtopic_centroids.pkl\
+            Model_training/final_risk_scores1.csv
 
           echo "== git status (porcelain) =="
           git status --porcelain=1 -uall || true
