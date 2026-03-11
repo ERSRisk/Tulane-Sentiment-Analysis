@@ -3220,9 +3220,104 @@ atomic_write_csv("Model_training/BERTopic_Streamlit.csv.gz", articles, compress 
 upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/BERTopic_Streamlit.csv.gz', GITHUB_TOKEN)
 
 
+df = articles.drop_duplicates(subset = ['Title', 'Content'], keep = 'last')
+df['Published_utc'] = pd.to_datetime(df['Published_utc'], errors = 'coerce')
+df.sort_values('Published_utc', inplace = True)
+df['Content_trunc'] = df['Content'].fillna('').str.slice(0, 500)
+
+bundle = load_model_bundle(Github_owner, Github_repo, 'regression')
+risk_defs = bundle['risk_defs']
+
+grouped = df.groupby(['Window', 'Cluster', 'Predicted_Risks_new']).agg({
+    "Title": ' '.join,
+    "Content_trunc": ' '.join,
+    "Event_Severity": 'max',
+    "Event_Label": 'first',
+    "Acceleration_value": 'last',
+    "Recency": "last",
+    "Source_Accuracy": "mean",
+    "Impact_Score": "mean",
+    "Location": 'mean',
+    "Industry_Risk": "mean",
+    "Frequency_Score": "mean"
+}).reset_index()
+
+grouped['combined_text'] = (grouped['Title'].fillna('') + grouped['Content_trunc'].fillna(''))
+
+model = SentenceTransformer('all-mpnet-base-v2')
+
+risk_names = list(risk_defs.keys())
+risk_labels = list(risk_defs.values())
+
+risk_embeddings = model.encode(risk_labels, normalize_embeddings = True, show_progress_bar = True)
+text_embeddings = model.encode(grouped['combined_text'].tolist(), normalize_embeddings = True, show_progress_bar = True)
+risk_to_index = {name: i for i, name in enumerate(risk_defs.keys())}
+
+similarities = []
+for i, row in grouped.iterrows():
+    risk_name = row['Predicted_Risks_new']
+    risk_idx = risk_to_index[risk_name]
+
+    sim = np.dot(text_embeddings[i], risk_embeddings[risk_idx])
+    sim = np.clip(sim, 0, 1)
+    similarities.append(sim)
+
+grouped['similarity'] = similarities
+
+s_min = grouped['similarity'].quantile(0.2)
+s_max = grouped['similarity'].quantile(0.9)
+
+grouped['rel_cos'] = np.clip((grouped['similarity'] - s_min)/(s_max - s_min), 0, 1)
 
 
+sim_matrix = np.dot(text_embeddings, risk_embeddings.T)
+pred_idx = grouped['Predicted_Risks_new'].map(risk_to_index).values
+chosen_sim = sim_matrix[np.arange(len(grouped)), pred_idx]
 
+sim_excluding_chosen = sim_matrix.copy()
+sim_excluding_chosen[np.arange(len(grouped)), pred_idx] = -1
+best_alt_sim = sim_excluding_chosen.max(axis = 1)
+
+margin = chosen_sim - best_alt_sim
+
+grouped['margin'] = margin
+
+margin_cap = 0.2
+
+tau = 0.05
+grouped['rel_margin'] = 1/(1 + np.exp(-(grouped['margin']/tau)))
+
+
+relevance = (0.7 * grouped['rel_cos']) + (0.3 * grouped['rel_margin'])
+
+grouped['raw_score'] = grouped['Event_Severity'] * relevance
+
+grouped = grouped.sort_values(['Window', 'Predicted_Risks_new', 'raw_score'], ascending = [True, True, False])
+
+grouped['rank'] = grouped.groupby(['Window', 'Predicted_Risks_new']).cumcount() + 1
+
+lam = 0.7
+
+grouped['decay_weight'] = lam ** (grouped['rank'] - 1)
+
+grouped['weighted_strength'] = (grouped['decay_weight'] * grouped['raw_score'])
+grouped.to_csv('grouped_risk_scores1.csv', index = False)
+K = 3
+grouped_ranked = grouped.copy()
+grouped_ranked = grouped_ranked[grouped_ranked['rank'] <= K]
+grouped_ranked.to_csv('ranked_events_risks1.csv', index = False)
+
+risk_scores = (grouped_ranked.groupby(['Window', 'Predicted_Risks_new'])['weighted_strength']
+               .sum()
+               .reset_index()
+               .rename(columns = {'weighted_strength': 'raw_risk_score'})
+)
+
+
+c = 2.5
+risk_scores['final_risk_score'] = (5 * risk_scores['raw_risk_score'] / (risk_scores['raw_risk_score'] + c))
+
+risk_scores.to_csv('Model_training/final_risk_scores1.csv', index = False)
 
 print("Articles over time", flush = True)
 #
