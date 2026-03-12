@@ -1541,30 +1541,28 @@ def get_release_by_tag(owner, repo, tag):
         return None
     r.raise_for_status()
     return r.json()
+def load_model_bundle(owner, repo, tag, asset_name = 'model_bundle.pkl', local_cache_path = 'Model_training/artifacts/model_bundle.pkl'):
+    P = Path(local_cache_path)
+    P.parent.mkdir(parents = True, exist_ok=True)
 
-def predict_risks(df):
-    def load_model_bundle(owner, repo, tag, asset_name = 'model_bundle.pkl', local_cache_path = 'Model_training/artifacts/model_bundle.pkl'):
-        P = Path(local_cache_path)
-        P.parent.mkdir(parents = True, exist_ok=True)
-
-        if P.exists() and P.stat().st_size > 0:
-            return joblib.load(P)
-        rel = get_release_by_tag(owner, repo, tag)
-        if not rel:
-            raise RuntimeError(f"Release tag {tag} not found")
-        assets = rel.get('assets', []) or []
-        asset = next((a for a in assets if a.get('name')==asset_name), None)
-        if not asset:
-            raise RuntimeError(f"Asset {asset_name} not found")
-
-        asset_url =asset['url']
-        headers = gh_headers()
-        headers['Accept'] = 'application/octet-stream'
-        r = requests.get(asset_url, headers = headers, timeout = 120)
-        r.raise_for_status()
-        P.write_bytes(r.content)
+    if P.exists() and P.stat().st_size > 0:
         return joblib.load(P)
+    rel = get_release_by_tag(owner, repo, tag)
+    if not rel:
+        raise RuntimeError(f"Release tag {tag} not found")
+    assets = rel.get('assets', []) or []
+    asset = next((a for a in assets if a.get('name')==asset_name), None)
+    if not asset:
+        raise RuntimeError(f"Asset {asset_name} not found")
 
+    asset_url =asset['url']
+    headers = gh_headers()
+    headers['Accept'] = 'application/octet-stream'
+    r = requests.get(asset_url, headers = headers, timeout = 120)
+    r.raise_for_status()
+    P.write_bytes(r.content)
+    return joblib.load(P)
+def predict_risks(df):
     def soft_cosine_probs(vecs, label_emb):
         cos = vecs @ label_emb.T
         cos = (cos + 1.0) / 2.0
