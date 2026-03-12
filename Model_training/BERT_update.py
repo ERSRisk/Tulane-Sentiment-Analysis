@@ -3176,6 +3176,13 @@ else:
 
 # Split into already labeled and new
 already_clustered = articles[articles['Title'].isin(subtopics['Title'])]
+already_clustered['Published_utc'] = pd.to_datetime(already_clustered['Published_utc'], errors='coerce', utc=True)
+already_clustered['Window'] = (
+    already_clustered['Published_utc']
+    .dt.to_period('W-MON')
+    .dt.start_time
+    .dt.tz_localize('UTC')
+)
 new_only = articles[
     ~articles['Title'].isin(subtopics['Title']) & 
     (articles['University Label'] == 1)
