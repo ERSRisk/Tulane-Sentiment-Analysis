@@ -3218,13 +3218,14 @@ atomic_write_csv("Model_training/BERTopic_Streamlit.csv.gz", articles, compress 
 upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/BERTopic_Streamlit.csv.gz', GITHUB_TOKEN)
 
 
-df = articles.drop_duplicates(subset = ['Title', 'Content'], keep = 'last')
+df = articles
 df['Published_utc'] = pd.to_datetime(df['Published_utc'], errors = 'coerce')
 df.sort_values('Published_utc', inplace = True)
 df['Content_trunc'] = df['Content'].fillna('').str.slice(0, 500)
 
 bundle = load_model_bundle(Github_owner, Github_repo, 'regression')
 risk_defs = bundle['risk_defs']
+print(df.columns.tolist(), flush = True)
 
 grouped = df.groupby(['Window', 'Cluster', 'Predicted_Risks_new']).agg({
     "Title": ' '.join,
