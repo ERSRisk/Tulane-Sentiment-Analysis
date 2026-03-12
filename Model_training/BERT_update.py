@@ -3229,6 +3229,7 @@ df = articles
 df['Published_utc'] = pd.to_datetime(df['Published_utc'], errors = 'coerce')
 df.sort_values('Published_utc', inplace = True)
 df['Content_trunc'] = df['Content'].fillna('').str.slice(0, 500)
+df = df[df['Predicted_Risks_new'] != 'No Risk'].copy()
 
 bundle = load_model_bundle(Github_owner, Github_repo, 'regression')
 risk_defs = bundle['risk_defs']
