@@ -2186,40 +2186,38 @@ def load_full_topics(existing_df):
     print("Big one completed", flush = True)
     return pd.concat(dfs, ignore_index=True) if dfs else pd.DataFrame()
 
-##Assign topics and probabilities to new_df
-#existing_df = load_articles_from_release()
-#
-#if existing_df is None or existing_df.empty:
-#    existing_df = pd.DataFrame()
+#Assign topics and probabilities to new_df
+existing_df = load_articles_from_release()
 
-#if not existing_df.empty and 'Link' in existing_df.columns:
-#    processed_links = set(existing_df['Link'])
-#    df_to_transform = df[~df['Link'].isin(processed_links)].copy()
-#    print(f"Dataframe to transform is removing already preprocessed articles.", flush = True)
-#else:
-#    df_to_transform = df.copy()
-#    print(f"Dataframe to transform has no articles to remove.", flush = True)
-#print("✅ Starting transform_text on new data...", flush=True)
-#topic_model.calculate_probabilities = False
-#new_df = transform_text(df_to_transform)
-#new_links = set(new_df['Link'])
-
-##Fill missing topic/probability rows in the original df
-#for c in ['Topic', 'Probability']:
-#    if c not in df.columns:
-#        df[c] = np.nan
+if existing_df is None or existing_df.empty:
+    existing_df = pd.DataFrame()
+if not existing_df.empty and 'Link' in existing_df.columns:
+    processed_links = set(existing_df['Link'])
+    df_to_transform = df[~df['Link'].isin(processed_links)].copy()
+    print(f"Dataframe to transform is removing already preprocessed articles.", flush = True)
+else:
+    df_to_transform = df.copy()
+    print(f"Dataframe to transform has no articles to remove.", flush = True)
+print("✅ Starting transform_text on new data...", flush=True)
+topic_model.calculate_probabilities = False
+new_df = transform_text(df_to_transform)
+new_links = set(new_df['Link'])
+#Fill missing topic/probability rows in the original df
+for c in ['Topic', 'Probability']:
+    if c not in df.columns:
+        df[c] = np.nan
   
-#update_cols = new_df[['Link', 'Topic', 'Probability']].dropna(subset=['Link'])
-#df = df.merge(update_cols, on='Link', how='left', suffixes=('', '_new'))
-#df['Topic'] = df['Topic_new'].combine_first(df['Topic'])
-#df['Probability'] = df['Probability_new'].combine_first(df['Probability'])
-#df.drop(columns=['Topic_new','Probability_new'], inplace=True)
-##Save only new, non-duplicate rows
-#print("✅ Saving new topics to CSV...", flush=True)
-#df_combined = save_new_topics(existing_df, new_df)
-#print("Completed save_new_topics", flush = True)
-#print("Merged both dfs", flush = True)
-#df_combined['Probability'] = pd.to_numeric(df_combined['Probability'], errors = 'coerce')
+update_cols = new_df[['Link', 'Topic', 'Probability']].dropna(subset=['Link'])
+df = df.merge(update_cols, on='Link', how='left', suffixes=('', '_new'))
+df['Topic'] = df['Topic_new'].combine_first(df['Topic'])
+df['Probability'] = df['Probability_new'].combine_first(df['Probability'])
+df.drop(columns=['Topic_new','Probability_new'], inplace=True)
+#Save only new, non-duplicate rows
+print("✅ Saving new topics to CSV...", flush=True)
+df_combined = save_new_topics(existing_df, new_df)
+print("Completed save_new_topics", flush = True)
+print("Merged both dfs", flush = True)
+df_combined['Probability'] = pd.to_numeric(df_combined['Probability'], errors = 'coerce')
 #Double-check if there are still unmatched (-1) topics and assign a temporary model to assign topics to them
 def coerce_pub_utc(x):
     if pd.isna(x):
@@ -2232,51 +2230,51 @@ def coerce_pub_utc(x):
     sx = str(x)
     sx = re.sub(r'\s(EST|EDT|PDT|CDT|MDT|GMT)\b', '', sx, flags=re.I)
     return pd.to_datetime(sx, errors="coerce", utc=True)
-#print("✅ Running double-check for unmatched topics (-1)...", flush=True)
-#cutoff_utc = pd.Timestamp(datetime.utcnow() - timedelta(days = 15), tz = 'utc')
-#df_combined['Published'] = df_combined['Published'].apply(coerce_pub_utc)
-#print(f"Length of dataset: {len(df_combined)}", flush = True)
-#print(f"Length of recalculated topic names: {len(df_combined[df_combined['Probability'] < 0.15])}", flush = True)
-#low_conf_mask = df_combined['Probability'] < 0.15
-#df_combined.loc[low_conf_mask, 'Topic'] = -1
-#atomic_write_csv('Model_training/Step0.csv.gz', df_combined, compress = True)
-#upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/Step0.csv.gz', GITHUB_TOKEN)
-##df_combined = load_midstep_from_release()
-#recent_df = df_combined[df_combined['Published'].notna() & (df_combined['Published'] >= cutoff_utc)].copy()
-#temp_model, topic_ids = double_check_articles(recent_df)
-##If there are unmatched topics, name them using Gemini
-#print("✅ Checking for unmatched topics to name using Gemini...", flush=True)
-#if temp_model and topic_ids:
-#    topic_name_pairs = get_topic(temp_model, topic_ids)
-#    existing_risks_json(topic_name_pairs, temp_model)
-##Assign weights to each article
-##df_combined = load_midstep_from_release()
-#df_combined = load_university_label(df_combined)
-#atomic_write_csv('Model_training/initial_label.csv.gz', df_combined, compress = True)
-#upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/initial_label.csv.gz', GITHUB_TOKEN)
-##df_combined = load_midstep_from_release()
-#results_df = predict_risks(df_combined)
-#results_df['Predicted_Risks'] = results_df.get('Predicted_Risks_new', '')
-#print("✅ Applying risk_weights...", flush=True)
-#atomic_write_csv('Model_training/Step1.csv.gz', results_df, compress = True)
-#upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/Step1.csv.gz', GITHUB_TOKEN)
-##results_df = load_midstep_from_release()
-#results_df = results_df.drop(columns = ['Acceleration_value_x', 'Acceleration_value_y'], errors = 'ignore')
-#results_df['Predicted_Risks'] = results_df.get('Predicted_Risks_new', results_df.get('Predicted_Risks', ''))
-#df = risk_weights(results_df)
-#print("Finished assigning risk weights", flush = True)
-#df = df.drop(columns = ['University Label_x', 'University Label_y'], errors = 'ignore')
-#df_new_final = df[df['Link'].isin(new_links)].copy()
-#existing_new_version = load_articles_from_release(local_cache_path = 'Model_training/BERTopic_results3.csv.gz', Asset_name = 'BERTopic_results3.csv.gz')
-#df_new_version = pd.concat([existing_new_version, df_new_final], ignore_index = True)
-#print("Saving BERTopic_results3.csv.gz", flush = True)
-#atomic_write_csv("Model_training/BERTopic_results3.csv.gz", df_new_version, compress = True)
-#print('Uploading to releases', flush=True)
-##upload_asset_to_release(Github_owner, Github_repo, Release_tag, "Model_training/BERTopic_results3.csv.gz", GITHUB_TOKEN)
-#print("Saving dataset for Streamlit", flush= True)
-#df_streamlit = df[df['University Label'] == 1]
-#atomic_write_csv("Model_training/BERTopic_Streamlit.csv.gz", df_streamlit, compress = True)
-#upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/BERTopic_Streamlit.csv.gz', GITHUB_TOKEN)
+print("✅ Running double-check for unmatched topics (-1)...", flush=True)
+cutoff_utc = pd.Timestamp(datetime.utcnow() - timedelta(days = 15), tz = 'utc')
+df_combined['Published'] = df_combined['Published'].apply(coerce_pub_utc)
+print(f"Length of dataset: {len(df_combined)}", flush = True)
+print(f"Length of recalculated topic names: {len(df_combined[df_combined['Probability'] < 0.15])}", flush = True)
+low_conf_mask = df_combined['Probability'] < 0.15
+df_combined.loc[low_conf_mask, 'Topic'] = -1
+atomic_write_csv('Model_training/Step0.csv.gz', df_combined, compress = True)
+upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/Step0.csv.gz', GITHUB_TOKEN)
+#df_combined = load_midstep_from_release()
+recent_df = df_combined[df_combined['Published'].notna() & (df_combined['Published'] >= cutoff_utc)].copy()
+temp_model, topic_ids = double_check_articles(recent_df)
+#If there are unmatched topics, name them using Gemini
+print("✅ Checking for unmatched topics to name using Gemini...", flush=True)
+if temp_model and topic_ids:
+    topic_name_pairs = get_topic(temp_model, topic_ids)
+    existing_risks_json(topic_name_pairs, temp_model)
+#Assign weights to each article
+#df_combined = load_midstep_from_release()
+df_combined = load_university_label(df_combined)
+atomic_write_csv('Model_training/initial_label.csv.gz', df_combined, compress = True)
+upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/initial_label.csv.gz', GITHUB_TOKEN)
+#df_combined = load_midstep_from_release()
+results_df = predict_risks(df_combined)
+results_df['Predicted_Risks'] = results_df.get('Predicted_Risks_new', '')
+print("✅ Applying risk_weights...", flush=True)
+atomic_write_csv('Model_training/Step1.csv.gz', results_df, compress = True)
+upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/Step1.csv.gz', GITHUB_TOKEN)
+#results_df = load_midstep_from_release()
+results_df = results_df.drop(columns = ['Acceleration_value_x', 'Acceleration_value_y'], errors = 'ignore')
+results_df['Predicted_Risks'] = results_df.get('Predicted_Risks_new', results_df.get('Predicted_Risks', ''))
+df = risk_weights(results_df)
+print("Finished assigning risk weights", flush = True)
+df = df.drop(columns = ['University Label_x', 'University Label_y'], errors = 'ignore')
+df_new_final = df[df['Link'].isin(new_links)].copy()
+existing_new_version = load_articles_from_release(local_cache_path = 'Model_training/BERTopic_results3.csv.gz', Asset_name = 'BERTopic_results3.csv.gz')
+df_new_version = pd.concat([existing_new_version, df_new_final], ignore_index = True)
+print("Saving BERTopic_results3.csv.gz", flush = True)
+atomic_write_csv("Model_training/BERTopic_results3.csv.gz", df_new_version, compress = True)
+print('Uploading to releases', flush=True)
+#upload_asset_to_release(Github_owner, Github_repo, Release_tag, "Model_training/BERTopic_results3.csv.gz", GITHUB_TOKEN)
+print("Saving dataset for Streamlit", flush= True)
+df_streamlit = df[df['University Label'] == 1]
+atomic_write_csv("Model_training/BERTopic_Streamlit.csv.gz", df_streamlit, compress = True)
+upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/BERTopic_Streamlit.csv.gz', GITHUB_TOKEN)
 def ensure_risk_scores(df: pd.DataFrame) -> pd.DataFrame:
     if 'Risk_Score' not in df.columns:
         print("Risk Score missing -- recomputing", flush = True)
@@ -3387,6 +3385,193 @@ c = 2.5
 risk_scores['final_risk_score'] = (5 * risk_scores['raw_risk_score'] / (risk_scores['raw_risk_score'] + c))
 
 risk_scores.to_csv('Model_training/final_risk_scores1.csv', index = False)
+
+def risk_weights_second_pass(df):
+    base = df.copy()
+    for col in ['Title','Content','Source']:
+        if col not in base.columns:
+            base[col] = ''
+    base['Title'] = base['Title'].fillna('').astype(str)
+    base['Content'] = base['Content'].fillna('').astype(str)
+    base['Source'] = base['Source'].fillna('').astype(str)
+    def _coerce_pub(x): 
+        if pd.isna(x): 
+            return pd.NaT 
+        if isinstance(x, (int, float)): 
+            if x > 1e12: # epoch ms 
+                return pd.to_datetime(x, unit='ms', errors='coerce', utc=True) 
+            if x > 1e9: # epoch s 
+                return pd.to_datetime(x, unit='s', errors='coerce', utc=True) 
+        sx = str(x) 
+        sx = re.sub(r'\s(EST|EDT|PDT|CDT|MDT|GMT)\b', '', sx, flags=re.I) 
+        return pd.to_datetime(sx, errors='coerce', utc=True) 
+    if 'Published' not in base.columns: 
+        base['Published'] = pd.NaT 
+    base['Published'] = base['Published'].apply(_coerce_pub) 
+    if pd.api.types.is_datetime64tz_dtype(base['Published']): 
+        base['Published'] = base['Published'].dt.tz_convert('UTC').dt.tz_localize(None) 
+
+    risk_half_life = { 
+        "Research Funding Disruption": 60, 
+        "Enrollment Pressure": 60, 
+        "Policy or Political Interference": 90, 
+        "Institutional Alignment Risk": 60, 
+        "Mission Drift": 90, 
+        "Revenue Loss": 90, 
+        "Insurance Market Volatility": 90, 
+        "Unexpected Expenditures": 15, 
+        "Endowment Risk": 30, 
+        "Constant Inflation": 15, 
+        "Infrastructure Failure": 15, 
+        "Transportation/Access Disruption": 7, 
+        "Supply Chain Delay": 15, 
+        "Emergency Preparedness Gaps": 15, 
+        "Title IX/ADA Noncompliance": 30, 
+        "Accreditation Risk": 120, 
+        "FERPA/HIPAA Violations": 7, 
+        "Grant Mismanagement": 7, 
+        "Audit Findings": 30, 
+        "Unauthorized Access/Data Breach": 7, 
+        "Credential Phishing": 7, 
+        "Vendor Cyber Exposure": 7, 
+        "Cloud Misconfiguration": 7, 
+        "Artificial Intelligence Ethics & Governance": 7, 
+        "Rapid Speed of Disruptive Innovation": 90, 
+        # --- Reputational and Social --- 
+        "Controversial Public Incident": 30, 
+        "DEI Program Backlash": 30, 
+        "High-Profile Litigation": 90, 
+        "Leadership Missteps": 30, 
+        "Media Campaigns": 15, 
+        # --- Health, Safety and Security --- 
+        "Violence or Threats": 10, 
+        "Infectious Disease Outbreak": 30, 
+        "Lab Incident": 7, 
+        "Workplace Safety Violation": 7, 
+        "Environmental Exposure": 30, 
+        # --- Environmental & Climate --- 
+        "Hurricane/Flood/Wildfire": 30, 
+        "Extreme Weather Events": 30, 
+        "Climate Infrastructure Risks": 15, 
+        "Environmental Noncompliance": 90, 
+        "Insurance Withdrawal": 120, 
+        # --- Student Experience & Welfare --- 
+        "Mental Health Crises": 15, 
+        "Housing/Food Insecurity": 15, 
+        "Academic Disruption": 15, 
+        "Student Conduct Incident": 7, 
+        "Accessibility Barriers": 15, 
+        # --- Internal Organization --- 
+        "HR Complaint": 15, 
+        "Labor Dispute": 30, 
+        "Morale challenges": 30, 
+        "Faculty conflict": 15, 
+        "Executive Board conflicts": 30, 
+        "Nepotism/Conflict of Interest": 15, 
+        "Policy Misapplication": 15, 
+        "Whistleblower Claims": 30 } 
+    cand = base.get('Predicted_Risks_new', pd.Series('', index=base.index)).fillna('')
+    cand = np.where(cand=='', base.get('Predicted_Risks_new', ''), cand)
+    cand = pd.Series(cand, index=base.index).fillna('').astype(str)
+    
+    def _first_label(s):
+        s = s.strip()
+        if not s:
+            return ''
+        s = re.sub(r'^\[|\]$', '', s)
+        s = re.split(r'[;,]', s)[0].strip().strip("'\"")
+        return s
+    
+    if 'Cluster' not in base.columns:
+        base['Cluster'] = -1
+    base['Cluster'] = base['Cluster'].fillna(-1)
+    def recency_features_topic_risk(df, now=None):
+        fx = df.copy()
+
+        required = {'Cluster', 'Predicted_Risks_new', 'Published_utc', 'Days_Ago'}
+        if not required.issubset(fx.columns) or fx.empty:
+            return pd.DataFrame(columns=['Cluster','Published_utc','last_seen_days','decayed_volume','recency_score_tr'])
+
+        if now is None:
+            now = pd.Timestamp.utcnow()
+
+        art_w = 1.0
+        if 'Impact_Score' in fx.columns:
+            art_w = pd.to_numeric(fx['Impact_Score'], errors='coerce').fillna(0.0).clip(0, 1)
+
+        def half_life(risk):
+            return risk_half_life.get(risk, 30)
+
+        hl  = fx['Predicted_Risks_new'].map(lambda r: max(1.0, half_life(r)))
+        lam = np.log(2.0) / hl
+        w_decay = np.exp(-lam * fx['Days_Ago'])
+        fx['_w'] = w_decay * art_w
+
+        grp = fx.groupby(['Cluster', 'Predicted_Risks_new'], dropna=False)
+        out = grp.agg(
+            last_seen=('Days_Ago', 'min'),
+            decayed_volume=('_w', 'sum'),
+            mentions=('Published', 'count')
+        ).reset_index()
+
+        out['hl'] = out['Predicted_Risks_new'].map(lambda r: max(1.0, half_life(r)))
+        out['freshness'] = np.exp(-np.log(2.0) * (out['last_seen'] / out['hl']))
+
+        def _safe_minmax(s):
+            rng = s.max() - s.min()
+            return (s - s.min()) / (rng + 1e-12)
+
+        out['decayed_z'] = out.groupby('Predicted_Risks_new')['decayed_volume'].transform(_safe_minmax)
+
+        w_fresh, w_vol = 0.6, 0.4
+        out['recency_score_tr'] = (w_fresh * out['freshness'] + w_vol * out['decayed_z']).clip(0, 1)
+        out = out.rename(columns={'last_seen': 'last_seen_days'})
+        return out[['Cluster','Predicted_Risks_new','last_seen_days','decayed_volume','recency_score_tr']]
+
+
+    def attach_topic_risk_recency(df):
+        tr = recency_features_topic_risk(df)
+        for c in ['last_seen_days','decayed_volume','recency_score_tr']:
+            if c not in tr.columns:
+                tr[c] = np.nan
+        cols_to_drop = ["Predicted_Risks_new", "last_seen_days","decayed_volume",
+                    "recency_score_tr","recency_score_tr_x","recency_score_tr_y"]
+        df = df.drop(columns=[c for c in cols_to_drop if c in df.columns], errors="ignore")
+
+        tr_small = tr[["Cluster","Predicted_Risks_new","last_seen_days","decayed_volume","recency_score_tr"]].rename(
+            columns={"recency_score_tr": "recency_score_tr_tr"}
+        )
+        overlap = [c for c in tr_small.columns if c in df.columns and c!= 'Topic']
+        if overlap:
+            df = df.drop(columns = overlap)
+        enriched = df.merge(tr_small, on="Cluster", how="left")
+
+        days = pd.to_numeric(enriched.get('Days_Ago', np.nan), errors='coerce').astype(float)
+        enriched['article_freshness'] = np.exp(-np.log(2.0) * (days / 14.0)).fillna(0.0)
+
+        if 'recency_score_tr_tr' not in enriched.columns:
+            enriched['recency_score_tr_tr'] = 0.0
+
+        alpha = 0.7
+        enriched['Recency_TR_Blended'] = (
+            alpha * enriched['recency_score_tr_tr'].fillna(0.0)
+            + (1 - alpha) * enriched['article_freshness']
+        ).clip(0, 1)
+
+        return enriched
+    
+
+    
+
+    print("attach_topic_risk_recency() start", flush = True)
+    base = attach_topic_risk_recency(base) 
+    base['Recency'] = (base['Recency_TR_Blended'] * 5).round(2)
+
+    return base
+
+risk_weights_second_pass(articles)
+atomic_write_csv("Model_training/BERTopic_Streamlit.csv.gz", articles, compress = True)
+upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/BERTopic_Streamlit.csv.gz', GITHUB_TOKEN)
 
 print("Articles over time", flush = True)
 #
