@@ -3232,7 +3232,55 @@ df['Content_trunc'] = df['Content'].fillna('').str.slice(0, 500)
 df = df[df['Predicted_Risks_new'] != 'No Risk'].copy()
 
 bundle = load_model_bundle(Github_owner, Github_repo, 'regression')
-risk_defs = bundle['risk_defs']
+risk_defs = {
+  "Research Funding Disruption": "University research funding halted or withdrawn. Grant cuts, pauses, or canceled awards stop lab projects and furlough staff.",
+  "Enrollment Pressure": "Fewer applications or lower student retention reduce tuition revenue. Admissions decline or FAFSA delays cause enrollment stress.",
+  "Policy or Political Interference": "State or federal officials intervene in campus DEI or curriculum policies through mandates or funding threats.",
+  "Institutional Alignment Risk": "University units pursue conflicting goals. Misaligned strategies or budgets stall progress on institutional plans.",
+  "Mission Drift": "University focuses on revenue or prestige projects over teaching and research, weakening academic mission.",
+  "Revenue Loss": "University faces financial shortfall due to budget cuts, declining tuition, or reduced auxiliary income.",
+  "Insurance Market Volatility": "University insurance premiums rise or coverage is reduced after market hardening or claims disputes.",
+  "Unexpected Expenditures": "Campus hit by sudden unplanned costs from facility failures, legal settlements, or emergency repairs.",
+  "Endowment Risk": "University endowment loses value or liquidity, forcing payout cuts that affect scholarships or operations.",
+  "Infrastructure Failure": "Campus systems fail. Power, HVAC, or network outages disrupt classes and research activity.",
+  "Vendor Cyber Exposure": "University data exposed through a third-party SaaS or vendor security breach or SOC 2 gap.",
+  "Unauthorized Access/Data Breach": "Hackers access internal university systems or personal records, requiring breach response.",
+  "Artificial Intelligence Ethics & Governance": "Campus adoption of AI raises fairness, bias, or transparency issues needing governance policy.",
+  "Rapid Speed of Disruptive Innovation": "University processes lag behind rapid digital transformation or automation efforts.",
+  "Controversial Public Incident": "Campus statement, protest, or viral video sparks public backlash and reputational scrutiny.",
+  "DEI Program Backlash": "Political or donor pressure challenges diversity and inclusion programs on campus.",
+  "Leadership Missteps": "University leaders issue misleading statements or mishandle a crisis, prompting criticism or resignations.",
+  "High-Profile Litigation": "University faces a lawsuit drawing major public or media attention, often around discrimination or research conduct.",
+  "Violence or Threats": "Campus shooting, assault, or credible threat causes lockdowns or safety alerts for students and staff.",
+  "Emergency Preparedness Gaps": "Campus emergency plans prove outdated or untested, delaying response during a crisis.",
+  "Infectious Disease Outbreak": "Cluster of student or staff illness disrupts classes or triggers campus health measures.",
+  "Lab Incident": "Chemical spill or fire in a university lab injures staff or halts research pending investigation.",
+  "Environmental Exposure": "Hazardous materials like asbestos, lead, or mold found in campus buildings trigger closures.",
+  "Hurricane/Flood/Wildfire": "Natural disaster damages campus property and displaces students or staff.",
+  "Student Conduct Incident": "Fraternity hazing, fights, or misconduct lead to discipline, injuries, or suspension.",
+  "Academic Disruption": "Classes canceled or delayed due to strikes, outages, or emergencies on campus.",
+  "Mental Health Crises": "Campus counseling overwhelmed by student mental health emergencies or suicide risk.",
+  "HR Complaint": "Employee alleges harassment, discrimination, or retaliation, leading to internal investigation.",
+  "Labor Dispute": "Faculty or staff strike or protest disrupts classes and campus operations.",
+  "Whistleblower Claims": "Employee reports internal fraud or safety cover-up, prompting investigation or retaliation concerns.",
+  "Accreditation Risk": "Accreditor flags weaknesses in governance, finances, or academic outcomes, threatening status.",
+  "No Risk": "Not relevant to higher education. Not relevant to Tulane University. Not relevant to university.",
+  "Constant Inflation": "Sustained increases in operating costs, wages, or materials erode budget stability and financial planning.",
+  "Morale challenges": "Persistent employee dissatisfaction, burnout, or disengagement reduces productivity and retention.",
+  "Transportation/Access Disruption": "Interruptions to transit, parking, or campus access hinder attendance, operations, or service delivery.",
+  "IT System Failure":  "Critical technology outage or infrastructure breakdown disrupts academic, financial, or administrative functions.",
+  "Title IX/ADA Noncompliance": "Failure to meet federal civil rights obligations exposes institution to legal action and regulatory penalties.",
+  "Housing/Food Insecurity": "Students lack stable housing or reliable nutrition, affecting retention, performance, and wellbeing.",
+  "Policy Misapplication": "Inconsistent or improper enforcement of institutional policies creates fairness, legal, or reputational risks.",
+  "Nepotism/Conflict of Interest": "Personal relationships or undisclosed interests influence hiring, contracts, or governance decisions.",
+  "Grant Mismanagement": "Improper allocation, reporting, or oversight of grant funds jeopardizes funding and compliance status.",
+  "Extreme Weather Events": "Severe storms, flooding, or climate events disrupt campus operations and damage infrastructure.",
+  "FERPA/HIPAA Violations": "Unauthorized disclosure of protected student or health information triggers legal and regulatory consequences.",
+  "Media campaigns": "Coordinated media coverage or social pressure amplifies reputational exposure and stakeholder scrutiny.",
+  "Ransomware/Malware": "Malicious software encrypts or corrupts institutional systems, demanding payment or disrupting operations.",
+  "Credential Phishing": "Deceptive communications obtain login credentials, enabling unauthorized system access or data breach.",
+  "Workplace Safety Violation": "Failure to meet occupational safety standards results in injury, fines, or regulatory enforcement."
+}
 print(df.columns.tolist(), flush = True)
 
 grouped = df.groupby(['Window', 'Cluster', 'Predicted_Risks_new']).agg({
