@@ -3279,7 +3279,8 @@ risk_defs = {
   "Media campaigns": "Coordinated media coverage or social pressure amplifies reputational exposure and stakeholder scrutiny.",
   "Ransomware/Malware": "Malicious software encrypts or corrupts institutional systems, demanding payment or disrupting operations.",
   "Credential Phishing": "Deceptive communications obtain login credentials, enabling unauthorized system access or data breach.",
-  "Workplace Safety Violation": "Failure to meet occupational safety standards results in injury, fines, or regulatory enforcement."
+  "Workplace Safety Violation": "Failure to meet occupational safety standards results in injury, fines, or regulatory enforcement.",
+  "Audit Findings": "Internal or external audit reveals financial irregularities, compliance gaps, misuse of funds, or control weaknesses in university operations."
 }
 print(df.columns.tolist(), flush = True)
 
