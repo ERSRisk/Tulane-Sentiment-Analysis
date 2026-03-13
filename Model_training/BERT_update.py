@@ -3246,7 +3246,7 @@ risk_defs = {
   "Vendor Cyber Exposure": "University data exposed through a third-party SaaS or vendor security breach or SOC 2 gap.",
   "Unauthorized Access/Data Breach": "Hackers access internal university systems or personal records, requiring breach response.",
   "Artificial Intelligence Ethics & Governance": "Campus adoption of AI raises fairness, bias, or transparency issues needing governance policy.",
-  "Rapid Speed of Disruptive Innovation": "University processes lag behind rapid digital transformation or automation efforts.",
+  "Rapid Speed of Disruptive Innovation": "Ability to develop a systematic approach to the identification of ever-increasing categories of AI risks; ability to adopt artificial intelligence systems to supplement existing equipment and people; Software systemfailure, cybersecurity issues with potential hacking of AI control systems",
   "Controversial Public Incident": "Campus statement, protest, or viral video sparks public backlash and reputational scrutiny.",
   "DEI Program Backlash": "Political or donor pressure challenges diversity and inclusion programs on campus.",
   "Leadership Missteps": "University leaders issue misleading statements or mishandle a crisis, prompting criticism or resignations.",
@@ -3280,7 +3280,19 @@ risk_defs = {
   "Ransomware/Malware": "Malicious software encrypts or corrupts institutional systems, demanding payment or disrupting operations.",
   "Credential Phishing": "Deceptive communications obtain login credentials, enabling unauthorized system access or data breach.",
   "Workplace Safety Violation": "Failure to meet occupational safety standards results in injury, fines, or regulatory enforcement.",
-  "Audit Findings": "Internal or external audit reveals financial irregularities, compliance gaps, misuse of funds, or control weaknesses in university operations."
+  "Audit Findings": "Internal or external audit reveals financial irregularities, compliance gaps, misuse of funds, or control weaknesses in university operations.",
+  "Supply Chain Disruption": "Inadequate supply chain management; Inability to comply with contract terms and conditions involving insurance requirements and termination clauses; Immature and decentralized process for vendor oversight; Lack of leverage for buying power; Lack of training to the campus community on supply chain processes and the importance of stewardship of the process.",
+  "Cloud Misconfiguration": "Improperly configured cloud storage, access controls, or infrastructure settings expose sensitive university data or systems to unauthorized access.",
+  "AI Ethics and Governance": "University adoption, use, or policy development around artificial raises concerns about academic integrity, data privacy, intellectual property.",
+  "Climate Infrastructure Risks": "University buildings, utilities, or campus infrastructure are vulnerable to long-term climate related deterioration.",
+  "Environmental Noncompliance": "University fails to meet federal, state, or local environmental regulations governing waste disposal, air quality, water discharge, hazardous materials handling, or emissions.",
+  "Accessibility Barriers": "Barriers prevent students, faculty, or staff with disabilities from fully accessing campus facilities, online systems, academic programs, or university services, triggering ADA compliance concerns or student grievances."
+    
+    
+
+
+
+
 }
 print(df.columns.tolist(), flush = True)
 
