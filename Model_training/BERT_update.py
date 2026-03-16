@@ -3541,7 +3541,7 @@ def risk_weights_second_pass(df):
         tr_small = tr[["Cluster","Predicted_Risks_new","last_seen_days","decayed_volume","recency_score_tr"]].rename(
             columns={"recency_score_tr": "recency_score_tr_tr"}
         )
-        overlap = [c for c in tr_small.columns if c in df.columns and c!= 'Topic']
+        overlap = [c for c in tr_small.columns if c in df.columns and c!= 'Cluster']
         if overlap:
             df = df.drop(columns = overlap)
         enriched = df.merge(tr_small, on="Cluster", how="left")
@@ -3568,6 +3568,8 @@ def risk_weights_second_pass(df):
     base['Recency'] = (base['Recency_TR_Blended'] * 5).round(2)
 
     return base
+
+articles = 
 
 risk_weights_second_pass(articles)
 atomic_write_csv("Model_training/BERTopic_Streamlit.csv.gz", articles, compress = True)
