@@ -3569,7 +3569,7 @@ def risk_weights_second_pass(df):
 
     return base
 
-articles = 
+articles = df
 
 risk_weights_second_pass(articles)
 atomic_write_csv("Model_training/BERTopic_Streamlit.csv.gz", articles, compress = True)
