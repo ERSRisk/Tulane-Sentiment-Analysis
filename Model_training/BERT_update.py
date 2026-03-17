@@ -1652,17 +1652,20 @@ def predict_risks(df):
 
     df = df.reset_index(drop = True)
 
-    #if 'Predicted_Risks_new' in df.columns:
-     #   todo_mask = (df['Predicted_Risks_new'].isna()) | (df['Predicted_Risks_new'].eq('')) | (df['Predicted_Risks_new'].eq('No Risk'))
-    #else:
-    todo_mask = pd.Series(True, index=df.index)
-    recent_cut = pd.Timestamp.now(tz='utc') - pd.Timedelta(days=200)
-    df['Published_utc'] = pd.to_datetime(df['Published'], errors='coerce', utc = True)
-    recent_mask = df['Published_utc'] >= recent_cut
-    todo_mask &= recent_mask.fillna(False)
-    todo_mask &= mask_he
-    sub = df.loc[todo_mask].copy()
-    texts = df.loc[todo_mask, 'Text'].tolist()
+    if 'Predicted_Risks_new' in df.columns:
+        todo_mask = (df['Predicted_Risks_new'].isna()) | (df['Predicted_Risks_new'].eq('')) | (df['Predicted_Risks_new'].eq('No Risk'))
+        todo_mask &= mask_he
+        sub = df.loc[todo_mask].copy()
+        texts = df.loc[todo_mask, 'Text'].tolist()
+    else:
+        todo_mask = pd.Series(True, index=df.index)
+        recent_cut = pd.Timestamp.now(tz='utc') - pd.Timedelta(days=30)
+        df['Published_utc'] = pd.to_datetime(df['Published'], errors='coerce', utc = True)
+        recent_mask = df['Published_utc'] >= recent_cut
+        todo_mask &= recent_mask.fillna(False)
+        todo_mask &= mask_he
+        sub = df.loc[todo_mask].copy()
+        texts = df.loc[todo_mask, 'Text'].tolist()
     
     
     print(f"[dbg] total rows: {len(df)}", flush = True)
