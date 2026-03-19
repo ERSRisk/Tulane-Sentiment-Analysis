@@ -2276,7 +2276,7 @@ df_new_version = pd.concat([existing_new_version, df_new_final], ignore_index = 
 print("Saving BERTopic_results3.csv.gz", flush = True)
 atomic_write_csv("Model_training/BERTopic_results3.csv.gz", df_new_version, compress = True)
 print('Uploading to releases', flush=True)
-#upload_asset_to_release(Github_owner, Github_repo, Release_tag, "Model_training/BERTopic_results3.csv.gz", GITHUB_TOKEN)
+upload_asset_to_release(Github_owner, Github_repo, Release_tag, "Model_training/BERTopic_results3.csv.gz", GITHUB_TOKEN)
 print("Saving dataset for Streamlit", flush= True)
 df_streamlit = df[df['University Label'] == 1]
 atomic_write_csv("Model_training/BERTopic_Streamlit.csv.gz", df_streamlit, compress = True)
