@@ -1655,6 +1655,9 @@ def predict_risks(df):
     if 'Predicted_Risks_new' in df.columns:
         todo_mask = (df['Predicted_Risks_new'].isna()) | (df['Predicted_Risks_new'].eq('')) | (df['Predicted_Risks_new'].eq('No Risk'))
         todo_mask &= mask_he
+        recent_cut = pd.Timestamp.now(tz='utc') - pd.Timedelta(days=30)
+        recent_mask = df['Published_utc'] >= recent_cut
+        todo_mask &= recent_mask.fillna(False)
         sub = df.loc[todo_mask].copy()
         texts = df.loc[todo_mask, 'Text'].tolist()
     else:
