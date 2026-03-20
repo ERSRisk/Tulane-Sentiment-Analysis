@@ -162,42 +162,4 @@ jobs:
           git push origin HEAD:main || true
 
 
-      - name: Zip and upload BERTopic model to GitHub release
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -euo pipefail
-          RELEASE_TAG="rss_json"
-          MODEL_DIR="Model_training/bertopic_dir"
-          ZIP_NAME="bertopic_dir.zip"
-          ZIP_PATH="${MODEL_DIR%/*}/${ZIP_NAME}"
-
-          [ -d "$MODEL_DIR" ] || { echo "Model dir not found: $MODEL_DIR"; exit 1; }
-          rm -f "$ZIP_PATH"
-          (cd "$(dirname "$MODEL_DIR")" && zip -qr "$ZIP_NAME" "$(basename "$MODEL_DIR")")
-
-          rel=$(curl -sSf -H "Authorization: token $GH_TOKEN" \
-            "https://api.github.com/repos/ERSRisk/Tulane-Sentiment-Analysis/releases/tags/${RELEASE_TAG}" || true)
-          release_id=$(echo "${rel:-}" | jq -r '.id // empty')
-          if [ -z "$release_id" ]; then
-            rel=$(curl -sSf -X POST -H "Authorization: token $GH_TOKEN" \
-              -H "Accept: application/vnd.github+json" \
-              https://api.github.com/repos/ERSRisk/Tulane-Sentiment-Analysis/releases \
-              -d "{\"tag_name\":\"${RELEASE_TAG}\",\"name\":\"${RELEASE_TAG}\",\"draft\":false,\"prerelease\":false}")
-            release_id=$(echo "$rel" | jq -r '.id')
-          fi
-
-          assets=$(curl -sSf -H "Authorization: token $GH_TOKEN" \
-            "https://api.github.com/repos/ERSRisk/Tulane-Sentiment-Analysis/releases/${release_id}/assets")
-          old_id=$(echo "$assets" | jq -r --arg n "$ZIP_NAME" '.[]? | select(.name==$n) | .id // empty')
-          if [ -n "$old_id" ]; then
-            curl -sSf -X DELETE -H "Authorization: token $GH_TOKEN" \
-              "https://api.github.com/repos/ERSRisk/Tulane-Sentiment-Analysis/releases/assets/${old_id}" >/dev/null
-          fi
-
-          upload_url=$(echo "$rel" | jq -r '.upload_url' | sed 's/{.*}//')
-          curl -sSf -H "Authorization: token $GH_TOKEN" \
-               -H "Content-Type: application/zip" \
-               --data-binary @"${ZIP_PATH}" \
-               "${upload_url}?name=${ZIP_NAME}" >/dev/null
-          echo "✅ Uploaded ${ZIP_NAME} to release ${RELEASE_TAG}"
+     
