@@ -32,7 +32,28 @@ import hashlib
 import spacy
 import gc
 import pickle
-from BERT_update import (risk_weights, load_full_topics, load_articles_from_release, atomic_write_csv, upload_asset_to_release)
+from BERT_update import (
+    risk_weights, 
+    load_full_topics, 
+    load_articles_from_release, 
+    atomic_write_csv, 
+    atomic_write_pickle,
+    upload_asset_to_release,
+    load_model_bundle,
+    track_over_time,
+    gh_headers,
+    get_release_by_tag,
+    ensure_release,
+    upload_asset,
+)
+
+Github_owner = 'ERSRisk'
+Github_repo = 'Tulane-Sentiment-Analysis'
+Release_tag = 'BERTopic_results'
+GITHUB_TOKEN = os.getenv('TOKEN')
+
+GEMINI_API_KEY = os.getenv("PAID_API_KEY")
+client = genai.Client(api_key=GEMINI_API_KEY)
 
 
 def ensure_risk_scores(df: pd.DataFrame) -> pd.DataFrame:
