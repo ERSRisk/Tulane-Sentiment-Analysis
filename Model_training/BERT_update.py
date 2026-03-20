@@ -125,6 +125,26 @@ def upload_asset(owner, repo, release, asset_name, data_bytes, token, content_ty
     if not up.ok:
         raise RuntimeError(f"Upload failed{up.status_code}: {up.text[:500]}")
     return up.json()
+def upload_asset_to_release(owner, repo, tag:str, asset_path:str, token:str):
+    headers = {'Authorization': f'token {token}',
+              'Accept': 'application/vnd.github+json'}
+    r = requests.get(f'https://api.github.com/repos/{owner}/{repo}/releases/tags/{tag}', headers=headers, timeout=60)
+    r.raise_for_status()
+    rel = r.json()
+    upload_url = rel["upload_url"].split("{", 1)[0]
+    assets = requests.get(f"https://api.github.com/repos/{owner}/{repo}/releases/{rel['id']}/assets", headers=headers, timeout=60).json()
+    name = os.path.basename(asset_path)
+    for a in assets:
+        if a.get("name") == name:
+            requests.delete(f"https://api.github.com/repos/{owner}/{repo}/releases/assets/{a['id']}", headers=headers, timeout=60)
+    with open(asset_path, "rb") as f:
+        up = requests.post(
+            f"{upload_url}?name={name}",
+            headers={"Authorization": f"token {token}", "Content-Type": "application/octet-stream"},
+            data=f.read(), timeout=300
+        )
+    up.raise_for_status()
+    return up.json()
 def load_model_bundle(owner, repo, tag, asset_name = 'model_bundle.pkl', local_cache_path = 'Model_training/artifacts/model_bundle.pkl'):
     P = Path(local_cache_path)
     P.parent.mkdir(parents = True, exist_ok=True)
@@ -1353,26 +1373,7 @@ if __name__ == '__main__':
         b.raise_for_status()
         content = b.content
         return json.loads(content.decode('utf-8'))
-    def upload_asset_to_release(owner, repo, tag:str, asset_path:str, token:str):
-        headers = {'Authorization': f'token {token}',
-                  'Accept': 'application/vnd.github+json'}
-        r = requests.get(f'https://api.github.com/repos/{owner}/{repo}/releases/tags/{tag}', headers=headers, timeout=60)
-        r.raise_for_status()
-        rel = r.json()
-        upload_url = rel["upload_url"].split("{", 1)[0]
-        assets = requests.get(f"https://api.github.com/repos/{owner}/{repo}/releases/{rel['id']}/assets", headers=headers, timeout=60).json()
-        name = os.path.basename(asset_path)
-        for a in assets:
-            if a.get("name") == name:
-                requests.delete(f"https://api.github.com/repos/{owner}/{repo}/releases/assets/{a['id']}", headers=headers, timeout=60)
-        with open(asset_path, "rb") as f:
-            up = requests.post(
-                f"{upload_url}?name={name}",
-                headers={"Authorization": f"token {token}", "Content-Type": "application/octet-stream"},
-                data=f.read(), timeout=300
-            )
-        up.raise_for_status()
-        return up.json()
+    
     def upsert_single_big_json(owner, repo, tag: str, asset_name: str,
                            new_items: list, dedupe_key: str, token: str, mode = 'merge'):
         if mode == 'replace':
