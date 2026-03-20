@@ -40,7 +40,6 @@ from BERT_update import (
     atomic_write_pickle,
     upload_asset_to_release,
     load_model_bundle,
-    track_over_time,
     gh_headers,
     get_release_by_tag,
     ensure_release,
