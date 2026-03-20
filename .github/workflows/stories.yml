@@ -1,0 +1,203 @@
+name: Build stories
+
+on:
+  schedule:
+    - cron: '0 7 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Sync with origin
+        run: |
+          git fetch origin
+          git pull --rebase --autostash origin main
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install system tools (jq)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq
+      - name: Free up space
+        run: |
+          echo "Disk usage before:"
+          df -h
+          # Drop pip + HF caches
+          rm -rf ~/.cache/pip
+          rm -rf ~/.cache/huggingface
+          rm -rf ~/.cache/torch
+          # If you have big local artifacts from previous runs:
+          rm -rf Model_training/bertopic_dir
+          rm -rf Model_training/artifacts
+          echo "Disk usage after:"
+          df -h
+      - name: Install Python deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install --no-cache-dir -r requirements.txt
+      - name: Install spaCy English model
+        run: python -m spacy download en_core_web_sm
+
+      - name: Download risk model
+        run: |
+          mkdir -p Model_training
+          curl -L -o Model_training/risk_mlp_model.pkl \
+            "https://github.com/ERSRisk/Tulane-Sentiment-Analysis/releases/download/regression/risk_mlp_model.pkl"
+      - name: Set up Python deps compatible with saved BERTopic pickle
+        run: |
+          python -V
+          pip install --upgrade pip wheel setuptools
+          pip install \
+            numpy==1.26.4 \
+            numba==0.58.1 \
+            llvmlite==0.41.1 \
+            cloudpickle==2.2.1 \
+            umap-learn==0.5.5 \
+            hdbscan==0.8.33 \
+            scikit-learn==1.3.2 \
+            bertopic==0.15.0
+          python - <<'PY'
+          import sys, numpy, numba, cloudpickle, umap, hdbscan, sklearn
+          print("VERSIONS:", sys.version, 
+            "numpy", numpy.__version__, 
+            "numba", numba.__version__,
+            "cloudpickle", cloudpickle.__version__,
+            "umap", umap.__version__,
+            "sklearn", sklearn.__version__)
+          PY
+      - name: Run script
+        env:
+          OMP_NUM_THREADS: "1"
+          MKL_NUM_THREADS: "1"
+          NUMEXPR_MAX_THREADS: "1"
+          TOKENIZERS_PARALLELISM: "false"
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY_NEWS }}
+          GEMINI_API_KEY_X: ${{ secrets.GEMINI_API_KEY_X }}
+          NEWS_API_KEY: ${{ secrets.NEWS_API_KEY }}
+          X_API_KEY: ${{ secrets.X_API_KEY }}
+          COOKIE_HEADER: ${{ secrets.COOKIE_HEADER }}
+          PAID_API_KEY: ${{ secrets.PAID_API_KEY }}
+          TOKEN: ${{ secrets.TOKEN }}
+          PYTHONUBUFFERED: "1"
+        run: |
+          python -u Model_training/stories_build.py
+        timeout-minutes: 350
+
+      - name: Commit and push (only small/compressed files)
+        run: |
+          set -euo pipefail
+          set -x
+          trap 'echo "::error::Command failed: ${BASH_COMMAND} (line ${LINENO})"; exit 1' ERR
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          # git rm --cached Model_training/BERTopic_results.csv || true
+          {
+            echo 'BERTopic_results2.csv'
+            echo 'Model_training/BERTopic_results.csv'
+            echo 'Online_Extraction/all_RSS.json'
+            echo 'Model_training/BERTopic_model'
+            echo 'Model_training/Story_Clusters_backup.csv'
+
+          } | while read -r p; do
+               grep -qxF "$p" .gitignore || echo "$p" >> .gitignore
+            done
+          git add .gitignore
+
+          rm_cached () { for f in "$@"; do git rm --cached --ignore-unmatch -- "$f" || true; done; }
+          # Model_training/BERTopic_results.csv is intentionally kept tracked
+          # Online_Extraction/all_RSS.json is intentionally kept tracked
+          rm_cached \
+            Online_Extraction/all_RSS.json.gz \
+            Model_training/BERTopic_model \
+            BERTopic_results2.csv
+
+          add_if_exists () {
+            for f  in "$@"; do 
+              if [ -f "$f" ]; then
+                echo "Adding $f"
+                git add "$f"
+              else 
+                echo "Skip (not found): $f" 
+              fi 
+            done
+          }
+
+          add_if_exists \
+            Model_training/topic_trend.csv \
+            Model_training/topics_BERT.json \
+            Model_training/unmatched_topics.json \
+            Model_training/label_initial.csv.gz\
+            BERTopic_before.csv\
+            Model_training/Canonical_Stories_with_Summaries.csv\
+            Model_training/Articles_with_Stories.csv.gz\
+            Model_training/Story_Clusters.csv.gz\
+            Model_training/dashboard_stories.csv.gz\
+            Model_training/dashboard_dropdown.csv.gz\
+            Model_training/dashboard_articles.csv.gz\
+            Model_training/subtopics.csv\
+            Model_training/story_centroids.pkl\
+            Model_training/subtopic_centroids.pkl\
+            Model_training/final_risk_scores1.csv
+
+          echo "== git status (porcelain) =="
+          git status --porcelain=1 -uall || true
+          ls -lh Model_training/topic_trend.csv* || true        
+          git commit -m "Update results CSV (gz) and topic trend" || echo "Nothing to commit"
+          git pull --rebase --autostash origin main || true
+          git push origin HEAD:main || true
+
+
+      - name: Zip and upload BERTopic model to GitHub release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          RELEASE_TAG="rss_json"
+          MODEL_DIR="Model_training/bertopic_dir"
+          ZIP_NAME="bertopic_dir.zip"
+          ZIP_PATH="${MODEL_DIR%/*}/${ZIP_NAME}"
+
+          [ -d "$MODEL_DIR" ] || { echo "Model dir not found: $MODEL_DIR"; exit 1; }
+          rm -f "$ZIP_PATH"
+          (cd "$(dirname "$MODEL_DIR")" && zip -qr "$ZIP_NAME" "$(basename "$MODEL_DIR")")
+
+          rel=$(curl -sSf -H "Authorization: token $GH_TOKEN" \
+            "https://api.github.com/repos/ERSRisk/Tulane-Sentiment-Analysis/releases/tags/${RELEASE_TAG}" || true)
+          release_id=$(echo "${rel:-}" | jq -r '.id // empty')
+          if [ -z "$release_id" ]; then
+            rel=$(curl -sSf -X POST -H "Authorization: token $GH_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              https://api.github.com/repos/ERSRisk/Tulane-Sentiment-Analysis/releases \
+              -d "{\"tag_name\":\"${RELEASE_TAG}\",\"name\":\"${RELEASE_TAG}\",\"draft\":false,\"prerelease\":false}")
+            release_id=$(echo "$rel" | jq -r '.id')
+          fi
+
+          assets=$(curl -sSf -H "Authorization: token $GH_TOKEN" \
+            "https://api.github.com/repos/ERSRisk/Tulane-Sentiment-Analysis/releases/${release_id}/assets")
+          old_id=$(echo "$assets" | jq -r --arg n "$ZIP_NAME" '.[]? | select(.name==$n) | .id // empty')
+          if [ -n "$old_id" ]; then
+            curl -sSf -X DELETE -H "Authorization: token $GH_TOKEN" \
+              "https://api.github.com/repos/ERSRisk/Tulane-Sentiment-Analysis/releases/assets/${old_id}" >/dev/null
+          fi
+
+          upload_url=$(echo "$rel" | jq -r '.upload_url' | sed 's/{.*}//')
+          curl -sSf -H "Authorization: token $GH_TOKEN" \
+               -H "Content-Type: application/zip" \
+               --data-binary @"${ZIP_PATH}" \
+               "${upload_url}?name=${ZIP_NAME}" >/dev/null
+          echo "✅ Uploaded ${ZIP_NAME} to release ${RELEASE_TAG}"
