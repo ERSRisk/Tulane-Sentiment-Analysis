@@ -840,20 +840,20 @@ def risk_weights(df):
     print(f"[risk_weights] done: base = {base.shape} elapsed = {time.perf_counter()- t0:.1f}s", flush = True)
 
     return base
+rss_url = "https://github.com/ERSRisk/Tulane-Sentiment-Analysis/releases/download/rss_json/all_RSS.json.gz"
+    
+DIR_URL  = "https://github.com/ERSRisk/Tulane-Sentiment-Analysis/releases/download/rss_json/bertopic_dir.zip"
+DIR_PATH = Path("Model_training/bertopic_dir")
+Github_owner = 'ERSRisk'
+Github_repo = 'Tulane-Sentiment-Analysis'
+Release_tag = 'BERTopic_results'
+Asset_name = 'BERTopic_results2.csv_part1.csv.gz'
+GITHUB_TOKEN = os.getenv('TOKEN')
 
+GEMINI_API_KEY = os.getenv("PAID_API_KEY")
+client = genai.Client(api_key=GEMINI_API_KEY)
 if __name__ == '__main__':
-    rss_url = "https://github.com/ERSRisk/Tulane-Sentiment-Analysis/releases/download/rss_json/all_RSS.json.gz"
     
-    DIR_URL  = "https://github.com/ERSRisk/Tulane-Sentiment-Analysis/releases/download/rss_json/bertopic_dir.zip"
-    DIR_PATH = Path("Model_training/bertopic_dir")
-    Github_owner = 'ERSRisk'
-    Github_repo = 'Tulane-Sentiment-Analysis'
-    Release_tag = 'BERTopic_results'
-    Asset_name = 'BERTopic_results2.csv_part1.csv.gz'
-    GITHUB_TOKEN = os.getenv('TOKEN')
-    
-    GEMINI_API_KEY = os.getenv("PAID_API_KEY")
-    client = genai.Client(api_key=GEMINI_API_KEY)
     
     print(f"📥 Downloading all_RSS.json from release link...", flush=True)
     response = requests.get(rss_url, timeout = 60)
