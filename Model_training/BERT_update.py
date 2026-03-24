@@ -189,16 +189,24 @@ def atomic_write_pickle(path: str, obj):
 
 def load_full_topics(existing_df):
     dfs = []
-    new_path = "Model_training/BERTopic_results3.csv.gz"
-    if Path(new_path).exists():
-        new_df = load_articles_from_release(local_cache_path='Model_training/BERTopic_results3.csv.gz',Asset_name = 'BERTopic_results3.csv.gz')
-        dfs.append(new_df)
-    print("About to do the big one", flush = True)
-    old_df = existing_df
-    if old_df is not None and not old_df.empty:
-        dfs.append(old_df)
-    print("Big one completed", flush = True)
-    return pd.concat(dfs, ignore_index=True) if dfs else pd.DataFrame()
+
+    try:
+        r3 = load_articles_from_release(
+            local_cache_path = 'Model_training/BERTopic_results3.csv.gz',
+            Asset_name = 'BERTopic_results3.csv.gz'
+        )
+        if r3 is not None and not r3.empty:
+            dfs.append(r3)
+    except Exception as e:
+        print(f"Could not load BERTopic_results3.csv.gz: {e}", flush=True)
+    if existing_df is not None and not existing_df.empty:
+        dfs.append(existing_df)
+
+    if not dfs:
+        return pd.Dataframe()
+    out = pd.concat(dfs, ignore_index = True)
+    out = out.drop_duplicates(subset = ['Link'], keep = 'last')
+    return out
 
 def risk_weights(df):
     t0 = time.perf_counter()
@@ -2237,7 +2245,7 @@ if __name__ == '__main__':
     print('Uploading to releases', flush=True)
     upload_asset_to_release(Github_owner, Github_repo, Release_tag, "Model_training/BERTopic_results3.csv.gz", GITHUB_TOKEN)
     print("Saving dataset for Streamlit", flush= True)
-    df_streamlit = df[df['University Label'] == 1]
+    df_streamlit = df_new_version[df_new_version['University Label'] == 1]
     atomic_write_csv("Model_training/BERTopic_Streamlit.csv.gz", df_streamlit, compress = True)
     upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/BERTopic_Streamlit.csv.gz', GITHUB_TOKEN)
     
