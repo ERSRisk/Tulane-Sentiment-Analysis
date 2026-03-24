@@ -1,10 +1,10 @@
 name: Build stories
 
 on:
-  workflow_run:
-    workflows: ["Update BERT"]
-    types:
-      - completed
+  #workflow_run:
+    #workflows: ["Update BERT"]
+    #types:
+      #- completed
 
   workflow_dispatch:
 
