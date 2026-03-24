@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
     paths: 
-      - '/pipeline/**'
+      - 'pipeline/**'
       - '.github/workflows/build-pipeline-image.yml'
   workflow_dispatch:
 
@@ -34,6 +34,6 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: .pipeline/Dockerfile
+          file: ./pipeline/Dockerfile
           push: true
           tags: ${{ env.IMAGE_NAME }}
