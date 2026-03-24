@@ -28,7 +28,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set image name
-        run: echo "IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/risk-pipeline:latest" >> $GITHUB_ENV
+        run: echo "IMAGE_NAME=ghcr.io/ersrisk/risk-pipeline:latest" >> $GITHUB_ENV
 
       - name: Build and push image
         uses: docker/build-push-action@v6
