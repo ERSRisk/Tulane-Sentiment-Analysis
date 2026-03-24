@@ -205,7 +205,7 @@ def load_full_topics(existing_df):
     if not dfs:
         return pd.Dataframe()
     out = pd.concat(dfs, ignore_index = True)
-    out = out.drop_duplicates(subset = ['Link'], keep = 'last')
+    out = out.drop_duplicates(subset = ['Link'], keep = 'first')
     return out
 
 def risk_weights(df):
