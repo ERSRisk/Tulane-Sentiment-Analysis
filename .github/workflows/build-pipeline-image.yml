@@ -1,0 +1,39 @@
+name: Build Pipeline Image
+
+on:
+  push:
+    branches: [main]
+    paths: 
+      - 'pipeline/**'
+      - '.github/workflows/build-pipeline-image.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set image name
+        run: echo "IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/risk-pipeline:latest" >> $GITHUB_ENV
+
+      - name: Build and push image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: .pipeline/Dockerfile
+          push: true
+          tags: ${{ env.IMAGE_NAME }}
