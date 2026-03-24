@@ -1,10 +1,10 @@
 name: Build stories
 
 on:
-  #workflow_run:
-    #workflows: ["Update BERT"]
-    #types:
-      #- completed
+  workflow_run:
+    workflows: ["Update BERT"]
+    types:
+      - completed
 
   workflow_dispatch:
 
@@ -15,7 +15,7 @@ jobs:
   run-script:
     runs-on: ubuntu-latest
     timeout-minutes: 360
-    #if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
 
     steps:
       - name: Checkout repo
