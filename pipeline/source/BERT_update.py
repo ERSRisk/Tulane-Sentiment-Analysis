@@ -58,7 +58,7 @@ def get_release_by_tag(owner, repo, tag):
         return None
     r.raise_for_status()
     return r.json()
-def load_articles_from_release(local_cache_path='Model_training/BERTopic_results2.csv.gz',
+def load_articles_from_release(local_cache_path='pipeline/resources/BERTopic_results2.csv.gz',
                                usecols=None, dtype=None, Asset_name = 'BERTopic_results2.csv.gz'):
     def create_github_release(owner, repo, tag, token):
         url = f"https://api.github.com/repos/{owner}/{repo}/releases"
@@ -145,7 +145,7 @@ def upload_asset_to_release(owner, repo, tag:str, asset_path:str, token:str):
         )
     up.raise_for_status()
     return up.json()
-def load_model_bundle(owner, repo, tag, asset_name = 'model_bundle.pkl', local_cache_path = 'Model_training/artifacts/model_bundle.pkl'):
+def load_model_bundle(owner, repo, tag, asset_name = 'model_bundle.pkl', local_cache_path = 'pipeline/resources/artifacts/model_bundle.pkl'):
     P = Path(local_cache_path)
     P.parent.mkdir(parents = True, exist_ok=True)
 
@@ -192,7 +192,7 @@ def load_full_topics(existing_df):
 
     try:
         r3 = load_articles_from_release(
-            local_cache_path = 'Model_training/BERTopic_results3.csv.gz',
+            local_cache_path = 'pipeline/resources/BERTopic_results3.csv.gz',
             Asset_name = 'BERTopic_results3.csv.gz'
         )
         if r3 is not None and not r3.empty:
@@ -213,7 +213,7 @@ def risk_weights(df):
     print(f"[risk_weights] start: df = {df.shape}", flush = True)
 
     # ---------- Load config ----------
-    with open('Model_training/risks.json', 'r', encoding='utf-8') as f:
+    with open('pipeline/resources/risks.json', 'r', encoding='utf-8') as f:
         risks_cfg = json.load(f)
 
     json_all_labels = [r['name'] for block in risks_cfg.get('new_risks', []) for _, items in block.items() for r in items]
@@ -851,7 +851,7 @@ def risk_weights(df):
 rss_url = "https://github.com/ERSRisk/Tulane-Sentiment-Analysis/releases/download/rss_json/all_RSS.json.gz"
     
 DIR_URL  = "https://github.com/ERSRisk/Tulane-Sentiment-Analysis/releases/download/rss_json/bertopic_dir.zip"
-DIR_PATH = Path("Model_training/bertopic_dir")
+DIR_PATH = Path("pipeline/resources/bertopic_dir")
 Github_owner = 'ERSRisk'
 Github_repo = 'Tulane-Sentiment-Analysis'
 Release_tag = 'BERTopic_results'
@@ -937,7 +937,7 @@ if __name__ == '__main__':
                 "keywords": keywords,
                 "documents": docs
             })
-        with open('Model_training/topics_BERT.json', 'w') as f:
+        with open('pipeline/resources/topics_BERT.json', 'w') as f:
             json.dump(topic_dict, f, indent=4)
     
     topic_blocks = []
@@ -1030,7 +1030,7 @@ if __name__ == '__main__':
     
         return topic_name_pairs
     
-    def label_model_topics(topic_model, path = 'Model_training/topics_BERT.json'):
+    def label_model_topics(topic_model, path = 'pipeline/resources/topics_BERT.json'):
         with open(path, 'r') as f:
             topics_json = json.load(f)
         topic_map = {int(t['topic']): t for t in topics_json}
@@ -1224,11 +1224,11 @@ if __name__ == '__main__':
     
         # Load Streamlit topic list
         try:
-            with open("Model_training/topics_BERT.json", "r", encoding="utf-8") as f:
+            with open("pipeline/resources/topics_BERT.json", "r", encoding="utf-8") as f:
                 topics_json = json.load(f).get("topics", [])
         except Exception as e:
             topics_json = []
-            print(f"[warn] Could not read Model_training/topics_BERT.json: {e}", flush=True)
+            print(f"[warn] Could not read pipeline/resources/topics_BERT.json: {e}", flush=True)
     
         remaining_idx = np.where(topics_out == -1)[0]
         if len(remaining_idx) > 0 and len(topics_json) > 0:
@@ -1302,7 +1302,7 @@ if __name__ == '__main__':
     
         return texts
     
-    def save_new_topics(existing_df, new_df, path="Model_training/BERTopic_results3.csv.gz"):
+    def save_new_topics(existing_df, new_df, path="pipeline/resources/BERTopic_results3.csv.gz"):
         existing_df = existing_df.drop_duplicates(subset = ['Link'], keep = 'last')
         if existing_df is not None and not existing_df.empty:
             combined = pd.concat([existing_df, new_df], ignore_index=True)
@@ -1421,7 +1421,7 @@ if __name__ == '__main__':
         model = SentenceTransformer('all-MiniLM-L6-v2')
     
         # Load existing named topics (for matching to *known* topics)
-        with open('Model_training/topics_BERT.json', 'r', encoding='utf-8') as f:
+        with open('pipeline/resources/topics_BERT.json', 'r', encoding='utf-8') as f:
             topics = json.load(f)
         def doc_sig(doc:str) -> str:
             return hashlib.md5(doc.strip().lower().encode()).hexdigest()
@@ -1652,7 +1652,7 @@ if __name__ == '__main__':
             "cos_all_max": cos_all_max,
             "cos_names": cos_names
         }
-        with open('Model_training/risks.json', 'r', encoding='utf-8') as f:
+        with open('pipeline/resources/risks.json', 'r', encoding='utf-8') as f:
             risks_cfg = json.load(f)
     
         json_all_labels = [r['name'] for block in risks_cfg.get('new_risks', []) for _, items in block.items() for r in items]
@@ -2130,7 +2130,7 @@ if __name__ == '__main__':
     
     
     
-    def save_dataset_to_releases(df:pd.DataFrame, local_cache_path = 'Model_training/BERTopic_results2.csv.gz'):
+    def save_dataset_to_releases(df:pd.DataFrame, local_cache_path = 'pipeline/resources/BERTopic_results2.csv.gz'):
         buf= io.BytesIO()
         with gzip.GzipFile(fileobj = buf, mode = 'wb') as gz:
             gz.write(df.to_csv(index = False).encode('utf-8'))
@@ -2144,7 +2144,7 @@ if __name__ == '__main__':
         upload_asset(Github_owner, Github_repo, rel, Asset_name, gz_bytes, GITHUB_TOKEN)
     
     
-    def load_midstep_from_release(local_cache_path = 'Model_training/BERTopic_Streamlit.csv.gz'):
+    def load_midstep_from_release(local_cache_path = 'pipeline/resources/BERTopic_Streamlit.csv.gz'):
         rel = get_release_by_tag(Github_owner, Github_repo, Release_tag)
         if rel:
             asset = next((a for a in rel.get('assets', []) if a['name']=='BERTopic_Streamlit.csv.gz'), None)
@@ -2210,8 +2210,8 @@ if __name__ == '__main__':
     print(f"Length of recalculated topic names: {len(df_combined[df_combined['Probability'] < 0.15])}", flush = True)
     low_conf_mask = df_combined['Probability'] < 0.15
     df_combined.loc[low_conf_mask, 'Topic'] = -1
-    atomic_write_csv('Model_training/Step0.csv.gz', df_combined, compress = True)
-    upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/Step0.csv.gz', GITHUB_TOKEN)
+    atomic_write_csv('pipeline/resources/Step0.csv.gz', df_combined, compress = True)
+    upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'pipeline/resources/Step0.csv.gz', GITHUB_TOKEN)
     #df_combined = load_midstep_from_release()
     recent_df = df_combined[df_combined['Published'].notna() & (df_combined['Published'] >= cutoff_utc)].copy()
     temp_model, topic_ids = double_check_articles(recent_df)
@@ -2223,14 +2223,14 @@ if __name__ == '__main__':
     #Assign weights to each article
     #df_combined = load_midstep_from_release()
     df_combined = load_university_label(df_combined)
-    atomic_write_csv('Model_training/initial_label.csv.gz', df_combined, compress = True)
-    upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/initial_label.csv.gz', GITHUB_TOKEN)
+    atomic_write_csv('pipeline/resources/initial_label.csv.gz', df_combined, compress = True)
+    upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'pipeline/resources/initial_label.csv.gz', GITHUB_TOKEN)
     #df_combined = load_midstep_from_release()
     results_df = predict_risks(df_combined)
     results_df['Predicted_Risks'] = results_df.get('Predicted_Risks_new', '')
     print("✅ Applying risk_weights...", flush=True)
-    atomic_write_csv('Model_training/Step1.csv.gz', results_df, compress = True)
-    upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/Step1.csv.gz', GITHUB_TOKEN)
+    atomic_write_csv('pipeline/resources/Step1.csv.gz', results_df, compress = True)
+    upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'pipeline/resources/Step1.csv.gz', GITHUB_TOKEN)
     #results_df = load_midstep_from_release()
     results_df = results_df.drop(columns = ['Acceleration_value_x', 'Acceleration_value_y'], errors = 'ignore')
     results_df['Predicted_Risks'] = results_df.get('Predicted_Risks_new', results_df.get('Predicted_Risks', ''))
@@ -2238,14 +2238,14 @@ if __name__ == '__main__':
     print("Finished assigning risk weights", flush = True)
     df = df.drop(columns = ['University Label_x', 'University Label_y'], errors = 'ignore')
     df_new_final = df[df['Link'].isin(new_links)].copy()
-    existing_new_version = load_articles_from_release(local_cache_path = 'Model_training/BERTopic_results3.csv.gz', Asset_name = 'BERTopic_results3.csv.gz')
+    existing_new_version = load_articles_from_release(local_cache_path = 'pipeline/resources/BERTopic_results3.csv.gz', Asset_name = 'BERTopic_results3.csv.gz')
     df_new_version = pd.concat([existing_new_version, df_new_final], ignore_index = True)
     print("Saving BERTopic_results3.csv.gz", flush = True)
-    atomic_write_csv("Model_training/BERTopic_results3.csv.gz", df_new_version, compress = True)
+    atomic_write_csv("pipeline/resources/BERTopic_results3.csv.gz", df_new_version, compress = True)
     print('Uploading to releases', flush=True)
-    upload_asset_to_release(Github_owner, Github_repo, Release_tag, "Model_training/BERTopic_results3.csv.gz", GITHUB_TOKEN)
+    upload_asset_to_release(Github_owner, Github_repo, Release_tag, "pipeline/resources/BERTopic_results3.csv.gz", GITHUB_TOKEN)
     print("Saving dataset for Streamlit", flush= True)
     df_streamlit = df_new_version[df_new_version['University Label'] == 1]
-    atomic_write_csv("Model_training/BERTopic_Streamlit.csv.gz", df_streamlit, compress = True)
-    upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/BERTopic_Streamlit.csv.gz', GITHUB_TOKEN)
+    atomic_write_csv("pipeline/resources/BERTopic_Streamlit.csv.gz", df_streamlit, compress = True)
+    upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'pipeline/resources/BERTopic_Streamlit.csv.gz', GITHUB_TOKEN)
     
