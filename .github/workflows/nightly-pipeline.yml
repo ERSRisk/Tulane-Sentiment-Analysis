@@ -28,7 +28,7 @@ jobs:
           docker run --rm \
             -e GEMINI_API_KEY="${{ secrets.PAID_API_KEY }}" \
             -e NEWS_API_KEY="${{ secrets.NEWS_API_KEY }}" \
-            -e TOKEN="${{ secrets.TOKEN }}" \ 
+            -e TOKEN="${{ secrets.TOKEN }}" \
             ghcr.io/ersrisk/risk-pipeline:latest \
             python source/RSS_extraction.py
       - name: Run stage 2 - build datasets pt 1
@@ -36,7 +36,7 @@ jobs:
             docker run --rm \
             -e GEMINI_API_KEY="${{ secrets.PAID_API_KEY }}" \
             -e NEWS_API_KEY="${{ secrets.NEWS_API_KEY }}" \
-            -e TOKEN="${{ secrets.TOKEN }}" \ 
+            -e TOKEN="${{ secrets.TOKEN }}" \
             ghcr.io/ersrisk/risk-pipeline:latest \
             python source/BERT_update.py
       - name: Run stage 3 - build datasets pt 2
@@ -44,14 +44,14 @@ jobs:
             docker run --rm \
             -e GEMINI_API_KEY="${{ secrets.PAID_API_KEY }}" \
             -e NEWS_API_KEY="${{ secrets.NEWS_API_KEY }}" \
-            -e TOKEN="${{ secrets.TOKEN }}" \ 
+            -e TOKEN="${{ secrets.TOKEN }}" \
             ghcr.io/ersrisk/risk-pipeline:latest \
             python source/stories_build.py
       
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
-          credentials_json : '{{ secrets.GCP_SA_KEY}}'
+          credentials_json : '${{ secrets.GCP_SA_KEY}}'
 
       - name: Set up gcloud
         uses: google-github-actions/setup-gcloud@v2
