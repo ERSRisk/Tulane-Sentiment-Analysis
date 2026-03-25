@@ -2192,6 +2192,9 @@ if __name__ == '__main__':
     #Assign topics and probabilities to new_df
     if blob_exists('latest/BERTopic_results2.csv.gz'):
         existing_df = download_file('latest/BERTopic_results2.csv.gz', 'pipeline/resources/BERTopic_results2.csv.gz', BUCKET_NAME)
+        print("It exists", flush = True)
+    else:
+        print("It did not get extracted", flush = True)
     
     if existing_df is None or existing_df.empty:
         existing_df = pd.DataFrame()
