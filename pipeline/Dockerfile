@@ -13,6 +13,7 @@ RUN pip install --upgrade pip setuptools wheel
 RUN pip install --no-cache-dir cython numpy scipy scikit-learn
 RUN pip install --no-cache-dir -r requirements.txt
 RUN python -m spacy download en_core_web_sm
+RUN playwright install --with-deps
 
 COPY pipeline/source ./source
 
