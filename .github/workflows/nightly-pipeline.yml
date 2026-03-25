@@ -20,6 +20,15 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json : '${{ secrets.GCP_SA_KEY}}'
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v2
+        
       - name: Pull image
         run: docker pull ghcr.io/ersrisk/risk-pipeline:latest
 
@@ -48,13 +57,6 @@ jobs:
             ghcr.io/ersrisk/risk-pipeline:latest \
             python source/stories_build.py
       
-      - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v2
-        with:
-          credentials_json : '${{ secrets.GCP_SA_KEY}}'
-
-      - name: Set up gcloud
-        uses: google-github-actions/setup-gcloud@v2
       
       - name: Upload outputsto GCS
         run: |
