@@ -1,7 +1,5 @@
 import socket
 import aiohttp
-import feedparser
-import traceback
 import spacy
 import time
 import subprocess
@@ -10,21 +8,11 @@ import json
 import time
 import re
 import sys
-import undetected_chromedriver as uc
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-import pickle
 import trafilatura
 import os
 from playwright.sync_api import sync_playwright
 import requests
-import io
 import gzip
-import base64
-import ast
 from pathlib import Path
 from bs4 import BeautifulSoup
 from datetime import datetime
@@ -35,12 +23,36 @@ from requests.utils import requote_uri
 from datetime import datetime, date, timedelta
 from dateutil import parser
 from newspaper import Article
+from google.cloud import storage
+from pathlib import Path
 
+BUCKET_NAME = "tulane-risk-data"
 NEWS_API_KEY = os.getenv("NEWS_API_KEY")
 search = 'Tulane'
 start_date = (date.today() - timedelta(days = 7))
 end_date = date.today()
 timezone_option = 'CDT'
+
+def upload_file(local_path:str, blob_path:str, bucket_name:str = BUCKET_NAME) -> None:
+    client = storage.Client()
+    bucket = client.bucket(bucket_name)
+    blob = bucket.blob(blob_path)
+    blob.upload_from_filename(local_path)
+
+def download_file(blob_path: str, local_path: str, bucket_name: str = BUCKET_NAME) -> None:
+    client = storage.Client()
+    bucket = client.bucket(bucket_name)
+    blob = bucket.blob(blob_path)
+
+    Path(local_path).parent.mkdir(parents=True, exist_ok=True)
+    blob.download_to_filename(local_path)
+
+def blob_exists(blob_path: str, bucket_name: str = BUCKET_NAME) -> bool:
+    client = storage.Client()
+    bucket = client.bucket(bucket_name)
+    blob = bucket.blob(blob_path)
+    return blob.exists()
+
 def fetch_news(search, start_date, end_date):
     news_url = (
             f"https://newsapi.org/v2/everything?q={search} NOT sports NOT Football NOT basketball&"
@@ -418,6 +430,34 @@ def upload_asset(owner, repo, release, asset_name, data_bytes, content_type = 'a
     raise RuntimeError(f"Upload failed{up.status_code}: {up.text[:500]}")
   return up.json()
 
+def save_new_articles_to_gcs(
+    all_articles: list,
+    local_cache_path: str = "Online_Extraction/all_RSS.json.gz",
+    blob_path: str = "latest/all_RSS.json.gz"
+):
+    Path(local_cache_path).parent.mkdir(parents=True, exist_ok=True)
+
+    t0 = time.perf_counter()
+
+    with gzip.open(local_cache_path, "wt", encoding="utf-8") as gz:
+        gz.write("[")
+        first = True
+        for item in all_articles:
+            if not first:
+                gz.write(",")
+            else:
+                first = False
+            gz.write(json.dumps(item, ensure_ascii=False, separators=(",", ":")))
+        gz.write("]")
+
+    gzip_sec = time.perf_counter() - t0
+    size_mb = Path(local_cache_path).stat().st_size / 1_000_000
+    print(f"gzip sec: {gzip_sec:.2f} | size: {size_mb:.1f} MB", flush=True)
+
+    t1 = time.perf_counter()
+    upload_file(local_cache_path, blob_path)
+    print(f"upload sec: {time.perf_counter() - t1:.2f}", flush=True)
+
 def save_new_articles_to_release(all_articles:list, local_cache_path='Online_Extraction/all_RSS.json.gz'):
     Path(local_cache_path).parent.mkdir(parents=True, exist_ok=True)
     t0 = time.perf_counter()
@@ -448,6 +488,19 @@ def save_new_articles_to_release(all_articles:list, local_cache_path='Online_Ext
     upload_asset(Github_owner, Github_repo, rel, Asset_name, gz_bytes)
     print(f"upload sec: {time.perf_counter() - t1:.2f}")
 
+def load_articles_from_gcs(
+    local_cache_path: str = "Online_Extraction/all_RSS.json.gz",
+    blob_path: str = "latest/all_RSS.json.gz"
+):
+    if blob_exists(blob_path):
+        download_file(blob_path, local_cache_path)
+
+    p = Path(local_cache_path)
+    if p.exists():
+        with gzip.open(p, "rb") as f:
+            return json.loads(f.read().decode("utf-8"))
+
+    return []
 
 def load_articles_from_release(local_cache_path = 'Online_Extraction/all_RSS.json.gz'):
   rel = _get_release_by_tag(Github_owner, Github_repo, Release_tag)
@@ -791,7 +844,7 @@ def Deloitte():
   print("Deloitte ended", flush = True)
   return rss_add
 def load_existing_articles():
-    return load_articles_from_release()
+    return load_articles_from_gcs()
 
 def save_new_articles(existing_articles, new_articles):
     existing_urls = {article['Link'] for article in existing_articles}
@@ -803,7 +856,7 @@ def save_new_articles(existing_articles, new_articles):
     if unique_new_articles:
         updated_articles = existing_articles + unique_new_articles
         print(f"Saving {len(updated_articles)} total articles to Releases")
-        save_new_articles_to_release(updated_articles)
+        save_new_articles_to_gcs(updated_articles)
     else:
         print("No new unique articles found.")
     return []

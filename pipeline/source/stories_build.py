@@ -40,10 +40,10 @@ from BERT_update import (
     atomic_write_pickle,
     upload_asset_to_release,
     load_model_bundle,
-    gh_headers,
-    get_release_by_tag,
-    ensure_release,
-    upload_asset,
+    upload_file,
+    download_file,
+    blob_exists,
+    upload_bytes
 )
 
 Github_owner = 'ERSRisk'
@@ -136,7 +136,7 @@ def build_stories():
                 60,59,56,54,50,24,22,18,568,565,550,526,518,505,484,477,458,
                 456,387,245,239,226,196,155,144,123,117,109,105,85,61,33,28,
                 25,16,14]
-    df = load_full_topics(load_articles_from_release())
+    df = load_full_topics(download_file('latest/BERTopic_results2.csv.gz', 'pipeline/resources/BERTopic_results2.csv.gz'))
     df = ensure_risk_scores(df)
     df['University Label'] = pd.to_numeric(df['University Label'], errors='coerce').fillna(0).astype(int)
     df = df[df['University Label'] == 1].copy()  # ← only cluster university-relevant articles
@@ -751,7 +751,7 @@ story_scores = (articles.groupby("story_id").agg(
 canonical = pd.read_csv("Model_training/Canonical_Stories_with_Summaries.csv")
 canonical = canonical.merge(story_scores, on = "story_id", how = 'left', validate= "one_to_one")
 canonical.to_csv("Model_training/Canonical_stories_with_Summaries.csv", index = False)
-articles = load_full_topics(load_articles_from_release())
+articles = load_full_topics(download_file('latest/BERTopic_results2.csv.gz', 'pipeline/resources/BERTopic_results2.csv.gz'))
 articles = ensure_risk_scores(articles)
 articles = articles.drop_duplicates(subset = ['Title', 'Link'], keep = 'last')
 article_story_map = pd.read_csv("Model_training/Articles_with_Stories.csv.gz", compression = 'gzip')
@@ -998,7 +998,7 @@ def build_subtopic_clusters(df, subtopics, model, min_sim=0.6, subtopic_centroid
 
     return df, centroids
 
-articles = load_full_topics(load_articles_from_release())
+articles = load_full_topics(download_file('latest/BERTopic_results2.csv.gz', 'pipeline/resources/BERTopic_results2.csv.gz'))
 
 nlp = spacy.load("en_core_web_sm")
 model = SentenceTransformer('all-MiniLM-L6-v2')
@@ -1056,7 +1056,7 @@ articles = pd.concat([already_clustered, articles], ignore_index=True)
 
 
 atomic_write_csv("Model_training/BERTopic_Streamlit.csv.gz", articles, compress = True)
-upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/BERTopic_Streamlit.csv.gz', GITHUB_TOKEN)
+upload_file('pipeline/resource/BERTopic_Streamlit.csv.gz', 'latest/BERTopic_Streamlit.csv.gz')
 
 
 df = articles
@@ -1409,7 +1409,7 @@ articles = df
 
 risk_weights_second_pass(articles)
 atomic_write_csv("Model_training/BERTopic_Streamlit.csv.gz", articles, compress = True)
-upload_asset_to_release(Github_owner, Github_repo, Release_tag, 'Model_training/BERTopic_Streamlit.csv.gz', GITHUB_TOKEN)
+upload_file('pipeline/resource/BERTopic_Streamlit.csv.gz', 'latest/BERTopic_Streamlit.csv.gz')
 
 print("Articles over time", flush = True)
 #

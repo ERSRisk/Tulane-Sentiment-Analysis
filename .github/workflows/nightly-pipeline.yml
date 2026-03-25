@@ -47,6 +47,24 @@ jobs:
             -e TOKEN="${{ secrets.TOKEN }}" \ 
             ghcr.io/${{ github.repository_owner }}/risk-pipeline:latest \
             python source/stories_build.py
+      
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json : '{{ secrets.GCP_SA_KEY}}'
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v2
+      
+      - name: Upload outputsto GCS
+        run: |
+          gcloud storage cp BERTopic_results3.csv.gz gs://tulane-risk-data/latest/BERTopic_results3.csv.gz
+          gcloud storage cp BERTopic_Streamlit.csv.gz gs://tulane-risk-data/latest/BERTopic_Streamlit.csv.gz
+          gcloud storage cp initial_label.csv.gz gs://tulane-risk-data/latest/initial_label.csv.gz
+          gcloud storage cp Step0.csv.gz gs://tulane-risk-data/latest/Step0.csv.gz
+          gcloud storage cp Step1.csv.gz gs://tulane-risk-data/latest/Step1.csv.gz
+          gcloud storage cp all_RSS.json.gz gs://tulane-risk-data/latest/all_RSS.json.gz
+          gcloud storage cp bertopic_dir.zip gs://tulane-risk-data/latest/bertopic_dir.zip
 
       - name: Commit and push (only small/compressed files)
         run: |
