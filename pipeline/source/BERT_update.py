@@ -49,6 +49,7 @@ def download_file(blob_path: str, local_path: str, bucket_name:str = BUCKET_NAME
 
     Path(local_path).parent.mkdir(parents = True, exist_ok=True)
     blob.download_to_filename(local_path)
+    return pd.read_csv(local_path, compression = 'gzip', low_memory = False)
 
 def blob_exists(blob_path: str, bucket_name: str = BUCKET_NAME) -> bool:
     client = storage.Client()
