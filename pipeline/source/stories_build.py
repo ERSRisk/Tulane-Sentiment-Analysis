@@ -54,7 +54,7 @@ GITHUB_TOKEN = os.getenv('TOKEN')
 GEMINI_API_KEY = os.getenv("PAID_API_KEY")
 client = genai.Client(api_key=GEMINI_API_KEY)
 
-def track_over_time(df, week_anchor="W-MON", out_csv="Model_training/topic_trend.csv"):
+def track_over_time(df, week_anchor="W-MON", out_csv="pipeline/resources/topic_trend.csv"):
 
     if 'Published' not in df.columns:
         print("⚠️ 'Published' column missing; skipping trend tracking.")
@@ -92,7 +92,7 @@ def track_over_time(df, week_anchor="W-MON", out_csv="Model_training/topic_trend
     # --- 3) Topic names (safe load) ---
     topic_name_map = {}
     try:
-        with open('Model_training/topics_BERT.json', 'r', encoding='utf-8') as f:
+        with open('pipeline/resources/topics_BERT.json', 'r', encoding='utf-8') as f:
             topics_json = json.load(f)
             topic_name_map = {t['topic']: t['name'] for t in topics_json if 'topic' in t and 'name' in t}
     except FileNotFoundError:
@@ -145,15 +145,15 @@ def build_stories():
 
     
 
-    stories_df_exists = Path('Model_training/Story_Clusters.csv.gz').exists()
-    articles_with_stories_exists = Path('Model_training/dashboard_dropdown.csv.gz').exists()
+    stories_df_exists = Path('pipeline/resources/Story_Clusters.csv.gz').exists()
+    articles_with_stories_exists = Path('pipeline/resources/dashboard_dropdown.csv.gz').exists()
 
     if stories_df_exists and articles_with_stories_exists:
-        old_df = pd.read_csv('Model_training/dashboard_dropdown.csv.gz', compression='gzip')
+        old_df = pd.read_csv('pipeline/resources/dashboard_dropdown.csv.gz', compression='gzip')
         if old_df['story_id'].notna().sum() == 0:
             print("INVALID STATE: stories exist but no articles reference them. RESETTING.")
-            Path("Model_training/Story_Clusters.csv.gz").unlink(missing_ok = True)
-            Path("Model_training/Articles_with_Stories.csv.gz").unlink(missing_ok = True)
+            Path("pipeline/resources/Story_Clusters.csv.gz").unlink(missing_ok = True)
+            Path("pipeline/resources/Articles_with_Stories.csv.gz").unlink(missing_ok = True)
             old_df = pd.DataFrame(columns=df.columns.tolist() + ['story_id', '_key'])
     else:
         old_df = pd.DataFrame(columns=df.columns.tolist() + ['story_id'] + ['_key'])
@@ -189,8 +189,8 @@ def build_stories():
 
     df = pd.concat([already_labeled, new_articles], ignore_index = True)
 
-    if Path('Model_training/Story_Clusters.csv.gz').exists():
-        stories_df = pd.read_csv('Model_training/Story_Clusters.csv.gz', compression='gzip')
+    if Path('pipeline/resources/Story_Clusters.csv.gz').exists():
+        stories_df = pd.read_csv('pipeline/resources/Story_Clusters.csv.gz', compression='gzip')
     else:
         stories_df = pd.DataFrame(columns=[
         'story_id', 'canonical_title', 'canonical_link', 'canonical_published',
@@ -200,8 +200,8 @@ def build_stories():
     #if df['story_id'].notna().sum() == 0:
         #stories_df = pd.DataFrame(columns = stories_df.columns)
 
-    if Path('Model_training/Canonical_Stories_with_Summaries.csv').exists():
-        canonical_titles = pd.read_csv('Model_training/Canonical_Stories_with_Summaries.csv')
+    if Path('pipeline/resources/Canonical_Stories_with_Summaries.csv').exists():
+        canonical_titles = pd.read_csv('pipeline/resources/Canonical_Stories_with_Summaries.csv')
         canonical_titles['story_id'] = canonical_titles['story_id'].astype(int)
         stories_df = stories_df.merge(
             canonical_titles[['story_id', 'canonical_title', 'canonical_source']],
@@ -252,8 +252,8 @@ def build_stories():
         stories_df = stories_df.iloc[0:0]
 
 
-    if Path('Model_training/story_centroids.pkl').exists():
-        with open('Model_training/story_centroids.pkl', 'rb') as f:
+    if Path('pipeline/resources/story_centroids.pkl').exists():
+        with open('pipeline/resources/story_centroids.pkl', 'rb') as f:
             centroids_df = pickle.load(f)
         if isinstance(centroids_df, list):
             centroid_map = centroid_map = {int(row['story_id']): np.array(row['centroid']) for row in centroids_df}
@@ -479,12 +479,12 @@ def build_stories():
 
     #Saving centroids for future reference
     centroid_records = [{"story_id": s["id"], "centroid": s["centroid"].tolist()} for s in open_stories]
-    atomic_write_pickle("Model_training/story_centroids.pkl", centroid_records)
+    atomic_write_pickle("pipeline/resources/story_centroids.pkl", centroid_records)
     
     assigned = articles_with_stories['story_id'].notna().sum()
     if assigned == 0:
         raise RuntimeError("CRITICAL: build_story_clusters produced zero story assignments.")
-    articles_with_stories.to_csv("Model_training/Articles_with_Stories.csv.gz", index = False, compression = 'gzip')
+    articles_with_stories.to_csv("pipeline/resources/Articles_with_Stories.csv.gz", index = False, compression = 'gzip')
 
     df = articles_with_stories
     print(df.columns.tolist())
@@ -542,23 +542,23 @@ def build_stories():
         stories_df = stories_df.merge(score_df, on="story_id", how="left")
         assert stories_df["canonical_title"].notna().all()
     
-    stories_df.to_csv("Model_training/Story_Clusters.csv.gz", index = False, compression = 'gzip')
+    stories_df.to_csv("pipeline/resources/Story_Clusters.csv.gz", index = False, compression = 'gzip')
     
     api_key = os.getenv('PAID_API_KEY')
     client = genai.Client(api_key = api_key)
     
-    df = pd.read_csv('Model_training/Articles_with_Stories.csv.gz', compression='gzip')
+    df = pd.read_csv('pipeline/resources/Articles_with_Stories.csv.gz', compression='gzip')
     df = df.drop_duplicates(subset=["Title", "Published_utc"], keep="last")
-    if Path('Model_training/dashboard_stories.csv.gz').exists():  
-        df_stories = pd.read_csv('Model_training/dashboard_stories.csv.gz', compression='gzip')
+    if Path('pipeline/resources/dashboard_stories.csv.gz').exists():  
+        df_stories = pd.read_csv('pipeline/resources/dashboard_stories.csv.gz', compression='gzip')
     else:
         df_stories = pd.DataFrame(columns=['story_id', 'canonical_title', 'canonical_source', 
                                             'last_seen', 'avg_risk_score', 'avg_recency'])
-        df_stories.to_csv('Model_training/Story_Clusters_backup.csv', index=False)
+        df_stories.to_csv('pipeline/resources/Story_Clusters_backup.csv', index=False)
     
     
-    if Path('Model_training/Canonical_Stories_with_Summaries.csv').exists():
-        canonical_titles = pd.read_csv('Model_training/Canonical_Stories_with_Summaries.csv')
+    if Path('pipeline/resources/Canonical_Stories_with_Summaries.csv').exists():
+        canonical_titles = pd.read_csv('pipeline/resources/Canonical_Stories_with_Summaries.csv')
         canonical_titles['story_id'] = canonical_titles['story_id'].astype(int)
         stories_df = stories_df.merge(
             canonical_titles[['story_id', 'canonical_title', 'canonical_source']],
@@ -710,13 +710,13 @@ def build_stories():
     if canonical_stories:
         new_df = pd.DataFrame(canonical_stories)
         try:
-            existing = pd.read_csv("Model_training/Canonical_Stories_with_Summaries.csv")
+            existing = pd.read_csv("pipeline/resources/Canonical_Stories_with_Summaries.csv")
             final = pd.concat([existing, new_df], ignore_index=True)
             final = final.drop_duplicates(subset=['story_id'], keep='last')
-            final.to_csv("Model_training/Canonical_Stories_with_Summaries.csv", index=False)
+            final.to_csv("pipeline/resources/Canonical_Stories_with_Summaries.csv", index=False)
         except FileNotFoundError:
             final = new_df
-            final.to_csv("Model_training/Canonical_Stories_with_Summaries.csv", index=False)
+            final.to_csv("pipeline/resources/Canonical_Stories_with_Summaries.csv", index=False)
     else:
         print("No new titles were generated.")
     
@@ -727,7 +727,7 @@ stories = build_stories()
 def safe_mode(series):
     s = series.dropna()
     return s.mode().iloc[0] if not s.empty else None
-articles = pd.read_csv("Model_training/Articles_with_Stories.csv.gz", compression = 'gzip')
+articles = pd.read_csv("pipeline/resources/Articles_with_Stories.csv.gz", compression = 'gzip')
 score_cols = [
         "avg_risk_score",
         "avg_frequency",
@@ -748,18 +748,18 @@ story_scores = (articles.groupby("story_id").agg(
     avg_industry_risk = ("Industry_Risk", "mean"),
     avg_location = ("Location", "mean"),
     risk_label = ("Predicted_Risks_new", safe_mode)).reset_index())
-canonical = pd.read_csv("Model_training/Canonical_Stories_with_Summaries.csv")
+canonical = pd.read_csv("pipeline/resources/Canonical_Stories_with_Summaries.csv")
 canonical = canonical.merge(story_scores, on = "story_id", how = 'left', validate= "one_to_one")
-canonical.to_csv("Model_training/Canonical_stories_with_Summaries.csv", index = False)
+canonical.to_csv("pipeline/resources/Canonical_stories_with_Summaries.csv", index = False)
 articles = load_full_topics(download_file('latest/BERTopic_results2.csv.gz', 'pipeline/resources/BERTopic_results2.csv.gz'))
 articles = ensure_risk_scores(articles)
 articles = articles.drop_duplicates(subset = ['Title', 'Link'], keep = 'last')
-article_story_map = pd.read_csv("Model_training/Articles_with_Stories.csv.gz", compression = 'gzip')
+article_story_map = pd.read_csv("pipeline/resources/Articles_with_Stories.csv.gz", compression = 'gzip')
 article_story_map = article_story_map.drop_duplicates(subset = ['Title', 'Link'], keep = 'last')
-canonical = pd.read_csv("Model_training/Canonical_Stories_with_Summaries.csv")
+canonical = pd.read_csv("pipeline/resources/Canonical_Stories_with_Summaries.csv")
 score_cols = ["avg_risk_score", "avg_frequency", "avg_recency"]
 stories_df = pd.read_csv(
-    "Model_training/Story_Clusters.csv.gz",
+    "pipeline/resources/Story_Clusters.csv.gz",
     compression="gzip"
 )
 canonical = canonical.merge(stories_df[["story_id"]], on = "story_id", how = "left")
@@ -800,9 +800,9 @@ dashboard_stories = (
 dropdown_table = canonical_articles[["story_id", "Title","Topic", "Link", "Published_utc", "Risk_Score",'Recency', 'Source_Accuracy', 'Impact_Score', 'Acceleration_value', 'Location','Industry_Risk', 'Frequency_Score', "Predicted_Risks_new"]].sort_values("Published_utc", ascending = False)
 standalone_articles = articles[articles["story_articles_count"] == 1].copy()
 
-dashboard_stories.to_csv("Model_training/dashboard_stories.csv.gz", compression = 'gzip')
-dropdown_table.to_csv("Model_training/dashboard_dropdown.csv.gz", compression = 'gzip')
-standalone_articles.to_csv("Model_training/dashboard_articles.csv.gz", compression = 'gzip')
+dashboard_stories.to_csv("pipeline/resources/dashboard_stories.csv.gz", compression = 'gzip')
+dropdown_table.to_csv("pipeline/resources/dashboard_dropdown.csv.gz", compression = 'gzip')
+standalone_articles.to_csv("pipeline/resources/dashboard_articles.csv.gz", compression = 'gzip')
 
 articles_only = articles[articles['story_articles_count']<3].copy()
 
@@ -1002,8 +1002,8 @@ articles = load_full_topics(download_file('latest/BERTopic_results2.csv.gz', 'pi
 
 nlp = spacy.load("en_core_web_sm")
 model = SentenceTransformer('all-MiniLM-L6-v2')
-if Path('Model_training/subtopics.csv').exists():
-    subtopics = pd.read_csv('Model_training/subtopics.csv')
+if Path('pipeline/resources/subtopics.csv').exists():
+    subtopics = pd.read_csv('pipeline/resources/subtopics.csv')
 else:
     subtopics = pd.DataFrame(columns=['Title', 'Link', 'Cluster', 'Event_Severity', 'Event_Label'])
 
@@ -1023,8 +1023,8 @@ new_only = articles[
 ].copy()
 
 print(f"Already clustered: {len(already_clustered)}, New: {len(new_only)}", flush=True)
-if Path('Model_training/subtopic_centroids.pkl').exists():
-    with open('Model_training/subtopic_centroids.pkl', 'rb') as f:
+if Path('pipeline/resources/subtopic_centroids.pkl').exists():
+    with open('pipeline/resources/subtopic_centroids.pkl', 'rb') as f:
         saved = pickle.load(f)
     subtopic_centroids = pd.Series({k: np.array(v) for k, v in saved.items()})
 else:
@@ -1034,7 +1034,7 @@ articles, updated_centroids = build_subtopic_clusters(new_only, subtopics, model
 updated_subtopics = pd.concat([subtopics, articles[['Title', 'Link','Cluster', 'Event_Severity', 'Event_Label', 'Published_utc']]],
                              ignore_index = True).drop_duplicates(subset = ['Title', 'Link'], keep = 'last')
 
-updated_subtopics.to_csv('Model_training/subtopics.csv', index = False)
+updated_subtopics.to_csv('pipeline/resources/subtopics.csv', index = False)
 print(f"Saved {len(updated_subtopics)} total subtopics ({len(updated_subtopics) - len(subtopics)} new)", flush=True)
 
 if subtopic_centroids is not None:
@@ -1047,7 +1047,7 @@ if updated_centroids is not None:
         merged_centroids[int(k)] = v.tolist() if isinstance(v, np.ndarray) else v
     
 
-atomic_write_pickle('Model_training/subtopic_centroids.pkl', merged_centroids)
+atomic_write_pickle('pipeline/resources/subtopic_centroids.pkl', merged_centroids)
 already_clustered = already_clustered.merge(subtopics[['Title', 'Link', 'Cluster', 'Event_Label', 'Event_Severity']],
     on=['Title', 'Link'],
     how='left'
@@ -1055,7 +1055,7 @@ already_clustered = already_clustered.merge(subtopics[['Title', 'Link', 'Cluster
 articles = pd.concat([already_clustered, articles], ignore_index=True)
 
 
-atomic_write_csv("Model_training/BERTopic_Streamlit.csv.gz", articles, compress = True)
+atomic_write_csv("pipeline/resources/BERTopic_Streamlit.csv.gz", articles, compress = True)
 upload_file('pipeline/resource/BERTopic_Streamlit.csv.gz', 'latest/BERTopic_Streamlit.csv.gz')
 
 
@@ -1220,7 +1220,7 @@ risk_scores = (grouped_ranked.groupby(['Window', 'Predicted_Risks_new'])['weight
 c = 2.5
 risk_scores['final_risk_score'] = (5 * risk_scores['raw_risk_score'] / (risk_scores['raw_risk_score'] + c))
 
-risk_scores.to_csv('Model_training/final_risk_scores1.csv', index = False)
+risk_scores.to_csv('pipeline/resources/final_risk_scores1.csv', index = False)
 
 def risk_weights_second_pass(df):
     base = df.copy()
@@ -1408,7 +1408,7 @@ def risk_weights_second_pass(df):
 articles = df
 
 risk_weights_second_pass(articles)
-atomic_write_csv("Model_training/BERTopic_Streamlit.csv.gz", articles, compress = True)
+atomic_write_csv("pipeline/resources/BERTopic_Streamlit.csv.gz", articles, compress = True)
 upload_file('pipeline/resource/BERTopic_Streamlit.csv.gz', 'latest/BERTopic_Streamlit.csv.gz')
 
 print("Articles over time", flush = True)
