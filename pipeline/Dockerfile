@@ -16,6 +16,7 @@ RUN python -m spacy download en_core_web_sm
 RUN playwright install --with-deps
 
 COPY pipeline/source ./source
+COPY pipeline/resources ./pipeline/resources
 
 ENV PYTHONPATH=/app
 
