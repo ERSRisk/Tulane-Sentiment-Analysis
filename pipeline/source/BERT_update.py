@@ -2064,7 +2064,7 @@ if __name__ == '__main__':
         recent = all_articles[all_articles['Published_utc'] >= cutoff]
     
         try:
-            existing = pd.read_csv('BERTopic_before.csv')
+            existing = pd.read_csv('pipeline/resources/BERTopic_before.csv')
             labeled_titles = set(existing['Title']) if 'Title' in existing else set()
         except FileNotFoundError:
             existing = pd.DataFrame(columns=['Title', 'University Label'])
@@ -2148,7 +2148,7 @@ if __name__ == '__main__':
         else:
             combined = existing
     
-        combined.to_csv('BERTopic_before.csv',
+        combined.to_csv('pipeline/resources/BERTopic_before.csv',
                         columns=['Title', 'University Label'],
                         index=False)
     
