@@ -1182,7 +1182,7 @@ grouped['Predicted_Risks_new_norm'] = (
     grouped['Predicted_Risks_new']
     .fillna('')
     .astype(str)
-    .str.stip()
+    .str.strip()
     .str.lower()
 )
 pred_idx = grouped['Predicted_Risks_new_norm'].map(risk_to_index)
