@@ -1178,7 +1178,14 @@ grouped['rel_cos'] = np.clip((grouped['similarity'] - s_min)/(s_max - s_min), 0,
 
 
 sim_matrix = np.dot(text_embeddings, risk_embeddings.T)
-pred_idx = grouped['Predicted_Risks_new'].map(risk_to_index).values
+grouped['Predicted_Risks_new_norm'] = (
+    grouped['Predicted_Risks_new']
+    .fillna('')
+    .astype(str)
+    .str.stip()
+    .str.lower()
+)
+pred_idx = grouped['Predicted_Risks_new_norm'].map(risk_to_index)
 chosen_sim = sim_matrix[np.arange(len(grouped)), pred_idx]
 
 sim_excluding_chosen = sim_matrix.copy()
