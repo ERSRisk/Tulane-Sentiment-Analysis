@@ -1155,10 +1155,14 @@ risk_labels = list(risk_defs.values())
 risk_embeddings = model.encode(risk_labels, normalize_embeddings = True, show_progress_bar = True)
 text_embeddings = model.encode(grouped['combined_text'].tolist(), normalize_embeddings = True, show_progress_bar = True)
 risk_to_index = {name: i for i, name in enumerate(risk_defs.keys())}
+risk_to_index = {
+    k.lower(): v for k, v in risk_to_index.items()
+}
 
 similarities = []
 for i, row in grouped.iterrows():
     risk_name = row['Predicted_Risks_new']
+    risk_name = risk_name.strip().lower()
     risk_idx = risk_to_index[risk_name]
 
     sim = np.dot(text_embeddings[i], risk_embeddings[risk_idx])
