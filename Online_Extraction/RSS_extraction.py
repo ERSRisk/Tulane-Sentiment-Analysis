@@ -923,10 +923,20 @@ async def process_feeds(feeds, session):
             req_timeout = aiohttp.ClientTimeout(total = 60, connect =20, sock_connect = 20, sock_read = 40)
             resp =await asyncio.wait_for(session.get(url, timeout = req_timeout), timeout = 70)
             async with resp as response:
-                text = await response.text()
+                raw_bytes = await response.read()
+                text = raw_bytes.decode(response.charset or "utf-8", errors = 'replace')
                 ctype = (response.headers.get('Content-Type') or '').lower()
-                if not any(t in ctype for t in ('xml', 'rss', 'atom')):
+
+                body_start = text.lstrip()[:200].lower()
+                looks_like_xml = (
+                    any(t in ctype for t in ("xml", "rss", "atom"))
+                    or body_start.startswith("<?xml")
+                    or body_start.startswith("<?rss")
+                    or body_start.startswith("<?feed")
+                )
+                if not looks_like_xml:
                     print(f"Skipping non-XML content: {url} ({ctype})")
+                    print(f"Body preview: {body_start[:120]}")
                     continue
                 feed_extract = await safe_feed_parse(text)
                 if not feed_extract:
