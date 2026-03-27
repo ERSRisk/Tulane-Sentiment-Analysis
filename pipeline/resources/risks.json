@@ -99,6 +99,7 @@
 {"name":"ABC News", "accuracy":4, "bias":"left lean"},
 {"name":"LA Illuminator", "accuracy": 3.5, "bias":"left lean"},
 {"name":"NBC News", "accuracy":4, "bias": "left lean"},
+{"name": "Tulane Hullaballoo", "accuracy": 5, "bias": "left lean"},
 {"name":"The Hill", "accuracy":3.5, "bias":"lean right"},
 {"name":"TruthOut", "accuracy":3, "bias":"strong left"},
 {"name":"StatNews", "accuracy":5, "bias":"left lean"},
