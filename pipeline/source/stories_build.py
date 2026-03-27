@@ -1056,7 +1056,7 @@ articles = pd.concat([already_clustered, articles], ignore_index=True)
 
 
 atomic_write_csv("pipeline/resources/BERTopic_Streamlit.csv.gz", articles, compress = True)
-upload_file('pipeline/resource/BERTopic_Streamlit.csv.gz', 'latest/BERTopic_Streamlit.csv.gz')
+upload_file('pipeline/resources/BERTopic_Streamlit.csv.gz', 'latest/BERTopic_Streamlit.csv.gz')
 
 
 df = articles
@@ -1409,7 +1409,7 @@ articles = df
 
 risk_weights_second_pass(articles)
 atomic_write_csv("pipeline/resources/BERTopic_Streamlit.csv.gz", articles, compress = True)
-upload_file('pipeline/resource/BERTopic_Streamlit.csv.gz', 'latest/BERTopic_Streamlit.csv.gz')
+upload_file('pipeline/resources/BERTopic_Streamlit.csv.gz', 'latest/BERTopic_Streamlit.csv.gz')
 
 print("Articles over time", flush = True)
 #
