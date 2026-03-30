@@ -40,6 +40,7 @@ jobs:
             -e TOKEN="${{ secrets.TOKEN }}" \
             -e GOOGLE_APPLICATION_CREDENTIALS="${{ env.GOOGLE_GHA_CREDS_PATH }}" \
             -v "${{ env.GOOGLE_GHA_CREDS_PATH }}:${{ env.GOOGLE_GHA_CREDS_PATH }}:ro" \
+            -v ${{ github.workspace }}:/app \
             ghcr.io/ersrisk/risk-pipeline:latest \
             python source/RSS_extraction.py
       - name: Run stage 2 - build datasets pt 1
@@ -50,6 +51,7 @@ jobs:
             -e TOKEN="${{ secrets.TOKEN }}" \
             -e GOOGLE_APPLICATION_CREDENTIALS="${{ env.GOOGLE_GHA_CREDS_PATH }}" \
             -v "${{ env.GOOGLE_GHA_CREDS_PATH }}:${{ env.GOOGLE_GHA_CREDS_PATH }}:ro" \
+            -v ${{ github.workspace }}:/app \
             ghcr.io/ersrisk/risk-pipeline:latest \
             python source/BERT_update.py
       - name: Run stage 3 - build datasets pt 2
@@ -60,19 +62,20 @@ jobs:
             -e TOKEN="${{ secrets.TOKEN }}" \
             -e GOOGLE_APPLICATION_CREDENTIALS="${{ env.GOOGLE_GHA_CREDS_PATH }}" \
             -v "${{ env.GOOGLE_GHA_CREDS_PATH }}:${{ env.GOOGLE_GHA_CREDS_PATH }}:ro" \
+            -v ${{ github.workspace }}:/app \
             ghcr.io/ersrisk/risk-pipeline:latest \
             python source/stories_build.py
       
       
       - name: Upload outputsto GCS
         run: |
-          gcloud storage cp BERTopic_results3.csv.gz gs://tulane-risk-data/latest/BERTopic_results3.csv.gz
-          gcloud storage cp BERTopic_Streamlit.csv.gz gs://tulane-risk-data/latest/BERTopic_Streamlit.csv.gz
-          gcloud storage cp initial_label.csv.gz gs://tulane-risk-data/latest/initial_label.csv.gz
-          gcloud storage cp Step0.csv.gz gs://tulane-risk-data/latest/Step0.csv.gz
-          gcloud storage cp Step1.csv.gz gs://tulane-risk-data/latest/Step1.csv.gz
-          gcloud storage cp all_RSS.json.gz gs://tulane-risk-data/latest/all_RSS.json.gz
-          gcloud storage cp bertopic_dir.zip gs://tulane-risk-data/latest/bertopic_dir.zip
+          gcloud storage cp pipeline/resources/BERTopic_results3.csv.gz gs://tulane-risk-data/latest/BERTopic_results3.csv.gz
+          gcloud storage cp pipeline/resources/BERTopic_Streamlit.csv.gz gs://tulane-risk-data/latest/BERTopic_Streamlit.csv.gz
+          gcloud storage cp pipeline/resources/initial_label.csv.gz gs://tulane-risk-data/latest/initial_label.csv.gz
+          gcloud storage cp pipeline/resources/Step0.csv.gz gs://tulane-risk-data/latest/Step0.csv.gz
+          gcloud storage cp pipeline/resources/Step1.csv.gz gs://tulane-risk-data/latest/Step1.csv.gz
+          gcloud storage cp pipeline/resources/all_RSS.json.gz gs://tulane-risk-data/latest/all_RSS.json.gz
+          gcloud storage cp pipeline/resources/bertopic_dir.zip gs://tulane-risk-data/latest/bertopic_dir.zip
 
       - name: Commit and push (only small/compressed files)
         run: |
