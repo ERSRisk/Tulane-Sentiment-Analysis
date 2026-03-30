@@ -42,7 +42,7 @@ jobs:
             -v "${{ env.GOOGLE_GHA_CREDS_PATH }}:${{ env.GOOGLE_GHA_CREDS_PATH }}:ro" \
             -v ${{ github.workspace }}:/app \
             ghcr.io/ersrisk/risk-pipeline:latest \
-            python source/RSS_extraction.py
+            python pipeline/source/RSS_extraction.py
       - name: Run stage 2 - build datasets pt 1
         run: |
             docker run --rm \
@@ -53,7 +53,7 @@ jobs:
             -v "${{ env.GOOGLE_GHA_CREDS_PATH }}:${{ env.GOOGLE_GHA_CREDS_PATH }}:ro" \
             -v ${{ github.workspace }}:/app \
             ghcr.io/ersrisk/risk-pipeline:latest \
-            python source/BERT_update.py
+            python pipeline/source/BERT_update.py
       - name: Run stage 3 - build datasets pt 2
         run: |
             docker run --rm \
@@ -64,7 +64,7 @@ jobs:
             -v "${{ env.GOOGLE_GHA_CREDS_PATH }}:${{ env.GOOGLE_GHA_CREDS_PATH }}:ro" \
             -v ${{ github.workspace }}:/app \
             ghcr.io/ersrisk/risk-pipeline:latest \
-            python source/stories_build.py
+            python pipeline/source/stories_build.py
       
       
       - name: Upload outputsto GCS
