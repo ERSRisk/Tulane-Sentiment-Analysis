@@ -107,6 +107,7 @@
 {"name":"FOX News", "accuracy":3, "bias": "strong right"},
 {"name":"The Advocate", "accuracy":3.5, "bias":"left lean"},
 {"name":"CNN", "accuracy":3.5, "bias":"lean left"},
+{"name": "Tulane Hullaballoo", "accuracy": 5.0, "bias": "lean left"},
 {"name":"The Guardian", "accuracy":4, "bias":"strong left"},
 {"name":"Huffington Post", "accuracy":3, "bias":"strong left"},
 {"name":"Washington Post", "accuracy":5, "bias":"left lean"},

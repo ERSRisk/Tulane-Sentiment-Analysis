@@ -1056,7 +1056,7 @@ articles = pd.concat([already_clustered, articles], ignore_index=True)
 
 
 atomic_write_csv("pipeline/resources/BERTopic_Streamlit.csv.gz", articles, compress = True)
-upload_file('pipeline/resource/BERTopic_Streamlit.csv.gz', 'latest/BERTopic_Streamlit.csv.gz')
+upload_file('pipeline/resources/BERTopic_Streamlit.csv.gz', 'latest/BERTopic_Streamlit.csv.gz')
 
 
 df = articles
@@ -1155,10 +1155,14 @@ risk_labels = list(risk_defs.values())
 risk_embeddings = model.encode(risk_labels, normalize_embeddings = True, show_progress_bar = True)
 text_embeddings = model.encode(grouped['combined_text'].tolist(), normalize_embeddings = True, show_progress_bar = True)
 risk_to_index = {name: i for i, name in enumerate(risk_defs.keys())}
+risk_to_index = {
+    k.lower(): v for k, v in risk_to_index.items()
+}
 
 similarities = []
 for i, row in grouped.iterrows():
     risk_name = row['Predicted_Risks_new']
+    risk_name = risk_name.strip().lower()
     risk_idx = risk_to_index[risk_name]
 
     sim = np.dot(text_embeddings[i], risk_embeddings[risk_idx])
@@ -1174,7 +1178,14 @@ grouped['rel_cos'] = np.clip((grouped['similarity'] - s_min)/(s_max - s_min), 0,
 
 
 sim_matrix = np.dot(text_embeddings, risk_embeddings.T)
-pred_idx = grouped['Predicted_Risks_new'].map(risk_to_index).values
+grouped['Predicted_Risks_new_norm'] = (
+    grouped['Predicted_Risks_new']
+    .fillna('')
+    .astype(str)
+    .str.strip()
+    .str.lower()
+)
+pred_idx = grouped['Predicted_Risks_new_norm'].map(risk_to_index)
 chosen_sim = sim_matrix[np.arange(len(grouped)), pred_idx]
 
 sim_excluding_chosen = sim_matrix.copy()
@@ -1182,6 +1193,7 @@ sim_excluding_chosen[np.arange(len(grouped)), pred_idx] = -1
 best_alt_sim = sim_excluding_chosen.max(axis = 1)
 
 margin = chosen_sim - best_alt_sim
+
 
 grouped['margin'] = margin
 
@@ -1409,7 +1421,7 @@ articles = df
 
 risk_weights_second_pass(articles)
 atomic_write_csv("pipeline/resources/BERTopic_Streamlit.csv.gz", articles, compress = True)
-upload_file('pipeline/resource/BERTopic_Streamlit.csv.gz', 'latest/BERTopic_Streamlit.csv.gz')
+upload_file('pipeline/resources/BERTopic_Streamlit.csv.gz', 'latest/BERTopic_Streamlit.csv.gz')
 
 print("Articles over time", flush = True)
 #
