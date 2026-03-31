@@ -432,7 +432,7 @@ def upload_asset(owner, repo, release, asset_name, data_bytes, content_type = 'a
 
 def save_new_articles_to_gcs(
     all_articles: list,
-    local_cache_path: str = "Online_Extraction/all_RSS.json.gz",
+    local_cache_path: str = "pipeline/resources/all_RSS.json.gz",
     blob_path: str = "latest/all_RSS.json.gz"
 ):
     Path(local_cache_path).parent.mkdir(parents=True, exist_ok=True)
@@ -458,7 +458,7 @@ def save_new_articles_to_gcs(
     upload_file(local_cache_path, blob_path)
     print(f"upload sec: {time.perf_counter() - t1:.2f}", flush=True)
 
-def save_new_articles_to_release(all_articles:list, local_cache_path='Online_Extraction/all_RSS.json.gz'):
+def save_new_articles_to_release(all_articles:list, local_cache_path='pipeline/resources/all_RSS.json.gz'):
     Path(local_cache_path).parent.mkdir(parents=True, exist_ok=True)
     t0 = time.perf_counter()
     # stream to local gzip (no giant in-mem string)
@@ -489,7 +489,7 @@ def save_new_articles_to_release(all_articles:list, local_cache_path='Online_Ext
     print(f"upload sec: {time.perf_counter() - t1:.2f}")
 
 def load_articles_from_gcs(
-    local_cache_path: str = "Online_Extraction/all_RSS.json.gz",
+    local_cache_path: str = "pipeline/resources/all_RSS.json.gz",
     blob_path: str = "latest/all_RSS.json.gz"
 ):
     if blob_exists(blob_path):
@@ -502,7 +502,7 @@ def load_articles_from_gcs(
 
     return []
 
-def load_articles_from_release(local_cache_path = 'Online_Extraction/all_RSS.json.gz'):
+def load_articles_from_release(local_cache_path = 'pipeline/resources/all_RSS.json.gz'):
   rel = _get_release_by_tag(Github_owner, Github_repo, Release_tag)
   if rel:
     asset = next((a for a in rel.get("assets", []) if a["name"] == Asset_name), None)
@@ -1033,7 +1033,7 @@ async def process_feeds(feeds, session):
     return articles
 
 COOKIE_HEADER = os.getenv("COOKIE_HEADER")
-async def batch_process_feeds(feeds, batch_size = 15, concurrent_batches =5, deadline_seconds = None, partial_path = Path('Online_Extraction/partial_all_RSS.json.gz')):
+async def batch_process_feeds(feeds, batch_size = 15, concurrent_batches =5, deadline_seconds = None, partial_path = Path('pipeline/resources/partial_all_RSS.json.gz')):
     partial_path.parent.mkdir(parents = True, exist_ok = True)
     all_articles = []
     seen_links = set()
@@ -1572,7 +1572,7 @@ try:
     all_articles = run_with_deadline(batch_process_feeds(feeds, batch_size=5, concurrent_batches=3, deadline_seconds = 1700), seconds = 1800)
 except asyncio.TimeoutError:
   print("RSS batch hard timeout")
-  p = Path('Online_Extraction/partial_all_RSS.json.gz')
+  p = Path('pipeline/resources/partial_all_RSS.json.gz')
   if p.exists():
     with gzip.open(p, 'rt', encoding = 'utf-8') as f:
       all_articles = json.load(f)
