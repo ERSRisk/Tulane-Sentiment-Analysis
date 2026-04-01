@@ -78,7 +78,6 @@ jobs:
           gcloud storage cp pipeline/resources/Step0.csv.gz gs://tulane-risk-data/latest/Step0.csv.gz
           gcloud storage cp pipeline/resources/Step1.csv.gz gs://tulane-risk-data/latest/Step1.csv.gz
           gcloud storage cp pipeline/resources/all_RSS.json.gz gs://tulane-risk-data/latest/all_RSS.json.gz
-          gcloud storage cp pipeline/resources/bertopic_dir.zip gs://tulane-risk-data/latest/bertopic_dir.zip
 
       - name: Commit and push (only small/compressed files)
         run: |
