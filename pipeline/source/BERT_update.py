@@ -1898,7 +1898,10 @@ if __name__ == '__main__':
         sub['Pred_cos_score_all'] = out['cos_all_max']
         for col in ['pred_source', 'Predicted_Risks_new', 'Pred_LR_label', 'Pred_cos_label_all', 'Pred_cos_score_all']:
             df.loc[sub.index, col] = sub[col]
-    
+        del article_embeddings, A, C, X_text, X_text_red
+        del num_scaled, topic_ids, topic_probs, topic_ohe, X_all
+        del proba, avg_emb, lbl_emb_all, cos_all, sub, texts
+        gc.collect()
         return df
     
     
@@ -2262,6 +2265,8 @@ if __name__ == '__main__':
     upload_file('pipeline/resources/initial_label.csv.gz', 'latest/initial_label.csv.gz', BUCKET_NAME)
     #df_combined = load_midstep_from_release()
     results_df = predict_risks(df_combined)
+    del df_combined
+    gc.collect()
     results_df['Predicted_Risks'] = results_df.get('Predicted_Risks_new', '')
     print("✅ Applying risk_weights...", flush=True)
     atomic_write_csv('pipeline/resources/Step1.csv.gz', results_df, compress = True)
