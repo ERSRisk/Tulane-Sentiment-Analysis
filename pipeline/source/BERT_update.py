@@ -1771,7 +1771,7 @@ if __name__ == '__main__':
         # Encode articles and risks
         #article_embeddings = model.encode(texts, convert_to_numpy = True, normalize_embeddings = True, show_progress_bar=True,  batch_size=256 if device=='cuda' else 32)
         n = len(texts)
-        embed_batch = 64 if device = 'cuda' else 16
+        embed_batch = 64 if device == 'cuda' else 16
         x_text_red_parts = []
         avg_emb_parts = []
 
