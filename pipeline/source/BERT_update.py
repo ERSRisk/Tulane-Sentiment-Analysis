@@ -1785,7 +1785,7 @@ if __name__ == '__main__':
                 show_progress_bar = True,
                 batch_size = embed_batch).astype(np.float32)
             x_batch = np.hstack([batch_emb, np.zeros_like(batch_emb, dtype=np.float32)])
-            x_batch_red = pca.transform(x_batch) if pca is nor None else x_batch
+            x_batch_red = pca.transform(x_batch) if pca is not None else x_batch
 
             x_text_red_parts.append(x_batch_red.astype(np.float32))
             avg_emb_parts.append(batch_emb)
