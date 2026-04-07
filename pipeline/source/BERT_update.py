@@ -33,8 +33,16 @@ import spacy
 import gc
 import pickle
 from google.cloud import storage
+import psutil
+
+PROC = psutil.Process(os.getpid())
+
+def mem(msg: str):
+    rss_gb = PROC.memory_info().rss / (1024**3)
+    print(f"[MEM] {msg}: {rss_gb:.2f} GB", flush = True)
 
 BUCKET_NAME = "tulane-risk-data"
+mem("start")
 
 def upload_file(local_path: str, blob_path: str, bucket_name:str = BUCKET_NAME) -> None:
     client = storage.Client()
@@ -270,7 +278,11 @@ def risk_weights(df):
 
     higher_ed_dict = risks_cfg.get('HigherEdRisks', None)
 
-    base = df.copy()
+    needed_cols = ['Title', 'Content', 'Source', 'Published', 'Published_utc', 'Link',
+                  'Predicted_Risks_new', 'Predicted_Risks', 'Topic', 'University_Label',
+                  'Location', 'Entities', 'Cluster']
+    present_cols = [c for c in needed_cols if c in df.columns]
+    base = df[present_cols].copy()
     for col in ['Title','Content','Source']:
         if col not in base.columns:
             base[col] = ''
@@ -433,7 +445,11 @@ def risk_weights(df):
         overlap = [c for c in tr_small.columns if c in df.columns and c!= 'Topic']
         if overlap:
             df = df.drop(columns = overlap)
-        enriched = df.merge(tr_small, on="Topic", how="left")
+        df_small = df.copy()
+        enriched = df_small.merge(tr_small[['Topic', '_RiskList', 'last_seen_days', 'decayed_volume', 'recency_score_tr_tr']],
+                                  on = 'Topic', how = 'left')
+        del df_small, tr_small
+        gc.collect()
 
         days = pd.to_numeric(enriched.get('Days_Ago', np.nan), errors='coerce').astype(float)
         enriched['article_freshness'] = np.exp(-np.log(2.0) * (days / 14.0)).fillna(0.0)
@@ -849,6 +865,10 @@ def risk_weights(df):
     print("attach_topic_risk_recency() start", flush = True)
     base = attach_topic_risk_recency(base) 
     base['Recency'] = (base['Recency_TR_Blended'] * 5).round(2)
+    drop_tmp = ['_RiskList', 'last_seen_days', 'decayed_volume', 'article_freshness', 'recency_score_tr_tr',
+               'Recency_TR_Blended']
+    base = base.drop(columns = [c for c in drop_tmp if c in base.columns], errors = 'ignore')
+    gc.collect()
     print("[recency] attached in {time.perf_counter()-t_rec:.1f}s", flush = True)
 
 
@@ -902,6 +922,7 @@ if __name__ == '__main__':
     articles = json.loads(data)
     # Now load it
     df = pd.DataFrame(articles)
+    mem("after RSS dataframe")
     
     Path("Online_Extraction").mkdir(parents=True, exist_ok = True)
     with gzip.open('Online_Extraction/all_RSS.json.gz', 'wb') as f:
@@ -1749,12 +1770,34 @@ if __name__ == '__main__':
         model = SentenceTransformer('all-mpnet-base-v2', device = device)
         # Encode articles and risks
         #article_embeddings = model.encode(texts, convert_to_numpy = True, normalize_embeddings = True, show_progress_bar=True,  batch_size=256 if device=='cuda' else 32)
-        article_embeddings = model.encode(texts, convert_to_numpy = True, normalize_embeddings = True, show_progress_bar=True,  batch_size=256 if device=='cuda' else 32)
-        A = article_embeddings
-        C = np.zeros_like(A)
-        X_text = np.hstack([article_embeddings, C])
-        X_text_red = pca.transform(X_text) if pca is not None else X_text
         n = len(texts)
+        embed_batch = 64 if device = 'cuda' else 16
+        x_text_red_parts = []
+        avg_emb_parts = []
+
+        for start in range(0, n, embed_patch):
+            end = min(start + embed_patch, n)
+            batch_texts = texts[start:end]
+            batch_emb = model.encode(
+                batch_texts,
+                convert_to_numpy = True,
+                normalize_embeddings = True,
+                show_progress_bar = True,
+                batch_size = embed_batch).astype(np.float32)
+            x_batch = np.hstack([batch_emb, np.zeros_like(batch_emb, dtype=np.float32)])
+            x_batch_red = pca.transform(x_batch) if pca is nor None else x_batch
+
+            x_text_red_parts.append(x_batch_red.astype(np.float32))
+            avg_emb_parts.append(batch_emb)
+
+            del batch_texts, batch_emb, x_batch, x_batch_red
+            gc.collect()
+        X_text_red = np.vstack(x_text_red_parts)
+        avg_emb = np.vstack(avg_emb_parts)
+
+        del x_text_red_parts, avg_emb_parts
+        gc.collect()
+        
         if len(numeric_factors) == 0:
             num_scaled = np.zeros((n, 0))
         else:
@@ -1785,9 +1828,12 @@ if __name__ == '__main__':
         avg_emb = article_embeddings
         avg_emb = avg_emb / (np.linalg.norm(avg_emb, axis=1, keepdims=True) + 1e-12)
         
-        lbl_emb_all = model.encode(all_label_txt, show_progress_bar=True, normalize_embeddings=True, batch_size=256)
+        lbl_emb_all = model.encode(all_label_txt, show_progress_bar=True, normalize_embeddings=True, batch_size=32).astype(np.float32)
         
         cos_all = avg_emb @ lbl_emb_all.T
+
+        del lbl_emb_all
+        gc.collect()
     
     
         out = predict_with_fallback(proba, cos_all, prob_cut, margin_cut, tau, 0.3, trained_labels, all_labels)
@@ -2060,11 +2106,13 @@ if __name__ == '__main__':
         return [r for r in results if r is not None]
     
     def load_university_label(new_label):
+        cols_needed = ['Title', 'Content', 'Published']
         all_articles = new_label.copy()
+        work = all_articles[cols_needed].copy()
         cutoff = pd.Timestamp.utcnow() - pd.Timedelta(days=5)
-        base_pub = all_articles.get('Published')
-        all_articles['Published_utc'] = pd.to_datetime(base_pub, errors='coerce', utc=True)
-        recent = all_articles[all_articles['Published_utc'] >= cutoff]
+        base_pub = work.get('Published')
+        work['Published_utc'] = pd.to_datetime(base_pub, errors='coerce', utc=True)
+        recent = work[work['Published_utc'] >= cutoff]
     
         try:
             existing = pd.read_csv('pipeline/resources/BERTopic_before.csv')
@@ -2079,7 +2127,7 @@ if __name__ == '__main__':
                 .dropna(subset=['University Label'])
                 .drop_duplicates(subset=['Title'], keep='last')
             )
-            all_articles = all_articles.merge(
+            work = work.merge(
                 existing_clean[['Title', 'University Label']],
                 on='Title', how='left',
                 suffixes=('', '_prev')
@@ -2196,6 +2244,7 @@ if __name__ == '__main__':
     #Assign topics and probabilities to new_df
     if blob_exists('latest/BERTopic_results2.csv.gz'):
         existing_df = download_file('latest/BERTopic_results2.csv.gz', 'pipeline/resources/BERTopic_results2.csv.gz', BUCKET_NAME)
+        mem("after loading existing_df")
         print("It exists", flush = True)
     else:
         print("It did not get extracted", flush = True)
@@ -2212,6 +2261,7 @@ if __name__ == '__main__':
     print("✅ Starting transform_text on new data...", flush=True)
     topic_model.calculate_probabilities = False
     new_df = transform_text(df_to_transform)
+    mem("after transform text")
     new_links = set(new_df['Link'])
     #Fill missing topic/probability rows in the original df
     for c in ['Topic', 'Probability']:
@@ -2253,6 +2303,7 @@ if __name__ == '__main__':
     #df_combined = load_midstep_from_release()
     recent_df = df_combined[df_combined['Published'].notna() & (df_combined['Published'] >= cutoff_utc)].copy()
     temp_model, topic_ids = double_check_articles(recent_df)
+    mem("after double_check_articles")
     #If there are unmatched topics, name them using Gemini
     print("✅ Checking for unmatched topics to name using Gemini...", flush=True)
     if temp_model and topic_ids:
@@ -2261,10 +2312,12 @@ if __name__ == '__main__':
     #Assign weights to each article
     #df_combined = load_midstep_from_release()
     df_combined = load_university_label(df_combined)
+    mem("after load_university_label")
     atomic_write_csv('pipeline/resources/initial_label.csv.gz', df_combined, compress = True)
     upload_file('pipeline/resources/initial_label.csv.gz', 'latest/initial_label.csv.gz', BUCKET_NAME)
     #df_combined = load_midstep_from_release()
     results_df = predict_risks(df_combined)
+    mem("after predict_risks")
     del df_combined
     gc.collect()
     results_df['Predicted_Risks'] = results_df.get('Predicted_Risks_new', '')
@@ -2275,18 +2328,31 @@ if __name__ == '__main__':
     results_df = results_df.drop(columns = ['Acceleration_value_x', 'Acceleration_value_y'], errors = 'ignore')
     results_df['Predicted_Risks'] = results_df.get('Predicted_Risks_new', results_df.get('Predicted_Risks', ''))
     df = risk_weights(results_df)
+    mem("after risk_weights")
     print("Finished assigning risk weights", flush = True)
     df = df.drop(columns = ['University Label_x', 'University Label_y'], errors = 'ignore')
     df_new_final = df[df['Link'].isin(new_links)].copy()
+    del df
+    gc.collect()
+    existing_new_version = pd.DataFrame()
     if blob_exists('latest/BERTopic_results3.csv.gz'):
-        existing_new_version = download_file('latest/BERTopic_results2.csv.gz', 'pipeline/resources/BERTopic_results2.csv.gz')
+        existing_new_version = download_file('latest/BERTopic_results3.csv.gz', 'pipeline/resources/BERTopic_results3.csv.gz')
     df_new_version = pd.concat([existing_new_version, df_new_final], ignore_index = True)
+
+    del existing_new_version, df_new_final
+    gc.collect()
+    mem("after final concat")
     print("Saving BERTopic_results3.csv.gz", flush = True)
     atomic_write_csv("pipeline/resources/BERTopic_results3.csv.gz", df_new_version, compress = True)
     print('Uploading to releases', flush=True)
     upload_file("pipeline/resources/BERTopic_results3.csv.gz", 'latest/BERTopic_results3.csv.gz', BUCKET_NAME)
     print("Saving dataset for Streamlit", flush= True)
-    df_streamlit = df_new_version[df_new_version['University Label'] == 1]
+    df_streamlit = df_new_version[df_new_version['University Label'] == 1].copy()
+
+    del df_new_version
+    gc.collect()
     atomic_write_csv("pipeline/resources/BERTopic_Streamlit.csv.gz", df_streamlit, compress = True)
     upload_file('pipeline/resources/BERTopic_Streamlit.csv.gz', 'latest/BERTopic_Streamlit.csv.gz')
-    
+
+    del df_streamlit
+    gc.collect()
