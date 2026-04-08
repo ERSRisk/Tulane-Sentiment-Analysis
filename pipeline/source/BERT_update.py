@@ -915,11 +915,19 @@ if __name__ == '__main__':
     
     
     print(f"📥 Downloading all_RSS.json from release link...", flush=True)
-    response = requests.get(rss_url, timeout = 60)
+    response = requests.get(rss_url, stream = True, timeout = 200)
     response.raise_for_status()
+
+    Path('pipeline/resources').mkdir(parents = True, exist_ok = True)
+    rss_path = "pipeline/resources/all_RSS.json.gz"
+
+    with open(rss_path, 'wb') as f:
+        for chunk in response.iter_content(chunk_size = 1024 * 1024):
+            if chunk:
+                f.write(chunk)
     
-    data = gzip.decompress(response.content).decode('utf-8')
-    articles = json.loads(data)
+    with gzip.open(rss_path, 'rt', encoding = 'utf-8') as f:
+        articles = json.load(f)
     # Now load it
     df = pd.DataFrame(articles)
     mem("after RSS dataframe")
@@ -2261,6 +2269,8 @@ if __name__ == '__main__':
     print("✅ Starting transform_text on new data...", flush=True)
     topic_model.calculate_probabilities = False
     new_df = transform_text(df_to_transform)
+    del df_to_transform
+    gc.collect()
     mem("after transform text")
     new_links = set(new_df['Link'])
     #Fill missing topic/probability rows in the original df
@@ -2276,6 +2286,8 @@ if __name__ == '__main__':
     #Save only new, non-duplicate rows
     print("✅ Saving new topics to CSV...", flush=True)
     df_combined = save_new_topics(existing_df, new_df)
+    del new_df
+    gc.collect()
     print("Completed save_new_topics", flush = True)
     print("Merged both dfs", flush = True)
     df_combined['Probability'] = pd.to_numeric(df_combined['Probability'], errors = 'coerce')
@@ -2328,6 +2340,8 @@ if __name__ == '__main__':
     results_df = results_df.drop(columns = ['Acceleration_value_x', 'Acceleration_value_y'], errors = 'ignore')
     results_df['Predicted_Risks'] = results_df.get('Predicted_Risks_new', results_df.get('Predicted_Risks', ''))
     df = risk_weights(results_df)
+    del results_df
+    gc.collect()
     mem("after risk_weights")
     print("Finished assigning risk weights", flush = True)
     df = df.drop(columns = ['University Label_x', 'University Label_y'], errors = 'ignore')
