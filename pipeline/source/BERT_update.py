@@ -2106,16 +2106,14 @@ if __name__ == '__main__':
         return [r for r in results if r is not None]
     
     def load_university_label(new_label):
-        cols_needed = ['Title', 'Content', 'Published']
         all_articles = new_label.copy()
-        work = all_articles[cols_needed].copy()
         cutoff = pd.Timestamp.utcnow() - pd.Timedelta(days=5)
-        base_pub = work.get('Published')
-        work['Published_utc'] = pd.to_datetime(base_pub, errors='coerce', utc=True)
-        recent = work[work['Published_utc'] >= cutoff]
+        base_pub = all_articles.get('Published')
+        all_articles['Published_utc'] = pd.to_datetime(base_pub, errors='coerce', utc=True)
+        recent = all_articles[all_articles['Published_utc'] >= cutoff]
     
         try:
-            existing = pd.read_csv('pipeline/resources/BERTopic_before.csv')
+            existing = pd.read_csv('BERTopic_before.csv')
             labeled_titles = set(existing['Title']) if 'Title' in existing else set()
         except FileNotFoundError:
             existing = pd.DataFrame(columns=['Title', 'University Label'])
@@ -2127,7 +2125,7 @@ if __name__ == '__main__':
                 .dropna(subset=['University Label'])
                 .drop_duplicates(subset=['Title'], keep='last')
             )
-            work = work.merge(
+            all_articles = all_articles.merge(
                 existing_clean[['Title', 'University Label']],
                 on='Title', how='left',
                 suffixes=('', '_prev')
@@ -2199,7 +2197,7 @@ if __name__ == '__main__':
         else:
             combined = existing
     
-        combined.to_csv('pipeline/resources/BERTopic_before.csv',
+        combined.to_csv('BERTopic_before.csv',
                         columns=['Title', 'University Label'],
                         index=False)
     
