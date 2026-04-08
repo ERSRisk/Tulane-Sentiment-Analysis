@@ -2105,6 +2105,8 @@ if __name__ == '__main__':
         results = await asyncio.gather(*tasks)
         return [r for r in results if r is not None]
     
+
+
     def load_university_label(new_label):
         all_articles = new_label.copy()
         cutoff = pd.Timestamp.utcnow() - pd.Timedelta(days=5)
