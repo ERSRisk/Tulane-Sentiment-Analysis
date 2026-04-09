@@ -932,9 +932,9 @@ if __name__ == '__main__':
     df = pd.DataFrame(articles)
     mem("after RSS dataframe")
     
-    Path("Online_Extraction").mkdir(parents=True, exist_ok = True)
-    with gzip.open('Online_Extraction/all_RSS.json.gz', 'wb') as f:
-        f.write(response.content)
+    Path("Online_Extraction").mkdir(parents=True, exist_ok=True)
+    import shutil
+    shutil.copyfile(rss_path, 'Online_Extraction/all_RSS.json.gz')
     df = df[~(df['Source']=="Economist")]
     df['Text'] = df['Title'] + '. ' + df['Content']
     
@@ -1783,8 +1783,8 @@ if __name__ == '__main__':
         x_text_red_parts = []
         avg_emb_parts = []
 
-        for start in range(0, n, embed_patch):
-            end = min(start + embed_patch, n)
+        for start in range(0, n, embed_batch):
+            end = min(start + embed_batch, n)
             batch_texts = texts[start:end]
             batch_emb = model.encode(
                 batch_texts,
