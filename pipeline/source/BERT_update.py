@@ -1833,7 +1833,7 @@ if __name__ == '__main__':
     
         proba = clf.predict_proba(X_all)
     
-        avg_emb = article_embeddings
+        #avg_emb = article_embeddings
         avg_emb = avg_emb / (np.linalg.norm(avg_emb, axis=1, keepdims=True) + 1e-12)
         
         lbl_emb_all = model.encode(all_label_txt, show_progress_bar=True, normalize_embeddings=True, batch_size=32).astype(np.float32)
@@ -1952,9 +1952,8 @@ if __name__ == '__main__':
         sub['Pred_cos_score_all'] = out['cos_all_max']
         for col in ['pred_source', 'Predicted_Risks_new', 'Pred_LR_label', 'Pred_cos_label_all', 'Pred_cos_score_all']:
             df.loc[sub.index, col] = sub[col]
-        del article_embeddings, A, C, X_text, X_text_red
-        del num_scaled, topic_ids, topic_probs, topic_ohe, X_all
-        del proba, avg_emb, lbl_emb_all, cos_all, sub, texts
+        del X_text_red, num_scaled, topic_ids, topic_probs, topic_ohe, X_all
+        del proba, avg_emb, cos_all, sub, texts
         gc.collect()
         return df
     
