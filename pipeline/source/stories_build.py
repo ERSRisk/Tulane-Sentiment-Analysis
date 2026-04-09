@@ -806,7 +806,7 @@ standalone_articles.to_csv("pipeline/resources/dashboard_articles.csv.gz", compr
 
 articles_only = articles[articles['story_articles_count']<3].copy()
 
-def build_subtopic_clusters(df, subtopics, model, min_sim=0.6, subtopic_centroids = None):
+def build_subtopic_clusters(df, subtopics, model, min_sim=0.5, subtopic_centroids = None):
     df = df.copy()
 
     
