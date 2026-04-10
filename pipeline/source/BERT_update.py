@@ -278,7 +278,7 @@ def risk_weights(df):
 
     higher_ed_dict = risks_cfg.get('HigherEdRisks', None)
 
-    base = df.copy()
+    base = df
     for col in ['Title','Content','Source']:
         if col not in base.columns:
             base[col] = ''
@@ -383,7 +383,7 @@ def risk_weights(df):
         base['Topic'] = -1
     base['Topic'] = base['Topic'].fillna(-1)
     def recency_features_topic_risk(df, now=None):
-        fx = df.copy()
+        fx = df[['Topic', '_RiskList', 'Published', 'Days_Ago']].copy()
 
         required = {'Topic', '_RiskList', 'Published', 'Days_Ago'}
         if not required.issubset(fx.columns) or fx.empty:
@@ -435,13 +435,13 @@ def risk_weights(df):
                     "recency_score_tr","recency_score_tr_x","recency_score_tr_y"]
         df = df.drop(columns=[c for c in cols_to_drop if c in df.columns], errors="ignore")
 
-        tr_small = tr[["Topic","_RiskList","last_seen_days","decayed_volume","recency_score_tr"]].rename(
+        tr_small = tr[["Topic", "_RiskList", "last_seen_days", "decayed_volume", "recency_score_tr"]].rename(
             columns={"recency_score_tr": "recency_score_tr_tr"}
         )
         overlap = [c for c in tr_small.columns if c in df.columns and c!= 'Topic']
         if overlap:
             df = df.drop(columns = overlap)
-        enriched = df.merge(tr_small, on="Topic", how="left")
+        enriched = df.merge(tr_small, on=["Topic","_RiskList"], how="left", validate = "m:1")
 
         days = pd.to_numeric(enriched.get('Days_Ago', np.nan), errors='coerce').astype(float)
         enriched['article_freshness'] = np.exp(-np.log(2.0) * (days / 14.0)).fillna(0.0)
@@ -627,7 +627,9 @@ def risk_weights(df):
                 label = 0
             return max(1, eta - (7 if label ==1 else 0))
 
-        temp['eta_article'] = temp.apply(lambda x: tulane_pull(x['University Label'], min(x['cue_eta'], x['loc_eta'])), axis =1)
+        ulab = pd.to_numeric(temp['University Label'], errors='coerce').fillna(0).astype('int8')
+        eta_min = np.minimum(temp['cue_eta'].to_numpy(), temp['loc_eta'].to_numpy())
+        temp['eta_article'] = np.maximum(1, eta_min - np.where(ulab.to_numpy() == 1, 7, 0))
 
         eta_by_bucket = (
             temp.groupby(['Risk_item', 'Week'])['eta_article'].min()
@@ -703,14 +705,14 @@ def risk_weights(df):
         cat_regex[cat] = re.compile("(" + "|".join(pats) + ")", flags=re.I)
     
     text_all = (base['Title'].fillna('') + ' ' + base['Content'].fillna('')).astype(str)
-    detected_cats = [{cat for cat, rx in cat_regex.items() if rx.search(t)} for t in text_all]
-    base['Detected_HigherEd_Categories'] = detected_cats
 
-    ul = base.get('University Label', 0)
-    base['Industry_Risk_Presence'] = np.where(
-        (base['Detected_HigherEd_Categories'].apply(len) > 0) | (pd.to_numeric(ul, errors='coerce').fillna(0).astype(int) == 1),
-        3, 0
-    ).astype(int)
+    has_highered_category = pd.Series(False, index=base.index)
+    for cat, rx in cat_regex.items():
+        has_highered_category |= text_all.str.contains(rx, na=False)
+    
+    ul = pd.to_numeric(base.get('University Label', 0), errors='coerce').fillna(0).astype('int8')
+    base['Industry_Risk_Presence'] = np.where(has_highered_category | (ul == 1), 3, 0).astype('int8')
+
 
     peers_list = risks_cfg.get('Peer_Institutions') or []
     peer_pat = re.compile(r'\b(' + '|'.join([re.escape(p) for p in peers_list]) + r')\b', flags=re.I) if peers_list else None
@@ -2291,14 +2293,28 @@ if __name__ == '__main__':
     del df_combined
     gc.collect()
     results_df['Predicted_Risks'] = results_df.get('Predicted_Risks_new', '')
+    results_df = results_df.drop(columns = ['Acceleration_value_x', 'Acceleration_value_y'], errors='ignore')
     print("✅ Applying risk_weights...", flush=True)
     atomic_write_csv('pipeline/resources/Step1.csv.gz', results_df, compress = True)
     upload_file('pipeline/resources/Step1.csv.gz', 'latest/Step1.csv.gz', BUCKET_NAME)
     #results_df = load_midstep_from_release()
-    results_df = results_df.drop(columns = ['Acceleration_value_x', 'Acceleration_value_y'], errors = 'ignore')
     results_df['Predicted_Risks'] = results_df.get('Predicted_Risks_new', results_df.get('Predicted_Risks', ''))
-    df = risk_weights(results_df)
+
     del results_df
+    gc.collect()
+
+    mem("after dropping results_df before risk_weights")
+
+    risk_usecols = [
+        'Title', 'Content', 'Source', 'Published', 'Link', 'Entities',
+        'Predicted_Risks_new', 'Predicted_Risks', 'Topic', 'Probability',
+        'University Label', 'Location'
+    ]
+    
+    risk_df = pd.read_csv('pipeline/resources/Step1.csv.gz', compression = 'gzip', usecols = lambda c: c in risk_usecols, low_memory = False)
+    mem("before risk_weights")
+    df = risk_weights(risk_df)
+    del risk_df
     gc.collect()
     mem("after risk_weights")
     print("Finished assigning risk weights", flush = True)
