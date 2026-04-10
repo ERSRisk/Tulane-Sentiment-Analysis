@@ -112,7 +112,12 @@ def load_latest_articles_base():
         print(f"Could not load latest streamlit base: {e}", flush=True)
 
     print("Falling back to historical merge base.", flush=True)
-    df = load_latest_article_base()
+    df = load_full_topics(
+        download_file(
+            'latest/BERTopic_results2.csv.gz',
+            'pipeline/resources/BERTopic_results2.csv.gz'
+        )
+    )
     if 'Link' in df.columns:
         df = df.drop_duplicates(subset=['Link'], keep='last')
     return df
@@ -199,7 +204,7 @@ def build_stories(base_articles):
                 60,59,56,54,50,24,22,18,568,565,550,526,518,505,484,477,458,
                 456,387,245,239,226,196,155,144,123,117,109,105,85,61,33,28,
                 25,16,14]
-    df = base_aricles.copy()
+    df = base_articles.copy()
     df = ensure_risk_scores(df)
     df['University Label'] = pd.to_numeric(df['University Label'], errors='coerce').fillna(0).astype(int)
     df = df[df['University Label'] == 1].copy()  # ← only cluster university-relevant articles
@@ -815,7 +820,7 @@ story_scores = (articles.groupby("story_id").agg(
 canonical = pd.read_csv("pipeline/resources/Canonical_Stories_with_Summaries.csv")
 canonical = canonical.merge(story_scores, on = "story_id", how = 'left', validate= "one_to_one")
 canonical.to_csv("pipeline/resources/Canonical_stories_with_Summaries.csv", index = False)
-articles = load_latest_article_base()
+articles = load_latest_articles_base()
 articles = ensure_risk_scores(articles)
 articles = articles.drop_duplicates(subset = ['Title', 'Link'], keep = 'last')
 article_story_map = pd.read_csv("pipeline/resources/Articles_with_Stories.csv.gz", compression = 'gzip')
@@ -1062,7 +1067,7 @@ def build_subtopic_clusters(df, subtopics, model, min_sim=0.5, subtopic_centroid
 
     return df, centroids
 
-articles = load_latest_article_base()
+articles = load_latest_articles_base()
 
 nlp = spacy.load("en_core_web_sm")
 model = SentenceTransformer('all-MiniLM-L6-v2')
