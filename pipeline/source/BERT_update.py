@@ -278,11 +278,7 @@ def risk_weights(df):
 
     higher_ed_dict = risks_cfg.get('HigherEdRisks', None)
 
-    needed_cols = ['Title', 'Content', 'Source', 'Published', 'Published_utc', 'Link',
-                  'Predicted_Risks_new', 'Predicted_Risks', 'Topic', 'University_Label',
-                  'Location', 'Entities', 'Cluster']
-    present_cols = [c for c in needed_cols if c in df.columns]
-    base = df[present_cols].copy()
+    base = df.copy()
     for col in ['Title','Content','Source']:
         if col not in base.columns:
             base[col] = ''
@@ -445,11 +441,7 @@ def risk_weights(df):
         overlap = [c for c in tr_small.columns if c in df.columns and c!= 'Topic']
         if overlap:
             df = df.drop(columns = overlap)
-        df_small = df.copy()
-        enriched = df_small.merge(tr_small[['Topic', '_RiskList', 'last_seen_days', 'decayed_volume', 'recency_score_tr_tr']],
-                                  on = 'Topic', how = 'left')
-        del df_small, tr_small
-        gc.collect()
+        enriched = df.merge(tr_small, on="Topic", how="left")
 
         days = pd.to_numeric(enriched.get('Days_Ago', np.nan), errors='coerce').astype(float)
         enriched['article_freshness'] = np.exp(-np.log(2.0) * (days / 14.0)).fillna(0.0)
@@ -616,7 +608,7 @@ def risk_weights(df):
                 return 30
             return 45
 
-        temp = base.loc[base['Week'].notna(), ['Risk_item', 'Week', 'Title','Content', 'Location','University_Label']].copy()
+        temp = base.loc[base['Week'].notna(), ['Risk_item', 'Week', 'Title','Content', 'Location','University Label']].copy()
         temp['cue_eta'] = (temp['Title'] + ' ' + temp['Content'].fillna('')).apply(cue_eta_from_text)
 
         def location_eta(l):
@@ -635,7 +627,7 @@ def risk_weights(df):
                 label = 0
             return max(1, eta - (7 if label ==1 else 0))
 
-        temp['eta_article'] = temp.apply(lambda x: tulane_pull(x['University_Label'], min(x['cue_eta'], x['loc_eta'])), axis =1)
+        temp['eta_article'] = temp.apply(lambda x: tulane_pull(x['University Label'], min(x['cue_eta'], x['loc_eta'])), axis =1)
 
         eta_by_bucket = (
             temp.groupby(['Risk_item', 'Week'])['eta_article'].min()
@@ -714,7 +706,7 @@ def risk_weights(df):
     detected_cats = [{cat for cat, rx in cat_regex.items() if rx.search(t)} for t in text_all]
     base['Detected_HigherEd_Categories'] = detected_cats
 
-    ul = base.get('University_Label', 0)
+    ul = base.get('University Label', 0)
     base['Industry_Risk_Presence'] = np.where(
         (base['Detected_HigherEd_Categories'].apply(len) > 0) | (pd.to_numeric(ul, errors='coerce').fillna(0).astype(int) == 1),
         3, 0
@@ -846,7 +838,7 @@ def risk_weights(df):
 
         text = (str(row.get('Title','')) + ' ' + str(row.get('Content',''))).lower()
         existential = find_patterns(text, existential_threat_patterns)
-        severe = find_patterns(text, severe_patterns) or (int(row.get('Location',0))==5 and int(row.get('University_Label',0))==1)
+        severe = find_patterns(text, severe_patterns) or (int(row.get('Location',0))==5 and int(row.get('University Label',0))==1)
 
         if existential:
             return min(5.0, max(5.0, base))
@@ -854,7 +846,7 @@ def risk_weights(df):
             return min(4.0, max(4.0, base))
         else:
             return min(base, 3.9)
-    for col in ['Location', 'University_Label']:
+    for col in ['Location', 'University Label']:
         if col not in base.columns:
             base[col] = 0
         base[col] = pd.to_numeric(base[col], errors = 'coerce').fillna(0).astype(int)
@@ -865,10 +857,6 @@ def risk_weights(df):
     print("attach_topic_risk_recency() start", flush = True)
     base = attach_topic_risk_recency(base) 
     base['Recency'] = (base['Recency_TR_Blended'] * 5).round(2)
-    drop_tmp = ['_RiskList', 'last_seen_days', 'decayed_volume', 'article_freshness', 'recency_score_tr_tr',
-               'Recency_TR_Blended']
-    base = base.drop(columns = [c for c in drop_tmp if c in base.columns], errors = 'ignore')
-    gc.collect()
     print("[recency] attached in {time.perf_counter()-t_rec:.1f}s", flush = True)
 
 
@@ -898,6 +886,8 @@ def risk_weights(df):
     print(f"[risk_weights] done: base = {base.shape} elapsed = {time.perf_counter()- t0:.1f}s", flush = True)
 
     return base
+
+
 rss_url = "https://github.com/ERSRisk/Tulane-Sentiment-Analysis/releases/download/rss_json/all_RSS.json.gz"
     
 DIR_URL  = "https://github.com/ERSRisk/Tulane-Sentiment-Analysis/releases/download/rss_json/bertopic_dir.zip"
@@ -1735,8 +1725,8 @@ if __name__ == '__main__':
     
         df = df.copy()
         df = df.sort_values('Published_utc').drop_duplicates('Title', keep = 'last').reset_index(drop=True)
-        df['University_Label'] = pd.to_numeric(df['University_Label'], errors = 'coerce').fillna(0).astype(int)
-        mask_he = df['University_Label'] == 1
+        df['University Label'] = pd.to_numeric(df['University Label'], errors = 'coerce').fillna(0).astype(int)
+        mask_he = df['University Label'] == 1
         
         df['Title'] = df['Title'].fillna('').str.strip()
     
@@ -1746,16 +1736,16 @@ if __name__ == '__main__':
         df = df.reset_index(drop = True)
     
         if 'Predicted_Risks_new' in df.columns:
-            #todo_mask = (df['Predicted_Risks_new'].isna()) | (df['Predicted_Risks_new'].eq('')) | (df['Predicted_Risks_new'].eq('No Risk'))
-            todo_mask = mask_he
-            recent_cut = pd.Timestamp.now(tz='utc') - pd.Timedelta(days=200)
+            todo_mask = (df['Predicted_Risks_new'].isna()) | (df['Predicted_Risks_new'].eq('')) | (df['Predicted_Risks_new'].eq('No Risk'))
+            todo_mask &= mask_he
+            recent_cut = pd.Timestamp.now(tz='utc') - pd.Timedelta(days=30)
             recent_mask = df['Published_utc'] >= recent_cut
             todo_mask &= recent_mask.fillna(False)
             sub = df.loc[todo_mask].copy()
             texts = df.loc[todo_mask, 'Text'].tolist()
         else:
             todo_mask = pd.Series(True, index=df.index)
-            recent_cut = pd.Timestamp.now(tz='utc') - pd.Timedelta(days=200)
+            recent_cut = pd.Timestamp.now(tz='utc') - pd.Timedelta(days=30)
             df['Published_utc'] = pd.to_datetime(df['Published'], errors='coerce', utc = True)
             recent_mask = df['Published_utc'] >= recent_cut
             todo_mask &= recent_mask.fillna(False)
@@ -1778,34 +1768,12 @@ if __name__ == '__main__':
         model = SentenceTransformer('all-mpnet-base-v2', device = device)
         # Encode articles and risks
         #article_embeddings = model.encode(texts, convert_to_numpy = True, normalize_embeddings = True, show_progress_bar=True,  batch_size=256 if device=='cuda' else 32)
+        article_embeddings = model.encode(texts, convert_to_numpy = True, normalize_embeddings = True, show_progress_bar=True,  batch_size=256 if device=='cuda' else 32)
+        A = article_embeddings
+        C = np.zeros_like(A)
+        X_text = np.hstack([article_embeddings, C])
+        X_text_red = pca.transform(X_text) if pca is not None else X_text
         n = len(texts)
-        embed_batch = 64 if device == 'cuda' else 16
-        x_text_red_parts = []
-        avg_emb_parts = []
-
-        for start in range(0, n, embed_batch):
-            end = min(start + embed_batch, n)
-            batch_texts = texts[start:end]
-            batch_emb = model.encode(
-                batch_texts,
-                convert_to_numpy = True,
-                normalize_embeddings = True,
-                show_progress_bar = True,
-                batch_size = embed_batch).astype(np.float32)
-            x_batch = np.hstack([batch_emb, np.zeros_like(batch_emb, dtype=np.float32)])
-            x_batch_red = pca.transform(x_batch) if pca is not None else x_batch
-
-            x_text_red_parts.append(x_batch_red.astype(np.float32))
-            avg_emb_parts.append(batch_emb)
-
-            del batch_texts, batch_emb, x_batch, x_batch_red
-            gc.collect()
-        X_text_red = np.vstack(x_text_red_parts)
-        avg_emb = np.vstack(avg_emb_parts)
-
-        del x_text_red_parts, avg_emb_parts
-        gc.collect()
-        
         if len(numeric_factors) == 0:
             num_scaled = np.zeros((n, 0))
         else:
@@ -1833,15 +1801,12 @@ if __name__ == '__main__':
     
         proba = clf.predict_proba(X_all)
     
-        #avg_emb = article_embeddings
+        avg_emb = article_embeddings
         avg_emb = avg_emb / (np.linalg.norm(avg_emb, axis=1, keepdims=True) + 1e-12)
         
-        lbl_emb_all = model.encode(all_label_txt, show_progress_bar=True, normalize_embeddings=True, batch_size=32).astype(np.float32)
+        lbl_emb_all = model.encode(all_label_txt, show_progress_bar=True, normalize_embeddings=True, batch_size=256)
         
         cos_all = avg_emb @ lbl_emb_all.T
-
-        del lbl_emb_all
-        gc.collect()
     
     
         out = predict_with_fallback(proba, cos_all, prob_cut, margin_cut, tau, 0.3, trained_labels, all_labels)
@@ -1952,9 +1917,7 @@ if __name__ == '__main__':
         sub['Pred_cos_score_all'] = out['cos_all_max']
         for col in ['pred_source', 'Predicted_Risks_new', 'Pred_LR_label', 'Pred_cos_label_all', 'Pred_cos_score_all']:
             df.loc[sub.index, col] = sub[col]
-        del X_text_red, num_scaled, topic_ids, topic_probs, topic_ohe, X_all
-        del proba, avg_emb, cos_all, sub, texts
-        gc.collect()
+    
         return df
     
     
@@ -2025,7 +1988,7 @@ if __name__ == '__main__':
                 {{
                   "Title": "same title",
                   "Content": "same content",
-                  "University_Label": 1 or 0
+                  "University Label": 1 or 0
                 }}
                 
                 Labeling rules:
@@ -2050,7 +2013,7 @@ if __name__ == '__main__':
                 {{
                   "Title": "same title",
                   "Content": "same content",
-                  "University_Label": 0 or 1
+                  "University Label": 0 or 1
                 }}
                 """
     
@@ -2077,7 +2040,7 @@ if __name__ == '__main__':
                     title = rec.get('Title') or rec.get('title') or str(title)
                     content = rec.get('Content') or rec.get('content') or str(content)
     
-                    ulabel = rec.get('University_Label')
+                    ulabel = rec.get('University Label')
     
                     if ulabel is None:
                         ulabel = rec.get('university_label') or rec.get('University_label') or rec.get('university label') or 0
@@ -2087,7 +2050,7 @@ if __name__ == '__main__':
                         ulabel = 1 if ulabel ==1 else 0
                     except Exception:
                         ulabel = 0
-                    return {'Title': str(title), "Content": str(content), 'University_Label': ulabel}
+                    return {'Title': str(title), "Content": str(content), 'University Label': ulabel}
             except Exception as e:
                 print(f"🔥 Uncaught error in article {article_index} of batch {batch_number}: {e}", flush=True)
                 return None
@@ -2112,8 +2075,6 @@ if __name__ == '__main__':
         results = await asyncio.gather(*tasks)
         return [r for r in results if r is not None]
     
-
-
     def load_university_label(new_label):
         all_articles = new_label.copy()
         cutoff = pd.Timestamp.utcnow() - pd.Timedelta(days=5)
@@ -2122,82 +2083,80 @@ if __name__ == '__main__':
         recent = all_articles[all_articles['Published_utc'] >= cutoff]
     
         try:
-            existing = pd.read_csv('BERTopic_before.csv')
+            existing = pd.read_csv('pipeline/resources/BERTopic_before.csv')
             labeled_titles = set(existing['Title']) if 'Title' in existing else set()
         except FileNotFoundError:
-            existing = pd.DataFrame(columns=['Title', 'University_Label'])
+            existing = pd.DataFrame(columns=['Title', 'University Label'])
             labeled_titles = set()
     
-        if not existing.empty and 'University_Label' in existing.columns:
+        if not existing.empty and 'University Label' in existing.columns:
             existing_clean = (
-                existing[['Title', 'University_Label']]
-                .dropna(subset=['University_Label'])
+                existing[['Title', 'University Label']]
+                .dropna(subset=['University Label'])
                 .drop_duplicates(subset=['Title'], keep='last')
             )
             all_articles = all_articles.merge(
-                existing_clean[['Title', 'University_Label']],
+                existing_clean[['Title', 'University Label']],
                 on='Title', how='left',
                 suffixes=('', '_prev')
             )
     
         new_articles = recent[~(recent['Title'].isin(labeled_titles))].copy()
         print(new_articles[['Title', 'Published_utc']].head())
-        new_articles = new_articles[~(new_articles['University_Label'] == 1)]
+        new_articles = new_articles[~(new_articles['University Label'] == 1)]
         print(f"🔎 Total articles: {len(recent)} | Unlabeled: {len(new_articles)}", flush=True)
     
         results = asyncio.run(university_label_async(new_articles))
     
         if results:
-            labels_df = pd.DataFrame(results)[['Title', 'University_Label']]
+            labels_df = pd.DataFrame(results)[['Title', 'University Label']]
             labels_df['Title'] = labels_df['Title'].astype(str).str.strip()
             new_articles['Title'] = new_articles['Title'].astype(str).str.strip()
             missing_titles = set(new_articles['Title']) - set(labels_df['Title'])
             if missing_titles:
                 missing_df = pd.DataFrame({
                     'Title': list(missing_titles),
-                    'University_Label': [0] * len(missing_titles)
+                    'University Label': [0] * len(missing_titles)
                 })
                 labels_df = pd.concat([labels_df, missing_df], ignore_index=True)
     
             all_articles = all_articles.merge(labels_df, on='Title', how='left', suffixes=('', '_new'))
     
     
-            prev_cols = [c for c in all_articles.columns
-                         if c.startswith('University_Label_prev')]
-            if prev_cols:
-    
-                combined_prev = all_articles[prev_cols].bfill(axis=1).iloc[:, 0]
-    
-                all_articles.drop(columns=prev_cols, inplace=True, errors='ignore')
-    
-                all_articles['University_Label_prev'] = combined_prev
+            if 'University Label' not in all_articles.columns:
+                all_articles['University Label'] = pd.NA
+            
+            if 'University Label_prev' not in all_articles.columns:
+                all_articles['University Label_prev'] = pd.NA
+            
+            for c in ['University Label', 'University Label_prev']:
+                all_articles[c] = pd.to_numeric(all_articles[c], errors='coerce')
+            
+            new_label_cols = [c for c in all_articles.columns if c.endswith('_new') and c.startswith('University Label')]
+            if new_label_cols:
+                all_articles['University Label_new'] = pd.to_numeric(
+                    all_articles[new_label_cols].bfill(axis=1).iloc[:, 0],
+                    errors='coerce'
+                )
             else:
+                all_articles['University Label_new'] = pd.NA
+            
+            all_articles['University Label'] = (
+                all_articles['University Label_new']
+                .combine_first(all_articles['University Label'])
+                .combine_first(all_articles['University Label_prev'])
+                .fillna(0)
+                .clip(0, 1)
+                .astype(int)
+            )
+            
+            all_articles.drop(
+                columns=['University Label_prev', 'University Label_new'] + new_label_cols,
+                inplace=True,
+                errors='ignore'
+            )    
     
-                all_articles['University_Label_prev'] = pd.NA
-    
-    
-            label_cols = [c for c in all_articles.columns
-                          if c.startswith('University_Label') and not c.startswith('University_Label_prev')]
-            if not label_cols:
-    
-                all_articles['University_Label'] = pd.NA
-            else:
-    
-                combined_label = all_articles[label_cols].bfill(axis=1).iloc[:, 0]
-    
-                all_articles.drop(columns=label_cols, inplace=True, errors='ignore')
-    
-                all_articles['University_Label'] = combined_label
-    
-    
-            mask_have_prev = all_articles['University_Label_prev'].notna()
-    
-            all_articles.loc[mask_have_prev & (all_articles['University_Label'] == 0),
-                             'University_Label'] = all_articles.loc[mask_have_prev & (all_articles['University_Label'] == 0),
-                                                                   'University_Label_prev']
-    
-    
-            all_articles.drop(columns=['University_Label_prev'], inplace=True, errors='ignore')
+            all_articles.drop(columns=['University Label_prev'], inplace=True, errors='ignore')
     
             if not existing.empty:
                 combined = pd.concat([existing, labels_df], ignore_index=True)
@@ -2206,8 +2165,8 @@ if __name__ == '__main__':
         else:
             combined = existing
     
-        combined.to_csv('BERTopic_before.csv',
-                        columns=['Title', 'University_Label'],
+        combined.to_csv('pipeline/resources/BERTopic_before.csv',
+                        columns=['Title', 'University Label'],
                         index=False)
     
         return all_articles
@@ -2245,7 +2204,7 @@ if __name__ == '__main__':
         if P.exists():
             return pd.read_csv(local_cache_path, compression='gzip')
         return pd.DataFrame()
-    
+        
     
     
     #Assign topics and probabilities to new_df
@@ -2258,8 +2217,6 @@ if __name__ == '__main__':
     
     if existing_df is None or existing_df.empty:
         existing_df = pd.DataFrame()
-    if 'University Label' in existing_df.columns:
-        existing_df = existing_df.rename(columns = {'University Label': 'University_Label'})
     if not existing_df.empty and 'Link' in existing_df.columns:
         processed_links = set(existing_df['Link'])
         df_to_transform = df[~df['Link'].isin(processed_links)].copy()
@@ -2345,7 +2302,7 @@ if __name__ == '__main__':
     gc.collect()
     mem("after risk_weights")
     print("Finished assigning risk weights", flush = True)
-    df = df.drop(columns = ['University_Label_x', 'University_Label_y'], errors = 'ignore')
+    df = df.drop(columns = ['University Label_x', 'University Label_y'], errors = 'ignore')
     df_new_final = df[df['Link'].isin(new_links)].copy()
     del df
     gc.collect()
@@ -2362,7 +2319,7 @@ if __name__ == '__main__':
     print('Uploading to releases', flush=True)
     upload_file("pipeline/resources/BERTopic_results3.csv.gz", 'latest/BERTopic_results3.csv.gz', BUCKET_NAME)
     print("Saving dataset for Streamlit", flush= True)
-    df_streamlit = df_new_version[df_new_version['University_Label'] == 1].copy()
+    df_streamlit = df_new_version[df_new_version['University Label'] == 1].copy()
 
     del df_new_version
     gc.collect()
