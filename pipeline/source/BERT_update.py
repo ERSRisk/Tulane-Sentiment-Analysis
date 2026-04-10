@@ -2323,11 +2323,12 @@ if __name__ == '__main__':
     del df
     gc.collect()
     existing_new_version = pd.DataFrame()
-    if blob_exists('latest/BERTopic_results3.csv.gz'):
+    if blob_exists('latest/BERTopic_results2.csv.gz'):
         existing_new_version = download_file(
-            'latest/BERTopic_results3.csv.gz',
-            'pipeline/resources/BERTopic_results3.csv.gz'
+            'latest/BERTopic_results2.csv.gz',
+            'pipeline/resources/BERTopic_results2.csv.gz'
         )
+        
     
     df_new_version = pd.concat([existing_new_version, df_new_final], ignore_index=True)
     
