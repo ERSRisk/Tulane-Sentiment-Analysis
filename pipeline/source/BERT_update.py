@@ -2085,7 +2085,7 @@ if __name__ == '__main__':
         recent = all_articles[all_articles['Published_utc'] >= cutoff]
     
         try:
-            existing = pd.read_csv('pipeline/resources/BERTopic_before.csv')
+            existing = pd.read_csv('BERTopic_before.csv')
             labeled_titles = set(existing['Title']) if 'Title' in existing else set()
         except FileNotFoundError:
             existing = pd.DataFrame(columns=['Title', 'University Label'])
@@ -2125,38 +2125,40 @@ if __name__ == '__main__':
             all_articles = all_articles.merge(labels_df, on='Title', how='left', suffixes=('', '_new'))
     
     
-            if 'University Label' not in all_articles.columns:
-                all_articles['University Label'] = pd.NA
-            
-            if 'University Label_prev' not in all_articles.columns:
-                all_articles['University Label_prev'] = pd.NA
-            
-            for c in ['University Label', 'University Label_prev']:
-                all_articles[c] = pd.to_numeric(all_articles[c], errors='coerce')
-            
-            new_label_cols = [c for c in all_articles.columns if c.endswith('_new') and c.startswith('University Label')]
-            if new_label_cols:
-                all_articles['University Label_new'] = pd.to_numeric(
-                    all_articles[new_label_cols].bfill(axis=1).iloc[:, 0],
-                    errors='coerce'
-                )
+            prev_cols = [c for c in all_articles.columns
+                         if c.startswith('University Label_prev')]
+            if prev_cols:
+    
+                combined_prev = all_articles[prev_cols].bfill(axis=1).iloc[:, 0]
+    
+                all_articles.drop(columns=prev_cols, inplace=True, errors='ignore')
+    
+                all_articles['University Label_prev'] = combined_prev
             else:
-                all_articles['University Label_new'] = pd.NA
-            
-            all_articles['University Label'] = (
-                all_articles['University Label_new']
-                .combine_first(all_articles['University Label'])
-                .combine_first(all_articles['University Label_prev'])
-                .fillna(0)
-                .clip(0, 1)
-                .astype(int)
-            )
-            
-            all_articles.drop(
-                columns=['University Label_prev', 'University Label_new'] + new_label_cols,
-                inplace=True,
-                errors='ignore'
-            )    
+    
+                all_articles['University Label_prev'] = pd.NA
+    
+    
+            label_cols = [c for c in all_articles.columns
+                          if c.startswith('University Label') and not c.startswith('University Label_prev')]
+            if not label_cols:
+    
+                all_articles['University Label'] = pd.NA
+            else:
+    
+                combined_label = all_articles[label_cols].bfill(axis=1).iloc[:, 0]
+    
+                all_articles.drop(columns=label_cols, inplace=True, errors='ignore')
+    
+                all_articles['University Label'] = combined_label
+    
+    
+            mask_have_prev = all_articles['University Label_prev'].notna()
+    
+            all_articles.loc[mask_have_prev & (all_articles['University Label'] == 0),
+                             'University Label'] = all_articles.loc[mask_have_prev & (all_articles['University Label'] == 0),
+                                                                   'University Label_prev']
+    
     
             all_articles.drop(columns=['University Label_prev'], inplace=True, errors='ignore')
     
@@ -2167,7 +2169,7 @@ if __name__ == '__main__':
         else:
             combined = existing
     
-        combined.to_csv('pipeline/resources/BERTopic_before.csv',
+        combined.to_csv('BERTopic_before.csv',
                         columns=['Title', 'University Label'],
                         index=False)
     
