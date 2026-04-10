@@ -54,6 +54,69 @@ GITHUB_TOKEN = os.getenv('TOKEN')
 GEMINI_API_KEY = os.getenv("PAID_API_KEY")
 client = genai.Client(api_key=GEMINI_API_KEY)
 
+def validate_streamlit_freshness(df, min_expected_date=None):
+    if df is None or df.empty:
+        raise RuntimeError("Refusing to save empty BERTopic_Streamlit dataframe.")
+
+    if 'Published_utc' not in df.columns:
+        raise RuntimeError("Refusing to save BERTopic_Streamlit: missing Published_utc.")
+
+    pub = pd.to_datetime(df['Published_utc'], errors='coerce', utc=True)
+    if pub.notna().sum() == 0:
+        raise RuntimeError("Refusing to save BERTopic_Streamlit: no valid Published_utc values.")
+
+    latest_found = pub.max()
+    print(f"Latest Published_utc in outgoing Streamlit file: {latest_found}", flush=True)
+
+    if min_expected_date is not None and latest_found < min_expected_date:
+        raise RuntimeError(
+            f"Refusing to save stale BERTopic_Streamlit. "
+            f"Latest found {latest_found}, expected at least {min_expected_date}."
+        )
+
+    return latest_found
+    
+def load_latest_articles_base():
+    """
+    Canonical downstream source:
+    1. latest/BERTopic_latest_full.csv.gz   <- freshest full article dataset from script 1
+    2. latest/BERTopic_Streamlit.csv.gz     <- fallback if full dataset missing
+    3. load_full_topics(results2)           <- last-resort fallback
+    """
+    try:
+        if blob_exists('latest/BERTopic_latest_full.csv.gz'):
+            df = download_file(
+                'latest/BERTopic_latest_full.csv.gz',
+                'pipeline/resources/BERTopic_latest_full.csv.gz'
+            )
+            if df is not None and not df.empty:
+                print("Loaded latest full article base.", flush=True)
+                if 'Link' in df.columns:
+                    df = df.drop_duplicates(subset=['Link'], keep='last')
+                return df
+    except Exception as e:
+        print(f"Could not load latest full article base: {e}", flush=True)
+
+    try:
+        if blob_exists('latest/BERTopic_Streamlit.csv.gz'):
+            df = download_file(
+                'latest/BERTopic_Streamlit.csv.gz',
+                'pipeline/resources/BERTopic_Streamlit.csv.gz'
+            )
+            if df is not None and not df.empty:
+                print("Loaded latest streamlit base as fallback.", flush=True)
+                if 'Link' in df.columns:
+                    df = df.drop_duplicates(subset=['Link'], keep='last')
+                return df
+    except Exception as e:
+        print(f"Could not load latest streamlit base: {e}", flush=True)
+
+    print("Falling back to historical merge base.", flush=True)
+    df = load_latest_article_base()
+    if 'Link' in df.columns:
+        df = df.drop_duplicates(subset=['Link'], keep='last')
+    return df
+    
 def track_over_time(df, week_anchor="W-MON", out_csv="pipeline/resources/topic_trend.csv"):
 
     if 'Published' not in df.columns:
@@ -123,7 +186,7 @@ def ensure_risk_scores(df: pd.DataFrame) -> pd.DataFrame:
         print(f"Risk Score {nan_ratio: .1%} NaN -- recomputing", flush = True)
         return risk_weights(df)
     return df
-def build_stories():
+def build_stories(base_articles):
     
     model = SentenceTransformer("all-MiniLM-L6-v2")
 
@@ -136,7 +199,7 @@ def build_stories():
                 60,59,56,54,50,24,22,18,568,565,550,526,518,505,484,477,458,
                 456,387,245,239,226,196,155,144,123,117,109,105,85,61,33,28,
                 25,16,14]
-    df = load_full_topics(download_file('latest/BERTopic_results2.csv.gz', 'pipeline/resources/BERTopic_results2.csv.gz'))
+    df = base_aricles.copy()
     df = ensure_risk_scores(df)
     df['University Label'] = pd.to_numeric(df['University Label'], errors='coerce').fillna(0).astype(int)
     df = df[df['University Label'] == 1].copy()  # ← only cluster university-relevant articles
@@ -723,7 +786,8 @@ def build_stories():
     return None
 
 #Show the articles over time
-stories = build_stories()
+base_articles = load_latest_articles_base()
+stories = build_stories(base_articles)
 def safe_mode(series):
     s = series.dropna()
     return s.mode().iloc[0] if not s.empty else None
@@ -751,7 +815,7 @@ story_scores = (articles.groupby("story_id").agg(
 canonical = pd.read_csv("pipeline/resources/Canonical_Stories_with_Summaries.csv")
 canonical = canonical.merge(story_scores, on = "story_id", how = 'left', validate= "one_to_one")
 canonical.to_csv("pipeline/resources/Canonical_stories_with_Summaries.csv", index = False)
-articles = load_full_topics(download_file('latest/BERTopic_results2.csv.gz', 'pipeline/resources/BERTopic_results2.csv.gz'))
+articles = load_latest_article_base()
 articles = ensure_risk_scores(articles)
 articles = articles.drop_duplicates(subset = ['Title', 'Link'], keep = 'last')
 article_story_map = pd.read_csv("pipeline/resources/Articles_with_Stories.csv.gz", compression = 'gzip')
@@ -998,7 +1062,7 @@ def build_subtopic_clusters(df, subtopics, model, min_sim=0.5, subtopic_centroid
 
     return df, centroids
 
-articles = load_full_topics(download_file('latest/BERTopic_results2.csv.gz', 'pipeline/resources/BERTopic_results2.csv.gz'))
+articles = load_latest_article_base()
 
 nlp = spacy.load("en_core_web_sm")
 model = SentenceTransformer('all-MiniLM-L6-v2')
@@ -1420,9 +1484,19 @@ def risk_weights_second_pass(df):
 
 articles = df
 
-risk_weights_second_pass(articles)
-atomic_write_csv("pipeline/resources/BERTopic_Streamlit.csv.gz", articles, compress = True)
+articles = risk_weights_second_pass(articles)
+# Ensure latest date from base survived through enrichment
+base_pub = pd.to_datetime(base_articles['Published_utc'], errors='coerce', utc=True) if 'Published_utc' in base_articles.columns else pd.Series(dtype='datetime64[ns, UTC]')
+min_expected_date = base_pub.max() if not base_pub.empty else None
+
+if 'Link' in articles.columns:
+    articles = articles.drop_duplicates(subset=['Link'], keep='last')
+
+validate_streamlit_freshness(articles, min_expected_date=min_expected_date)
+
+atomic_write_csv("pipeline/resources/BERTopic_Streamlit.csv.gz", articles, compress=True)
 upload_file('pipeline/resources/BERTopic_Streamlit.csv.gz', 'latest/BERTopic_Streamlit.csv.gz')
+
 
 print("Articles over time", flush = True)
 #
