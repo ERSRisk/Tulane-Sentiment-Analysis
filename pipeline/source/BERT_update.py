@@ -2324,23 +2324,38 @@ if __name__ == '__main__':
     gc.collect()
     existing_new_version = pd.DataFrame()
     if blob_exists('latest/BERTopic_results3.csv.gz'):
-        existing_new_version = download_file('latest/BERTopic_results3.csv.gz', 'pipeline/resources/BERTopic_results3.csv.gz')
-    df_new_version = pd.concat([existing_new_version, df_new_final], ignore_index = True)
-
+        existing_new_version = download_file(
+            'latest/BERTopic_results3.csv.gz',
+            'pipeline/resources/BERTopic_results3.csv.gz'
+        )
+    
+    df_new_version = pd.concat([existing_new_version, df_new_final], ignore_index=True)
+    
+    # Make sure newest version wins on duplicate links
+    if 'Link' in df_new_version.columns:
+        df_new_version = df_new_version.drop_duplicates(subset=['Link'], keep='last')
+    
     del existing_new_version, df_new_final
     gc.collect()
     mem("after final concat")
-    print("Saving BERTopic_results3.csv.gz", flush = True)
-    atomic_write_csv("pipeline/resources/BERTopic_results3.csv.gz", df_new_version, compress = True)
-    print('Uploading to releases', flush=True)
+    
+    print("Saving BERTopic_results3.csv.gz", flush=True)
+    atomic_write_csv("pipeline/resources/BERTopic_results3.csv.gz", df_new_version, compress=True)
     upload_file("pipeline/resources/BERTopic_results3.csv.gz", 'latest/BERTopic_results3.csv.gz', BUCKET_NAME)
-    print("Saving dataset for Streamlit", flush= True)
+    
+    # NEW: save the canonical fresh full dataset for downstream script 2
+    print("Saving latest article base for downstream enrichment", flush=True)
+    atomic_write_csv("pipeline/resources/BERTopic_latest_full.csv.gz", df_new_version, compress=True)
+    upload_file("pipeline/resources/BERTopic_latest_full.csv.gz", 'latest/BERTopic_latest_full.csv.gz', BUCKET_NAME)
+    
+    print("Saving dataset for Streamlit", flush=True)
     df_streamlit = df_new_version[df_new_version['University Label'] == 1].copy()
-
-    del df_new_version
-    gc.collect()
-    atomic_write_csv("pipeline/resources/BERTopic_Streamlit.csv.gz", df_streamlit, compress = True)
-    upload_file('pipeline/resources/BERTopic_Streamlit.csv.gz', 'latest/BERTopic_Streamlit.csv.gz')
-
-    del df_streamlit
+    
+    if 'Link' in df_streamlit.columns:
+        df_streamlit = df_streamlit.drop_duplicates(subset=['Link'], keep='last')
+    
+    atomic_write_csv("pipeline/resources/BERTopic_Streamlit.csv.gz", df_streamlit, compress=True)
+    upload_file('pipeline/resources/BERTopic_Streamlit.csv.gz', 'latest/BERTopic_Streamlit.csv.gz', BUCKET_NAME)
+    
+    del df_streamlit, df_new_version
     gc.collect()
