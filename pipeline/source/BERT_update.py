@@ -431,14 +431,14 @@ def risk_weights(df):
         for c in ['last_seen_days','decayed_volume','recency_score_tr']:
             if c not in tr.columns:
                 tr[c] = np.nan
-        cols_to_drop = ["_RiskList","last_seen_days","decayed_volume",
+        cols_to_drop = ["last_seen_days","decayed_volume",
                     "recency_score_tr","recency_score_tr_x","recency_score_tr_y"]
         df = df.drop(columns=[c for c in cols_to_drop if c in df.columns], errors="ignore")
 
         tr_small = tr[["Topic", "_RiskList", "last_seen_days", "decayed_volume", "recency_score_tr"]].rename(
             columns={"recency_score_tr": "recency_score_tr_tr"}
         )
-        overlap = [c for c in tr_small.columns if c in df.columns and c!= 'Topic']
+        overlap = [c for c in tr_small.columns if c in df.columns and not in ['Topic', '_RiskList']]
         if overlap:
             df = df.drop(columns = overlap)
         enriched = df.merge(tr_small, on=["Topic","_RiskList"], how="left", validate = "m:1")
