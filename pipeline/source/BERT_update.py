@@ -616,7 +616,7 @@ def risk_weights(df):
                 return 30
             return 45
 
-        temp = base.loc[base['Week'].notna(), ['Risk_item', 'Week', 'Title','Content', 'Location','University Label']].copy()
+        temp = base.loc[base['Week'].notna(), ['Risk_item', 'Week', 'Title','Content', 'Location','University_Label']].copy()
         temp['cue_eta'] = (temp['Title'] + ' ' + temp['Content'].fillna('')).apply(cue_eta_from_text)
 
         def location_eta(l):
@@ -635,7 +635,7 @@ def risk_weights(df):
                 label = 0
             return max(1, eta - (7 if label ==1 else 0))
 
-        temp['eta_article'] = temp.apply(lambda x: tulane_pull(x['University Label'], min(x['cue_eta'], x['loc_eta'])), axis =1)
+        temp['eta_article'] = temp.apply(lambda x: tulane_pull(x['University_Label'], min(x['cue_eta'], x['loc_eta'])), axis =1)
 
         eta_by_bucket = (
             temp.groupby(['Risk_item', 'Week'])['eta_article'].min()
@@ -714,7 +714,7 @@ def risk_weights(df):
     detected_cats = [{cat for cat, rx in cat_regex.items() if rx.search(t)} for t in text_all]
     base['Detected_HigherEd_Categories'] = detected_cats
 
-    ul = base.get('University Label', 0)
+    ul = base.get('University_Label', 0)
     base['Industry_Risk_Presence'] = np.where(
         (base['Detected_HigherEd_Categories'].apply(len) > 0) | (pd.to_numeric(ul, errors='coerce').fillna(0).astype(int) == 1),
         3, 0
@@ -846,7 +846,7 @@ def risk_weights(df):
 
         text = (str(row.get('Title','')) + ' ' + str(row.get('Content',''))).lower()
         existential = find_patterns(text, existential_threat_patterns)
-        severe = find_patterns(text, severe_patterns) or (int(row.get('Location',0))==5 and int(row.get('University Label',0))==1)
+        severe = find_patterns(text, severe_patterns) or (int(row.get('Location',0))==5 and int(row.get('University_Label',0))==1)
 
         if existential:
             return min(5.0, max(5.0, base))
@@ -854,7 +854,7 @@ def risk_weights(df):
             return min(4.0, max(4.0, base))
         else:
             return min(base, 3.9)
-    for col in ['Location', 'University Label']:
+    for col in ['Location', 'University_Label']:
         if col not in base.columns:
             base[col] = 0
         base[col] = pd.to_numeric(base[col], errors = 'coerce').fillna(0).astype(int)
@@ -1735,8 +1735,8 @@ if __name__ == '__main__':
     
         df = df.copy()
         df = df.sort_values('Published_utc').drop_duplicates('Title', keep = 'last').reset_index(drop=True)
-        df['University Label'] = pd.to_numeric(df['University Label'], errors = 'coerce').fillna(0).astype(int)
-        mask_he = df['University Label'] == 1
+        df['University_Label'] = pd.to_numeric(df['University_Label'], errors = 'coerce').fillna(0).astype(int)
+        mask_he = df['University_Label'] == 1
         
         df['Title'] = df['Title'].fillna('').str.strip()
     
@@ -2025,7 +2025,7 @@ if __name__ == '__main__':
                 {{
                   "Title": "same title",
                   "Content": "same content",
-                  "University Label": 1 or 0
+                  "University_Label": 1 or 0
                 }}
                 
                 Labeling rules:
@@ -2050,7 +2050,7 @@ if __name__ == '__main__':
                 {{
                   "Title": "same title",
                   "Content": "same content",
-                  "University Label": 0 or 1
+                  "University_Label": 0 or 1
                 }}
                 """
     
@@ -2077,7 +2077,7 @@ if __name__ == '__main__':
                     title = rec.get('Title') or rec.get('title') or str(title)
                     content = rec.get('Content') or rec.get('content') or str(content)
     
-                    ulabel = rec.get('University Label')
+                    ulabel = rec.get('University_Label')
     
                     if ulabel is None:
                         ulabel = rec.get('university_label') or rec.get('University_label') or rec.get('university label') or 0
@@ -2087,7 +2087,7 @@ if __name__ == '__main__':
                         ulabel = 1 if ulabel ==1 else 0
                     except Exception:
                         ulabel = 0
-                    return {'Title': str(title), "Content": str(content), 'University Label': ulabel}
+                    return {'Title': str(title), "Content": str(content), 'University_Label': ulabel}
             except Exception as e:
                 print(f"🔥 Uncaught error in article {article_index} of batch {batch_number}: {e}", flush=True)
                 return None
@@ -2125,37 +2125,37 @@ if __name__ == '__main__':
             existing = pd.read_csv('BERTopic_before.csv')
             labeled_titles = set(existing['Title']) if 'Title' in existing else set()
         except FileNotFoundError:
-            existing = pd.DataFrame(columns=['Title', 'University Label'])
+            existing = pd.DataFrame(columns=['Title', 'University_Label'])
             labeled_titles = set()
     
-        if not existing.empty and 'University Label' in existing.columns:
+        if not existing.empty and 'University_Label' in existing.columns:
             existing_clean = (
-                existing[['Title', 'University Label']]
-                .dropna(subset=['University Label'])
+                existing[['Title', 'University_Label']]
+                .dropna(subset=['University_Label'])
                 .drop_duplicates(subset=['Title'], keep='last')
             )
             all_articles = all_articles.merge(
-                existing_clean[['Title', 'University Label']],
+                existing_clean[['Title', 'University_Label']],
                 on='Title', how='left',
                 suffixes=('', '_prev')
             )
     
         new_articles = recent[~(recent['Title'].isin(labeled_titles))].copy()
         print(new_articles[['Title', 'Published_utc']].head())
-        new_articles = new_articles[~(new_articles['University Label'] == 1)]
+        new_articles = new_articles[~(new_articles['University_Label'] == 1)]
         print(f"🔎 Total articles: {len(recent)} | Unlabeled: {len(new_articles)}", flush=True)
     
         results = asyncio.run(university_label_async(new_articles))
     
         if results:
-            labels_df = pd.DataFrame(results)[['Title', 'University Label']]
+            labels_df = pd.DataFrame(results)[['Title', 'University_Label']]
             labels_df['Title'] = labels_df['Title'].astype(str).str.strip()
             new_articles['Title'] = new_articles['Title'].astype(str).str.strip()
             missing_titles = set(new_articles['Title']) - set(labels_df['Title'])
             if missing_titles:
                 missing_df = pd.DataFrame({
                     'Title': list(missing_titles),
-                    'University Label': [0] * len(missing_titles)
+                    'University_Label': [0] * len(missing_titles)
                 })
                 labels_df = pd.concat([labels_df, missing_df], ignore_index=True)
     
@@ -2163,41 +2163,41 @@ if __name__ == '__main__':
     
     
             prev_cols = [c for c in all_articles.columns
-                         if c.startswith('University Label_prev')]
+                         if c.startswith('University_Label_prev')]
             if prev_cols:
     
                 combined_prev = all_articles[prev_cols].bfill(axis=1).iloc[:, 0]
     
                 all_articles.drop(columns=prev_cols, inplace=True, errors='ignore')
     
-                all_articles['University Label_prev'] = combined_prev
+                all_articles['University_Label_prev'] = combined_prev
             else:
     
-                all_articles['University Label_prev'] = pd.NA
+                all_articles['University_Label_prev'] = pd.NA
     
     
             label_cols = [c for c in all_articles.columns
-                          if c.startswith('University Label') and not c.startswith('University Label_prev')]
+                          if c.startswith('University_Label') and not c.startswith('University_Label_prev')]
             if not label_cols:
     
-                all_articles['University Label'] = pd.NA
+                all_articles['University_Label'] = pd.NA
             else:
     
                 combined_label = all_articles[label_cols].bfill(axis=1).iloc[:, 0]
     
                 all_articles.drop(columns=label_cols, inplace=True, errors='ignore')
     
-                all_articles['University Label'] = combined_label
+                all_articles['University_Label'] = combined_label
     
     
-            mask_have_prev = all_articles['University Label_prev'].notna()
+            mask_have_prev = all_articles['University_Label_prev'].notna()
     
-            all_articles.loc[mask_have_prev & (all_articles['University Label'] == 0),
-                             'University Label'] = all_articles.loc[mask_have_prev & (all_articles['University Label'] == 0),
-                                                                   'University Label_prev']
+            all_articles.loc[mask_have_prev & (all_articles['University_Label'] == 0),
+                             'University_Label'] = all_articles.loc[mask_have_prev & (all_articles['University_Label'] == 0),
+                                                                   'University_Label_prev']
     
     
-            all_articles.drop(columns=['University Label_prev'], inplace=True, errors='ignore')
+            all_articles.drop(columns=['University_Label_prev'], inplace=True, errors='ignore')
     
             if not existing.empty:
                 combined = pd.concat([existing, labels_df], ignore_index=True)
@@ -2207,7 +2207,7 @@ if __name__ == '__main__':
             combined = existing
     
         combined.to_csv('BERTopic_before.csv',
-                        columns=['Title', 'University Label'],
+                        columns=['Title', 'University_Label'],
                         index=False)
     
         return all_articles
@@ -2258,6 +2258,8 @@ if __name__ == '__main__':
     
     if existing_df is None or existing_df.empty:
         existing_df = pd.DataFrame()
+    if 'University Label' in existing_df.columns:
+        existing_df = existing_df.rename(columns = {'University Label': 'University_Label'})
     if not existing_df.empty and 'Link' in existing_df.columns:
         processed_links = set(existing_df['Link'])
         df_to_transform = df[~df['Link'].isin(processed_links)].copy()
@@ -2343,7 +2345,7 @@ if __name__ == '__main__':
     gc.collect()
     mem("after risk_weights")
     print("Finished assigning risk weights", flush = True)
-    df = df.drop(columns = ['University Label_x', 'University Label_y'], errors = 'ignore')
+    df = df.drop(columns = ['University_Label_x', 'University_Label_y'], errors = 'ignore')
     df_new_final = df[df['Link'].isin(new_links)].copy()
     del df
     gc.collect()
@@ -2360,7 +2362,7 @@ if __name__ == '__main__':
     print('Uploading to releases', flush=True)
     upload_file("pipeline/resources/BERTopic_results3.csv.gz", 'latest/BERTopic_results3.csv.gz', BUCKET_NAME)
     print("Saving dataset for Streamlit", flush= True)
-    df_streamlit = df_new_version[df_new_version['University Label'] == 1].copy()
+    df_streamlit = df_new_version[df_new_version['University_Label'] == 1].copy()
 
     del df_new_version
     gc.collect()
