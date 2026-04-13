@@ -960,7 +960,7 @@ if __name__ == '__main__':
         articles = json.load(f)
     # Now load it
     df = pd.DataFrame(articles)
-    debug_dates(df, "A_raw_rss_df")
+    debug_date(df, "A_raw_rss_df")
     mem("after RSS dataframe")
     
     Path("Online_Extraction").mkdir(parents=True, exist_ok=True)
@@ -968,7 +968,7 @@ if __name__ == '__main__':
     shutil.copyfile(rss_path, 'Online_Extraction/all_RSS.json.gz')
     df = df[~(df['Source']=="Economist")]
     df['Text'] = df['Title'] + '. ' + df['Content']
-    debug_dates(df, "B_after_source_filtering")
+    debug_date(df, "B_after_source_filtering")
     
     
     
@@ -2277,11 +2277,11 @@ if __name__ == '__main__':
     else:
         df_to_transform = df.copy()
         print(f"Dataframe to transform has no articles to remove.", flush = True)
-    debug_dates(df_to_transform, "C_df_to_transform")
+    debug_date(df_to_transform, "C_df_to_transform")
     print("✅ Starting transform_text on new data...", flush=True)
     topic_model.calculate_probabilities = False
     new_df = transform_text(df_to_transform)
-    debug_dates(new_df, "D_new_df_after_transform")
+    debug_date(new_df, "D_new_df_after_transform")
     del df_to_transform
     gc.collect()
     mem("after transform text")
@@ -2299,7 +2299,7 @@ if __name__ == '__main__':
     #Save only new, non-duplicate rows
     print("✅ Saving new topics to CSV...", flush=True)
     df_combined = save_new_topics(existing_df, new_df)
-    debug_dates(df_combined, "E_df_combined_after_save_new_topics")
+    debug_date(df_combined, "E_df_combined_after_save_new_topics")
     del new_df
     gc.collect()
     print("Completed save_new_topics", flush = True)
@@ -2320,7 +2320,7 @@ if __name__ == '__main__':
     print("✅ Running double-check for unmatched topics (-1)...", flush=True)
     cutoff_utc = pd.Timestamp(datetime.utcnow() - timedelta(days = 15), tz = 'utc')
     df_combined['Published_utc'] = df_combined['Published'].apply(coerce_pub_utc)
-    debug_dates(df_combined, "G_df_combined_after_creating_published_utc")
+    debug_date(df_combined, "G_df_combined_after_creating_published_utc")
     print(f"Length of dataset: {len(df_combined)}", flush = True)
     print(f"Length of recalculated topic names: {len(df_combined[df_combined['Probability'] < 0.15])}", flush = True)
     low_conf_mask = df_combined['Probability'] < 0.15
@@ -2329,7 +2329,7 @@ if __name__ == '__main__':
     upload_file('pipeline/resources/Step0.csv.gz', 'latest/Step0.csv.gz', BUCKET_NAME)
     #df_combined = load_midstep_from_release()
     recent_df = df_combined[df_combined['Published_utc'].notna() & (df_combined['Published_utc'] >= cutoff_utc)].copy()
-    debug_dates(recent_df, "G_recent_df_for_double_check")
+    debug_date(recent_df, "G_recent_df_for_double_check")
     temp_model, topic_ids = double_check_articles(recent_df)
     mem("after double_check_articles")
     #If there are unmatched topics, name them using Gemini
@@ -2340,13 +2340,13 @@ if __name__ == '__main__':
     #Assign weights to each article
     #df_combined = load_midstep_from_release()
     df_combined = load_university_label(df_combined)
-    debug_dates(df_combined, "H_after_load_university_label")
+    debug_date(df_combined, "H_after_load_university_label")
     mem("after load_university_label")
     atomic_write_csv('pipeline/resources/initial_label.csv.gz', df_combined, compress = True)
     upload_file('pipeline/resources/initial_label.csv.gz', 'latest/initial_label.csv.gz', BUCKET_NAME)
     #df_combined = load_midstep_from_release()
     results_df = predict_risks(df_combined)
-    debug_dates(results_df, "I_after_predict_risks")
+    debug_date(results_df, "I_after_predict_risks")
     mem("after predict_risks")
     del df_combined
     gc.collect()
@@ -2370,17 +2370,17 @@ if __name__ == '__main__':
     ]
     
     risk_df = pd.read_csv('pipeline/resources/Step1.csv.gz', compression = 'gzip', usecols = lambda c: c in risk_usecols, low_memory = False)
-    debug_dates(risk_df, "J_risk_df_reloaded")
+    debug_date(risk_df, "J_risk_df_reloaded")
     mem("before risk_weights")
     df = risk_weights(risk_df)
-    debug_dates(df, "K_after_risk_weights")
+    debug_date(df, "K_after_risk_weights")
     del risk_df
     gc.collect()
     mem("after risk_weights")
     print("Finished assigning risk weights", flush = True)
     df = df.drop(columns = ['University Label_x', 'University Label_y'], errors = 'ignore')
     df_new_final = df[df['Link'].isin(new_links)].copy()
-    debug_dates(df_new_final, "L_df_new_final_only_new_links")
+    debug_date(df_new_final, "L_df_new_final_only_new_links")
     del df
     gc.collect()
     existing_new_version = pd.DataFrame()
@@ -2390,9 +2390,9 @@ if __name__ == '__main__':
             'pipeline/resources/BERTopic_results3.csv.gz'
         )
         
-    debug_dates(existing_new_version, "M_existing_new_version")
+    debug_date(existing_new_version, "M_existing_new_version")
     df_new_version = pd.concat([existing_new_version, df_new_final], ignore_index=True)
-    debug_dates(df_new_version, "N_df_new_version")
+    debug_date(df_new_version, "N_df_new_version")
     
     # Make sure newest version wins on duplicate links
     if 'Link' in df_new_version.columns:
@@ -2412,13 +2412,13 @@ if __name__ == '__main__':
     upload_file("pipeline/resources/BERTopic_latest_full.csv.gz", 'latest/BERTopic_latest_full.csv.gz', BUCKET_NAME)
     
     print("Saving dataset for Streamlit", flush=True)
-    debug_dates(df_new_version, "O_before_streamlit")
+    debug_date(df_new_version, "O_before_streamlit")
     df_streamlit = df_new_version[df_new_version['University Label'] == 1].copy()
     
     if 'Link' in df_streamlit.columns:
         df_streamlit = df_streamlit.drop_duplicates(subset=['Link'], keep='last')
 
-    debug_dates(df_streamlit, "Q_df_streamlit_after_university_label")
+    debug_date(df_streamlit, "Q_df_streamlit_after_university_label")
     atomic_write_csv("pipeline/resources/BERTopic_Streamlit.csv.gz", df_streamlit, compress=True)
     upload_file('pipeline/resources/BERTopic_Streamlit.csv.gz', 'latest/BERTopic_Streamlit.csv.gz', BUCKET_NAME)
     
