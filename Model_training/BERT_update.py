@@ -222,7 +222,7 @@ def risk_weights(df):
     print(f"[risk_weights] start: df = {df.shape}", flush = True)
 
     # ---------- Load config ----------
-    with open('pipeline/resources/risks.json', 'r', encoding='utf-8') as f:
+    with open('Model_training/risks.json', 'r', encoding='utf-8') as f:
         risks_cfg = json.load(f)
 
     json_all_labels = [r['name'] for block in risks_cfg.get('new_risks', []) for _, items in block.items() for r in items]
@@ -2257,7 +2257,7 @@ if __name__ == '__main__':
         'University Label', 'Location'
     ]
     
-    risk_df = pd.read_csv('pipeline/resources/Step1.csv.gz', compression = 'gzip', usecols = lambda c: c in risk_usecols, low_memory = False)
+    risk_df = pd.read_csv('Model_training/Step1.csv.gz', compression = 'gzip', usecols = lambda c: c in risk_usecols, low_memory = False)
     mem("before risk_weights")
     df = risk_weights(risk_df)
     del risk_df
