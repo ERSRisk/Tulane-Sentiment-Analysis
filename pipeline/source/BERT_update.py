@@ -68,7 +68,7 @@ def debug_date(df, name, raw_col = 'Published', utc_col = 'Published_utc', link_
 
         print(
             f"[DATCHECK] {name}: rows = {total}, parsed_dates= {parsed},"
-            f"min = {min_df}, max = {max_dt}",
+            f"min = {min_dt}, max = {max_dt}",
             flush = True
         )
         show_cols = [c for c in ['Title', link_col, raw_col] if c in work.columns]
