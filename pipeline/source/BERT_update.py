@@ -2124,17 +2124,18 @@ if __name__ == '__main__':
     def load_university_label(new_label):
         
         all_articles = new_label.copy()
-        if 'Published_utc' not in all_articles.columns:
-            all_articles['Published_utc'] = pd.to_datetime(all_articles['Published'], errors='coerce', utc=True)
+        cutoff = pd.Timestamp.utcnow() - pd.Timedelta(days=10)
+        if 'Published_utc' in all_articles.columns:
+            all_articles['Published_utc'] = pd.to_datetime(all_articles['Published_utc'], errors = 'coerce', utc =  True)
         else:
-            all_articles['Published_utc'] = pd.to_datetime(all_articles['Published_utc'], errors='coerce', utc=True)
-        cutoff = pd.Timestamp.utcnow() - pd.Timedelta(days=5)
-        base_pub = all_articles.get('Published')
-        all_articles['Published_utc'] = pd.to_datetime(base_pub, errors='coerce', utc=True)
+            all_articles['Published_utc'] = pd.to_datetime(
+            all_articles['Published'], errors='coerce', utc=True
+            )
+
         recent = all_articles[all_articles['Published_utc'] >= cutoff]
     
         try:
-            existing = pd.read_csv('BERTopic_before.csv')
+            existing = pd.read_csv('pipeline/resources/BERTopic_before.csv')
             labeled_titles = set(existing['Title']) if 'Title' in existing else set()
         except FileNotFoundError:
             existing = pd.DataFrame(columns=['Title', 'University Label'])
@@ -2218,7 +2219,7 @@ if __name__ == '__main__':
         else:
             combined = existing
     
-        combined.to_csv('BERTopic_before.csv',
+        combined.to_csv('pipeline/resources/BERTopic_before.csv',
                         columns=['Title', 'University Label'],
                         index=False)
     
@@ -2392,6 +2393,7 @@ if __name__ == '__main__':
         
     debug_date(existing_new_version, "M_existing_new_version")
     df_new_version = pd.concat([existing_new_version, df_new_final], ignore_index=True)
+    df_new_version['Published_utc'] = pd.to_datetime(df_new_version['Published'], errors = 'coerce', utc=True)
     debug_date(df_new_version, "N_df_new_version")
     
     # Make sure newest version wins on duplicate links
