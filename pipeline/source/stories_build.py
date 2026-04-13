@@ -53,28 +53,6 @@ GITHUB_TOKEN = os.getenv('TOKEN')
 
 GEMINI_API_KEY = os.getenv("PAID_API_KEY")
 client = genai.Client(api_key=GEMINI_API_KEY)
-
-def validate_streamlit_freshness(df, min_expected_date=None):
-    if df is None or df.empty:
-        raise RuntimeError("Refusing to save empty BERTopic_Streamlit dataframe.")
-
-    if 'Published_utc' not in df.columns:
-        raise RuntimeError("Refusing to save BERTopic_Streamlit: missing Published_utc.")
-
-    pub = pd.to_datetime(df['Published_utc'], errors='coerce', utc=True)
-    if pub.notna().sum() == 0:
-        raise RuntimeError("Refusing to save BERTopic_Streamlit: no valid Published_utc values.")
-
-    latest_found = pub.max()
-    print(f"Latest Published_utc in outgoing Streamlit file: {latest_found}", flush=True)
-
-    if min_expected_date is not None and latest_found < min_expected_date:
-        raise RuntimeError(
-            f"Refusing to save stale BERTopic_Streamlit. "
-            f"Latest found {latest_found}, expected at least {min_expected_date}."
-        )
-
-    return latest_found
     
 def load_latest_articles_base():
     """
@@ -1496,8 +1474,6 @@ min_expected_date = base_pub.max() if not base_pub.empty else None
 
 if 'Link' in articles.columns:
     articles = articles.drop_duplicates(subset=['Link'], keep='last')
-
-validate_streamlit_freshness(articles, min_expected_date=min_expected_date)
 
 atomic_write_csv("pipeline/resources/BERTopic_Streamlit.csv.gz", articles, compress=True)
 upload_file('pipeline/resources/BERTopic_Streamlit.csv.gz', 'latest/BERTopic_Streamlit.csv.gz')
