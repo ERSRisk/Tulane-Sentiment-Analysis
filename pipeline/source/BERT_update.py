@@ -41,6 +41,44 @@ def mem(msg: str):
     rss_gb = PROC.memory_info().rss / (1024**3)
     print(f"[MEM] {msg}: {rss_gb:.2f} GB", flush = True)
 
+def debug_date(df, name, raw_col = 'Published', utc_col = 'Published_utc', link_col = 'Link'):
+    try:
+        if df is None:
+            print(f"[DATCHECK] {name}: df is None", flush = True)
+            return
+        if len(df) == 0:
+            print(f"[DATCHECK] {name}: EMPTY df", flush = True)
+            return
+
+        work = df.copy()
+
+        if utc_col not in work.columns:
+            if raw_col in work.columns:
+                work[utc_col] = pd.to_datetime(work[raw_col], errors = 'coerce', utc = True)
+            else:
+                work[utc_col] = pd.NaT
+        else:
+            work[utc_col] = pd.to_datetime(work[utc_col], errors = 'coerce', utc = True)
+
+        parsed = work[utc_col].notna().sum()
+        total = len(work)
+
+        min_dt = work[utc_col].min()
+        max_dt = work[utc_col].max()
+
+        print(
+            f"[DATCHECK] {name}: rows = {total}, parsed_dates= {parsed},"
+            f"min = {min_df}, max = {max_dt}",
+            flush = True
+        )
+        show_cols = [c for c in ['Title', link_col, raw_col] if c in work.columns]
+        newest = (
+            work.sort_values(utc_col, ascending = False, na_position = 'last')[show_cols].head(5)
+        )
+        print(f"[DATECHK] {name} newest rows:", flush = True)
+        print(newest.to_string(index = False), flush = True)
+    except Exception as e:
+        print(f"[DATCHECK] {name}: FAILED with {e}", flush = True)
 BUCKET_NAME = "tulane-risk-data"
 mem("start")
 
@@ -922,6 +960,7 @@ if __name__ == '__main__':
         articles = json.load(f)
     # Now load it
     df = pd.DataFrame(articles)
+    debug_dates(df, "A_raw_rss_df")
     mem("after RSS dataframe")
     
     Path("Online_Extraction").mkdir(parents=True, exist_ok=True)
@@ -929,6 +968,7 @@ if __name__ == '__main__':
     shutil.copyfile(rss_path, 'Online_Extraction/all_RSS.json.gz')
     df = df[~(df['Source']=="Economist")]
     df['Text'] = df['Title'] + '. ' + df['Content']
+    debug_dates(df, "B_after_source_filtering")
     
     
     
@@ -1704,6 +1744,10 @@ if __name__ == '__main__':
             "cos_all_max": cos_all_max,
             "cos_names": cos_names
         }
+        if 'Published_utc' not in df.columns:
+            df['Published_utc'] = pd.to_datetime(df['Published'], errors='coerce', utc=True)
+        else:
+            df['Published_utc'] = pd.to_datetime(df['Published_utc'], errors='coerce', utc=True)
         with open('pipeline/resources/risks.json', 'r', encoding='utf-8') as f:
             risks_cfg = json.load(f)
     
@@ -2078,7 +2122,12 @@ if __name__ == '__main__':
         return [r for r in results if r is not None]
     
     def load_university_label(new_label):
+        
         all_articles = new_label.copy()
+        if 'Published_utc' not in all_articles.columns:
+            all_articles['Published_utc'] = pd.to_datetime(all_articles['Published'], errors='coerce', utc=True)
+        else:
+            all_articles['Published_utc'] = pd.to_datetime(all_articles['Published_utc'], errors='coerce', utc=True)
         cutoff = pd.Timestamp.utcnow() - pd.Timedelta(days=5)
         base_pub = all_articles.get('Published')
         all_articles['Published_utc'] = pd.to_datetime(base_pub, errors='coerce', utc=True)
@@ -2228,9 +2277,11 @@ if __name__ == '__main__':
     else:
         df_to_transform = df.copy()
         print(f"Dataframe to transform has no articles to remove.", flush = True)
+    debug_dates(df_to_transform, "C_df_to_transform")
     print("✅ Starting transform_text on new data...", flush=True)
     topic_model.calculate_probabilities = False
     new_df = transform_text(df_to_transform)
+    debug_dates(new_df, "D_new_df_after_transform")
     del df_to_transform
     gc.collect()
     mem("after transform text")
@@ -2248,6 +2299,7 @@ if __name__ == '__main__':
     #Save only new, non-duplicate rows
     print("✅ Saving new topics to CSV...", flush=True)
     df_combined = save_new_topics(existing_df, new_df)
+    debug_dates(df_combined, "E_df_combined_after_save_new_topics")
     del new_df
     gc.collect()
     print("Completed save_new_topics", flush = True)
@@ -2267,7 +2319,8 @@ if __name__ == '__main__':
         return pd.to_datetime(sx, errors="coerce", utc=True)
     print("✅ Running double-check for unmatched topics (-1)...", flush=True)
     cutoff_utc = pd.Timestamp(datetime.utcnow() - timedelta(days = 15), tz = 'utc')
-    df_combined['Published'] = df_combined['Published'].apply(coerce_pub_utc)
+    df_combined['Published_utc'] = df_combined['Published'].apply(coerce_pub_utc)
+    debug_dates(df_combined, "G_df_combined_after_creating_published_utc")
     print(f"Length of dataset: {len(df_combined)}", flush = True)
     print(f"Length of recalculated topic names: {len(df_combined[df_combined['Probability'] < 0.15])}", flush = True)
     low_conf_mask = df_combined['Probability'] < 0.15
@@ -2275,7 +2328,8 @@ if __name__ == '__main__':
     atomic_write_csv('pipeline/resources/Step0.csv.gz', df_combined, compress = True)
     upload_file('pipeline/resources/Step0.csv.gz', 'latest/Step0.csv.gz', BUCKET_NAME)
     #df_combined = load_midstep_from_release()
-    recent_df = df_combined[df_combined['Published'].notna() & (df_combined['Published'] >= cutoff_utc)].copy()
+    recent_df = df_combined[df_combined['Published_utc'].notna() & (df_combined['Published_utc'] >= cutoff_utc)].copy()
+    debug_dates(recent_df, "G_recent_df_for_double_check")
     temp_model, topic_ids = double_check_articles(recent_df)
     mem("after double_check_articles")
     #If there are unmatched topics, name them using Gemini
@@ -2286,11 +2340,13 @@ if __name__ == '__main__':
     #Assign weights to each article
     #df_combined = load_midstep_from_release()
     df_combined = load_university_label(df_combined)
+    debug_dates(df_combined, "H_after_load_university_label")
     mem("after load_university_label")
     atomic_write_csv('pipeline/resources/initial_label.csv.gz', df_combined, compress = True)
     upload_file('pipeline/resources/initial_label.csv.gz', 'latest/initial_label.csv.gz', BUCKET_NAME)
     #df_combined = load_midstep_from_release()
     results_df = predict_risks(df_combined)
+    debug_dates(results_df, "I_after_predict_risks")
     mem("after predict_risks")
     del df_combined
     gc.collect()
@@ -2314,14 +2370,17 @@ if __name__ == '__main__':
     ]
     
     risk_df = pd.read_csv('pipeline/resources/Step1.csv.gz', compression = 'gzip', usecols = lambda c: c in risk_usecols, low_memory = False)
+    debug_dates(risk_df, "J_risk_df_reloaded")
     mem("before risk_weights")
     df = risk_weights(risk_df)
+    debug_dates(df, "K_after_risk_weights")
     del risk_df
     gc.collect()
     mem("after risk_weights")
     print("Finished assigning risk weights", flush = True)
     df = df.drop(columns = ['University Label_x', 'University Label_y'], errors = 'ignore')
     df_new_final = df[df['Link'].isin(new_links)].copy()
+    debug_dates(df_new_final, "L_df_new_final_only_new_links")
     del df
     gc.collect()
     existing_new_version = pd.DataFrame()
@@ -2331,8 +2390,9 @@ if __name__ == '__main__':
             'pipeline/resources/BERTopic_results3.csv.gz'
         )
         
-    
+    debug_dates(existing_new_version, "M_existing_new_version")
     df_new_version = pd.concat([existing_new_version, df_new_final], ignore_index=True)
+    debug_dates(df_new_version, "N_df_new_version")
     
     # Make sure newest version wins on duplicate links
     if 'Link' in df_new_version.columns:
@@ -2352,11 +2412,13 @@ if __name__ == '__main__':
     upload_file("pipeline/resources/BERTopic_latest_full.csv.gz", 'latest/BERTopic_latest_full.csv.gz', BUCKET_NAME)
     
     print("Saving dataset for Streamlit", flush=True)
+    debug_dates(df_new_version, "O_before_streamlit")
     df_streamlit = df_new_version[df_new_version['University Label'] == 1].copy()
     
     if 'Link' in df_streamlit.columns:
         df_streamlit = df_streamlit.drop_duplicates(subset=['Link'], keep='last')
-    
+
+    debug_dates(df_streamlit, "Q_df_streamlit_after_university_label")
     atomic_write_csv("pipeline/resources/BERTopic_Streamlit.csv.gz", df_streamlit, compress=True)
     upload_file('pipeline/resources/BERTopic_Streamlit.csv.gz', 'latest/BERTopic_Streamlit.csv.gz', BUCKET_NAME)
     
