@@ -960,8 +960,14 @@ if __name__ == '__main__':
         articles = json.load(f)
     # Now load it
     df = pd.DataFrame(articles)
-    debug_date(df, "A_raw_rss_df")
+    
     mem("after RSS dataframe")
+
+    df['Source'] = df.get('Source', '').astype(str).fillna('')
+
+    df.loc[df['Source'].str.strip().eq('Tulane Hullabaloo'), 'University Label'] = 1
+
+    debug_date(df, "A_raw_rss_df")
     
     Path("Online_Extraction").mkdir(parents=True, exist_ok=True)
     import shutil
@@ -2124,6 +2130,11 @@ if __name__ == '__main__':
     def load_university_label(new_label):
         
         all_articles = new_label.copy()
+        all_articles['Source'] = all_articles.get('Source', '').astype(str).fillna('')
+        all_articles.loc[
+            all_articles['Source'].str.strip().eq('Tulane Hullabaloo'),
+            'University Label'
+        ] = 1
         cutoff = pd.Timestamp.utcnow() - pd.Timedelta(days=10)
         if 'Published_utc' in all_articles.columns:
             all_articles['Published_utc'] = pd.to_datetime(all_articles['Published_utc'], errors = 'coerce', utc =  True)
@@ -2222,7 +2233,14 @@ if __name__ == '__main__':
         combined.to_csv('pipeline/resources/BERTopic_before.csv',
                         columns=['Title', 'University Label'],
                         index=False)
-    
+        all_articles['Source'] = all_articles.get('Source', '').astype(str).fillna('')
+        all_articles.loc[
+            all_articles['Source'].str.strip().eq('Tulane Hullabaloo'),
+            'University Label'
+        ] = 1
+        all_articles['University Label'] = pd.to_numeric(
+            all_articles['University Label'], errors='coerce'
+        ).fillna(0).astype(int)
         return all_articles
     
     
