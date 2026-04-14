@@ -1452,7 +1452,7 @@ def Chronicle():
         elif article_soup.find('span', class_='BlogPostPage-datePublished'):
             published = article_soup.find('span', class_='BlogPostPage-datePublished').get_text(strip=True)
         else:
-            'Unknown'
+            published = 'Unknown'
         if published != 'Unknown' and published:
             published = (published.replace('/xa0', '').strip())
             published = pd.to_datetime(published, errors = 'coerce')
