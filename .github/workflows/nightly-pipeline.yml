@@ -122,17 +122,17 @@ jobs:
             pipeline/resources/topic_trend.csv \
             pipeline/resources/topics_BERT.json \
             pipeline/resources/unmatched_topics.json \
-            pipeline/resources/initial_label.csv.gz\
-            BERTopic_before.csv\
-            pipeline/resources/Canonical_Stories_with_Summaries.csv\
-            pipeline/resources/Articles_with_Stories.csv.gz\
-            pipeline/resources/Story_Clusters.csv.gz\
-            pipeline/resources/dashboard_stories.csv.gz\
-            pipeline/resources/dashboard_dropdown.csv.gz\
-            pipeline/resources/dashboard_articles.csv.gz\
-            pipeline/resources/subtopics.csv\
-            pipeline/resources/story_centroids.pkl\
-            pipeline/resources/subtopic_centroids.pkl\
+            pipeline/resources/initial_label.csv.gz \
+            BERTopic_before.csv \
+            pipeline/resources/Canonical_Stories_with_Summaries.csv \
+            pipeline/resources/Articles_with_Stories.csv.gz \
+            pipeline/resources/Story_Clusters.csv.gz \
+            pipeline/resources/dashboard_stories.csv.gz \
+            pipeline/resources/dashboard_dropdown.csv.gz \
+            pipeline/resources/dashboard_articles.csv.gz \
+            pipeline/resources/subtopics.csv \
+            pipeline/resources/story_centroids.pkl \
+            pipeline/resources/subtopic_centroids.pkl \
             pipeline/resources/final_risk_scores1.csv
 
           echo "== git status (porcelain) =="
