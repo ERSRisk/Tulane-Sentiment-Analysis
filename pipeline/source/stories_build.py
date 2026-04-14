@@ -797,7 +797,7 @@ story_scores = (articles.groupby("story_id").agg(
     risk_label = ("Predicted_Risks_new", safe_mode)).reset_index())
 canonical = pd.read_csv("pipeline/resources/Canonical_Stories_with_Summaries.csv")
 canonical = canonical.merge(story_scores, on = "story_id", how = 'left', validate= "one_to_one")
-canonical.to_csv("pipeline/resources/Canonical_stories_with_Summaries.csv", index = False)
+canonical.to_csv("pipeline/resources/Canonical_Stories_with_Summaries.csv", index = False)
 articles = load_latest_articles_base()
 articles = ensure_risk_scores(articles)
 articles = articles.drop_duplicates(subset = ['Title', 'Link'], keep = 'last')
@@ -1045,7 +1045,6 @@ def build_subtopic_clusters(df, subtopics, model, min_sim=0.5, subtopic_centroid
 
     return df, centroids
 
-articles = load_latest_articles_base()
 
 nlp = spacy.load("en_core_web_sm")
 model = SentenceTransformer('all-MiniLM-L6-v2')
