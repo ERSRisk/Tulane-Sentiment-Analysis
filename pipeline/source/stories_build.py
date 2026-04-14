@@ -1169,7 +1169,8 @@ risk_defs = {
   "Climate Infrastructure Risks": "University buildings, utilities, or campus infrastructure are vulnerable to long-term climate related deterioration.",
   "Environmental Noncompliance": "University fails to meet federal, state, or local environmental regulations governing waste disposal, air quality, water discharge, hazardous materials handling, or emissions.",
   "Accessibility Barriers": "Barriers prevent students, faculty, or staff with disabilities from fully accessing campus facilities, online systems, academic programs, or university services, triggering ADA compliance concerns or student grievances.",
-  "Faculty conflict": "Interpersonal or professional disputes among faculty members, including disagreements over governance, resource allocation, academic freedom, or departmental leadership that may disrupt operations, damage collegial relationships, or escalate into formal grievances or public controversy."
+  "Faculty conflict": "Interpersonal or professional disputes among faculty members, including disagreements over governance, resource allocation, academic freedom, or departmental leadership that may disrupt operations, damage collegial relationships, or escalate into formal grievances or public controversy.",
+  "Executive Board conflicts": "Interpersonal or professional disputes among board members, including disagreements over governance, resource allocation, or leadership that may disrupt operations or escalate into governance or funding conflicts."
     
     
 
