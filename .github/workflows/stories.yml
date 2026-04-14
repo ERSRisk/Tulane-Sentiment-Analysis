@@ -2,11 +2,11 @@ name: Build stories
 
 on:
   workflow_run:
-    #workflows: ["Update BERT"]
-    #types:
-      #- completed
+    workflows: ["Update BERT"]
+    types:
+      - completed
 
-  #workflow_dispatch:
+  workflow_dispatch:
 
 permissions:
   contents: write
