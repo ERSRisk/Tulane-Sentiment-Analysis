@@ -856,7 +856,7 @@ def save_new_articles(existing_articles, new_articles):
     if unique_new_articles:
         updated_articles = existing_articles + unique_new_articles
         print(f"Saving {len(updated_articles)} total articles to Releases")
-        save_new_articles_to_gcs(updated_articles)
+        save_new_articles_to_release(updated_articles)
     else:
         print("No new unique articles found.")
     return []
@@ -1042,9 +1042,8 @@ async def process_feeds(feeds, session):
 
     return articles
 
-
 COOKIE_HEADER = os.getenv("COOKIE_HEADER")
-async def batch_process_feeds(feeds, batch_size = 15, concurrent_batches =5, deadline_seconds = None, partial_path = Path('pipeline/resources/partial_all_RSS.json.gz')):
+async def batch_process_feeds(feeds, batch_size = 15, concurrent_batches =5, deadline_seconds = None, partial_path = Path('Online_Extraction/partial_all_RSS.json.gz')):
     partial_path.parent.mkdir(parents = True, exist_ok = True)
     all_articles = []
     seen_links = set()
