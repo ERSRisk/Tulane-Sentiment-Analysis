@@ -1,5 +1,4 @@
 name: Nightly Pipeline
-
 on:
   schedule:
     - cron: '0 6 * * *'
