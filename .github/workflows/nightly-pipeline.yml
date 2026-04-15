@@ -121,7 +121,6 @@ jobs:
             pipeline/resources/topic_trend.csv \
             pipeline/resources/topics_BERT.json \
             pipeline/resources/unmatched_topics.json \
-            pipeline/resources/initial_label.csv.gz \
             BERTopic_before.csv \
             pipeline/resources/Canonical_Stories_with_Summaries.csv \
             pipeline/resources/Articles_with_Stories.csv.gz \
