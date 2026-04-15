@@ -53,6 +53,54 @@ GITHUB_TOKEN = os.getenv('TOKEN')
 
 GEMINI_API_KEY = os.getenv("PAID_API_KEY")
 client = genai.Client(api_key=GEMINI_API_KEY)
+
+def debug_date(df, name, raw_col='Published', utc_col='Published_utc', link_col='Link'):
+    try:
+        if df is None:
+            print(f"[DATCHECK] {name}: df is None", flush=True)
+            return
+        if len(df) == 0:
+            print(f"[DATCHECK] {name}: EMPTY df", flush=True)
+            return
+
+        work = df.copy()
+
+        def _dbg_coerce(x):
+            if pd.isna(x):
+                return pd.NaT
+            if isinstance(x, (int, float)):
+                if x > 1e12:
+                    return pd.to_datetime(x, unit='ms', errors='coerce', utc=True)
+                if x > 1e9:
+                    return pd.to_datetime(x, unit='s', errors='coerce', utc=True)
+            sx = str(x)
+            sx = re.sub(r'\s(EST|EDT|PDT|CDT|MDT|GMT)\b', '', sx, flags=re.I)
+            return pd.to_datetime(sx, errors='coerce', utc=True)
+
+        if utc_col in work.columns:
+            work[utc_col] = work[utc_col].apply(_dbg_coerce)
+        elif raw_col in work.columns:
+            work[utc_col] = work[raw_col].apply(_dbg_coerce)
+        else:
+            work[utc_col] = pd.NaT
+
+        parsed = work[utc_col].notna().sum()
+        total = len(work)
+        min_dt = work[utc_col].min()
+        max_dt = work[utc_col].max()
+
+        print(
+            f"[DATCHECK] {name}: rows={total}, parsed_dates={parsed}, min={min_dt}, max={max_dt}",
+            flush=True
+        )
+
+        show_cols = [c for c in ['Title', link_col, raw_col] if c in work.columns]
+        newest = work.sort_values(utc_col, ascending=False, na_position='last')[show_cols].head(5)
+        print(f"[DATECHK] {name} newest rows:", flush=True)
+        print(newest.to_string(index=False), flush=True)
+
+    except Exception as e:
+        print(f"[DATCHECK] {name}: FAILED with {e}", flush=True)
     
 def load_latest_articles_base():
     """
@@ -770,6 +818,7 @@ def build_stories(base_articles):
 
 #Show the articles over time
 base_articles = load_latest_articles_base()
+debug_date(base_articles, "debug after loading articles base")
 stories = build_stories(base_articles)
 def safe_mode(series):
     s = series.dropna()
@@ -799,8 +848,11 @@ canonical = pd.read_csv("pipeline/resources/Canonical_Stories_with_Summaries.csv
 canonical = canonical.merge(story_scores, on = "story_id", how = 'left', validate= "one_to_one")
 canonical.to_csv("pipeline/resources/Canonical_Stories_with_Summaries.csv", index = False)
 articles = load_latest_articles_base()
+debug_date(articles, "debug aftr second loading")
 articles = ensure_risk_scores(articles)
+debug_date(articles, "debug after risk scores")
 articles = articles.drop_duplicates(subset = ['Title', 'Link'], keep = 'last')
+debug_date(articles, "debug after dropping duplicates")
 article_story_map = pd.read_csv("pipeline/resources/Articles_with_Stories.csv.gz", compression = 'gzip')
 article_story_map = article_story_map.drop_duplicates(subset = ['Title', 'Link'], keep = 'last')
 canonical = pd.read_csv("pipeline/resources/Canonical_Stories_with_Summaries.csv")
@@ -811,10 +863,13 @@ stories_df = pd.read_csv(
 )
 canonical = canonical.merge(stories_df[["story_id"]], on = "story_id", how = "left")
 articles = articles.merge(article_story_map[['Title', 'Link', 'story_id']], on =['Title','Link'], how='left', validate='many_to_one')
+debug_date(articles, "debug after merging story_id")
 story_sizes = (articles.groupby("story_id").size().rename("story_articles_count").reset_index())
 
 articles = articles.merge(canonical, on = "story_id", how = 'left', validate = 'many_to_one')
+debug_date(articles, "debug after merge with canonical")
 articles = articles.merge(story_sizes, on = "story_id", how = 'left')
+debug_date(articles, "debug after merge with story_sizes")
 
 canonical_articles = articles[articles['story_articles_count'] >= 2].copy()
 
@@ -851,7 +906,7 @@ dashboard_stories.to_csv("pipeline/resources/dashboard_stories.csv.gz", compress
 dropdown_table.to_csv("pipeline/resources/dashboard_dropdown.csv.gz", compression = 'gzip')
 standalone_articles.to_csv("pipeline/resources/dashboard_articles.csv.gz", compression = 'gzip')
 
-articles_only = articles[articles['story_articles_count']<3].copy()
+#articles_only = articles[articles['story_articles_count']<3].copy()
 
 def build_subtopic_clusters(df, subtopics, model, min_sim=0.5, subtopic_centroids = None):
     df = df.copy()
@@ -1064,8 +1119,7 @@ already_clustered['Window'] = (
     .dt.tz_localize('UTC')
 )
 new_only = articles[
-    ~articles['Title'].isin(subtopics['Title']) & 
-    (articles['University Label'] == 1)
+    ~articles['Title'].isin(subtopics['Title'])
 ].copy()
 
 print(f"Already clustered: {len(already_clustered)}, New: {len(new_only)}", flush=True)
@@ -1076,6 +1130,8 @@ if Path('pipeline/resources/subtopic_centroids.pkl').exists():
 else:
     subtopic_centroids = None
 articles, updated_centroids = build_subtopic_clusters(new_only, subtopics, model, subtopic_centroids=subtopic_centroids)
+
+debug_date(articles, "debug after build_subtopic_clusters")
 
 updated_subtopics = pd.concat([subtopics, articles[['Title', 'Link','Cluster', 'Event_Severity', 'Event_Label', 'Published_utc']]],
                              ignore_index = True).drop_duplicates(subset = ['Title', 'Link'], keep = 'last')
@@ -1099,6 +1155,7 @@ already_clustered = already_clustered.merge(subtopics[['Title', 'Link', 'Cluster
     how='left'
 )
 articles = pd.concat([already_clustered, articles], ignore_index=True)
+debug_date(articles, "debug after concat of already-clustered and articles")
 
 
 atomic_write_csv("pipeline/resources/BERTopic_Streamlit.csv.gz", articles, compress = True)
@@ -1109,10 +1166,10 @@ df = articles
 df['Published_utc'] = pd.to_datetime(df['Published_utc'], errors = 'coerce')
 df.sort_values('Published_utc', inplace = True)
 df['Content_trunc'] = df['Content'].fillna('').str.slice(0, 500)
-df = df[df['Predicted_Risks_new'] != 'No Risk'].copy()
 
 bundle = load_model_bundle(Github_owner, Github_repo, 'regression')
 risk_defs = {
+  "No Risk": "Nothing to do with the institution to pose a risk financially, structurally, or academically.",
   "Research Funding Disruption": "University research funding halted or withdrawn. Grant cuts, pauses, or canceled awards stop lab projects and furlough staff.",
   "Enrollment Pressure": "Fewer applications or lower student retention reduce tuition revenue. Admissions decline or FAFSA delays cause enrollment stress.",
   "Policy or Political Interference": "State or federal officials intervene in campus DEI or curriculum policies through mandates or funding threats.",
@@ -1308,6 +1365,7 @@ def risk_weights_second_pass(df):
         base['Published'] = base['Published'].dt.tz_convert('UTC').dt.tz_localize(None) 
 
     risk_half_life = { 
+        "No Risk": 0,
         "Research Funding Disruption": 60, 
         "Enrollment Pressure": 60, 
         "Policy or Political Interference": 90, 
@@ -1467,13 +1525,17 @@ def risk_weights_second_pass(df):
 
 articles = df
 
+
 articles = risk_weights_second_pass(articles)
+debug_date(articles, "debug after second run of weights")
 # Ensure latest date from base survived through enrichment
 base_pub = pd.to_datetime(base_articles['Published_utc'], errors='coerce', utc=True) if 'Published_utc' in base_articles.columns else pd.Series(dtype='datetime64[ns, UTC]')
 min_expected_date = base_pub.max() if not base_pub.empty else None
 
 if 'Link' in articles.columns:
     articles = articles.drop_duplicates(subset=['Link'], keep='last')
+
+debug_date(articles, "debug after final dedup")
 
 atomic_write_csv("pipeline/resources/BERTopic_Streamlit.csv.gz", articles, compress=True)
 upload_file('pipeline/resources/BERTopic_Streamlit.csv.gz', 'latest/BERTopic_Streamlit.csv.gz')
