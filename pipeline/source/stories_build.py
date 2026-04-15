@@ -1119,7 +1119,7 @@ already_clustered['Window'] = (
     .dt.tz_localize('UTC')
 )
 new_only = articles[
-    (~articles['Title'].isin(subtopics['Title'])) & (articles['University Label' == 1)
+    (~articles['Title'].isin(subtopics['Title'])) & (articles['University Label'] == 1)
 ].copy()
 
 print(f"Already clustered: {len(already_clustered)}, New: {len(new_only)}", flush=True)
