@@ -1708,17 +1708,88 @@ if __name__ == '__main__':
             cos = (cos + 1.0) / 2.0
             denom = cos.sum(axis = 1, keepdims = True) + 1e-12
             return cos/denom
-        def rule_route(text, label): 
-            t = text.lower() 
-    
-            if any(k in t for k in ["hazing", "pledge", "fraternity", "sorority"]) and ("student" in t or "chapter" in t or "greek" in t): 
+        def rule_route(text, label):
+            t = str(text).lower()
+        
+            physical_threat_terms = [
+                "shooting", "gun", "armed", "bomb", "explosion", "assault",
+                "stab", "lockdown", "shelter in place", "violent threat",
+                "active shooter", "weapon", "homicide"
+            ]
+        
+            immigration_terms = [
+                "visa", "international student", "foreign student", "dhs", "sevp",
+                "deport", "deportation", "immigration", "enrollment ban", "ice"
+            ]
+        
+            student_conduct_terms = [
+                "hazing", "fraternity", "sorority", "pledge", "student misconduct",
+                "disciplinary", "discipline", "suspension", "fight", "greek life"
+            ]
+        
+            student_loan_terms = [
+                "student loan", "loan forgiveness", "repayment plan", "borrowers",
+                "fafsa", "financial aid", "tuition affordability"
+            ]
+        
+            positive_funding_terms = [
+                "awarded", "grant awarded", "received funding", "funds center",
+                "establish a center", "cooperative research center", "grant to establish",
+                "award to", "funding to support", "new center"
+            ]
+        
+            funding_disruption_terms = [
+                "funding cut", "grant cut", "freeze", "frozen", "terminated", "cancelled",
+                "canceled", "rescinded", "clawback", "cap on indirect costs", "funding pause",
+                "research halted", "grant halted", "withheld funding"
+            ]
+        
+            protest_detention_terms = [
+                "activist", "protest", "detention", "detained", "ice detention",
+                "free speech", "demonstration", "arrested", "campus protest"
+            ]
+        
+            dei_backlash_terms = [
+                "dei ban", "anti-dei", "backlash", "attacked dei", "ended dei",
+                "rolled back dei", "challenged dei", "political attack on dei"
+            ]
+        
+            # Hazing / Greek life / real student misconduct
+            if any(k in t for k in student_conduct_terms):
                 return "Student Conduct Incident"
-            if any(k in t for k in ["D.E.I.", "DEI"]):
-                return "DEI Program Backlash"
-            if label == "Vendor Cyber Exposure" and not any(k in t for k in ["vendor", "third-party", "saas", "hosting", "soc 2", "breach", "dpi a", "dpa", "pii", "cybersecurity", "supplier"]):
-                if "ai" in t or "artificial intelligence" in t: 
+        
+            # DEI only if backlash context exists
+            if "dei" in t or "d.e.i." in t:
+                if any(k in t for k in dei_backlash_terms):
+                    return "DEI Program Backlash"
+        
+            # Immigration / foreign-student bans should not become violence
+            if label == "Violence or Threats" and not any(k in t for k in physical_threat_terms):
+                if any(k in t for k in immigration_terms):
+                    return "Policy or Political Interference"
+        
+            # Protest / detention stories are not student conduct
+            if label == "Student Conduct Incident" and not any(k in t for k in student_conduct_terms):
+                if any(k in t for k in protest_detention_terms + immigration_terms):
+                    return "Policy or Political Interference"
+        
+            # Positive funding stories are not disruption
+            if label == "Research Funding Disruption":
+                if any(k in t for k in positive_funding_terms) and not any(k in t for k in funding_disruption_terms):
+                    return "No Risk"
+        
+            # Student-loan / aid / affordability stories
+            if any(k in t for k in student_loan_terms):
+                return "Enrollment Pressure"
+        
+            # Vendor cyber correction
+            if label == "Vendor Cyber Exposure" and not any(k in t for k in [
+                "vendor", "third-party", "saas", "hosting", "soc 2", "breach",
+                "dpia", "dpa", "pii", "cybersecurity", "supplier"
+            ]):
+                if "ai" in t or "artificial intelligence" in t:
                     return "Artificial Intelligence Ethics & Governance"
-                return label
+        
             return label
             
         def predict_with_fallback(proba_lr, cos_all, prob_cut, margin_cut, tau, tau_gray, trained_labels, all_labels):
@@ -1792,21 +1863,21 @@ if __name__ == '__main__':
         df['Title'] = df['Title'].fillna('').str.strip()
     
         df['Content'] = df['Content'].fillna('').str.strip()
-        df['Text'] = (df['Title'] + '. ' + df['Title'] + '. ' + df['Content']).str.strip()
+        df['Text'] = (df['Title'] + '. ' + df['Content']).str.strip()
     
         df = df.reset_index(drop = True)
     
         if 'Predicted_Risks_new' in df.columns:
             todo_mask = (df['Predicted_Risks_new'].isna()) | (df['Predicted_Risks_new'].eq('')) | (df['Predicted_Risks_new'].eq('No Risk'))
             todo_mask &= mask_he
-            recent_cut = pd.Timestamp.now(tz='utc') - pd.Timedelta(days=30)
+            recent_cut = pd.Timestamp.now(tz='utc') - pd.Timedelta(days=200)
             recent_mask = df['Published_utc'] >= recent_cut
             todo_mask &= recent_mask.fillna(False)
             sub = df.loc[todo_mask].copy()
             texts = df.loc[todo_mask, 'Text'].tolist()
         else:
             todo_mask = pd.Series(True, index=df.index)
-            recent_cut = pd.Timestamp.now(tz='utc') - pd.Timedelta(days=30)
+            recent_cut = pd.Timestamp.now(tz='utc') - pd.Timedelta(days=200)
             df['Published_utc'] = pd.to_datetime(df['Published'], errors='coerce', utc = True)
             recent_mask = df['Published_utc'] >= recent_cut
             todo_mask &= recent_mask.fillna(False)
@@ -1893,23 +1964,24 @@ if __name__ == '__main__':
     {txt[:3000]}
     
     Rules:
-    - If the article is not clearly about a risk to a US higher-education institution, return "No Risk".
-    - If the article is about sports results or leadership, return "No Risk"
-    - Prefer the most specific risk (e.g., "Lab Incident" instead of "Environmental Exposure").
-    - If the title refers to federal funding, ALWAYS return "Research Funding Disruption".
-    - DO NOT use "Unauthorized Access/Dat Breach" if the article does not refer to the digital space or cloud systems
-    - If guns/lockdown/active shooter/bombs/explosions on educational institutions → "Violence or Threats".
-    - If it is any lab materials spilled or lab subjects on the loose, research materials mishandled -> "Lab Incident"
-    - If hazing/Greek life/student misconduct → "Student Conduct Incident".
-    - If third-party/SaaS vendor breach or supplier compromise → "Vendor Cyber Exposure".
-    - If open storage / IAM / exposed endpoint → "Cloud Misconfiguration".
-    - If any policies or political interference is affecting school curricula and acivities, or if gender or race are mentioned in the context of academic programs or political policy changes -> "Policy or Political Interference" and NOT "Title IX/ADA Noncompliance"
-    - If the event is general AI use on campus policy/teaching → "Artificial Intelligence Ethics & Governance". This topic should ONLY be used if AI/artificial intelligence is in the article
-    - If none match confidently → "No Risk".
-    
-    MANDATORY READ CAREFULLY:
-    - The following risks should be applied WHEN AND ONLY WHEN Tulane University or the leadership of Tulane University is explicitly mentioned: 
-    ("High Profile Litigation", "Emergency Preparedness", "Unexpected Expenditures", "Leadership Missteps", "Revenue Loss", "Institutional Alignment","Controversial Public Incident"). DO NOT, and I repeat, DO NOT assign these risks UNLESS Tulane University, Tulane, or Tulane University leadership are EXPLICITLY mentioned.
+- If the article is not clearly about a risk to a US higher-education institution, return "No Risk".
+- Speculative liability discussion without an actual lawsuit, enforcement action, or institution-specific legal dispute should NOT be High-Profile Litigation
+- If the article is about sports results, coach awards, celebrations, or general athletics coverage, return "No Risk".
+- Prefer the most specific risk.
+- Federal funding CUTS, FREEZES, PAUSES, TERMINATIONS, RESCISSIONS, CLAWBACKS, or caps on research support -> "Research Funding Disruption".
+- Positive grant awards, research center funding announcements, cooperative agreements, and new federal awards -> "No Risk".
+- Foreign-student visa restrictions, DHS or SEVP actions, deportation threats affecting student enrollment, or bans on enrolling international students -> "Policy or Political Interference".
+- Student-loan repayment, loan forgiveness, FAFSA, student borrowing costs, and aid affordability stories -> "Enrollment Pressure".
+- "Violence or Threats" only for physical danger: weapons, shootings, bombs, assaults, active shooter events, violent threats, or lockdowns caused by safety threats.
+- Hazing, Greek life misconduct, student disciplinary violations, and student fights -> "Student Conduct Incident".
+- Protest-related arrests, activist detention, deportation proceedings, or speech crackdowns are NOT "Student Conduct Incident"; usually they are "Policy or Political Interference".
+- If the article is about general AI use on campus, AI policy, or AI in teaching/governance, use "Artificial Intelligence Ethics & Governance".
+- Censorship allegations, gag orders, institutional retaliation, whistleblowing, internal suppression of academic speech → Whistleblower Claims or Leadership Missteps
+- If none match confidently, return "No Risk".
+
+MANDATORY:
+- The following risks should be applied WHEN AND ONLY WHEN Tulane University or Tulane leadership is explicitly mentioned:
+  "High-Profile Litigation", "Emergency Preparedness Gaps", "Unexpected Expenditures", "Leadership Missteps", "Revenue Loss", "Institutional Alignment Risk", "Controversial Public Incident"
     """
                 max_tries = 6
                 last_err = None
