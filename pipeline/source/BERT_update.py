@@ -2393,9 +2393,13 @@ if __name__ == '__main__':
     mem("after dropping results_df before risk_weights")
 
     risk_usecols = [
-        'Title', 'Content', 'Source', 'Published', 'Link', 'Entities',
-        'Predicted_Risks_new', 'Predicted_Risks', 'Topic', 'Probability',
-        'University Label', 'Location'
+    'Title', 'Content', 'Source', 'Published', 'Link', 'Entities',
+    'Predicted_Risks_new', 'Predicted_Risks', 'Topic', 'Probability',
+    'University Label', 'Location',
+    'pred_source',
+    'Pred_LR_label',
+    'Pred_cos_label_all',
+    'Pred_cos_score_all'
     ]
     
     risk_df = pd.read_csv('pipeline/resources/Step1.csv.gz', compression = 'gzip', usecols = lambda c: c in risk_usecols, low_memory = False)
