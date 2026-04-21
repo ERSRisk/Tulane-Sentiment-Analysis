@@ -1064,7 +1064,7 @@ def build_subtopic_clusters(df, subtopics, model, min_sim=0.5, subtopic_centroid
             )
 
             response = client.models.generate_content(
-                model='gemini-2.0-flash',
+                model='gemini-2.5-flash',
                 contents=[prompt]
             )
 
