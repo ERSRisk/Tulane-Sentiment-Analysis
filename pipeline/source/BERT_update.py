@@ -1100,7 +1100,7 @@ if __name__ == '__main__':
             max_attempts = 5
             for attempt in range(max_attempts):
                 try:
-                    response = client.models.generate_content(model="gemini-2.0-flash", contents=[prompt])
+                    response = client.models.generate_content(model="gemini-2.5-flash", contents=[prompt])
                     output_text = response.candidates[0].content.parts[0].text
                     output_text = re.sub(r"^```(?:json)?\s*", "", output_text)
                     output_text = re.sub(r"\s*```$", "", output_text)
@@ -1989,7 +1989,7 @@ MANDATORY:
                 for attempt in range(1, max_tries +1):
                     try:
                         resp = client.models.generate_content(
-                        model="gemini-2.0-flash",
+                        model="gemini-2.5-flash",
                         contents=[prompt]
                         )
                         break
@@ -2061,7 +2061,7 @@ MANDATORY:
         last_err = None
         for attempt in range(1, max_tries +1):
             try:
-                return client.models.generate_content(model="gemini-2.0-flash", contents=[prompt])
+                return client.models.generate_content(model="gemini-2.5-flash", contents=[prompt])
             except ClientError as e:
                 msg = str(e).lower()
                 if ("resource exhausted" in msg) or ("quota" in msg) or ("429" in msg):
