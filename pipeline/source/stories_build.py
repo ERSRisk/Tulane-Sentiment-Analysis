@@ -846,7 +846,7 @@ story_scores = (articles.groupby("story_id").agg(
     risk_label = ("Predicted_Risks_new", safe_mode)).reset_index())
 canonical = pd.read_csv("pipeline/resources/Canonical_Stories_with_Summaries.csv")
 story_score_small = story_scores[['story_id', 'avg_impact_score', 'avg_frequency', 'avg_location', 'risk_label']]
-canonical = canonical.merge(story_scores_small, on = "story_id", how = 'left', validate= "one_to_one")
+canonical = canonical.merge(story_score_small, on = "story_id", how = 'left', validate= "one_to_one")
 canonical.to_csv("pipeline/resources/Canonical_Stories_with_Summaries.csv", index = False)
 articles = load_latest_articles_base()
 debug_date(articles, "debug aftr second loading")
