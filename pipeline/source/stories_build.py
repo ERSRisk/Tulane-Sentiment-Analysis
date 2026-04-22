@@ -846,6 +846,14 @@ story_scores = (articles.groupby("story_id").agg(
     risk_label = ("Predicted_Risks_new", safe_mode)).reset_index())
 canonical = pd.read_csv("pipeline/resources/Canonical_Stories_with_Summaries.csv")
 story_score_small = story_scores[['story_id', 'avg_impact_score', 'avg_frequency', 'avg_location', 'risk_label']]
+cols_to_remove = [
+    'avg_impact_score', 'avg_frequency', 'avg_location', 'risk_label',
+    'avg_impact_score_x', 'avg_impact_score_y',
+    'avg_frequency_x', 'avg_frequency_y',
+    'risk_location_x', 'avg_location_y',
+    'risk_label_x', 'risk_label_y'
+]
+canonical = canonical.drop(columns = [c for c in cols_to_remove if c in canonical.columns], errors = 'ignore')
 canonical = canonical.merge(story_score_small, on = "story_id", how = 'left', validate= "one_to_one")
 canonical.to_csv("pipeline/resources/Canonical_Stories_with_Summaries.csv", index = False)
 articles = load_latest_articles_base()
