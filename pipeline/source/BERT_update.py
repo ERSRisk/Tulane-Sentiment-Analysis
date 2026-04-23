@@ -1868,11 +1868,10 @@ if __name__ == '__main__':
         df = df.reset_index(drop = True)
     
         if 'Predicted_Risks_new' in df.columns:
-            todo_mask = (df['Predicted_Risks_new'].isna()) | (df['Predicted_Risks_new'].eq('')) | (df['Predicted_Risks_new'].eq('No Risk'))
-            todo_mask &= mask_he
+            missing_mask = (df['Predicted_Risks_new'].isna()) | (df['Predicted_Risks_new'].eq('')) | (df['Predicted_Risks_new'].eq('No Risk'))
             recent_cut = pd.Timestamp.now(tz='utc') - pd.Timedelta(days=30)
             recent_mask = df['Published_utc'] >= recent_cut
-            todo_mask &= recent_mask.fillna(False)
+            todo_mask = mask_he & (missing_mask | recent_mask)
             sub = df.loc[todo_mask].copy()
             texts = df.loc[todo_mask, 'Text'].tolist()
         else:
@@ -2447,6 +2446,9 @@ MANDATORY:
     upload_file('pipeline/resources/initial_label.csv.gz', 'latest/initial_label.csv.gz', BUCKET_NAME)
     #df_combined = load_midstep_from_release()
     results_df = predict_risks(df_combined)
+    mask_he = pd.to_numeric(results_df['University Label'], errors = 'coerce').fillna(0).astype(int) == 1
+    results_df.loc[mask_he & results_df['Predicted_Risks_new'].isna(), 'Predicted_Risks_new'] = 'No Risk'
+    results_df.loc[mask_he & results_df['Predicted_Risks_new'].astype(str).str.strip().eq(''), 'Predicted_Risks_new'] = 'No Risk'
     debug_date(results_df, "I_after_predict_risks")
     mem("after predict_risks")
     del df_combined
