@@ -1497,17 +1497,15 @@ def risk_weights_second_pass(df):
         for c in ['last_seen_days','decayed_volume','recency_score_tr']:
             if c not in tr.columns:
                 tr[c] = np.nan
-        cols_to_drop = ["Predicted_Risks_new", "last_seen_days","decayed_volume",
+        cols_to_drop = ["last_seen_days","decayed_volume",
                     "recency_score_tr","recency_score_tr_x","recency_score_tr_y"]
         df = df.drop(columns=[c for c in cols_to_drop if c in df.columns], errors="ignore")
 
         tr_small = tr[["Cluster","Predicted_Risks_new","last_seen_days","decayed_volume","recency_score_tr"]].rename(
             columns={"recency_score_tr": "recency_score_tr_tr"}
         )
-        overlap = [c for c in tr_small.columns if c in df.columns and c!= 'Cluster']
-        if overlap:
-            df = df.drop(columns = overlap)
-        enriched = df.merge(tr_small, on="Cluster", how="left")
+        
+        enriched = df.merge(tr_small, on=["Cluster", "Predicted_Risks_new"], how="left", validate = "m:1")
 
         days = pd.to_numeric(enriched.get('Days_Ago', np.nan), errors='coerce').astype(float)
         enriched['article_freshness'] = np.exp(-np.log(2.0) * (days / 14.0)).fillna(0.0)
@@ -1545,7 +1543,8 @@ if 'Link' in articles.columns:
     articles = articles.drop_duplicates(subset=['Link'], keep='last')
 
 debug_date(articles, "debug after final dedup")
-
+articles['Predicted_Risks_new'] = (articles['Predicted_Risks_new'].fillna('No Risk').astype(str).str.strip())
+articles.loc[articles['Predicted_Risks_new'].eq('') | articles['Predicted_Risks_new'].str.lower().eq('nan'), 'Predicted_Risks_new'] = 'No Risk'
 atomic_write_csv("pipeline/resources/BERTopic_Streamlit.csv.gz", articles, compress=True)
 upload_file('pipeline/resources/BERTopic_Streamlit.csv.gz', 'latest/BERTopic_Streamlit.csv.gz')
 
