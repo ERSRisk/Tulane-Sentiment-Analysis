@@ -1710,11 +1710,12 @@ if __name__ == '__main__':
             return cos/denom
         def rule_route(text, label):
             t = str(text).lower()
+            label = "No Risk" if pd.isna(label) or str(label).strip() == '' else str(label).strip()
         
             physical_threat_terms = [
                 "shooting", "gun", "armed", "bomb", "explosion", "assault",
                 "stab", "lockdown", "shelter in place", "violent threat",
-                "active shooter", "weapon", "homicide"
+                "active shooter", "weapon", "homicide", "mass shooting", "gunfire", "open fire", "murder"
             ]
         
             immigration_terms = [
@@ -1724,7 +1725,7 @@ if __name__ == '__main__':
         
             student_conduct_terms = [
                 "hazing", "fraternity", "sorority", "pledge", "student misconduct",
-                "disciplinary", "discipline", "suspension", "fight", "greek life"
+                "disciplinary", "discipline", "suspension", "greek life"
             ]
         
             student_loan_terms = [
@@ -1752,6 +1753,11 @@ if __name__ == '__main__':
             dei_backlash_terms = [
                 "dei ban", "anti-dei", "backlash", "attacked dei", "ended dei",
                 "rolled back dei", "challenged dei", "political attack on dei"
+            ]
+
+            education_policy_terms = [
+                "department of education", "ed proposes", "accountability framework",
+                "education department", "title ix rule", "ada rule"
             ]
         
             # Hazing / Greek life / real student misconduct
@@ -1789,6 +1795,9 @@ if __name__ == '__main__':
             ]):
                 if "ai" in t or "artificial intelligence" in t:
                     return "Artificial Intelligence Ethics & Governance"
+
+            if any(k in t for k education_policy_terms):
+                return "Policy or Political Interference"
         
             return label
             
@@ -2103,24 +2112,48 @@ MANDATORY:
     async def process_article(article, sem, batch_number=None, total_batches=None, article_index=None):
         async with sem:
             try:
+                relevant_cats = []
+                for rank in [1, 2, 3]:
+                    cat = article.get(f"top_context_{rank}")
+                    score = article.get(f"top_score_{rank}", 0)
+                    if cat and score >= 0.3:
+                        relevant_cats.append(cat)
+        
+                if not relevant_cats:
+                    print(f"Row {i:>3} | 0")
+                    return {"Title": str(article.get('Title', '')), "University Label": 0}
                 if batch_number is not None and total_batches is not None and article_index is not None:
                     print(f"📦 Processing Batch {batch_number} of {total_batches} | Article {article_index}", flush=True)
-    
+                truncated = article['combined_text'][:3000]
                 content = article['Content']
-                title = article['Title']
+                article_title = article['Title']
                 if pd.isna(content) or pd.isna(title):
                     return None
-    
-                prompt = f"""
-                Read the following title and content from the following article: 
-                Title: {title}
-                Content: {" ".join(str(content).split()[:400])}
-                Task: Decide if this is SPECIFICALLY about higher education/university news or university funding in the UNITED STATES ONLY.
-                Return a compact valid JSON with exactly these keys and no explanations:
+                categories_block = ''
+                for name in relevant_cats:
+                    description = context_library[name]
+                    categories_block += f"\n### {name}\n{description.strip()}\n"
+                prompt = f"""You are an Enterprise Risk Management analyst for Tulane University, \\
+                a private research university in New Orleans, Louisiana.
+                
+                Read the article below and decide whether it is relevant to Tulane University \\
+                based on the risk categories provided. Be strict: only mark relevant=1 if the article \\
+                clearly describes a risk or event that could affect Tulane or a close peer institution.
+                
+                ARTICLE TITLE: {article_title}
+                
+                ARTICLE TEXT:
+                {truncated}
+                
+                ---
+                RISK CATEGORIES TO CONSIDER:
+                {categories_block}
+                ---
+                
+                Respond with ONLY a valid JSON object in this exact format — no markdown, no extra text:
                 {{
-                  "Title": "same title",
-                  "Content": "same content",
-                  "University Label": 1 or 0
+                  "University Label": 0,
+                  "reasoning": "one sentence explaining your decision"
                 }}
                 
                 Labeling rules:
@@ -2141,36 +2174,24 @@ MANDATORY:
                 - If the article is a news wrap, a podcast, or a video, return 0
                 - If the article is a general scientific discovery, return 0
                 
-                Output must be exactly:
-                {{
-                  "Title": "same title",
-                  "Content": "same content",
-                  "University Label": 0 or 1
-                }}
                 """
     
                 response = await asyncio.to_thread(call_gemini, prompt)
-                if hasattr(response, "text") and response.text:
-                    response_text = response.text
-                    json_str = re.search(r"```json\s*(\{.*?\})\s*```", response_text, re.DOTALL)
-                    raw = json_str.group(1) if json_str else response_text
-                    raw = (raw.replace("“", '"').replace("”", '"')
-                       .replace("’", "'")
-                       .replace("\n", " "))
-                    raw = re.sub(r",\s*}", "}", raw)
-                    raw = re.sub(r",\s*]", "]", raw)
-    
-    
-                    try:
-                        rec = json.loads(raw)
-                    except json.JSONDecodeError as e1:
-                        try:
-                            rec = ast.literal_eval(raw)
-                        except Exception as e2:
-                            print(f"⚠️ JSON decode fallback error: {e1} | Eval error: {e2}", flush=True)
-                            return None
-                    title = rec.get('Title') or rec.get('title') or str(title)
-                    content = rec.get('Content') or rec.get('content') or str(content)
+                default = {"University Label": 0, "reasoning": "parse error"}
+                try:
+                    response_text = getattr(response, "text", "") or ""
+                    cleaned = response_text.strip()
+                    if cleaned.startswith("```"):
+                        cleaned = cleaned.split("```")[1]
+                        if cleaned.lower().startswith("json"):
+                            cleaned = cleaned[4:]
+                    cleaned = cleaned.strip()
+                    parsed = json.loads(cleaned)
+                    return {
+                        "University Label": 1 if int(parsed.get("University Label", 0)) == 1 else 0,
+                        "reasoning": parsed.get("reasoning", "")
+                    }
+                
     
                     ulabel = rec.get('University Label')
     
@@ -2183,6 +2204,9 @@ MANDATORY:
                     except Exception:
                         ulabel = 0
                     return {'Title': str(title), "Content": str(content), 'University Label': ulabel}
+                except Exception as e:
+                    print(f"  [parse error] {e} | raw: {response_text[:200]}")
+                    return default
             except Exception as e:
                 print(f"🔥 Uncaught error in article {article_index} of batch {batch_number}: {e}", flush=True)
                 return None
@@ -2191,13 +2215,38 @@ MANDATORY:
     async def university_label_async(articles, batch_size=15, concurrency=10):
         sem = asyncio.Semaphore(concurrency)
         tasks = []
+
+        model = SentenceTransformer("all-MiniLM-L6-v2")
+        print("Model loaded.")
     
         total_articles = len(articles)
         total_batches = (total_articles + batch_size - 1) // batch_size
+        context_names = list(context_library.keys())
+        context_texts = list(context_library.values())
+        context_embeddings = model.encode(context_texts, show_progress_bar = True)
         for start in range(0, total_articles, batch_size):
             batch_number = (start // batch_size) + 1
             print(f"🚚 Starting Batch {batch_number} of {total_batches}", flush=True)
             batch = articles.iloc[start:start+batch_size]
+            batch['combined_text'] = (articles["combined_text"] = (
+                articles["Title"].fillna("").astype(str) + " " +
+                articles["Summary"].fillna("").astype(str) + " " +
+                articles["Content"].fillna("").astype(str)
+            ))
+            article_embeddings = model.encode(batch['combined_text'].tolist(), show_progress_bar = True)
+
+            similarity_matrix = cosine_similarity(article_embeddings, context_embeddings)
+            top_3_indices = np.argsort(similarity_matrix, axis=1)[:,::-1][:,:3]
+    
+            batch = batch.copy()
+            batch["top_context_1"] = [context_names[row[0]] for row in top_3_indices]
+            batch["top_context_2"] = [context_names[row[1]] for row in top_3_indices]
+            batch["top_context_3"] = [context_names[row[2]] for row in top_3_indices]
+            
+            batch["top_score_1"] = [similarity_matrix[i, row[0]] for i, row in enumerate(top_3_indices)]
+            batch["top_score_2"] = [similarity_matrix[i, row[1]] for i, row in enumerate(top_3_indices)]
+            batch["top_score_3"] = [similarity_matrix[i, row[2]] for i, row in enumerate(top_3_indices)]
+                
             for i, (_, row) in enumerate(batch.iterrows()):
                 tasks.append(process_article(row, sem,
                                              batch_number=batch_number,
@@ -2211,10 +2260,6 @@ MANDATORY:
         
         all_articles = new_label.copy()
         all_articles['Source'] = all_articles.get('Source', '').astype(str).fillna('')
-        all_articles.loc[
-            all_articles['Source'].str.strip().eq('Tulane Hullabaloo'),
-            'University Label'
-        ] = 1
         cutoff = pd.Timestamp.utcnow() - pd.Timedelta(days=10)
         if 'Published_utc' in all_articles.columns:
             all_articles['Published_utc'] = pd.to_datetime(all_articles['Published_utc'], errors = 'coerce', utc =  True)
