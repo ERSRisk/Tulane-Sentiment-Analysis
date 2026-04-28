@@ -974,7 +974,6 @@ if __name__ == '__main__':
 
     df['Source'] = df.get('Source', '').astype(str).fillna('')
 
-    df.loc[df['Source'].str.strip().eq('Tulane Hullabaloo'), 'University Label'] = 1
 
     debug_date(df, "A_raw_rss_df")
     
@@ -2120,14 +2119,14 @@ MANDATORY:
                         relevant_cats.append(cat)
         
                 if not relevant_cats:
-                    print(f"Row {i:>3} | 0")
+                    print(f"Row {article_index:>3} | 0")
                     return {"Title": str(article.get('Title', '')), "University Label": 0}
                 if batch_number is not None and total_batches is not None and article_index is not None:
                     print(f"📦 Processing Batch {batch_number} of {total_batches} | Article {article_index}", flush=True)
                 truncated = article['combined_text'][:3000]
                 content = article['Content']
                 article_title = article['Title']
-                if pd.isna(content) or pd.isna(title):
+                if pd.isna(content) or pd.isna(article_title):
                     return None
                 categories_block = ''
                 for name in relevant_cats:
@@ -2177,7 +2176,7 @@ MANDATORY:
                 """
     
                 response = await asyncio.to_thread(call_gemini, prompt)
-                default = {"University Label": 0, "reasoning": "parse error"}
+                default = {"Title": str(article_title), "University Label": 0, "reasoning": "parse error"}
                 try:
                     response_text = getattr(response, "text", "") or ""
                     cleaned = response_text.strip()
@@ -2188,15 +2187,16 @@ MANDATORY:
                     cleaned = cleaned.strip()
                     parsed = json.loads(cleaned)
                     return {
+                        "Title": str(article_title),
                         "University Label": 1 if int(parsed.get("University Label", 0)) == 1 else 0,
                         "reasoning": parsed.get("reasoning", "")
                     }
                 
     
-                    ulabel = rec.get('University Label')
+                    ulabel = parsed.get('University Label')
     
                     if ulabel is None:
-                        ulabel = rec.get('university_label') or rec.get('University_label') or rec.get('university label') or 0
+                        ulabel = parsed.get('university_label') or rec.get('University_label') or rec.get('university label') or 0
     
                     try:
                         ulabel = int(ulabel)
@@ -2228,10 +2228,10 @@ MANDATORY:
             batch_number = (start // batch_size) + 1
             print(f"🚚 Starting Batch {batch_number} of {total_batches}", flush=True)
             batch = articles.iloc[start:start+batch_size]
-            batch['combined_text'] = (articles["combined_text"] = (
-                articles["Title"].fillna("").astype(str) + " " +
-                articles["Summary"].fillna("").astype(str) + " " +
-                articles["Content"].fillna("").astype(str)
+            batch['combined_text'] = (
+                batch["Title"].fillna("").astype(str) + " " +
+                batch["Summary"].fillna("").astype(str) + " " +
+                batch["Content"].fillna("").astype(str)
             ))
             article_embeddings = model.encode(batch['combined_text'].tolist(), show_progress_bar = True)
 
@@ -2360,10 +2360,6 @@ MANDATORY:
                         columns=['Title', 'University Label'],
                         index=False)
         all_articles['Source'] = all_articles.get('Source', '').astype(str).fillna('')
-        all_articles.loc[
-            all_articles['Source'].str.strip().eq('Tulane Hullabaloo'),
-            'University Label'
-        ] = 1
         all_articles['University Label'] = pd.to_numeric(
             all_articles['University Label'], errors='coerce'
         ).fillna(0).astype(int)
