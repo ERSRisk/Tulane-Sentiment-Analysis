@@ -2292,7 +2292,7 @@ MANDATORY:
         new_articles = recent[~(recent['Title'].isin(labeled_titles))].copy()
         sorted = new_articles.sort_values(by = 'Published_utc', ascending = False)
         print(sorted[['Title', 'Published_utc']].head())
-        new_articles = new_articles[~(new_articles['University Label'] == 1)]
+        new_articles = new_articles[~(new_articles['University Label'].isin([0,1]))]
         print(f"🔎 Total articles: {len(recent)} | Unlabeled: {len(new_articles)}", flush=True)
     
         results = asyncio.run(university_label_async(new_articles))
@@ -2300,6 +2300,10 @@ MANDATORY:
         if results:
             labels_df = pd.DataFrame(results)[['Title', 'University Label']]
             labels_df['Title'] = labels_df['Title'].astype(str).str.strip()
+            labels_df['University Label'] = pd.to_numeric(
+                labels_df['University Label'], errors = 'coerce'
+            ).fillna(0).astype(int)
+
             new_articles['Title'] = new_articles['Title'].astype(str).str.strip()
             missing_titles = set(new_articles['Title']) - set(labels_df['Title'])
             if missing_titles:
@@ -2307,54 +2311,31 @@ MANDATORY:
                     'Title': list(missing_titles),
                     'University Label': [0] * len(missing_titles)
                 })
-                labels_df = pd.concat([labels_df, missing_df], ignore_index=True)
-    
-            all_articles = all_articles.merge(labels_df, on='Title', how='left', suffixes=('', '_new'))
-    
-    
-            prev_cols = [c for c in all_articles.columns
-                         if c.startswith('University Label_prev')]
-            if prev_cols:
-    
-                combined_prev = all_articles[prev_cols].bfill(axis=1).iloc[:, 0]
-    
-                all_articles.drop(columns=prev_cols, inplace=True, errors='ignore')
-    
-                all_articles['University Label_prev'] = combined_prev
-            else:
-    
-                all_articles['University Label_prev'] = pd.NA
-    
-    
-            label_cols = [c for c in all_articles.columns
-                          if c.startswith('University Label') and not c.startswith('University Label_prev')]
-            if not label_cols:
-    
-                all_articles['University Label'] = pd.NA
-            else:
-    
-                combined_label = all_articles[label_cols].bfill(axis=1).iloc[:, 0]
-    
-                all_articles.drop(columns=label_cols, inplace=True, errors='ignore')
-    
-                all_articles['University Label'] = combined_label
-    
-    
-            mask_have_prev = all_articles['University Label_prev'].notna()
-    
-            all_articles.loc[mask_have_prev & (all_articles['University Label'] == 0),
-                             'University Label'] = all_articles.loc[mask_have_prev & (all_articles['University Label'] == 0),
-                                                                   'University Label_prev']
-    
-    
-            all_articles.drop(columns=['University Label_prev'], inplace=True, errors='ignore')
-    
-            if not existing.empty:
-                combined = pd.concat([existing, labels_df], ignore_index=True)
-            else:
-                combined = labels_df
-        else:
-            combined = existing
+                labels_df = pd.concat([labels_df, missing_df], ignore_index = True)
+            all_articles = all_articles.merge(
+                labels_df,
+                on = 'Title',
+                how = 'left',
+                suffixes = ('', '_new')
+            )
+
+            if 'University Label_new' in all_articles.columns:
+                all_articles['University Label'] = all_articles['University Label_new'].combine_first(
+                    all_articles.get('University Label')
+                )
+                all_articles = all_articles.drop(columns = ['University Label_new'])
+
+        all_articles['University Label'] = pd.to_numeric(
+            all_articles.get('University Label'), errors = 'coerce'
+        ).fillna(0).astype(int)
+
+        final_labels = (
+            all_articles[['Title','University Label']]
+            .dropna(subset = ['Title'])
+            .drop_duplicates(subset = ['Title'], keep = 'last')
+        )
+        combined = pd.concat([existing, final_labels], ignore_index = True)
+        combined = combined.drop_duplicates(subset = ['Title'], keep ='last')
     
         combined.to_csv('pipeline/resources/BERTopic_before.csv',
                         columns=['Title', 'University Label'],
