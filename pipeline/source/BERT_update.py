@@ -2232,7 +2232,7 @@ MANDATORY:
                 batch["Title"].fillna("").astype(str) + " " +
                 batch["Summary"].fillna("").astype(str) + " " +
                 batch["Content"].fillna("").astype(str)
-            ))
+            )
             article_embeddings = model.encode(batch['combined_text'].tolist(), show_progress_bar = True)
 
             similarity_matrix = cosine_similarity(article_embeddings, context_embeddings)
