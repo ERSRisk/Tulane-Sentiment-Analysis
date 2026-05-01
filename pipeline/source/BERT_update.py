@@ -1993,9 +1993,9 @@ if __name__ == '__main__':
         trained_labels = bundle['trained_label_names']
         risk_defs = bundle['risk_defs']
         model_name = bundle['sentence_model_name']
-        prob_cut = 0.60
-        margin_cut = 0.10
-        tau = 0.55
+        prob_cut = 0.80
+        margin_cut = 0.15
+        tau = 0.65
         numeric_factors = list(bundle['numeric_factors'])
         trained_label_txt = list(bundle['trained_label_text'])
         all_labels = json_all_labels
