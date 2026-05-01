@@ -1795,7 +1795,7 @@ if __name__ == '__main__':
                 if "ai" in t or "artificial intelligence" in t:
                     return "Artificial Intelligence Ethics & Governance"
 
-            if any(k in t for k education_policy_terms):
+            if any(k in t for k in education_policy_terms):
                 return "Policy or Political Interference"
         
             return label
