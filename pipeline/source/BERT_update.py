@@ -1846,96 +1846,135 @@ if __name__ == '__main__':
             cos = (cos + 1.0) / 2.0
             denom = cos.sum(axis = 1, keepdims = True) + 1e-12
             return cos/denom
-        def rule_route(text, label):
+        def has_any(t, terms):
+            return any(k in t for k in terms)
+
+        def rule_route(text, label="No Risk"):
             t = str(text).lower()
-            label = "No Risk" if pd.isna(label) or str(label).strip() == '' else str(label).strip()
-        
-            physical_threat_terms = [
-                "shooting", "gun", "armed", "bomb", "explosion", "assault",
-                "stab", "lockdown", "shelter in place", "violent threat",
-                "active shooter", "weapon", "homicide", "mass shooting", "gunfire", "open fire", "murder"
-            ]
-        
-            immigration_terms = [
-                "visa", "international student", "foreign student", "dhs", "sevp",
-                "deport", "deportation", "immigration", "enrollment ban", "ice"
-            ]
+            label = "No Risk" if pd.isna(label) or str(label).strip() == "" else str(label).strip()
         
             student_conduct_terms = [
-                "hazing", "fraternity", "sorority", "pledge", "student misconduct",
-                "disciplinary", "discipline", "suspension", "greek life"
+                "hazing", "fraternity", "sorority", "pledge", "greek life",
+                "student misconduct", "disciplinary violation", "student discipline",
+                "student suspension", "student fight", "alcohol violation",
+                "drug violation", "title ix complaint", "sexual misconduct"
             ]
         
-            student_loan_terms = [
-                "student loan", "loan forgiveness", "repayment plan", "borrowers",
-                "fafsa", "financial aid", "tuition affordability"
+            ai_terms = [
+                "artificial intelligence", " ai ", "ai policy", "ai literacy",
+                "generative ai", "chatgpt", "machine learning", "algorithmic",
+                "automated decision", "ai tools"
             ]
         
-            positive_funding_terms = [
-                "awarded", "grant awarded", "received funding", "funds center",
-                "establish a center", "cooperative research center", "grant to establish",
-                "award to", "funding to support", "new center"
+            loan_terms = [
+                "student loan", "loan limits", "graduate loan", "professional degree",
+                "fafsa", "financial aid", "borrowers", "repayment plan",
+                "loan forgiveness", "tuition affordability"
+            ]
+        
+            financial_distress_terms = [
+                "layoff", "layoffs", "buyouts", "budget deficit", "budget deficits",
+                "budget cuts", "deep cuts", "program cuts", "closure", "closures",
+                "shut down", "shutdown", "debt obligations", "enrollment losses",
+                "state funding reductions"
             ]
         
             funding_disruption_terms = [
-                "funding cut", "grant cut", "freeze", "frozen", "terminated", "cancelled",
-                "canceled", "rescinded", "clawback", "cap on indirect costs", "funding pause",
-                "research halted", "grant halted", "withheld funding"
+                "funding cut", "funding cuts", "grant cut", "grant cuts",
+                "freeze", "frozen", "terminated grants", "cancelled grants",
+                "canceled grants", "rescinded", "clawback",
+                "cap on indirect costs", "funding pause", "withheld funding"
             ]
         
-            protest_detention_terms = [
-                "activist", "protest", "detention", "detained", "ice detention",
-                "free speech", "demonstration", "arrested", "campus protest"
+            positive_funding_terms = [
+                "awarded", "grant awarded", "received funding", "new grant",
+                "funding to support", "launches center", "new research center",
+                "cooperative agreement"
             ]
         
-            dei_backlash_terms = [
-                "dei ban", "anti-dei", "backlash", "attacked dei", "ended dei",
-                "rolled back dei", "challenged dei", "political attack on dei"
-            ]
-
-            education_policy_terms = [
-                "department of education", "ed proposes", "accountability framework",
-                "education department", "title ix rule", "ada rule"
+            labor_terms = [
+                "strike", "union", "collective bargaining", "contract negotiations",
+                "labor dispute", "workers", "faculty union", "graduate student workers"
             ]
         
-            # Hazing / Greek life / real student misconduct
-            if any(k in t for k in student_conduct_terms):
+            academic_freedom_terms = [
+                "academic freedom", "shared governance", "faculty senate",
+                "tenure", "faculty input", "censorship", "free speech",
+                "civil discourse", "viewpoint diversity"
+            ]
+        
+            policy_terms = [
+                "department of education", "education department", "title vi",
+                "civil rights investigation", "dei ban", "anti-dei",
+                "diversity, equity and inclusion", "diversity equity and inclusion",
+                "state law", "federal rule", "final rule", "regulation"
+            ]
+        
+            physical_threat_terms = [
+                "shooting", "gun", "armed", "bomb", "explosion", "stab",
+                "lockdown", "active shooter", "weapon", "homicide",
+                "mass shooting", "gunfire", "violent threat"
+            ]
+        
+            immigration_terms = [
+                "visa", "international student", "foreign student", "dhs",
+                "sevp", "deport", "deportation", "immigration", "ice"
+            ]
+        
+            protest_terms = [
+                "protest", "protesters", "demonstration", "activist",
+                "detained", "arrested", "campus protest"
+            ]
+        
+            # Deterministic obvious cases
+            if has_any(t, student_conduct_terms):
                 return "Student Conduct Incident"
         
-            # DEI only if backlash context exists
-            if "dei" in t or "d.e.i." in t:
-                if any(k in t for k in dei_backlash_terms):
-                    return "DEI Program Backlash"
+            if has_any(t, ai_terms):
+                return "Artificial Intelligence Ethics & Governance"
         
-            # Immigration / foreign-student bans should not become violence
-            if label == "Violence or Threats" and not any(k in t for k in physical_threat_terms):
-                if any(k in t for k in immigration_terms):
-                    return "Policy or Political Interference"
-        
-            # Protest / detention stories are not student conduct
-            if label == "Student Conduct Incident" and not any(k in t for k in student_conduct_terms):
-                if any(k in t for k in protest_detention_terms + immigration_terms):
-                    return "Policy or Political Interference"
-        
-            # Positive funding stories are not disruption
-            if label == "Research Funding Disruption":
-                if any(k in t for k in positive_funding_terms) and not any(k in t for k in funding_disruption_terms):
-                    return "No Risk"
-        
-            # Student-loan / aid / affordability stories
-            if any(k in t for k in student_loan_terms):
+            if has_any(t, loan_terms):
                 return "Enrollment Pressure"
         
-            # Vendor cyber correction
-            if label == "Vendor Cyber Exposure" and not any(k in t for k in [
-                "vendor", "third-party", "saas", "hosting", "soc 2", "breach",
-                "dpia", "dpa", "pii", "cybersecurity", "supplier"
-            ]):
-                if "ai" in t or "artificial intelligence" in t:
-                    return "Artificial Intelligence Ethics & Governance"
-
-            if any(k in t for k in education_policy_terms):
+            if has_any(t, funding_disruption_terms) and not has_any(t, positive_funding_terms):
+                return "Research Funding Disruption"
+        
+            if has_any(t, positive_funding_terms) and not has_any(t, funding_disruption_terms):
+                return "No Risk"
+        
+            if has_any(t, labor_terms):
+                return "Labor Dispute"
+        
+            if has_any(t, academic_freedom_terms):
+                return "Faculty conflict"
+        
+            if has_any(t, policy_terms):
                 return "Policy or Political Interference"
+        
+            if has_any(t, physical_threat_terms):
+                return "Violence or Threats"
+        
+            if has_any(t, immigration_terms):
+                return "Policy or Political Interference"
+        
+            if has_any(t, financial_distress_terms):
+                if "tulane" in t:
+                    return "Revenue Loss"
+                else:
+                    "Enrollment Pressure"
+        
+            # Hard guards against nonsense model/Gemini labels
+            if label == "Student Conduct Incident" and not has_any(t, student_conduct_terms):
+                if has_any(t, protest_terms + immigration_terms):
+                    return "Policy or Political Interference"
+                return "No Risk"
+        
+            if label == "Violence or Threats" and not has_any(t, physical_threat_terms):
+                return "No Risk"
+        
+            if label == "Research Funding Disruption":
+                if has_any(t, positive_funding_terms) and not has_any(t, funding_disruption_terms):
+                    return "No Risk"
         
             return label
             
@@ -1995,7 +2034,7 @@ if __name__ == '__main__':
         model_name = bundle['sentence_model_name']
         prob_cut = 0.80
         margin_cut = 0.15
-        tau = 0.65
+        tau = 0.78
         numeric_factors = list(bundle['numeric_factors'])
         trained_label_txt = list(bundle['trained_label_text'])
         all_labels = json_all_labels
@@ -2015,10 +2054,10 @@ if __name__ == '__main__':
         df = df.reset_index(drop = True)
     
         if 'Predicted_Risks_new' in df.columns:
-            missing_mask = (df['Predicted_Risks_new'].isna()) | (df['Predicted_Risks_new'].eq('')) | (df['Predicted_Risks_new'].eq('No Risk'))
+            #missing_mask = (df['Predicted_Risks_new'].isna()) | (df['Predicted_Risks_new'].eq('')) | (df['Predicted_Risks_new'].eq('No Risk'))
             recent_cut = pd.Timestamp.now(tz='utc') - pd.Timedelta(days=30)
             recent_mask = df['Published_utc'] >= recent_cut
-            todo_mask = mask_he & (missing_mask | recent_mask)
+            todo_mask = mask_he & (recent_mask) #missing_mask | recent_mask)
             sub = df.loc[todo_mask].copy()
             texts = df.loc[todo_mask, 'Text'].tolist()
         else:
@@ -2087,10 +2126,30 @@ if __name__ == '__main__':
         cos_all = avg_emb @ lbl_emb_all.T
     
     
-        out = predict_with_fallback(proba, cos_all, prob_cut, margin_cut, tau, 0.3, trained_labels, all_labels)
+        out = predict_with_fallback(proba, cos_all, prob_cut, margin_cut, tau, 0.55, trained_labels, all_labels)
         sub['pred_source'] = out['route']
         sub['Predicted_Risks_new'] = out['final_names']
-        gray_mask = (out['route']=='gray')
+        pre_labels = []
+        pre_sources = []
+        
+        for txt, lbl, src in zip(
+            sub['Text'].tolist(),
+            sub['Predicted_Risks_new'].tolist(),
+            sub['pred_source'].tolist()
+        ):
+            fixed = rule_route(txt, lbl)
+        
+            if fixed != lbl:
+                pre_labels.append(fixed)
+                pre_sources.append("rule_pre_gemini")
+            else:
+                pre_labels.append(lbl)
+                pre_sources.append(src)
+        
+        sub['Predicted_Risks_new'] = pre_labels
+        sub['pred_source'] = pre_sources
+        
+        gray_mask = (out['route'] == 'gray') & (sub['pred_source'] != "rule_pre_gemini")
     
         if gray_mask.any():
             gray_idx = sub.index[gray_mask]
@@ -2101,34 +2160,38 @@ if __name__ == '__main__':
             adjudicated = []
             for txt in gray_texts:
                 prompt = f"""
-                You are labeling articles to assess the institutional risk they pose to a higher education institution.
-    Return strictly JSON with: label.
-    Choose label from this CLOSED LIST ONLY (no other strings allowed):
-    {label_list}
-    
-    Article:
-    {txt[:3000]}
-    
-    Rules:
-- If the article is not clearly about a risk to a US higher-education institution, return "No Risk".
-- Speculative liability discussion without an actual lawsuit, enforcement action, or institution-specific legal dispute should NOT be High-Profile Litigation
-- If the article is about sports results, coach awards, celebrations, or general athletics coverage, return "No Risk".
-- Prefer the most specific risk.
-- Federal funding CUTS, FREEZES, PAUSES, TERMINATIONS, RESCISSIONS, CLAWBACKS, or caps on research support -> "Research Funding Disruption".
-- Positive grant awards, research center funding announcements, cooperative agreements, and new federal awards -> "No Risk".
-- Foreign-student visa restrictions, DHS or SEVP actions, deportation threats affecting student enrollment, or bans on enrolling international students -> "Policy or Political Interference".
-- Student-loan repayment, loan forgiveness, FAFSA, student borrowing costs, and aid affordability stories -> "Enrollment Pressure".
-- "Violence or Threats" only for physical danger: weapons, shootings, bombs, assaults, active shooter events, violent threats, or lockdowns caused by safety threats.
-- Hazing, Greek life misconduct, student disciplinary violations, and student fights -> "Student Conduct Incident".
-- Protest-related arrests, activist detention, deportation proceedings, or speech crackdowns are NOT "Student Conduct Incident"; usually they are "Policy or Political Interference".
-- If the article is about general AI use on campus, AI policy, or AI in teaching/governance, use "Artificial Intelligence Ethics & Governance".
-- Censorship allegations, gag orders, institutional retaliation, whistleblowing, internal suppression of academic speech → Whistleblower Claims or Leadership Missteps
-- If none match confidently, return "No Risk".
+You are labeling institutional risk articles for a U.S. higher-education risk dashboard.
 
-MANDATORY:
-- The following risks should be applied WHEN AND ONLY WHEN Tulane University or Tulane leadership is explicitly mentioned:
-  "High-Profile Litigation", "Emergency Preparedness Gaps", "Unexpected Expenditures", "Leadership Missteps", "Revenue Loss", "Institutional Alignment Risk", "Controversial Public Incident"
-    """
+Return ONLY valid JSON:
+{{"label": "...", "confidence": 0.0, "reason": "..."}}
+
+Choose exactly one label from this closed list:
+{label_list}
+
+Article:
+{txt[:3000]}
+
+Rules:
+- If the article is not clearly about a U.S. higher-education institutional risk, return "No Risk".
+- Do NOT infer risk from generic words like "students", "campus", "college", or "university".
+- Use "Student Conduct Incident" ONLY for hazing, Greek life misconduct, student disciplinary violations, student fights, alcohol/drug violations, sexual misconduct, or Title IX student conduct complaints.
+- Layoffs, budget deficits, program cuts, closures, buyouts, state funding reductions, debt, or enrollment losses are NEVER "Student Conduct Incident".
+- AI tools, AI literacy, AI policy, AI governance, ChatGPT, algorithmic systems, or AI in teaching/support services -> "Artificial Intelligence Ethics & Governance".
+- Student loans, FAFSA, financial aid, graduate loan caps, repayment rules, or borrowing limits -> "Enrollment Pressure".
+- Federal research funding cuts, grant freezes, NSF/NIH disruption, indirect cost caps, terminated grants -> "Research Funding Disruption".
+- Positive grant awards, research collaboration launches, or new research centers -> "No Risk" unless there is a clear compliance, funding, or governance threat.
+- Strikes, unions, bargaining, worker actions, contract negotiations -> "Labor Dispute".
+- Academic freedom, tenure, shared governance, faculty senate restrictions, censorship, or speech suppression -> "Faculty conflict" or "Policy or Political Interference".
+- Protests, activist arrests, political speech disputes, immigration enforcement, or federal/state education policy actions are NOT "Student Conduct Incident".
+- "Violence or Threats" requires physical danger: weapons, shooting, bomb, assault, active shooter, credible violent threat, or lockdown for safety.
+- If confidence is below 0.70, return "No Risk".
+
+Mandatory Tulane-only labels:
+Only use these labels if Tulane University or Tulane leadership is explicitly mentioned:
+"High-Profile Litigation", "Emergency Preparedness Gaps", "Unexpected Expenditures",
+"Leadership Missteps", "Revenue Loss", "Institutional Alignment Risk",
+"Controversial Public Incident".
+"""
                 max_tries = 6
                 last_err = None
                 
@@ -2176,6 +2239,9 @@ MANDATORY:
                 try:
                     obj = json.loads(m.group(0) if m else raw)
                     label = obj.get("label", "No Risk")
+                    conf = float(obj.get("confidence", 0.0) or 0.0)
+                    if conf < 0.70:
+                        label = "No Risk"
                     if label not in (all_labels + ["No Risk"]):
                         label = "No Risk"
                 except Exception:
@@ -2188,7 +2254,25 @@ MANDATORY:
        
                 
         sub_texts = sub['Text'].tolist()
-        sub['Predicted_Risks_new'] = [rule_route(txt, lbl) for txt, lbl in zip(sub['Text'].tolist(), sub['Predicted_Risks_new'].to_list())]
+        final_labels = []
+        final_sources = []
+        
+        for txt, lbl, src in zip(
+            sub['Text'].tolist(),
+            sub['Predicted_Risks_new'].tolist(),
+            sub['pred_source'].tolist()
+        ):
+            fixed = rule_route(txt, lbl)
+        
+            if fixed != lbl:
+                final_labels.append(fixed)
+                final_sources.append("rule_final_cleanup")
+            else:
+                final_labels.append(lbl)
+                final_sources.append(src)
+        
+        sub['Predicted_Risks_new'] = final_labels
+        sub['pred_source'] = final_sources
         
         
         sub['Pred_LR_label'] = out['lr_top_prob']
@@ -2523,16 +2607,36 @@ MANDATORY:
     
     
     #Assign topics and probabilities to new_df
+    dfs = []
+    
     if blob_exists('latest/BERTopic_results2.csv.gz'):
-        existing_df = download_file('latest/BERTopic_results2.csv.gz', 'pipeline/resources/BERTopic_results2.csv.gz', BUCKET_NAME)
+        df2 = download_file('latest/BERTopic_results2.csv.gz', 'pipeline/resources/BERTopic_results2.csv.gz', BUCKET_NAME)
         mem("after loading existing_df")
         print("It exists", flush = True)
+        dfs.append(df2)
     else:
         print("It did not get extracted", flush = True)
+
+    if blob_exists('latest/BERTopic_results3.csv.gz'):
+        df3 = download_file('latest/BERTopic_results3.csv.gz', 'pipeline/resources/BERTopic_results3.csv.gz', BUCKET_NAME)
+        mem("after loading existing_df")
+        dfs.append(df3)
+
+    if dfs:
+        existing_df = pd.concat(dfs, ignore_index = True)
+
+        existing_df['Link'] = existing_df['Link'].astype(str).str.strip()
+        existing_df = existing_df.drop_duplicates(subset = ['Link'], keep = 'last')
+
+        print(f"Combined checkpoint rows: {len(existing_df)}", flush=True)
+    else:
+        existing_df = pd.DataFrame()
     
     if existing_df is None or existing_df.empty:
         existing_df = pd.DataFrame()
     if not existing_df.empty and 'Link' in existing_df.columns:
+        existing_df['Link'] = existing_df['Link'].astype(str).str.strip()
+        df['Link'] = df['Link'].astype(str).str.strip()
         processed_links = set(existing_df['Link'])
         df_to_transform = df[~df['Link'].isin(processed_links)].copy()
         print(f"Dataframe to transform is removing already preprocessed articles.", flush = True)
@@ -2678,12 +2782,16 @@ MANDATORY:
     
     # NEW: save the canonical fresh full dataset for downstream script 2
     print("Saving latest article base for downstream enrichment", flush=True)
-    atomic_write_csv("pipeline/resources/BERTopic_latest_full.csv.gz", df_new_version, compress=True)
+    df_latest_full = pd.concat([existing_df, df_new_final], ignore_index = True)
+    df_latest_full['Link'] = df_latest_full['Link'].astype(str).str.strip()
+    df_latest_full = df_latest_full.drop_duplicates(subset=['Link'], keep='last')
+    
+    atomic_write_csv("pipeline/resources/BERTopic_latest_full.csv.gz", df_latest_full, compress=True)
     upload_file("pipeline/resources/BERTopic_latest_full.csv.gz", 'latest/BERTopic_latest_full.csv.gz', BUCKET_NAME)
     
     print("Saving dataset for Streamlit", flush=True)
     debug_date(df_new_version, "O_before_streamlit")
-    df_streamlit = df_new_version[df_new_version['University Label'] == 1].copy()
+    df_streamlit = df_latest_full[df_latest_full['University Label'] == 1].copy()
     
     if 'Link' in df_streamlit.columns:
         df_streamlit = df_streamlit.drop_duplicates(subset=['Link'], keep='last')
