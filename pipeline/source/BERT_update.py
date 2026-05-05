@@ -1847,14 +1847,20 @@ if __name__ == '__main__':
             denom = cos.sum(axis = 1, keepdims = True) + 1e-12
             return cos/denom
         def has_any(t, terms):
-            return any(k in t for k in terms)
+            t = str(t).lower()
+            for term in terms:
+                term = str(term).lower().strip()
+                pattern = r'(?<!\w)' + re.escape(term).replace(r'\ ', r'\s+') + r'(?!\w)'
+                if re.search(pattern, t):
+                    return True
+            return False
 
         def rule_route(text, label="No Risk"):
             t = str(text).lower()
             label = "No Risk" if pd.isna(label) or str(label).strip() == "" else str(label).strip()
         
             student_conduct_terms = [
-                "hazing", "fraternity", "sorority", "pledge", "greek life",
+                "hazing", "fraternity", "sorority", "greek life",
                 "student misconduct", "disciplinary violation", "student discipline",
                 "student suspension", "student fight", "alcohol violation",
                 "drug violation", "title ix complaint", "sexual misconduct"
@@ -1905,9 +1911,11 @@ if __name__ == '__main__':
         
             policy_terms = [
                 "department of education", "education department", "title vi",
-                "civil rights investigation", "dei ban", "anti-dei",
+                "civil rights investigation", "office for civil rights", "dei ban", "anti-dei",
                 "diversity, equity and inclusion", "diversity equity and inclusion",
-                "state law", "federal rule", "final rule", "regulation"
+                "state law", "federal rule", "final rule", "title ix investigation",
+                "federal investigation", "visa restriction", "deportation", "sevp", "department of homeland security",
+                "executive order", "dhs", "federal rule", "new policy", "policy"
             ]
         
             physical_threat_terms = [
@@ -1927,41 +1935,6 @@ if __name__ == '__main__':
             ]
         
             # Deterministic obvious cases
-            if has_any(t, student_conduct_terms):
-                return "Student Conduct Incident"
-        
-            if has_any(t, ai_terms):
-                return "Artificial Intelligence Ethics & Governance"
-        
-            if has_any(t, loan_terms):
-                return "Enrollment Pressure"
-        
-            if has_any(t, funding_disruption_terms) and not has_any(t, positive_funding_terms):
-                return "Research Funding Disruption"
-        
-            if has_any(t, positive_funding_terms) and not has_any(t, funding_disruption_terms):
-                return "No Risk"
-        
-            if has_any(t, labor_terms):
-                return "Labor Dispute"
-        
-            if has_any(t, academic_freedom_terms):
-                return "Faculty conflict"
-        
-            if has_any(t, policy_terms):
-                return "Policy or Political Interference"
-        
-            if has_any(t, physical_threat_terms):
-                return "Violence or Threats"
-        
-            if has_any(t, immigration_terms):
-                return "Policy or Political Interference"
-        
-            if has_any(t, financial_distress_terms):
-                if "tulane" in t:
-                    return "Revenue Loss"
-                else:
-                    "Enrollment Pressure"
         
             # Hard guards against nonsense model/Gemini labels
             if label == "Student Conduct Incident" and not has_any(t, student_conduct_terms):
@@ -1974,6 +1947,13 @@ if __name__ == '__main__':
         
             if label == "Research Funding Disruption":
                 if has_any(t, positive_funding_terms) and not has_any(t, funding_disruption_terms):
+                    return "No Risk"
+            if label == "Revenue Loss":
+                if not has_any(t, ['tulane', 'tulane university']):
+                    return "No Risk"
+
+            if label == "Policy or Political Interference":
+                if not has_any(t, policy_terms):
                     return "No Risk"
         
             return label
@@ -2129,27 +2109,7 @@ if __name__ == '__main__':
         out = predict_with_fallback(proba, cos_all, prob_cut, margin_cut, tau, 0.55, trained_labels, all_labels)
         sub['pred_source'] = out['route']
         sub['Predicted_Risks_new'] = out['final_names']
-        pre_labels = []
-        pre_sources = []
-        
-        for txt, lbl, src in zip(
-            sub['Text'].tolist(),
-            sub['Predicted_Risks_new'].tolist(),
-            sub['pred_source'].tolist()
-        ):
-            fixed = rule_route(txt, lbl)
-        
-            if fixed != lbl:
-                pre_labels.append(fixed)
-                pre_sources.append("rule_pre_gemini")
-            else:
-                pre_labels.append(lbl)
-                pre_sources.append(src)
-        
-        sub['Predicted_Risks_new'] = pre_labels
-        sub['pred_source'] = pre_sources
-        
-        gray_mask = (out['route'] == 'gray') & (sub['pred_source'] != "rule_pre_gemini")
+        gray_mask = out['route'] == 'gray'
     
         if gray_mask.any():
             gray_idx = sub.index[gray_mask]
