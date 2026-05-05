@@ -2772,7 +2772,7 @@ Only use these labels if Tulane University or Tulane leadership is explicitly me
     if 'Link' in df_new_version.columns:
         df_new_version = df_new_version.drop_duplicates(subset=['Link'], keep='last')
     
-    del existing_new_version, df_new_final
+    del existing_new_version
     gc.collect()
     mem("after final concat")
     
@@ -2785,12 +2785,25 @@ Only use these labels if Tulane University or Tulane leadership is explicitly me
     df_latest_full = pd.concat([existing_df, df_new_final], ignore_index = True)
     df_latest_full['Link'] = df_latest_full['Link'].astype(str).str.strip()
     df_latest_full = df_latest_full.drop_duplicates(subset=['Link'], keep='last')
+    del df_new_final
+    gc.collect()
+    df_latest_full['Published_utc'] = pd.to_datetime(
+        df_latest_full['Published'],
+        errors='coerce',
+        utc=True
+    )
+    
+    debug_date(df_latest_full, "P_df_latest_full")
     
     atomic_write_csv("pipeline/resources/BERTopic_latest_full.csv.gz", df_latest_full, compress=True)
-    upload_file("pipeline/resources/BERTopic_latest_full.csv.gz", 'latest/BERTopic_latest_full.csv.gz', BUCKET_NAME)
+    upload_file(
+        "pipeline/resources/BERTopic_latest_full.csv.gz",
+        "latest/BERTopic_latest_full.csv.gz",
+        BUCKET_NAME
+    )
     
     print("Saving dataset for Streamlit", flush=True)
-    debug_date(df_new_version, "O_before_streamlit")
+    debug_date(df_latest_full, "O_before_streamlit")
     df_streamlit = df_latest_full[df_latest_full['University Label'] == 1].copy()
     
     if 'Link' in df_streamlit.columns:
