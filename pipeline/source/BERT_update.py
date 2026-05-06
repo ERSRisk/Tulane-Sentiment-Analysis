@@ -1910,18 +1910,36 @@ if __name__ == '__main__':
             ]
         
             policy_terms = [
-                "department of education", "education department", "title vi",
-                "civil rights investigation", "office for civil rights", "dei ban", "anti-dei",
-                "diversity, equity and inclusion", "diversity equity and inclusion",
-                "state law", "federal rule", "final rule", "title ix investigation",
-                "federal investigation", "visa restriction", "deportation", "sevp", "department of homeland security",
-                "executive order", "dhs", "federal rule", "new policy", "policy"
+                "department of education", "education department",
+                "department of justice", "doj",
+                "civil rights investigation", "office for civil rights",
+                "title vi", "title ix",
+                "federal investigation", "executive order",
+                "department of homeland security", "dhs",
+                "visa restriction", "deportation", "sevp",
+                "in-state tuition", "undocumented students",
+                "federal rule on higher education",
+                "state law on higher education",
+                "anti-dei", "dei ban"
             ]
         
             physical_threat_terms = [
-                "shooting", "gun", "armed", "bomb", "explosion", "stab",
-                "lockdown", "active shooter", "weapon", "homicide",
-                "mass shooting", "gunfire", "violent threat"
+                "shooting",
+                "gunfire",
+                "firearm",
+                "firearms",
+                "armed suspect",
+                "bomb threat",
+                "explosion",
+                "stabbing",
+                "stabbed",
+                "lockdown",
+                "active shooter",
+                "weapon",
+                "weapons",
+                "homicide",
+                "mass shooting",
+                "violent threat"
             ]
         
             immigration_terms = [
@@ -1955,6 +1973,22 @@ if __name__ == '__main__':
             if label == "Policy or Political Interference":
                 if not has_any(t, policy_terms):
                     return "No Risk"
+
+            if has_any(t, ["artificial intelligence", "ai policy", "ai literacy", "generative ai", "chatgpt"]):
+                if label in ["No Risk", "Student Conduct Incident", "DEI Program Backlash"]:
+                    return "Artificial Intelligence Ethics & Governance"
+            
+            if has_any(t, ["student loan", "student debt", "loan limits", "graduate loan", "fafsa", "financial aid"]):
+                if label in ["No Risk", "Student Conduct Incident"]:
+                    return "Enrollment Pressure"
+            
+            if has_any(t, ["strike", "union", "collective bargaining", "contract negotiations", "labor dispute"]):
+                if label in ["No Risk", "DEI Program Backlash"]:
+                    return "Labor Dispute"
+            
+            if has_any(t, ["cyberattack", "data breach", "hackers", "vendor", "third-party vendor"]):
+                if label in ["No Risk", "Student Conduct Incident"]:
+                    return "Vendor Cyber Exposure"
         
             return label
             
@@ -1980,11 +2014,12 @@ if __name__ == '__main__':
             final[lr_mask] = lr_names[lr_mask]
     
             cos_hi = (~lr_mask) & (cos_all_max >= tau)
-            route[cos_hi] = "cos"
+            route[cos_hi] = "gray"
             final[cos_hi] = cos_names[cos_hi]
     
             gray = (~lr_mask) & (cos_all_max >= tau_gray) & (cos_all_max < tau)
             route[gray] = "gray"
+            final[gray] = cos_names[gray]
     
         
             return {
@@ -2032,6 +2067,11 @@ if __name__ == '__main__':
         df['Text'] = (df['Title'] + '. ' + df['Content']).str.strip()
     
         df = df.reset_index(drop = True)
+
+        stale_mask = df.get('pred_source', '').astype(str).eq('rule_pre_gemini')
+        for col in ['Predicted_Risks_new', 'Predicted_Risks', 'pred_source']:
+            if col in df.columns:
+                df.loc[stale_mask, col] = ''
     
         if 'Predicted_Risks_new' in df.columns:
             #missing_mask = (df['Predicted_Risks_new'].isna()) | (df['Predicted_Risks_new'].eq('')) | (df['Predicted_Risks_new'].eq('No Risk'))
@@ -2109,7 +2149,23 @@ if __name__ == '__main__':
         out = predict_with_fallback(proba, cos_all, prob_cut, margin_cut, tau, 0.55, trained_labels, all_labels)
         sub['pred_source'] = out['route']
         sub['Predicted_Risks_new'] = out['final_names']
-        gray_mask = out['route'] == 'gray'
+        review_terms = [
+            "student loan", "student debt", "financial aid", "fafsa",
+            "enrollment dropped", "enrollment decline", "adult enrollment",
+            "department of justice", "doj", "department of education",
+            "civil rights investigation", "title ix", "title vi",
+            "in-state tuition", "undocumented students",
+            "artificial intelligence", "ai policy", "ai literacy",
+            "cyberattack", "data breach", "vendor", "third-party",
+            "strike", "union", "collective bargaining",
+            "mental health", "student wellness",
+            "academic freedom", "student speech", "free speech"
+        ]
+        norisk_review = (
+            (out['route'] == 'norisk') &
+            sub['Text'].apply(lambda x: has_any(x, review_terms))
+        )
+        gray_mask = (out['route'] == 'gray') | norisk_review
     
         if gray_mask.any():
             gray_idx = sub.index[gray_mask]
@@ -2142,6 +2198,7 @@ Rules:
 - Positive grant awards, research collaboration launches, or new research centers -> "No Risk" unless there is a clear compliance, funding, or governance threat.
 - Strikes, unions, bargaining, worker actions, contract negotiations -> "Labor Dispute".
 - Academic freedom, tenure, shared governance, faculty senate restrictions, censorship, or speech suppression -> "Faculty conflict" or "Policy or Political Interference".
+- If the article describes a federal lawsuit, Department of Justice action, Department of Education action, OCR investigation, Title VI/Title IX enforcement, immigration/student visa rule, or state/federal higher-ed law, prefer "Policy or Political Interference" over "Enrollment Pressure" unless the article is mainly about student demand, affordability, admissions volume, or institutional enrollment declines.
 - Protests, activist arrests, political speech disputes, immigration enforcement, or federal/state education policy actions are NOT "Student Conduct Incident".
 - "Violence or Threats" requires physical danger: weapons, shooting, bomb, assault, active shooter, credible violent threat, or lockdown for safety.
 - If confidence is below 0.70, return "No Risk".
@@ -2712,7 +2769,28 @@ Only use these labels if Tulane University or Tulane leadership is explicitly me
     mem("after risk_weights")
     print("Finished assigning risk weights", flush = True)
     df = df.drop(columns = ['University Label_x', 'University Label_y'], errors = 'ignore')
-    df_new_final = df[df['Link'].isin(new_links)].copy()
+    recent_cut = pd.Timestamp.now(tz='utc') - pd.Timedelta(days=30)
+
+    df['Published_utc'] = pd.to_datetime(
+        df['Published'],
+        errors='coerce',
+        utc=True
+    )
+    
+    rerun_links = set(
+        df.loc[
+            df['Published_utc'].notna() &
+            (df['Published_utc'] >= recent_cut) &
+            (pd.to_numeric(df['University Label'], errors='coerce').fillna(0).astype(int) == 1),
+            'Link'
+        ].astype(str).str.strip()
+    )
+    
+    new_links = set(str(x).strip() for x in new_links)
+    
+    links_to_save = new_links | rerun_links
+    
+    df_new_final = df[df['Link'].astype(str).str.strip().isin(links_to_save)].copy()
     debug_date(df_new_final, "L_df_new_final_only_new_links")
     del df
     gc.collect()
