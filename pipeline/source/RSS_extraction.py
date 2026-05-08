@@ -151,13 +151,7 @@ rss_feed =   {"RSS_Feeds":[{
                     "https://rss.politico.com/energy.xml",
                     "https://rss.politico.com/politics-news.xml"],
         "Inside Higher Ed": "https://www.insidehighered.com/rss.xml",
-        "CNN": ["http://rss.cnn.com/rss/cnn_world.rss",
-                "http://rss.cnn.com/rss/cnn_allpolitics.rss",
-                "http://rss.cnn.com/rss/cnn_tech.rss",
-                "http://rss.cnn.com/rss/cnn_health.rss",
-                "http://rss.cnn.com/rss/money_news_international.rss",
-                "http://rss.cnn.com/rss/money_news_economy.rss",
-                "http://rss.cnn.com/rss/money_markets.rss"
+        "CNN": ["https://www.cnn.com/sitemap/news.xml"
                 ],
         "CBC": "https://www.cbc.ca/webfeed/rss/rss-world",
         "Yahoo News": ["https://finance.yahoo.com/news/rssindex",
