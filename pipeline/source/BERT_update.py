@@ -1977,6 +1977,18 @@ if __name__ == '__main__':
             if has_any(t, ["artificial intelligence", "ai policy", "ai literacy", "generative ai", "chatgpt"]):
                 if label in ["No Risk", "Student Conduct Incident", "DEI Program Backlash"]:
                     return "Artificial Intelligence Ethics & Governance"
+
+            if has_any(t, [
+                "infectious disease",
+                "disease outbreak",
+                "outbreak",
+                "public health",
+                "health emergency",
+                "contagious",
+                "communicable disease"
+            ]):
+                if label in ["No Risk", "Emergency Preparedness Gaps"]:
+                    return "Infectious Disease Outbreak"
             
             if has_any(t, ["student loan", "student debt", "loan limits", "graduate loan", "fafsa", "financial aid"]):
                 if label in ["No Risk", "Student Conduct Incident"]:
@@ -2160,6 +2172,9 @@ if __name__ == '__main__':
             "strike", "union", "collective bargaining",
             "mental health", "student wellness",
             "academic freedom", "student speech", "free speech"
+            "infectious disease", "disease outbreak", "outbreak",
+            "epidemic", "pandemic", "quarantine", "cdc",
+            "virus"
         ]
         norisk_review = (
             (out['route'] == 'norisk') &
