@@ -1981,12 +1981,21 @@ if __name__ == '__main__':
             if has_any(t, [
                 "infectious disease",
                 "disease outbreak",
-                "outbreak",
-                "public health",
-                "health emergency",
-                "contagious",
-                "communicable disease"
+                "viral outbreak",
+                "bacterial outbreak",
+                "pandemic",
+                "epidemic",
+                "communicable disease",
+                "virus spread",
+                "cdc outbreak",
+                "measles outbreak",
+                "flu outbreak",
+                "covid outbreak",
+                "norovirus",
+                "avian flu",
+                "h5n1"
             ]):
+
                 if label in ["No Risk", "Emergency Preparedness Gaps"]:
                     return "Infectious Disease Outbreak"
             
