@@ -161,6 +161,8 @@ context_library = {
         Also relevant: interviews or reports with Louisiana university leaders discussing the direct
         impact of state or federal legislative changes on higher education operations in Louisiana.
 
+        ALSO EXTREMELY RELEVANT: Bills passed by Louisiana legislation and Senate that directly impact colleges/universities.
+
         Mark as relevant ONLY when the article describes a law, regulation, executive order, or
         federal/state policy change that would apply to Tulane directly or to all private research
         universities broadly. Changes to FAFSA, federal student loan programs, state legislative
@@ -2421,6 +2423,7 @@ Only use these labels if Tulane University or Tulane leadership is explicitly me
                 
                 Labeling rules:
                 - Return 1 ONLY if the article reports higher-ed institution news in the United States.
+                - Return 1 if the article reports a Louisiana legislative bill REGARDING colleges/universities or higher education.
                 - Return 1 if the article reports a significant U.S. federal acion--such as an executive order, new law, government shutdown, funding decision--that directly or plausibly affects higher-education institutions, even if no specific university is named.
                 - Return 1 if the article mentions Tulane University or clearly affects Tulane operations, funding, leadership, policy, legal exposure, or reputation.
                 - Return 1 if a US Federal/State policy or enforcement action applies to multiple universities and plausibly impacts peer institutions like Tulane.
