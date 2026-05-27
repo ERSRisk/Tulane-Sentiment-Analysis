@@ -1583,6 +1583,35 @@ except asyncio.TimeoutError:
   else:
     all_articles = []
 
+with open("pipeline/resources/la_legis_bills.json", "r", encoding="utf-8") as f:
+    la_bills = json.load(f)
+
+for bill in la_bills:
+    title = bill.get("Title", "")
+    text = bill.get("Content", "")
+
+    spacy_doc = nlp(text or "")
+
+    ents = [
+        ent.text for ent in spacy_doc.ents
+        if ent.label_ in ("ORG", "PERSON", "GPE", "LAW", "EVENT", "MONEY")
+    ]
+
+    kws = [
+        kw for kw in keywords
+        if kw in (title + " " + text).lower()
+    ]
+
+    bill["Entities"] = ents
+    bill["Keyword"] = kws
+
+all_articles += la_bills
+
+print(f"Loaded {len(la_bills)} Louisiana legislative bills")
+
+# Add to pipeline
+all_articles += la_bills
+
 all_articles += cogr
 all_articles += articles
 all_articles += deloitte
