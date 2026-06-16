@@ -1,0 +1,2882 @@
+import json
+from bertopic import BERTopic
+from umap import UMAP
+from hdbscan import HDBSCAN
+import zipfile
+import numpy as np
+import pandas as pd
+import os
+from google import genai
+import toml
+import random
+from sentence_transformers import SentenceTransformer, util
+import time
+import re
+from google.genai.errors import APIError, ClientError, ServerError
+import requests
+from pathlib import Path
+import joblib
+import asyncio
+import backoff
+import gzip
+from datetime import datetime, timedelta
+import ast
+from urllib.parse import urlparse
+import io
+import tempfile
+import torch
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.preprocessing import normalize
+import hashlib
+import spacy
+import gc
+import pickle
+from google.cloud import storage
+import psutil
+
+PROC = psutil.Process(os.getpid())
+
+context_library = {
+
+    "financial_information": """
+        Tulane University depends on federal research grants from agencies such as NIH, NSF, DOE, and
+        the Department of Defense. Financial risks include cuts to indirect cost recovery rates,
+        freezes on grant disbursements, reductions in Title IV federal student aid eligibility,
+        and changes in endowment performance or tuition revenue.
+
+        Also relevant: legal settlements or lawsuits against universities that result in significant
+        financial penalties, restitution payments, or reputational damage with financial consequences —
+        especially when the case involves data integrity, student claims, or institutional misconduct
+        that could set legal precedent affecting Tulane or G14 peers (Boston College, Boston University,
+        Brandeis, George Washington University, Lehigh, NYU, Northeastern, SMU, Syracuse, Tufts,
+        University of Miami, Notre Dame, Wake Forest).
+
+        Also relevant: budget shortfalls in Louisiana state appropriations, declining enrollment
+        trends, rising debt costs, bond rating changes, or federal executive actions targeting
+        university finances or tax-exempt status.
+
+        Also relevant: federal government shutdowns that delay or freeze NIH, NSF, or other
+        agency grant disbursements, or that interrupt Title IV federal student aid processing,
+        directly threatening Tulane's research funding and student revenue streams.
+
+        NOT relevant: financial stories about non-peer institutions with no plausible precedent
+        for Tulane, or general economic news unrelated to higher education.
+    """,
+
+    "emergency_preparedness": """
+        Tulane's New Orleans campus is highly exposed to Gulf Coast weather events, including
+        named hurricanes, tropical storms, flash flooding, and levee-related infrastructure risk.
+        Operational risks also include boil water advisories, extended power outages,
+        campus building closures, and disruptions to public transit or road access that affect
+        faculty, staff, and students.
+
+        Relevant articles describe emergency declarations in Louisiana or the New Orleans metro area,
+        FEMA activations, utility failures, heat emergencies, or public health crises (e.g., infectious
+        disease outbreaks) that could force campus closures or remote operations.
+
+        NOT relevant: weather or emergency events in other regions with no impact on New Orleans or Tulane operations.
+    """,
+
+    "faculty_leadership": """
+        Risks in this category include departures or controversies directly involving Tulane's
+        president, provost, deans, or department chairs. Faculty-related risks include union disputes,
+        academic freedom controversies, tenure denial scandals, high-profile research misconduct,
+        or loss of key faculty to competitor institutions.
+
+        Governance changes at G14 peer institutions are relevant only when they signal a clear
+        sector-wide shift in leadership practices that Tulane would likely face — not just because
+        a controversy occurred at another school. Federal investigations into university leadership
+        decisions that apply broadly across private research universities are also relevant.
+
+        NOT relevant: leadership controversies at non-peer or non-comparable institutions that
+        are unlikely to set precedent for Tulane.
+        NOT relevant: articles about a single lecturer or instructor being sanctioned or returning
+        to class at a non-peer institution, where the situation is resolved and does not signal
+        a new policy, law, or sector-wide enforcement trend.
+    """,
+
+    "student_conduct": """
+        Student conduct risks at Tulane include hazing incidents involving fraternities or sororities,
+        alcohol or drug violations at Greek life events, sexual misconduct or Title IX complaints
+        filed by students, campus protests or demonstrations, and student-involved crimes on or
+        near campus.
+
+        Tulane sororities: Kappa Alpha Theta, Chi Omega, Delta Delta Delta, Kappa Kappa Gamma, Phi Mu,
+        Alpha Delta Pi, Sigma Delta Tau, Alpha Epsilon Phi.
+        Tulane fraternities: Sigma Alpha Epsilon, Sigma Chi, Delta Tau Delta, Kappa Sigma, Kappa Alpha,
+        Phi Delta Theta, Phi Kappa Sigma, Phi Gamma Delta, Zeta Beta Tau, Zeta Psi, Beta Theta Pi.
+
+        Peer university incidents are relevant only when they involve systemic Greek life or conduct
+        policy changes that would apply broadly — not highly specific situations unique to one institution
+        that Tulane could independently handle differently.
+
+        NOT relevant: student conduct incidents at peer schools that are highly institution-specific
+        and do not reflect a pattern or policy change that would affect Tulane.
+    """,
+
+    "research_operations": """
+        Tulane has significant research operations including biomedical labs, the National Primate
+        Research Center, and programs in public health, engineering, and the social sciences.
+        Risks include federal agency audits of grant compliance, lab safety incidents, data
+        security breaches involving research data, loss of accreditation for research programs,
+        and export control violations.
+
+        Also relevant: policy changes at NIH, NSF, or USDA that restructure grant award processes;
+        executive orders affecting international research collaboration; or incidents at peer
+        research universities involving lab safety or research fraud that could trigger broader
+        sector-wide regulatory scrutiny.
+
+        Also relevant: federal budget proposals or executive actions that broadly cut funding
+        to university research programs, scientific agencies, or AI and STEM initiatives —
+        especially when framed as a threat to US competitiveness or university research capacity.
+
+        NOT relevant: general science or technology news unrelated to university research funding
+        or compliance, or government tech initiatives that do not affect academic grant processes.
+    """,
+
+    "athletics_governance": """
+        Tulane competes in the American Athletic Conference and has Division I athletics programs.
+        Risks include NCAA rules violations, eligibility disputes, Title IX compliance gaps in
+        athletic programs, coaching misconduct, and reputational damage from athlete behavior
+        on or off the field.
+
+        Also relevant: conference realignment decisions that could affect Tulane's competitive
+        position, NIL (name, image, likeness) regulatory developments, college football playoff
+        structures, or controversies at peer athletic programs that signal incoming NCAA enforcement trends.
+
+        NOT relevant: professional sports news or college athletics stories at non-peer schools
+        with no plausible regulatory or financial impact on Tulane.
+        NOT relevant: routine NCAA rule changes that expand revenue opportunities without creating
+        a compliance obligation, enforcement risk, or direct financial threat to Tulane.
+    """,
+
+    "public_policy_higher_ed": """
+        Tulane is subject to federal and Louisiana state regulation. Relevant policy risks include
+        changes to Title IX enforcement, new Department of Education rulemaking, executive orders
+        affecting DEI programs, immigration policy changes affecting international students and
+        researchers (F-1/J-1 visas), and Congressional budget negotiations that affect university
+        research funding.
+
+        Also relevant: interviews or reports with Louisiana university leaders discussing the direct
+        impact of state or federal legislative changes on higher education operations in Louisiana.
+
+        ALSO EXTREMELY RELEVANT: Bills passed by Louisiana legislation and Senate that directly impact colleges/universities.
+
+        Mark as relevant ONLY when the article describes a law, regulation, executive order, or
+        federal/state policy change that would apply to Tulane directly or to all private research
+        universities broadly. Changes to FAFSA, federal student loan programs, state legislative
+        actions in Louisiana on higher education, or federal investigations of university practices
+        (e.g., antisemitism task forces, accreditation reviews) are highly relevant.
+
+        NOT relevant: articles about how a specific university chose to respond to a policy —
+        the policy itself may be relevant, but one institution's individual reaction is not
+        a risk to Tulane unless it signals a sector-wide enforcement action or legal consequence.
+        Also NOT relevant: general opinion pieces or news about political tension in higher education
+        without a concrete policy change or enforcement action that directly affects Tulane.
+    """
+}
+print("Context library loaded.")
+
+def mem(msg: str):
+    rss_gb = PROC.memory_info().rss / (1024**3)
+    print(f"[MEM] {msg}: {rss_gb:.2f} GB", flush = True)
+
+def debug_date(df, name, raw_col='Published', utc_col='Published_utc', link_col='Link'):
+    try:
+        if df is None:
+            print(f"[DATCHECK] {name}: df is None", flush=True)
+            return
+        if len(df) == 0:
+            print(f"[DATCHECK] {name}: EMPTY df", flush=True)
+            return
+
+        work = df.copy()
+
+        def _dbg_coerce(x):
+            if pd.isna(x):
+                return pd.NaT
+            if isinstance(x, (int, float)):
+                if x > 1e12:
+                    return pd.to_datetime(x, unit='ms', errors='coerce', utc=True)
+                if x > 1e9:
+                    return pd.to_datetime(x, unit='s', errors='coerce', utc=True)
+            sx = str(x)
+            sx = re.sub(r'\s(EST|EDT|PDT|CDT|MDT|GMT)\b', '', sx, flags=re.I)
+            return pd.to_datetime(sx, errors='coerce', utc=True)
+
+        if utc_col in work.columns:
+            work[utc_col] = work[utc_col].apply(_dbg_coerce)
+        elif raw_col in work.columns:
+            work[utc_col] = work[raw_col].apply(_dbg_coerce)
+        else:
+            work[utc_col] = pd.NaT
+
+        parsed = work[utc_col].notna().sum()
+        total = len(work)
+        min_dt = work[utc_col].min()
+        max_dt = work[utc_col].max()
+
+        print(
+            f"[DATCHECK] {name}: rows={total}, parsed_dates={parsed}, min={min_dt}, max={max_dt}",
+            flush=True
+        )
+
+        show_cols = [c for c in ['Title', link_col, raw_col] if c in work.columns]
+        newest = work.sort_values(utc_col, ascending=False, na_position='last')[show_cols].head(5)
+        print(f"[DATECHK] {name} newest rows:", flush=True)
+        print(newest.to_string(index=False), flush=True)
+
+    except Exception as e:
+        print(f"[DATCHECK] {name}: FAILED with {e}", flush=True)
+BUCKET_NAME = "tulane-risk-data"
+mem("start")
+
+def upload_file(local_path: str, blob_path: str, bucket_name:str = BUCKET_NAME) -> None:
+    client = storage.Client()
+    bucket = client.bucket(bucket_name)
+    blob = bucket.blob(blob_path)
+    blob.upload_from_filename(local_path)
+
+def download_file(blob_path: str, local_path: str, bucket_name:str = BUCKET_NAME) -> None:
+    client = storage.Client()
+    bucket = client.bucket(bucket_name)
+    blob = bucket.blob(blob_path)
+
+    Path(local_path).parent.mkdir(parents = True, exist_ok=True)
+    blob.download_to_filename(local_path)
+    return pd.read_csv(local_path, compression = 'gzip', low_memory = False)
+
+def blob_exists(blob_path: str, bucket_name: str = BUCKET_NAME) -> bool:
+    client = storage.Client()
+    bucket = client.bucket(bucket_name)
+    blob = bucket.blob(blob_path)
+    return blob.exists()
+
+def upload_bytes(data: bytes, blob_path:str, content_type:str = "application/octet-stream", bucket_name:str = BUCKET_NAME) -> None:
+    client = storage.Client()
+    bucket = client.bucket(bucket_name)
+    blob = bucket.blob(blob_path)
+    blob.upload_from_string(data, content_type=content_type)
+
+
+def gh_headers():
+    token = os.getenv('TOKEN')
+    if not token:
+        raise RuntimeError('Missing token')
+    return {
+        'Accept':"application/vnd.github+json",
+        "Authorization": f"token {token if token else None}",
+    }
+
+def ensure_release(owner, repo, tag:str, token):
+    headers = gh_headers()
+    r = requests.get(f'https://api.github.com/repos/{owner}/{repo}/releases/tags/{tag}', headers=headers, timeout=60)
+    if r.status_code == 404:
+        r = requests.post(f'https://api.github.com/repos/{owner}/{repo}/releases', headers = headers, timeout = 60, json={
+        "tag_name": tag, "name": tag, "draft": False, "prerelease": False
+    })
+    r.raise_for_status()
+    rel = r.json()
+    return rel
+def get_release_by_tag(owner, repo, tag):
+    url = f'https://api.github.com/repos/{owner}/{repo}/releases/tags/{tag}'
+    r = requests.get(url, headers = gh_headers())
+    if r.status_code == 404:
+        return None
+    r.raise_for_status()
+    return r.json()
+def load_articles_from_release(local_cache_path='pipeline/resources/BERTopic_results2.csv.gz',
+                               usecols=None, dtype=None, Asset_name = 'BERTopic_results2.csv.gz'):
+    def create_github_release(owner, repo, tag, token):
+        url = f"https://api.github.com/repos/{owner}/{repo}/releases"
+        headers = {
+            "Authorization": f"token {token}",
+            "Accept": "application/vnd.github+json"
+        }
+    
+        payload = {
+            "tag_name": tag,
+            "name": tag,
+            "draft": False,
+            "prerelease": False
+        }
+    
+        response = requests.post(url, json=payload, headers=headers)
+        response.raise_for_status()
+        print("Release created successfully.", flush=True)
+    rel = get_release_by_tag(Github_owner, Github_repo, Release_tag)
+    if not rel:
+        print("Release does not exist. Creating new release...", flush=True)
+        create_github_release(Github_owner, Github_repo, Release_tag, GITHUB_TOKEN)
+        return pd.DataFrame()
+    # 1) Try remote release asset (streamed)
+    if rel:
+        asset = next((a for a in rel.get('assets', []) if a['name'] == Asset_name), None)
+        if asset:
+            url = asset['browser_download_url']
+            # Stream to disk instead of holding in RAM
+            with requests.get(url, stream=True, timeout=120) as resp:
+                resp.raise_for_status()
+                Path(local_cache_path).parent.mkdir(parents=True, exist_ok=True)
+                with open(local_cache_path, 'wb') as f:
+                    for chunk in resp.iter_content(chunk_size=1024 * 1024):  # 1MB chunks
+                        if chunk:
+                            f.write(chunk)
+            # Read the gz file directly from disk
+            return pd.read_csv(local_cache_path, compression='gzip',
+                               low_memory=False, usecols=usecols, dtype=dtype)
+
+    # 2) Fallback to local cache if present
+    P = Path(local_cache_path)
+    if P.exists():
+        return pd.read_csv(local_cache_path, compression='gzip',
+                           low_memory=False, usecols=usecols, dtype=dtype)
+
+    # 3) Nothing available
+    print(f"{Asset_name} does not exist yet. Returning empty DataFrame.", flush=True)
+    return pd.DataFrame()
+def upload_asset(owner, repo, release, asset_name, data_bytes, token, content_type = 'application/gzip'):
+    assets_api = release['assets_url']
+    r = requests.get(assets_api, headers = gh_headers())
+    r.raise_for_status()
+    for a in r.json():
+        if a.get("name") == asset_name:
+            del_r = requests.delete(a['url'], headers = gh_headers())
+            del_r.raise_for_status()
+            break
+    upload_url = release['upload_url'].split('{')[0]
+    params = {"name": asset_name}
+    headers = gh_headers()
+    headers['Content-Type'] = content_type
+    up = requests.post(upload_url, headers = headers, params = params, data = data_bytes)
+    if not up.ok:
+        raise RuntimeError(f"Upload failed{up.status_code}: {up.text[:500]}")
+    return up.json()
+def upload_asset_to_release(owner, repo, tag:str, asset_path:str, token:str):
+    headers = {'Authorization': f'token {token}',
+              'Accept': 'application/vnd.github+json'}
+    r = requests.get(f'https://api.github.com/repos/{owner}/{repo}/releases/tags/{tag}', headers=headers, timeout=60)
+    r.raise_for_status()
+    rel = r.json()
+    upload_url = rel["upload_url"].split("{", 1)[0]
+    assets = requests.get(f"https://api.github.com/repos/{owner}/{repo}/releases/{rel['id']}/assets", headers=headers, timeout=60).json()
+    name = os.path.basename(asset_path)
+    for a in assets:
+        if a.get("name") == name:
+            requests.delete(f"https://api.github.com/repos/{owner}/{repo}/releases/assets/{a['id']}", headers=headers, timeout=60)
+    with open(asset_path, "rb") as f:
+        up = requests.post(
+            f"{upload_url}?name={name}",
+            headers={"Authorization": f"token {token}", "Content-Type": "application/octet-stream"},
+            data=f.read(), timeout=300
+        )
+    up.raise_for_status()
+    return up.json()
+def load_model_bundle(owner, repo, tag, asset_name = 'model_bundle.pkl', local_cache_path = 'pipeline/resources/artifacts/model_bundle.pkl'):
+    P = Path(local_cache_path)
+    P.parent.mkdir(parents = True, exist_ok=True)
+
+    if P.exists() and P.stat().st_size > 0:
+        return joblib.load(P)
+    rel = get_release_by_tag(owner, repo, tag)
+    if not rel:
+        raise RuntimeError(f"Release tag {tag} not found")
+    assets = rel.get('assets', []) or []
+    asset = next((a for a in assets if a.get('name')==asset_name), None)
+    if not asset:
+        raise RuntimeError(f"Asset {asset_name} not found")
+
+    asset_url =asset['url']
+    headers = gh_headers()
+    headers['Accept'] = 'application/octet-stream'
+    r = requests.get(asset_url, headers = headers, timeout = 120)
+    r.raise_for_status()
+    P.write_bytes(r.content)
+    return joblib.load(P)
+def atomic_write_csv(path: str, df, compress: bool = False):
+    p = Path(path)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    tmp = p.with_suffix(p.suffix + ".tmp")
+    if compress:
+        df.to_csv(tmp, index=False, compression="gzip")
+    else:
+        df.to_csv(tmp, index=False)
+    os.replace(tmp, p)
+    print(f"✅ Wrote {p} ({p.stat().st_size/1e6:.2f} MB)")
+    
+def atomic_write_pickle(path: str, obj):
+    p = Path(path)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    tmp = p.with_suffix(p.suffix + ".tmp")
+    import pickle
+    with open(tmp, 'wb') as f:
+        pickle.dump(obj, f)
+    os.replace(tmp, p)
+    print(f"✅ Wrote {p} ({p.stat().st_size/1e6:.2f} MB)")
+
+def load_full_topics(existing_df):
+    dfs = []
+
+    try:
+        if blob_exists('latest/BERTopic_results3.csv.gz'):
+            r3 = download_file('latest/BERTopic_results3.csv.gz', 'pipeline/resources/BERTopic_results3.csv.gz')
+        if r3 is not None and not r3.empty:
+            dfs.append(r3)
+    except Exception as e:
+        print(f"Could not load BERTopic_results3.csv.gz: {e}", flush=True)
+    if existing_df is not None and not existing_df.empty:
+        dfs.append(existing_df)
+
+    if not dfs:
+        return pd.Dataframe()
+    out = pd.concat(dfs, ignore_index = True)
+    out = out.drop_duplicates(subset = ['Link'], keep = 'last')
+    return out
+
+def risk_weights(df):
+    t0 = time.perf_counter()
+    print(f"[risk_weights] start: df = {df.shape}", flush = True)
+
+    # ---------- Load config ----------
+    with open('pipeline/resources/risks.json', 'r', encoding='utf-8') as f:
+        risks_cfg = json.load(f)
+
+    json_all_labels = [r['name'] for block in risks_cfg.get('new_risks', []) for _, items in block.items() for r in items]
+
+    print("risk labels loaded", flush = True)
+    accuracy_map = {}
+    for s in risks_cfg.get('sources', []):
+        name = str(s.get('name', '') or '')
+        acc = s.get('accuracy', 0) or 0
+        accuracy_map[name] = acc
+    level_name_map = {"low":1, "medium low":2, "medium":3, "medium high":4, "high":5}
+    risks_map = {}
+    for r in risks_cfg.get('risks', []):
+        nm = (r.get('name') or '').strip().lower()
+        lvl = r.get('level', 0)
+        if isinstance(lvl, str):
+            lvl = level_name_map.get(lvl.strip().lower(), 0)
+        try:
+            lvl = float(lvl)
+        except Exception:
+            lvl = 0.0
+        if nm:
+            risks_map[nm] = lvl
+
+    higher_ed_dict = risks_cfg.get('HigherEdRisks', None)
+
+    base = df
+    for col in ['Title','Content','Source']:
+        if col not in base.columns:
+            base[col] = ''
+    base['Title'] = base['Title'].fillna('').astype(str)
+    base['Content'] = base['Content'].fillna('').astype(str)
+    base['Source'] = base['Source'].fillna('').astype(str)
+    def _coerce_pub(x): 
+        if pd.isna(x): 
+            return pd.NaT 
+        if isinstance(x, (int, float)): 
+            if x > 1e12: # epoch ms 
+                return pd.to_datetime(x, unit='ms', errors='coerce', utc=True) 
+            if x > 1e9: # epoch s 
+                return pd.to_datetime(x, unit='s', errors='coerce', utc=True) 
+        sx = str(x) 
+        sx = re.sub(r'\s(EST|EDT|PDT|CDT|MDT|GMT)\b', '', sx, flags=re.I) 
+        return pd.to_datetime(sx, errors='coerce', utc=True) 
+    if 'Published' not in base.columns: 
+        base['Published'] = pd.NaT 
+    base['Published'] = base['Published'].apply(_coerce_pub) 
+    if pd.api.types.is_datetime64tz_dtype(base['Published']): 
+        base['Published'] = base['Published'].dt.tz_convert('UTC').dt.tz_localize(None) 
+
+    now_naive = datetime.utcnow() 
+    base['Days_Ago'] = (now_naive - base['Published']).dt.days 
+    base['Days_Ago'] = base['Days_Ago'].fillna(10_000).astype(int) 
+    risk_half_life = { 
+        "Research Funding Disruption": 60, 
+        "Enrollment Pressure": 60, 
+        "Policy or Political Interference": 90, 
+        "Institutional Alignment Risk": 60, 
+        "Mission Drift": 90, 
+        "Revenue Loss": 90, 
+        "Insurance Market Volatility": 90, 
+        "Unexpected Expenditures": 15, 
+        "Endowment Risk": 30, 
+        "Constant Inflation": 15, 
+        "Infrastructure Failure": 15, 
+        "Transportation/Access Disruption": 7, 
+        "Supply Chain Delay": 15, 
+        "Emergency Preparedness Gaps": 15, 
+        "Title IX/ADA Noncompliance": 30, 
+        "Accreditation Risk": 120, 
+        "FERPA/HIPAA Violations": 7, 
+        "Grant Mismanagement": 7, 
+        "Audit Findings": 30, 
+        "Unauthorized Access/Data Breach": 7, 
+        "Credential Phishing": 7, 
+        "Vendor Cyber Exposure": 7, 
+        "Cloud Misconfiguration": 7, 
+        "Artificial Intelligence Ethics & Governance": 7, 
+        "Rapid Speed of Disruptive Innovation": 90, 
+        # --- Reputational and Social --- 
+        "Controversial Public Incident": 30, 
+        "DEI Program Backlash": 30, 
+        "High-Profile Litigation": 90, 
+        "Leadership Missteps": 30, 
+        "Media Campaigns": 15, 
+        # --- Health, Safety and Security --- 
+        "Violence or Threats": 10, 
+        "Infectious Disease Outbreak": 30, 
+        "Lab Incident": 7, 
+        "Workplace Safety Violation": 7, 
+        "Environmental Exposure": 30, 
+        # --- Environmental & Climate --- 
+        "Hurricane/Flood/Wildfire": 30, 
+        "Extreme Weather Events": 30, 
+        "Climate Infrastructure Risks": 15, 
+        "Environmental Noncompliance": 90, 
+        "Insurance Withdrawal": 120, 
+        # --- Student Experience & Welfare --- 
+        "Mental Health Crises": 15, 
+        "Housing/Food Insecurity": 15, 
+        "Academic Disruption": 15, 
+        "Student Conduct Incident": 7, 
+        "Accessibility Barriers": 15, 
+        # --- Internal Organization --- 
+        "HR Complaint": 15, 
+        "Labor Dispute": 30, 
+        "Morale challenges": 30, 
+        "Faculty conflict": 15, 
+        "Executive Board conflicts": 30, 
+        "Nepotism/Conflict of Interest": 15, 
+        "Policy Misapplication": 15, 
+        "Whistleblower Claims": 30 } 
+    cand = base.get('Predicted_Risks_new', pd.Series('', index=base.index)).fillna('')
+    cand = np.where(cand=='', base.get('Predicted_Risks', ''), cand)
+    cand = pd.Series(cand, index=base.index).fillna('').astype(str)
+    
+    def _first_label(s):
+        s = s.strip()
+        if not s:
+            return ''
+        s = re.sub(r'^\[|\]$', '', s)
+        s = re.split(r'[;,]', s)[0].strip().strip("'\"")
+        return s
+    
+    base['_RiskList'] = cand.apply(_first_label)
+    base['Risk_item'] = np.where(base['_RiskList'].eq(''), 'No Risk', base['_RiskList'])
+
+    if 'Topic' not in base.columns:
+        base['Topic'] = -1
+    base['Topic'] = base['Topic'].fillna(-1)
+    def recency_features_topic_risk(df, now=None):
+        fx = df[['Topic', '_RiskList', 'Published', 'Days_Ago']].copy()
+
+        required = {'Topic', '_RiskList', 'Published', 'Days_Ago'}
+        if not required.issubset(fx.columns) or fx.empty:
+            return pd.DataFrame(columns=['Topic','_RiskList','last_seen_days','decayed_volume','recency_score_tr'])
+
+        if now is None:
+            now = pd.Timestamp.utcnow()
+
+        art_w = 1.0
+        if 'Impact_Score' in base.columns:
+            art_w = pd.to_numeric(base['Impact_Score'], errors='coerce').fillna(0.0).clip(0, 1)
+
+        def half_life(risk):
+            return risk_half_life.get(risk, 30)
+
+        hl  = fx['_RiskList'].map(lambda r: max(1.0, half_life(r)))
+        lam = np.log(2.0) / hl
+        w_decay = np.exp(-lam * fx['Days_Ago'])
+        fx['_w'] = w_decay * art_w
+
+        grp = fx.groupby(['Topic', '_RiskList'], dropna=False)
+        out = grp.agg(
+            last_seen=('Days_Ago', 'min'),
+            decayed_volume=('_w', 'sum'),
+            mentions=('Published', 'count')
+        ).reset_index()
+
+        out['hl'] = out['_RiskList'].map(lambda r: max(1.0, half_life(r)))
+        out['freshness'] = np.exp(-np.log(2.0) * (out['last_seen'] / out['hl']))
+
+        def _safe_minmax(s):
+            rng = s.max() - s.min()
+            return (s - s.min()) / (rng + 1e-12)
+
+        out['decayed_z'] = out.groupby('_RiskList')['decayed_volume'].transform(_safe_minmax)
+
+        w_fresh, w_vol = 0.6, 0.4
+        out['recency_score_tr'] = (w_fresh * out['freshness'] + w_vol * out['decayed_z']).clip(0, 1)
+        out = out.rename(columns={'last_seen': 'last_seen_days'})
+        return out[['Topic','_RiskList','last_seen_days','decayed_volume','recency_score_tr']]
+
+
+    def attach_topic_risk_recency(df):
+        tr = recency_features_topic_risk(df)
+        for c in ['last_seen_days','decayed_volume','recency_score_tr']:
+            if c not in tr.columns:
+                tr[c] = np.nan
+        cols_to_drop = ["last_seen_days","decayed_volume",
+                    "recency_score_tr","recency_score_tr_x","recency_score_tr_y"]
+        df = df.drop(columns=[c for c in cols_to_drop if c in df.columns], errors="ignore")
+
+        tr_small = tr[["Topic", "_RiskList", "last_seen_days", "decayed_volume", "recency_score_tr"]].rename(
+            columns={"recency_score_tr": "recency_score_tr_tr"}
+        )
+        overlap = [c for c in tr_small.columns if c in df.columns and c not in ['Topic', '_RiskList']]
+        if overlap:
+            df = df.drop(columns = overlap)
+        enriched = df.merge(tr_small, on=["Topic","_RiskList"], how="left", validate = "m:1")
+
+        days = pd.to_numeric(enriched.get('Days_Ago', np.nan), errors='coerce').astype(float)
+        enriched['article_freshness'] = np.exp(-np.log(2.0) * (days / 14.0)).fillna(0.0)
+
+        if 'recency_score_tr_tr' not in enriched.columns:
+            enriched['recency_score_tr_tr'] = 0.0
+
+        alpha = 0.7
+        enriched['Recency_TR_Blended'] = (
+            alpha * enriched['recency_score_tr_tr'].fillna(0.0)
+            + (1 - alpha) * enriched['article_freshness']
+        ).clip(0, 1)
+
+        return enriched
+    
+
+    def _src_acc(row):
+        src = str(row.get('Source','') or '')
+        link = str(row.get('Link', '') or '')
+        src_l = src.lower()
+        dom = ''
+        if link:
+            try:
+                dom = urlparse(link).netloc.lower()
+            except Exception:
+                dom = ''
+        if dom.endswith('.gov') or dom.endswith('.mil') or dom.endswith('tulane.edu'):
+            return 5
+        best = 0.0
+        for name, acc in accuracy_map.items():
+            if name and name.lower() in src_l:
+                try:
+                    v = float(acc)
+                except Exception:
+                    v = 0.0
+                best = max(best, v)
+
+        return min(best, 4.0)
+    base['Source_Accuracy'] = base.apply(_src_acc, axis=1)
+    print('Source accuracy created', flush = True)
+
+    def _loc_score(row):
+        us_sources = ['foxnews','NIH', 'NOAA', 'FEMA', 'NASA', 'CISA', 'NIST', 'NCES', 'CMS', 'CDC', 'BEA', 'The Advocate', 'LA Illuminator', 'The Hill', 'NBC News', 'PBS', 'StatNews', 'NY Times', 'Washington Post', 'TruthOut', 'Politico', 'Inside Higher Ed', 'CNN', 'Yahoo News', 'FOX News', 'ABC News', 'Huffington Post', 'Business Insider', 'Bloomberg', 'AP News']
+        raw = row.get('Entities', None)
+
+        if isinstance(raw, list):
+            entities = [str(e).lower() for e in raw if e is not None]
+        elif isinstance(raw, str) and raw.strip():
+            entities = [raw.strip().lower()]
+        else:
+            entities = []
+        text = (row.get('Title','') + ' ' + row.get('Content','')).lower()
+        def has_any(keys): 
+            lk = [k.lower() for k in keys]
+            return any(k in text for k in lk)
+        if has_any(['tulane','tulane university']): return 5
+        if has_any(['new orleans','louisiana','nola']): return 4
+        if has_any(['baton rouge','governor landry','lafayette','lsu','university of louisiana']): return 3
+        if has_any(['gulf coast','mississippi','texas','alabama']): return 2
+        if has_any(['u.s.','united states','america','federal','washington dc','trump']) or str(row.get('Source','')) in us_sources: return 1
+        return 0
+
+    base['Location'] = base.apply(_loc_score, axis=1)
+    base['Location'] = pd.to_numeric(base['Location'], errors = 'coerce').fillna(0).astype(int)
+    print('Location created', flush = True)
+
+
+
+    def _window_tag(d):
+        if d <= 30: return 'recent'
+        if d <= 60: return 'previous'
+        return 'older'
+    tmp = base[['Topic','Days_Ago']].copy()
+    tmp['Time_Window'] = tmp['Days_Ago'].apply(_window_tag)
+    topic_counts = tmp.groupby(['Topic','Time_Window']).size().unstack(fill_value=0)
+    for c in ['recent','previous']:
+        if c not in topic_counts.columns:
+            topic_counts[c] = 0
+
+    periods = base['Published'].dt.to_period('W-MON')
+    base['Week'] = periods.dt.to_timestamp(how = 'start')
+    ts = (
+        base.loc[base['Week'].notna()]
+        .groupby(['Risk_item','Week'])
+        .size().rename('n').reset_index()
+        .sort_values(['Risk_item','Week'])
+    )
+    if not ts.empty:
+        ts['EMWA'] = ts.groupby('Risk_item')['n'].transform(
+            lambda s: s.ewm(span = 4, adjust =False).mean()
+        )
+
+        ts['EMWA_Delta'] = ts.groupby('Risk_item')['EMWA'].diff().fillna(0.0)
+        def slope(counts, k=6):
+            x = np.arange(len(counts), dtype=float)
+            out = np.zeros(len(counts), dtype=float)
+            for i in range(len(counts)):
+                lo = max(0, i - min(k, i) + 1) 
+                xi = x[lo:i+1]; yi = counts[lo:i+1].astype(float)
+                if len(xi) >= 2: 
+                    m, _ = np.polyfit(xi, yi, 1)
+                    out[i] = m
+            return out
+
+        ts['Slope'] = ts.groupby('Risk_item', group_keys = False)['n'].apply(lambda g: pd.Series(slope(g.values, k=6), index = g.index)).astype(float)
+
+        def normalize_groupwise(s, by):
+            return s.groupby(by, group_keys=False).rank(pct = True).fillna(0.0)
+
+        ts['emwa_norm']  = normalize_groupwise(ts['EMWA'].clip(lower=0),  ts['Risk_item'])
+        ts['slope_norm'] = normalize_groupwise(ts['Slope'].clip(lower = 0), ts['Risk_item'])
+
+        w_emwa, w_slope = 0.6, 0.4
+        ts['accel_score'] = (w_emwa*ts['emwa_norm'] + w_slope * ts['slope_norm']).clip(0,1)
+        weeks_seen = ts.groupby('Risk_item')['Week'].transform('nunique')
+        ts.loc[weeks_seen < 4, 'accel_score'] *= 0.6
+
+
+        #if 'Sentiment Score' not in base.columns:
+        #    base['Sentiment Score'] = 0.0
+        #ts_sent = (
+        #    base.loc[base['Week'].notna()]
+        #    .groupby(['Risk_item','Week'])
+        #    .agg(sent_mean=('Sentiment Score','mean'))
+        #    .reset_index()
+        #    .sort_values(['Risk_item','Week'])
+        #)
+        #ts_sent['sent_flipped'] = -ts_sent['sent_mean']
+        #ts_sent['sent_ewma'] = ts_sent.groupby('Risk_item')['sent_flipped'].transform(
+        #    lambda s: s.ewm(span=4, adjust=False).mean()
+        #)
+        #ts_sent['sent_delta'] = ts_sent.groupby('Risk_item')['sent_ewma'].diff().fillna(0.0)
+        #ts_sent['sent_slope'] = ts_sent.groupby('Risk_item', group_keys=False)['sent_flipped'] \
+        #    .apply(lambda g: pd.Series(slope(g.values, k=6), index=g.index)) \
+        #    .astype(float)
+        #ts_sent['sent_delta_norm'] = normalize_groupwise(ts_sent['sent_delta'], ts_sent['Risk_item'])
+        #ts_sent['sent_slope_norm'] = normalize_groupwise(ts_sent['sent_slope'], ts_sent['Risk_item'])
+        #w_sent_delta, w_sent_slope = 0.6, 0.4
+        #ts_sent['accel_score_sent'] = (w_sent_delta*ts_sent['sent_delta_norm'] + w_sent_slope*ts_sent['sent_slope_norm']).clip(0,1)
+
+        ts['accel_score'] = ts['accel_score'].fillna(0.0)
+
+
+
+        def _acc_value(d):
+            if d < 0.1: return 0
+            if d < 0.25: return 1
+            if d < 0.40: return 2
+            if d < 0.60: return 3
+            if d < 0.80: return 4
+            return 5
+        ts['Acceleration_value'] = ts['accel_score'].apply(_acc_value).astype(int)
+
+        def cue_eta_from_text(t):
+            t = str(t).lower()
+            if re.search(r'\b(today|tonight|tomorrow|immediately|right now)\b', t):
+                return 3
+            if re.search(r'\b(this week|in\s*the\s*coming\s*days)\b', t):
+                return 7
+            # near-term windows
+            if re.search(r'\b(next week|within\s*2\s*weeks|in\s*2\s*weeks)\b', t):
+                return 14
+            if re.search(r'\b(within\s*30\s*days|this month|in\s*\d+\s*days)\b', t):
+                return 30
+            return 45
+
+        temp = base.loc[base['Week'].notna(), ['Risk_item', 'Week', 'Title','Content', 'Location','University Label']].copy()
+        temp['cue_eta'] = (temp['Title'] + ' ' + temp['Content'].fillna('')).apply(cue_eta_from_text)
+
+        def location_eta(l):
+            try:
+                loc = int(l)
+            except Exception:
+                loc = 0
+            if loc == 5: return 7
+            if loc == 1: return 21
+            return 45
+        temp['loc_eta'] = temp['Location'].apply(location_eta)
+        def tulane_pull(u_label, eta):
+            try:
+                label = int(u_label)
+            except Exception:
+                label = 0
+            return max(1, eta - (7 if label ==1 else 0))
+
+        ulab = pd.to_numeric(temp['University Label'], errors='coerce').fillna(0).astype('int8')
+        eta_min = np.minimum(temp['cue_eta'].to_numpy(), temp['loc_eta'].to_numpy())
+        temp['eta_article'] = np.maximum(1, eta_min - np.where(ulab.to_numpy() == 1, 7, 0))
+
+        eta_by_bucket = (
+            temp.groupby(['Risk_item', 'Week'])['eta_article'].min()
+            .rename('eta_days_proxy').reset_index()
+        )
+
+        ts = ts.merge(eta_by_bucket, on = ['Risk_item', 'Week'], how='left')
+        ts['eta_days_proxy'] = ts['eta_days_proxy'].fillna(45).astype(float)
+
+        ts['eta_days_proxy'] = (ts['eta_days_proxy']- (ts['accel_score'] * 5.0)).clip(lower =1)
+
+        def cap_by_eta(val, eta_days):
+            if eta_days <= 15:
+                return(min(int(val), 5))
+            elif eta_days <= 30:
+                return (min(int(val),4))
+            else: 
+                return min(int(val), 3)
+
+        ts['Acceleration_value'] = ts.apply(
+            lambda r: cap_by_eta(r['Acceleration_value'], r['eta_days_proxy']),
+            axis=1
+        ).astype(int)
+
+    base = base.drop(columns = ['Acceleration_value_x', 'Acceleration_value_y'], errors = 'ignore')
+    right = ts[['Risk_item', 'Week', 'Acceleration_value']].rename(columns = {'Acceleration_value': 'Acceleration_value_new'})
+    base = base.merge(right, on = ['Risk_item', 'Week'], how = 'left', validate = 'm:m')
+    if 'Acceleration_value' in base.columns:
+        base['Acceleration_value'] = base['Acceleration_value_new'].fillna(base['Acceleration_value'])
+    else:
+        base['Acceleration_value'] = base['Acceleration_value_new']
+
+
+    base = base.drop(columns = ['Acceleration_value_new'])
+    base['Acceleration_value'] =base['Acceleration_value'].fillna(0).astype(int)
+    print('Acceleration value created', flush = True)
+
+
+    if base.empty:
+        base['Frequency_Score'] = 0
+    else:
+        counts = base['Risk_item'].value_counts().rename_axis('Risk_item').reset_index(name='Count')
+        try:
+            bins = pd.qcut(counts['Count'].rank(method='first'), 5, labels=[1,2,3,4,5])
+            counts['Frequency_Score'] = bins.astype(int)
+        except Exception:
+            mn, mx = counts['Count'].min(), counts['Count'].max()
+            if mx == mn:
+                counts['Frequency_Score'] = 3
+            else:
+                scaled = 1 + 4 * (counts['Count'] - mn) / float(mx - mn)
+                counts['Frequency_Score'] = scaled.round().clip(1,5).astype(int)
+        freq_map = dict(zip(counts['Risk_item'], counts['Frequency_Score']))
+        base['Frequency_Score'] = base['Risk_item'].map(freq_map).fillna(0).astype(int)
+
+    hed = risks_cfg.get('HigherEdRisks') or {}
+    hed_norm = {
+        str(cat).strip().lower(): [str(p).strip().lower() for p in (phr_list or []) if str(p).strip()]
+        for cat, phr_list in hed.items()
+    }
+
+    def phrase_to_pattern(phrase: str) -> str:
+        tokens = re.split(r"\s+", phrase.strip())
+        # allow any non-word chars between tokens; keep word boundaries at ends
+        return r"(?<!\w)" + r"[\W_]+".join(map(re.escape, tokens)) + r"(?!\w)"
+
+    cat_regex = {}
+    for cat, phrases in hed_norm.items():
+        if not phrases:
+            continue
+        pats = [phrase_to_pattern(p) for p in phrases]
+        pats.append(phrase_to_pattern(cat))
+        cat_regex[cat] = re.compile("(" + "|".join(pats) + ")", flags=re.I)
+    
+    text_all = (base['Title'].fillna('') + ' ' + base['Content'].fillna('')).astype(str)
+
+    has_highered_category = pd.Series(False, index=base.index)
+    for cat, rx in cat_regex.items():
+        has_highered_category |= text_all.str.contains(rx, na=False)
+    
+    ul = pd.to_numeric(base.get('University Label', 0), errors='coerce').fillna(0).astype('int8')
+    base['Industry_Risk_Presence'] = np.where(has_highered_category | (ul == 1), 3, 0).astype('int8')
+
+
+    peers_list = risks_cfg.get('Peer_Institutions') or []
+    peer_pat = re.compile(r'\b(' + '|'.join([re.escape(p) for p in peers_list]) + r')\b', flags=re.I) if peers_list else None
+
+    moderate_impact = re.compile(r'\b(outage|closure|lawsuit|probation|sanction|breach|evacuation|investigation)\b', re.I)
+    substantial_impact = re.compile(r'\b(widespread|catastrophic|shutdown|bankrupt|insolvenc\w*|fatalit\w*|revocation|accreditation\s+revoked)\b', re.I)
+    _text_all = (base['Title'].fillna('') + ' ' + base['Content'].fillna('')).astype(str)
+    base['_tulane_flag'] = (base.get('Location', 0).astype(int).eq(5)) | _text_all.str.contains(r'\btulane\b', case=False, regex=True)
+
+    def find_peer(t):
+        if not peer_pat:
+            return ''
+        m = peer_pat.search(t or '')
+        return m.group(0) if m else ''
+
+    def severity(text):
+        if substantial_impact.search(text or ''):
+            return 'substantial'
+        if moderate_impact.search(text or ''):
+            return 'moderate'
+        return ''
+
+    tmp_ind = base.loc[base['Week'].notna(), ['Week', 'Title', 'Content']].copy()
+    tmp_ind['text_all'] = (tmp_ind['Title'] + ' ' + tmp_ind['Content']).fillna('')
+    tmp_ind['peer'] = tmp_ind['text_all'].apply(find_peer)
+    tmp_ind['sev'] = tmp_ind['text_all'].apply(severity)
+
+    # Count unique peers by severity per week
+    agg = (
+        tmp_ind.groupby(['Week', 'sev'])['peer']
+        .nunique()
+        .unstack(fill_value=0)
+        .rename(columns={'moderate': 'peers_mod', 'substantial': 'peers_sub'})
+    )
+    for c in ['peers_mod', 'peers_sub']:
+        if c not in agg.columns:
+            agg[c] = 0
+    agg = agg.reset_index()
+
+    
+    tulane_week = (
+        base.loc[base['_tulane_flag'] & base['Week'].notna()]
+        .groupby('Week')
+        .size()
+        .rename('tulane_mentions')
+        .reset_index()
+    )
+    agg = agg.merge(tulane_week, on='Week', how='left').fillna({'tulane_mentions': 0})
+
+
+    if not agg.empty:
+        week_max = agg['Week'].max()
+        agg['days_ago'] = (week_max - agg['Week']).dt.days.clip(lower=0)
+        lam = np.log(2.0) / 21.0
+        agg['decay_w'] = np.exp(-lam * agg['days_ago'])
+
+        
+        agg['peer_index'] = agg['decay_w'] * (2 * agg['peers_sub'] + 1 * agg['peers_mod'])
+        agg['sector_pressure'] = agg['peer_index'] / (1.0 + agg['tulane_mentions'])
+
+        
+        lo, hi = np.percentile(agg['sector_pressure'], [5, 95]) if agg['sector_pressure'].notna().any() else (0.0, 1.0)
+        rng = max(1e-12, hi - lo)
+        agg['Industry_Risk_Peer'] = (((agg['sector_pressure'] - lo) / rng).clip(0, 1) * 5).round().astype(int)
+    else:
+        agg['Industry_Risk_Peer'] = 0
+
+
+    base = base.drop(columns=['Industry_Risk_Peer'], errors='ignore')
+    base = base.merge(agg[['Week', 'Industry_Risk_Peer']], on='Week', how='left')
+    base['Industry_Risk_Peer'] = base['Industry_Risk_Peer'].fillna(0).astype(int)
+
+
+    base['Industry_Risk'] = np.maximum(base['Industry_Risk_Presence'], base['Industry_Risk_Peer']).astype(int)
+    print('Industry risk created', flush = True)
+
+
+
+    impact_weights = {"financial": 0.35, "reputational": 0.15, "academic": 0.25, "operational": 0.25}
+    new_risks = risks_cfg.get('new_risks')
+    risk_dims_map = {}
+    for block in new_risks:
+        for category, items in block.items():
+            for r in items:
+                name = re.sub(r'\s+', ' ', r.get('name', '')).strip().lower()
+                dims = r.get('impact dims')
+                risk_dims_map[name] = {
+                    'financial': float(dims.get('financial', 0.0)),
+                    'reputational': float(dims.get('reputational', 0.0)),
+                    'academic': float(dims.get('academic', 0.0)),
+                    'operational': float(dims.get('operational', 0.0))
+                }
+
+    existential_threat_patterns = [
+    r'\b(permanent\s+closure|cease\s+operations|bankrupt|insolven|shut\s*down\s*permanent|revocation\s+of\s+accreditation)\b',
+    r'\b(catastrophic\s+(damage|failure)|total\s+loss|existential\s+threat)\b'
+]
+    severe_patterns = [
+    r'\b(university[-\s]*wide|campus[-\s]*wide|enterprise[-\s]*wide|entire\s+university|all\s+systems\s+down)\b',
+    r'\b(ransomware|mass\s+evacuation|classes\s+canceled\s+across\s+campus|network\s+outage)\b',
+    r'\b(federal\s+investigation|systemic\s+title\s*ix|major\s+scandal|fatalit(y|ies))\b',
+    r'\b(executive\s+action\b(?:\s\w+){0,100}?\s(college|university|universities))\b',
+    r'\b(regulatory\s+action|regulation\s\b(?:\s\w+){0,100}\s(higher\seducation|university|universities|college|colleges))\b'
+]
+
+    def find_patterns(text, patterns):
+        for p in patterns:
+            if re.search(p, text, flags=re.I):
+                return True
+        return False
+
+    def impact_row(row):
+        risk = re.sub(r'\s+', ' ', str(row['Risk_item'])).strip().lower()
+        dims = risk_dims_map.get(risk)
+
+        if dims:
+            fin, rep, acad, oper = dims['financial'], dims['reputational'], dims['academic'], dims['operational']
+        else:
+            fin, rep, acad, oper = 1.0, 1.0, 1.0, 1.0
+
+        base = (fin * impact_weights['financial'] +
+                rep * impact_weights['reputational'] +
+                acad * impact_weights['academic'] +
+                oper * impact_weights['operational'])
+
+        text = (str(row.get('Title','')) + ' ' + str(row.get('Content',''))).lower()
+        existential = find_patterns(text, existential_threat_patterns)
+        severe = find_patterns(text, severe_patterns) or (int(row.get('Location',0))==5 and int(row.get('University Label',0))==1)
+
+        if existential:
+            return min(5.0, max(5.0, base))
+        if severe:
+            return min(4.0, max(4.0, base))
+        else:
+            return min(base, 3.9)
+    for col in ['Location', 'University Label']:
+        if col not in base.columns:
+            base[col] = 0
+        base[col] = pd.to_numeric(base[col], errors = 'coerce').fillna(0).astype(int)
+    base['Impact_Score'] = base.apply(impact_row, axis=1).astype(float)
+    print('Impact score computed', flush = True)
+
+    t_rec = time.perf_counter()
+    print("attach_topic_risk_recency() start", flush = True)
+    base = attach_topic_risk_recency(base) 
+    base['Recency'] = (base['Recency_TR_Blended'] * 5).round(2)
+    print("[recency] attached in {time.perf_counter()-t_rec:.1f}s", flush = True)
+
+
+    w = {
+        'Recency': 0.15,
+        'Source_Accuracy': 0.10,
+        'Impact_Score': 0.35,
+        'Acceleration_value': 0.25,
+        'Location': 0.05,
+        'Industry_Risk': 0.05,
+        'Frequency_Score': 0.05
+    }
+    weight_sum = sum(w.values()) 
+
+    num = (
+        base['Recency'] * w['Recency'] +
+        base['Source_Accuracy'] * w['Source_Accuracy'] +
+        base['Impact_Score'] * w['Impact_Score'] +
+        base['Acceleration_value'] * w['Acceleration_value'] +
+        base['Location'] * w['Location'] +
+        base['Industry_Risk'] * w['Industry_Risk'] +
+        base['Frequency_Score'] * w['Frequency_Score']
+    )
+    base['Risk_Score'] = (num / weight_sum).clip(0,5).round(3)
+    base['Weights'] = base['Risk_Score']
+
+    print(f"[risk_weights] done: base = {base.shape} elapsed = {time.perf_counter()- t0:.1f}s", flush = True)
+
+    return base
+
+
+rss_url = "https://github.com/ERSRisk/Tulane-Sentiment-Analysis/releases/download/rss_json/all_RSS.json.gz"
+    
+DIR_URL  = "https://github.com/ERSRisk/Tulane-Sentiment-Analysis/releases/download/rss_json/bertopic_dir.zip"
+DIR_PATH = Path("pipeline/resources/bertopic_dir")
+Github_owner = 'ERSRisk'
+Github_repo = 'Tulane-Sentiment-Analysis'
+Release_tag = 'BERTopic_results'
+Asset_name = 'BERTopic_results2.csv_part1.csv.gz'
+GITHUB_TOKEN = os.getenv('TOKEN')
+
+
+GEMINI_API_KEY = os.getenv("PAID_API_KEY")
+client = genai.Client(api_key=GEMINI_API_KEY)
+if __name__ == '__main__':
+    
+    
+    print(f"📥 Downloading all_RSS.json from release link...", flush=True)
+    response = requests.get(rss_url, stream = True, timeout = 200)
+    response.raise_for_status()
+
+    Path('pipeline/resources').mkdir(parents = True, exist_ok = True)
+    rss_path = "pipeline/resources/all_RSS.json.gz"
+
+    with open(rss_path, 'wb') as f:
+        for chunk in response.iter_content(chunk_size = 1024 * 1024):
+            if chunk:
+                f.write(chunk)
+    
+    with gzip.open(rss_path, 'rt', encoding = 'utf-8') as f:
+        articles = json.load(f)
+    # Now load it
+    df = pd.DataFrame(articles)
+    
+    mem("after RSS dataframe")
+
+    df['Source'] = df.get('Source', '').astype(str).fillna('')
+
+
+    debug_date(df, "A_raw_rss_df")
+    
+    Path("Online_Extraction").mkdir(parents=True, exist_ok=True)
+    import shutil
+    shutil.copyfile(rss_path, 'Online_Extraction/all_RSS.json.gz')
+    df = df[~(df['Source']=="Economist")]
+    df['Text'] = df['Title'] + '. ' + df['Content']
+    debug_date(df, "B_after_source_filtering")
+    
+    
+    
+    
+    
+    def upload_dir_model_zip(owner, repo, tag, token, dir_path=DIR_PATH, asset_name="bertopic_dir.zip"):
+        # zip the directory model into memory
+        buf = io.BytesIO()
+        with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:
+            base = dir_path.name
+            for root, _, files in os.walk(dir_path):
+                for fn in files:
+                    full = Path(root) / fn
+                    rel  = Path(base) / full.relative_to(dir_path)
+                    zf.write(full, arcname=str(rel))
+        buf.seek(0)
+        # upload via your existing GitHub helper
+        rel = ensure_release(owner, repo, tag, token)
+        upload_asset(owner, repo, rel, asset_name, buf.getvalue(), token, content_type="application/zip")
+        print(f"✅ Uploaded {asset_name} to release {tag}.")
+    
+    
+        
+    def load_dir_model():
+        # load from disk if present
+        if DIR_PATH.exists() and any(DIR_PATH.iterdir()):
+            print("📦 Loading BERTopic from local directory model...")
+            return BERTopic.load(str(DIR_PATH))
+        # try Releases (zip)
+        try:
+            print("🌐 Fetching bertopic_dir.zip from Releases...")
+            r = requests.get(DIR_URL, timeout=120)
+            if r.ok and r.content[:2] == b"PK":  # zip magic
+                with zipfile.ZipFile(io.BytesIO(r.content)) as zf:
+                    zf.extractall(DIR_PATH.parent)
+                print("✅ Extracted bertopic_dir.zip.")
+                return BERTopic.load(str(DIR_PATH))
+            else:
+                print(f"⚠️ No directory model at {DIR_URL} (status {r.status_code}).")
+        except Exception as e:
+            print("⚠️ Could not download dir model:", e)
+        return None
+    
+    def estimate_tokens(text):
+        # Approx 4 chars per token (rough estimate for English, GPT-like models)
+        return len(text) / 4
+    
+    
+    def save_to_json(topics, topic_names):
+        topic_dict = []
+    
+        for i, topic in enumerate(topics):
+            docs = topic_model.get_representative_docs()[topic]
+            keywords = ', '.join([word for word, _ in topic_model.get_topic(topic)])
+            topic_dict.append({
+                "topic": topic,
+                "name": topic_names[i] if i < len(topic_names) else f"Topic {topic}",
+                "keywords": keywords,
+                "documents": docs
+            })
+        with open('pipeline/resources/topics_BERT.json', 'w') as f:
+            json.dump(topic_dict, f, indent=4)
+    
+    topic_blocks = []
+    #
+    topic_model = load_dir_model()
+    
+    def get_topic(temp_model, topic_ids):
+        print("✅ Preparing topic blocks for Gemini naming...", flush=True)
+        topic_blocks = []
+        rep = temp_model.get_representative_docs()
+        rep_map = {}
+        if isinstance(rep, dict):
+            rep_map = {int(k): v for k, v in rep.items() if v is not None}
+        for topic in topic_ids:
+            words = temp_model.get_topic(topic)
+            docs = rep_map.get(int(topic))
+            if docs is None:
+                try:
+                    docs = temp_model.get_representative_docs()[topic]
+                except Exception:
+                    docs = []
+            docs = docs[:2]
+            keywords = ', '.join([word for word, _ in words])
+            doc_list = '\n'.join([f"- {doc}" for doc in docs])
+            block = (
+                f"---\n"
+                f"TopicID: {topic}\n"
+                f"Keywords: {keywords}\n"
+            )
+            topic_blocks.append((topic, block))
+    
+        chunk_size = 1
+        topic_name_pairs = []
+        print(f"✅ Starting Gemini API calls on {len(topic_blocks)} topics...", flush=True)
+        for i in range(0, len(topic_blocks), chunk_size):
+            chunk = topic_blocks[i:i + chunk_size]
+            print(f"🔹 Sending prompt chunk {i // chunk_size + 1}/{(len(topic_blocks) // chunk_size) + 1}", flush=True)
+    
+            prompt_blocks = "\n\n".join([b for (_, b) in chunk])
+            prompt = (
+                "You are helping analyze topics from BERTopic. Each topic includes keywords and representative documents.\n"
+                "Your task is to return a short, clear name for each topic, based ONLY on the provided keywords and documents.\n"
+                "Return your response as a list: one name per topic, in order, no explanations.\n"
+                "Example: ['Erosion of Human Rights', 'University Funding Cuts', ...]\n\n"
+                + prompt_blocks +
+                "\nReturn your response as a JSON array of names."
+            )
+    
+            tokens_estimate = estimate_tokens(prompt)  
+            print(f"🔹 Sending prompt with approx {int(tokens_estimate)} tokens...")
+            if tokens_estimate > 10000:
+                print("⚠️ Prompt too large, consider lowering chunk_size!")
+            max_attempts = 5
+            for attempt in range(max_attempts):
+                try:
+                    response = client.models.generate_content(model="gemini-2.5-flash", contents=[prompt])
+                    output_text = response.candidates[0].content.parts[0].text
+                    output_text = re.sub(r"^```(?:json)?\s*", "", output_text)
+                    output_text = re.sub(r"\s*```$", "", output_text)
+                    print(output_text)
+                    new_names = json.loads(output_text)
+                    topic_name_pairs.extend(zip([tid for (tid, _) in chunk], new_names))
+                    print(f"✅ Chunk {i // chunk_size + 1} processed and topic names extracted.")
+                    break
+                except Exception as e:
+                    print(f"❌ Failed to parse Gemini response: {e}")
+                    print("Raw response:")
+                    print(response)
+    
+                    break  # success!
+                except APIError as e:
+                    error_str = str(e)
+                    if "RESOURCE_EXHAUSTED" in error_str or "quota" in error_str.lower():
+                        retry_delay = 60
+                        retry_match = re.search(r"'retryDelay': '(\d+)s'", error_str)
+                        if retry_match:
+                            retry_delay = int(retry_match.group(1))
+                        print(f"⚠️ Quota exceeded, retrying in {retry_delay}s...")
+                        time.sleep(retry_delay)
+                    else:
+                        print(f"❌ Non-retryable API error: {e}")
+                        return "❌ API error encountered."
+                except Exception as e:
+                    wait_time = 2 ** attempt + random.uniform(0, 1)
+                    print(f"⚠️ Unexpected error: {e}. Retrying in {wait_time:.2f} seconds...")
+                    time.sleep(wait_time)
+            else:
+                print("❌ API failed after multiple attempts.")
+                return "❌ API failed after multiple attempts."
+    
+        return topic_name_pairs
+    
+    def label_model_topics(topic_model, path = 'pipeline/resources/topics_BERT.json'):
+        with open(path, 'r') as f:
+            topics_json = json.load(f)
+        topic_map = {int(t['topic']): t for t in topics_json}
+    
+        rep_docs = topic_model.get_representative_docs()
+        print(rep_docs)
+        patched = False
+        for tid, entry in topic_map.items():
+            docs = entry.get("documents", [])
+            if not docs:  # only fill in if missing/empty
+                new_docs = topic_model.get_representative_docs()
+                entry["documents"] = (new_docs or [])[:5]  # cap at 5
+                patched = True
+    
+        if patched:
+            with open(path, 'w', encoding='utf-8') as f:
+                json.dump(list(topic_map.values()), f, indent=4, ensure_ascii=False)
+            print(f"✅ Patched documents for {path}")
+        else:
+            print("ℹ️ No missing documents to patch.")
+    
+    #if topic_model:
+    #    label_model_topics(topic_model)
+    if topic_model is None:
+        print("🧪 Training new BERTopic model (directory format)...", flush=True)
+        topic_model = BERTopic(
+            language="english",
+            verbose=True,
+            umap_model=UMAP(n_neighbors = 50, n_components = 10, min_dist = 0.0, metric = 'cosine', random_state = 42),
+            hdbscan_model=HDBSCAN(min_cluster_size=15, min_samples = 10, cluster_selection_method = 'eom', prediction_data=True),
+            vectorizer_model = CountVectorizer(ngram_range=(1,2), stop_words = 'english', min_df = 5, max_df = 0.8),
+            calculate_probabilities=True,
+            seed_topic_list=None,
+        )
+        topics, probs = topic_model.fit_transform(df['Text'].tolist())
+        c_tf_idf = topic_model.c_tf_idf_.toarray()
+    
+    # Cosine similarity between topics
+        S = cosine_similarity(c_tf_idf)
+    
+        # Build groups to merge where similarity >= your_threshold
+        thr = 0.80
+        n_topics = S.shape[0]
+        visited = set()
+        groups = []
+        for i in range(n_topics):
+            if i in visited: 
+                continue
+            group = {i}
+            for j in range(n_topics):
+                if i != j and S[i, j] >= thr:
+                    group.add(j)
+            visited.update(group)
+            if len(group) > 1:
+                groups.append(sorted(group))
+    
+        # Merge the groups
+        if groups:
+            topic_model.merge_topics(df["Text"].tolist(), groups)
+        df['Topic'] = topics
+        topics_arr = np.array(topics)
+        df_prob = np.full(len(topics_arr), np.nan, dtype=float)
+        if probs is not None:
+            valid = topics_arr >= 0            # ignore outliers (-1)
+            df_prob[valid] = probs[valid, topics_arr[valid]]
+        df['Probability'] = df_prob
+    
+        # Save portable directory model
+        DIR_PATH.parent.mkdir(parents=True, exist_ok=True)
+        topic_model.save(
+            str(DIR_PATH),
+            serialization="pytorch",
+            save_ctfidf=True,
+            save_embedding_model=True
+        )
+        print("✅ Saved BERTopic directory model to", DIR_PATH)
+        try:
+            upload_dir_model_zip(Github_owner, Github_repo, "rss_json", os.getenv("TOKEN"))
+        except Exception as e:
+            print("⚠️ Skipped dir-model upload:", e)
+    
+        # (Optional) zip & upload the dir-model to your Release so future runs just download it
+        #   -> see helper below; call after its definition if you want to publish now
+    else:
+        print("✅ BERTopic directory model loaded.")
+    
+    
+    if 'Source' not in df.columns:
+        df['Source'] = ''
+    
+    # Convert NaN/None to empty string, keep as string dtype
+    df['Source'] = df['Source'].astype('string').fillna('')
+    
+    def transform_text(texts):
+        texts = texts.copy()
+        
+        print(f"Transforming {len(texts)} articles in batches...", flush=True)
+    
+        batch_size = 100
+        texts_list = texts["Text"].tolist()
+        n = len(texts_list)
+    
+        # Pre-allocate lightweight arrays (NOT lists of big objects)
+        topics_out = np.full(n, -1, dtype=np.int32)
+        prob_out   = np.full(n, np.nan, dtype=np.float32)
+    
+        # ---- 1) Transform in batches, but keep ONLY the assigned prob ----
+        for start in range(0, n, batch_size):
+            end = min(start + batch_size, n)
+            batch = texts_list[start:end]
+    
+            topics, probs = topic_model.transform(batch)
+    
+            # If probs missing, approximate per-batch
+            if probs is None:
+                print("[info] transform() returned no probabilities; using approximate_distribution()", flush=True)
+                probs = topic_model.approximate_distribution(batch)
+    
+            topics = np.asarray(topics, dtype=np.int32)
+            topics_out[start:end] = topics
+    
+            # probs is usually (batch, n_topics). Extract only prob of assigned topic.
+            # For outliers (-1), keep NaN.
+            if probs is not None:
+                probs = np.asarray(probs)
+                row_idx = np.arange(len(batch))
+                valid = topics >= 0
+                # Guard against weird shapes
+                if probs.ndim == 2 and probs.shape[0] == len(batch):
+                    prob_out[start:end][valid] = probs[row_idx[valid], topics[valid]].astype(np.float32)
+    
+            print(f"✅ Transformed batch {start//batch_size + 1}/{(n + batch_size - 1)//batch_size}", flush=True)
+    
+            # free batch objects
+            del batch, topics, probs
+            gc.collect()
+    
+        # ---- 2) OPTIONAL: Outlier reduction is expensive. If you must, do it on a CAP. ----
+        # If reduce_outliers is causing trouble, either skip it on GitHub or cap it.
+        # Example cap:
+        # if (topics_out == -1).sum() > 0:
+        #     cap = 3000
+        #     idx = np.where(topics_out == -1)[0][:cap]
+        #     tmp_topics = topic_model.reduce_outliers([texts_list[i] for i in idx],
+        #                                             topics_out[idx].tolist(),
+        #                                             strategy="embeddings",
+        #                                             threshold=0.4)
+        #     topics_out[idx] = np.asarray(tmp_topics, dtype=np.int32)
+        #     del tmp_topics
+        #     gc.collect()
+    
+        # ---- 3) Streamlit cosine assignment, batched ----
+        def get_embedder(topic_model):
+            if hasattr(topic_model, "embedding_model_") and topic_model.embedding_model_ is not None:
+                return topic_model.embedding_model_
+            if hasattr(topic_model, "embedding_model") and topic_model.embedding_model is not None:
+                return topic_model.embedding_model
+            raise RuntimeError("Could not locate BERTopic's embedding model.")
+    
+        def embedding_dim(embedder):
+            if hasattr(embedder, "get_sentence_embedding_dimension"):
+                return embedder.get_sentence_embedding_dimension()
+            if hasattr(embedder, "embedding_model") and hasattr(embedder.embedding_model, "get_sentence_embedding_dimension"):
+                return embedder.embedding_model.get_sentence_embedding_dimension()
+            v = np.asarray(embedder.encode(["x"], convert_to_numpy=True))
+            return int(v.shape[-1])
+    
+        def encode(texts_, embedder):
+            if isinstance(texts_, str):
+                texts_ = [texts_]
+            texts_ = [t.strip() if isinstance(t, str) else "" for t in (texts_ or [])]
+            if len(texts_) == 0:
+                d = embedding_dim(embedder)
+                return np.zeros((0, d), dtype=np.float32)
+    
+            if hasattr(embedder, "encode"):
+                vecs = embedder.encode(
+                    texts_, convert_to_numpy=True, normalize_embeddings=False,
+                    batch_size=64, show_progress_bar=False
+                )
+            elif hasattr(embedder, "embed"):
+                vecs = np.asarray(embedder.embed(texts_))
+            else:
+                raise RuntimeError("Embedder has neither .encode nor .embed")
+    
+            vecs = np.asarray(vecs, dtype=np.float32)
+            if vecs.ndim == 1:
+                vecs = vecs.reshape(1, -1)
+            norms = np.linalg.norm(vecs, axis=1, keepdims=True) + 1e-12
+            return vecs / norms
+    
+        # Load Streamlit topic list
+        try:
+            with open("pipeline/resources/topics_BERT.json", "r", encoding="utf-8") as f:
+                topics_json = json.load(f).get("topics", [])
+        except Exception as e:
+            topics_json = []
+            print(f"[warn] Could not read pipeline/resources/topics_BERT.json: {e}", flush=True)
+    
+        remaining_idx = np.where(topics_out == -1)[0]
+        if len(remaining_idx) > 0 and len(topics_json) > 0:
+            embedder = get_embedder(topic_model)
+    
+            rep = topic_model.get_representative_docs()
+            rep_map = {int(k): v for k, v in rep.items() if v} if isinstance(rep, dict) else {}
+    
+            centroids = []
+            streamlit_topic_ids = []
+    
+            for t in topics_json:
+                if t.get("source") != "Streamlit":
+                    continue
+                tid = int(t["topic"])
+                reps = rep_map.get(tid) or [f"{t.get('name','')} ; {t.get('keywords','')}"]
+                E_rep = encode(reps, embedder)
+                if E_rep.shape[0] == 0:
+                    continue
+                c = E_rep.mean(axis=0)
+                c = c / (np.linalg.norm(c) + 1e-12)
+                centroids.append(c.astype(np.float32))
+                streamlit_topic_ids.append(tid)
+    
+            if centroids:
+                C = np.stack(centroids, axis=0).astype(np.float32)
+    
+                # Batch the remaining embeddings
+                st_cos = np.full(n, np.nan, dtype=np.float32)
+                cos_batch = 256  # tune down if needed
+    
+                for start in range(0, len(remaining_idx), cos_batch):
+                    idx_batch = remaining_idx[start:start+cos_batch]
+                    texts_batch = [texts_list[i] for i in idx_batch]
+                    E = encode(texts_batch, embedder).astype(np.float32)
+                    if E.shape[0] == 0:
+                        continue
+    
+                    sims = E @ C.T
+                    j_best = np.argmax(sims, axis=1)
+                    s_best = sims[np.arange(sims.shape[0]), j_best]
+    
+                    for row_pos, doc_i in enumerate(idx_batch):
+                        if s_best[row_pos] >= 0.40:
+                            topics_out[doc_i] = int(streamlit_topic_ids[j_best[row_pos]])
+                            st_cos[doc_i] = float(s_best[row_pos])
+    
+                    del texts_batch, E, sims, j_best, s_best
+                    gc.collect()
+    
+                texts["StreamlitCosine"] = st_cos
+            else:
+                print("[info] No Streamlit topics with usable centroids found; skipping cosine assignment.", flush=True)
+    
+        # ---- 4) Final assembly ----
+        texts["Topic"] = topics_out
+        texts["Probability"] = prob_out
+    
+        how = []
+        stcos = texts.get("StreamlitCosine", pd.Series(np.nan, index=texts.index)).to_numpy()
+        for t, p, sim in zip(texts["Topic"].to_numpy(), texts["Probability"].to_numpy(), stcos):
+            if t == -1:
+                how.append("Unassigned")
+            elif not np.isnan(p):
+                how.append("bertopic")
+            elif not np.isnan(sim):
+                how.append("streamlit-cosine")
+            else:
+                how.append("other")
+        texts["Assigned_how"] = how
+    
+        return texts
+    
+    def save_new_topics(existing_df, new_df, path="pipeline/resources/BERTopic_results3.csv.gz"):
+        existing_df = existing_df.drop_duplicates(subset = ['Link'], keep = 'last')
+        if existing_df is not None and not existing_df.empty:
+            combined = pd.concat([existing_df, new_df], ignore_index=True)
+        else:
+            combined = new_df.copy()
+        print("It worked", flush = True)
+        combined.to_csv(path, index=False, compression="gzip")
+        return combined
+        
+    def double_check_articles(df):
+        double_check = df[df['Topic'] == -1]['Text'].dropna()
+        double_check = [text for text in double_check if text.strip()]
+        if not double_check:
+            return None, []
+        n = len(double_check)
+        if n < 3:
+            print(f"[info] Skipping double_check_articles: only {n} doc(s).")
+            return None, []
+        safe_neighbors = max(2, min(10, n-1))
+        safe_components = max(1, min(5, n-1))
+        min_cluster_size = max(2, min(15, max(2, n//2)))
+        umap_small = UMAP(
+            n_neighbors=safe_neighbors,
+            n_components=safe_components,
+            min_dist=0.0,
+            metric='cosine',
+            init='random',
+            random_state=42,
+        )
+        hdbscan_small = HDBSCAN(
+            min_cluster_size=min_cluster_size,
+            min_samples=None,
+            cluster_selection_method='eom',
+            prediction_data=True,
+        )
+    
+        temp_model = BERTopic(
+            language='english',
+            verbose=True,
+            umap_model=umap_small,
+            hdbscan_model=hdbscan_small,
+            calculate_probabilities=True,
+        )
+        try:
+            temp_model.fit_transform(double_check)
+        except TypeError as e:
+            # Catch the k >= N spectral error or any other tiny-graph hiccup
+            print(f"[warn] Fallback in double_check_articles due to: {e}")
+            return None, []
+        except Exception as e:
+            print(f"[warn] Could not double-check topics: {e}")
+            return None, []
+    
+        topic_ids = temp_model.get_topic_info()
+        topic_ids = topic_ids[topic_ids['Topic'] != -1]['Topic'].tolist()
+        print(f"[double_check] Found {len(topic_ids)} valid topics (excluding -1).", flush = True)
+        return temp_model, topic_ids
+    def fetch_release(owner, repo, tag:str, asset_name:str, token:str):
+        headers = {'Authorization': f'token {token}',
+                  'Accept': 'application/vnd.github+json'}
+        r = requests.get(f'https://api.github.com/repos/{owner}/{repo}/releases/tags/{tag}', headers=headers, timeout=60)
+        if r.status_code == 404:
+            r = requests.post(f'https://api.github.com/repos/{owner}/{repo}/releases', headers = headers, timeout = 60, json={
+            "tag_name": tag, "name": tag, "draft": False, "prerelease": False
+        })
+        r.raise_for_status()
+        rel = r.json()
+        upload_url = rel['upload_url'].split('{', 1)[0]
+        assets = requests.get(f"https://api.github.com/repos/{owner}/{repo}/releases/{rel['id']}/assets", headers=headers, timeout=60).json()
+        a = next((x for x in assets if x.get("name") == asset_name), None)
+        if not a:
+            return []
+    
+        url = a.get('browser_download_url')
+        b = requests.get(url, headers = headers, timeout = 120)
+        b.raise_for_status()
+        content = b.content
+        return json.loads(content.decode('utf-8'))
+    
+    def upsert_single_big_json(owner, repo, tag: str, asset_name: str,
+                           new_items: list, dedupe_key: str, token: str, mode = 'merge'):
+        if mode == 'replace':
+            current = []
+        else:
+            current = fetch_release(owner, repo, tag, asset_name, token)
+            if not isinstance(current, list):
+                current = []
+    
+        # 2) merge by key (new replaces old on same key)
+        by_key = {}
+        for it in (current if mode == "merge" else []):
+            k = it.get(dedupe_key)
+            if k is not None:
+                by_key[k] = it
+        for it in new_items:
+            k = it.get(dedupe_key)
+            if k is not None:
+                by_key[k] = it
+    
+        merged = list(by_key.values())
+    
+        # 3) write to a temp gz and upload (same asset name → old is deleted then replaced)
+        with tempfile.TemporaryDirectory() as td:
+            path = os.path.join(td, asset_name)  # e.g., "unmatched_topics.json.gz"
+            raw = json.dumps(merged, ensure_ascii=False).encode("utf-8")
+            if asset_name.endswith(".gz"):
+                with gzip.open(path, "wb") as f:
+                    f.write(raw)
+            else:
+                with open(path, "wb") as f:
+                    f.write(raw)
+            return upload_file(path, f'latest/{path}')
+    
+    def existing_risks_json(topic_name_pairs, topic_model):
+        unmatched = list(topic_name_pairs)
+        model = SentenceTransformer('all-MiniLM-L6-v2')
+    
+        # Load existing named topics (for matching to *known* topics)
+        with open('pipeline/resources/topics_BERT.json', 'r', encoding='utf-8') as f:
+            topics = json.load(f)
+        def doc_sig(doc:str) -> str:
+            return hashlib.md5(doc.strip().lower().encode()).hexdigest()
+            
+        def is_mostly_seen(new_docs, known_doc_sigs, thresh=0.6):
+            if not new_docs:
+                return False
+            hits = sum(1 for d in new_docs if doc_sig(d) in known_doc_sigs)
+            return hits / max(1, len(new_docs)) >= thresh
+            
+        existing_topic_names = [t['name'] for t in topics if 'name' in t]
+    
+    
+        try:
+            existing_unmatched = fetch_release(
+                "ERSRisk", "tulane-sentiment-app-clean",
+                "unmatched-topics", "unmatched_topics.json",
+                os.getenv('TOKEN')
+                ) or []
+        except Exception:
+            existing_unmatched = []
+    
+        try:
+            existing_discarded = fetch_release(
+                "ERSRisk", "tulane-sentiment-app-clean",
+                "discarded-topics", "discarded_topics.json",
+                os.getenv('TOKEN')
+                ) or []
+        except Exception:
+            existing_discarded = []
+       
+        unmatched_names = []
+        index_map = [] 
+        for i, item in enumerate(existing_unmatched):
+            if isinstance(item, dict) and 'name' in item:
+                unmatched_names.append(item['name'])
+                index_map.append(i)
+    
+        discarded_names, discarded_index_map = [], []
+        for i, item in enumerate(existing_discarded):
+            if isinstance(item, dict) and 'name' in item:
+                discarded_names.append(item['name'])
+                discarded_index_map.append(i)
+    
+        if unmatched_names:
+            unmatched_embeddings = model.encode(unmatched_names, convert_to_tensor=True)
+        else:
+            unmatched_embeddings = None
+    
+        discarded_embeddings = (
+            model.encode(discarded_names, convert_to_tensor=True)
+            if discarded_names else None
+        )
+        
+        to_upsert_unmatched = [] 
+        to_upsert_discarded = []  
+        seen_changed_unmatched = set()
+        seen_changed_discarded = set()
+    
+        to_check_discarded = []
+        for topic_id, name in unmatched:
+            new_emb = model.encode([name], convert_to_tensor=True)
+            new_docs = topic_model.get_representative_docs().get(topic_id, [])
+            new_keywords_pairs = topic_model.get_topic(topic_id) or []
+            new_keywords = [w for (w, _) in new_keywords_pairs]
+    
+            if unmatched_embeddings is not None and len(unmatched_names) > 0:
+                sims = util.cos_sim(new_emb, unmatched_embeddings)[0]
+                best_score = float(sims.max())
+                best_idx_in_names = int(sims.argmax())
+                best_existing_idx = index_map[best_idx_in_names]
+            else:
+                best_score = 0.0
+                best_existing_idx = None
+    
+            if best_score > 0.78 and best_existing_idx is not None:
+                matched = existing_unmatched[best_existing_idx]
+                # extend docs (dedupe)
+                seen = set(matched.get('documents', []))
+                for d in new_docs:
+                    if d not in seen:
+                        matched.setdefault('documents', []).append(d)
+                        seen.add(d)
+                # merge keywords
+                ek = matched.get('keywords', [])
+                if isinstance(ek, str):
+                    ek = [kw.strip() for kw in ek.split(',') if kw.strip()]
+                kw_seen = set(map(str.lower, ek))
+                for kw in new_keywords:
+                    if kw.lower() not in kw_seen:
+                        ek.append(kw)
+                        kw_seen.add(kw.lower())
+                matched['keywords'] = ek
+                to_upsert_unmatched.append(matched)
+                seen_changed_unmatched.add(matched.get('name', ''))
+            else:
+                to_check_discarded.append((topic_id, name))
+    
+    
+        for topic_id, name in to_check_discarded:
+            new_emb = model.encode([name], convert_to_tensor=True)       # (1, d)
+            new_docs = topic_model.get_representative_docs().get(topic_id, [])
+            new_keywords_pairs = topic_model.get_topic(topic_id) or []
+            new_keywords = [w for (w, _) in new_keywords_pairs]
+    
+            if discarded_embeddings is not None and len(discarded_names) > 0:
+                sims = util.cos_sim(new_emb, discarded_embeddings)[0]
+                best_score = float(sims.max())
+                best_idx_in_names = int(sims.argmax())
+                best_existing_idx = discarded_index_map[best_idx_in_names]
+            else:
+                best_score = 0.0
+                best_existing_idx = None
+    
+            if best_score > 0.78 and best_existing_idx is not None:
+                matched = existing_discarded[best_existing_idx]
+                # extend docs (dedupe)
+                seen = set(matched.get('documents', []))
+                for d in new_docs:
+                    if d not in seen:
+                        matched.setdefault('documents', []).append(d)
+                        seen.add(d)
+                # merge keywords
+                ek = matched.get('keywords', [])
+                if isinstance(ek, str):
+                    ek = [kw.strip() for kw in ek.split(',') if kw.strip()]
+                kw_seen = set(map(str.lower, ek))
+                for kw in new_keywords:
+                    if kw.lower() not in kw_seen:
+                        ek.append(kw)
+                        kw_seen.add(kw.lower())
+                matched['keywords'] = ek
+                to_upsert_discarded.append(matched)
+                seen_changed_discarded.add(matched.get('name',''))
+            else:
+                known_doc_sigs = set()
+                for u in existing_unmatched:
+                    for d in u.get('documents', []):
+                        known_doc_sigs.add(doc_sig(d))
+                if not is_mostly_seen(new_docs, known_doc_sigs, thresh = 0.6):
+                    to_upsert_unmatched.append({
+                        'topic': topic_id,
+                        'name': name,
+                        'keywords': new_keywords,
+                        'documents': new_docs
+                    })
+                else:
+                    print(f"skip Topic {name} looks already covered by existing unmatched topics", flush = True)
+                
+        if to_upsert_unmatched:
+            resp = upsert_single_big_json(
+                        owner="ERSRisk",
+                        repo="tulane-sentiment-app-clean",
+                        tag="unmatched-topics",
+                        asset_name="unmatched_topics.json",
+                        new_items=to_upsert_unmatched,
+                        dedupe_key="name",
+                        token = os.getenv('TOKEN')
+                    )
+        if to_upsert_discarded:
+            resp2 = upsert_single_big_json(
+                        owner="ERSRisk",
+                        repo="tulane-sentiment-app-clean",
+                        tag="discarded-topics",
+                        asset_name="discarded_topics.json",
+                        new_items=to_upsert_discarded,
+                        dedupe_key="name",
+                        token = os.getenv('TOKEN')
+            )
+    
+    
+   
+    
+    def predict_risks(df):
+        def soft_cosine_probs(vecs, label_emb):
+            cos = vecs @ label_emb.T
+            cos = (cos + 1.0) / 2.0
+            denom = cos.sum(axis = 1, keepdims = True) + 1e-12
+            return cos/denom
+        def has_any(t, terms):
+            t = str(t).lower()
+            for term in terms:
+                term = str(term).lower().strip()
+                pattern = r'(?<!\w)' + re.escape(term).replace(r'\ ', r'\s+') + r'(?!\w)'
+                if re.search(pattern, t):
+                    return True
+            return False
+
+        def rule_route(text, label="No Risk"):
+            t = str(text).lower()
+            label = "No Risk" if pd.isna(label) or str(label).strip() == "" else str(label).strip()
+        
+            student_conduct_terms = [
+                "hazing", "fraternity", "sorority", "greek life",
+                "student misconduct", "disciplinary violation", "student discipline",
+                "student suspension", "student fight", "alcohol violation",
+                "drug violation", "title ix complaint", "sexual misconduct"
+            ]
+        
+            ai_terms = [
+                "artificial intelligence", " ai ", "ai policy", "ai literacy",
+                "generative ai", "chatgpt", "machine learning", "algorithmic",
+                "automated decision", "ai tools"
+            ]
+        
+            loan_terms = [
+                "student loan", "loan limits", "graduate loan", "professional degree",
+                "fafsa", "financial aid", "borrowers", "repayment plan",
+                "loan forgiveness", "tuition affordability"
+            ]
+        
+            financial_distress_terms = [
+                "layoff", "layoffs", "buyouts", "budget deficit", "budget deficits",
+                "budget cuts", "deep cuts", "program cuts", "closure", "closures",
+                "shut down", "shutdown", "debt obligations", "enrollment losses",
+                "state funding reductions"
+            ]
+        
+            funding_disruption_terms = [
+                "funding cut", "funding cuts", "grant cut", "grant cuts",
+                "freeze", "frozen", "terminated grants", "cancelled grants",
+                "canceled grants", "rescinded", "clawback",
+                "cap on indirect costs", "funding pause", "withheld funding"
+            ]
+        
+            positive_funding_terms = [
+                "awarded", "grant awarded", "received funding", "new grant",
+                "funding to support", "launches center", "new research center",
+                "cooperative agreement"
+            ]
+        
+            labor_terms = [
+                "strike", "union", "collective bargaining", "contract negotiations",
+                "labor dispute", "workers", "faculty union", "graduate student workers"
+            ]
+        
+            academic_freedom_terms = [
+                "academic freedom", "shared governance", "faculty senate",
+                "tenure", "faculty input", "censorship", "free speech",
+                "civil discourse", "viewpoint diversity"
+            ]
+        
+            policy_terms = [
+                "department of education", "education department",
+                "department of justice", "doj",
+                "civil rights investigation", "office for civil rights",
+                "title vi", "title ix",
+                "federal investigation", "executive order",
+                "department of homeland security", "dhs",
+                "visa restriction", "deportation", "sevp",
+                "in-state tuition", "undocumented students",
+                "federal rule on higher education",
+                "state law on higher education",
+                "anti-dei", "dei ban"
+            ]
+        
+            physical_threat_terms = [
+                "shooting",
+                "gunfire",
+                "firearm",
+                "firearms",
+                "armed suspect",
+                "bomb threat",
+                "explosion",
+                "stabbing",
+                "stabbed",
+                "lockdown",
+                "active shooter",
+                "weapon",
+                "weapons",
+                "homicide",
+                "mass shooting",
+                "violent threat"
+            ]
+        
+            immigration_terms = [
+                "visa", "international student", "foreign student", "dhs",
+                "sevp", "deport", "deportation", "immigration", "ice"
+            ]
+        
+            protest_terms = [
+                "protest", "protesters", "demonstration", "activist",
+                "detained", "arrested", "campus protest"
+            ]
+        
+            # Deterministic obvious cases
+        
+            # Hard guards against nonsense model/Gemini labels
+            if label == "Student Conduct Incident" and not has_any(t, student_conduct_terms):
+                if has_any(t, protest_terms + immigration_terms):
+                    return "Policy or Political Interference"
+                return "No Risk"
+        
+            if label == "Violence or Threats" and not has_any(t, physical_threat_terms):
+                return "No Risk"
+        
+            if label == "Research Funding Disruption":
+                if has_any(t, positive_funding_terms) and not has_any(t, funding_disruption_terms):
+                    return "No Risk"
+            if label == "Revenue Loss":
+                if not has_any(t, ['tulane', 'tulane university']):
+                    return "No Risk"
+
+            if label == "Policy or Political Interference":
+                if not has_any(t, policy_terms):
+                    return "No Risk"
+
+            if has_any(t, ["artificial intelligence", "ai policy", "ai literacy", "generative ai", "chatgpt"]):
+                if label in ["No Risk", "Student Conduct Incident", "DEI Program Backlash"]:
+                    return "Artificial Intelligence Ethics & Governance"
+
+            if has_any(t, [
+                "infectious disease",
+                "disease outbreak",
+                "viral outbreak",
+                "bacterial outbreak",
+                "pandemic",
+                "epidemic",
+                "communicable disease",
+                "virus spread",
+                "cdc outbreak",
+                "measles outbreak",
+                "flu outbreak",
+                "covid outbreak",
+                "norovirus",
+                "avian flu",
+                "h5n1"
+            ]):
+
+                if label in ["No Risk", "Emergency Preparedness Gaps"]:
+                    return "Infectious Disease Outbreak"
+            
+            if has_any(t, ["student loan", "student debt", "loan limits", "graduate loan", "fafsa", "financial aid"]):
+                if label in ["No Risk", "Student Conduct Incident"]:
+                    return "Enrollment Pressure"
+            
+            if has_any(t, ["strike", "union", "collective bargaining", "contract negotiations", "labor dispute"]):
+                if label in ["No Risk", "DEI Program Backlash"]:
+                    return "Labor Dispute"
+            
+            if has_any(t, ["cyberattack", "data breach", "hackers", "vendor", "third-party vendor"]):
+                if label in ["No Risk", "Student Conduct Incident"]:
+                    return "Vendor Cyber Exposure"
+        
+            return label
+            
+        def predict_with_fallback(proba_lr, cos_all, prob_cut, margin_cut, tau, tau_gray, trained_labels, all_labels):
+            top_idx = proba_lr.argmax(axis=1)
+            top_val = proba_lr[np.arange(len(proba_lr)), top_idx]
+            tmp = proba_lr.copy()
+            tmp[np.arange(len(tmp)), top_idx] = -1
+            second = tmp.max(axis=1)
+            margin = top_val - second
+            lr_mask = (top_val >= prob_cut) & (margin >= margin_cut)
+        
+            cos_all_max = cos_all.max(axis=1)
+            cos_all_idx = cos_all.argmax(axis=1)
+        
+            lr_names  = np.array(trained_labels)[top_idx]
+            cos_names = np.array(all_labels)[cos_all_idx]
+    
+            route = np.full(len(top_val), 'norisk', dtype = object)
+            final = np.array(['No Risk']*len(top_val), dtype = object)
+    
+            route[lr_mask] = 'lr'
+            final[lr_mask] = lr_names[lr_mask]
+    
+            cos_hi = (~lr_mask) & (cos_all_max >= tau)
+            route[cos_hi] = "gray"
+            final[cos_hi] = cos_names[cos_hi]
+    
+            gray = (~lr_mask) & (cos_all_max >= tau_gray) & (cos_all_max < tau)
+            route[gray] = "gray"
+            final[gray] = cos_names[gray]
+    
+        
+            return {
+            "final_names": final,
+            "route": route,
+            "lr_top_prob": top_val,
+            "lr_top_idx": top_idx,
+            "cos_all_idx": cos_all_idx,
+            "cos_all_max": cos_all_max,
+            "cos_names": cos_names
+        }
+        if 'Published_utc' not in df.columns:
+            df['Published_utc'] = pd.to_datetime(df['Published'], errors='coerce', utc=True)
+        else:
+            df['Published_utc'] = pd.to_datetime(df['Published_utc'], errors='coerce', utc=True)
+        with open('pipeline/resources/risks.json', 'r', encoding='utf-8') as f:
+            risks_cfg = json.load(f)
+    
+        json_all_labels = [r['name'] for block in risks_cfg.get('new_risks', []) for _, items in block.items() for r in items]
+        bundle = load_model_bundle(Github_owner, Github_repo, 'regression')
+        clf = bundle['clf']
+        scaler = bundle['scaler']
+        pca = bundle['pca']
+        le = bundle['label_encoder']
+        trained_labels = bundle['trained_label_names']
+        risk_defs = bundle['risk_defs']
+        model_name = bundle['sentence_model_name']
+        prob_cut = 0.80
+        margin_cut = 0.15
+        tau = 0.78
+        numeric_factors = list(bundle['numeric_factors'])
+        trained_label_txt = list(bundle['trained_label_text'])
+        all_labels = json_all_labels
+        all_label_txt = list(bundle['all_label_text'])
+    
+    
+        df = df.copy()
+        df = df.sort_values('Published_utc').drop_duplicates('Title', keep = 'last').reset_index(drop=True)
+        df['University Label'] = pd.to_numeric(df['University Label'], errors = 'coerce').fillna(0).astype(int)
+        mask_he = df['University Label'] == 1
+        
+        df['Title'] = df['Title'].fillna('').str.strip()
+    
+        df['Content'] = df['Content'].fillna('').str.strip()
+        df['Text'] = (df['Title'] + '. ' + df['Content']).str.strip()
+    
+        df = df.reset_index(drop = True)
+
+        stale_mask = df.get('pred_source', '').astype(str).eq('rule_pre_gemini')
+        for col in ['Predicted_Risks_new', 'Predicted_Risks', 'pred_source']:
+            if col in df.columns:
+                df.loc[stale_mask, col] = ''
+    
+        if 'Predicted_Risks_new' in df.columns:
+            #missing_mask = (df['Predicted_Risks_new'].isna()) | (df['Predicted_Risks_new'].eq('')) | (df['Predicted_Risks_new'].eq('No Risk'))
+            recent_cut = pd.Timestamp.now(tz='utc') - pd.Timedelta(days=30)
+            recent_mask = df['Published_utc'] >= recent_cut
+            todo_mask = mask_he & (recent_mask) #missing_mask | recent_mask)
+            sub = df.loc[todo_mask].copy()
+            texts = df.loc[todo_mask, 'Text'].tolist()
+        else:
+            todo_mask = pd.Series(True, index=df.index)
+            recent_cut = pd.Timestamp.now(tz='utc') - pd.Timedelta(days=30)
+            df['Published_utc'] = pd.to_datetime(df['Published'], errors='coerce', utc = True)
+            recent_mask = df['Published_utc'] >= recent_cut
+            todo_mask &= recent_mask.fillna(False)
+            todo_mask &= mask_he
+            sub = df.loc[todo_mask].copy()
+            texts = df.loc[todo_mask, 'Text'].tolist()
+        
+        
+        print(f"[dbg] total rows: {len(df)}", flush = True)
+        print(f"[dbg] parsable Published: {df['Published_utc'].notna().sum()}", flush = True)
+        print(f"[dbg] recent (<=30d): {recent_mask.fillna(False).sum()}", flush = True)
+        print(f"[dbg] to score (todo_mask): {todo_mask.sum()}", flush = True)
+        change = texts
+        if not texts:
+            return df
+    
+    
+        all_risks = [risk['name'] for group in risks_cfg['new_risks'] for risks in group.values() for risk in risks]
+        device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        model = SentenceTransformer('all-mpnet-base-v2', device = device)
+        # Encode articles and risks
+        #article_embeddings = model.encode(texts, convert_to_numpy = True, normalize_embeddings = True, show_progress_bar=True,  batch_size=256 if device=='cuda' else 32)
+        article_embeddings = model.encode(texts, convert_to_numpy = True, normalize_embeddings = True, show_progress_bar=True,  batch_size=256 if device=='cuda' else 32)
+        A = article_embeddings
+        C = np.zeros_like(A)
+        X_text = np.hstack([article_embeddings, C])
+        X_text_red = pca.transform(X_text) if pca is not None else X_text
+        n = len(texts)
+        if len(numeric_factors) == 0:
+            num_scaled = np.zeros((n, 0))
+        else:
+            means = np.asarray(bundle['scaler'].mean_, dtype = float)
+            num_mat = np.tile(means, (n, 1))
+            num_scaled = bundle['scaler'].transform(num_mat)
+    
+        topic_ids = pd.to_numeric(sub.get('Topic'), errors = 'coerce').fillna(-1).to_numpy().reshape(-1, 1)
+        topic_probs = pd.to_numeric(sub.get('Probability'), errors = 'coerce').fillna(0.0).to_numpy().reshape(-1,1)
+        topic_col_name = 'Topic'
+        top_ids = bundle.get('topic_top_ids', [])
+        ohe_cols_expected = bundle.get('topic_ohe_cols', [])
+    
+        topic_raw = pd.to_numeric(sub.get(topic_col_name), errors = 'coerce').fillna(-1).astype(int)
+        topic_binned = np.where(np.isin(topic_raw, top_ids), topic_raw, -1)
+    
+        topic_ohe = pd.get_dummies(pd.Series(topic_binned), prefix = 'topic', dtype = int)
+    
+        for col in ohe_cols_expected:
+            if col not in topic_ohe:
+                topic_ohe[col] = 0
+        topic_ohe = topic_ohe[ohe_cols_expected].to_numpy()
+    
+        X_all = np.hstack([X_text_red, num_scaled, topic_ohe])
+    
+        proba = clf.predict_proba(X_all)
+    
+        avg_emb = article_embeddings
+        avg_emb = avg_emb / (np.linalg.norm(avg_emb, axis=1, keepdims=True) + 1e-12)
+        
+        lbl_emb_all = model.encode(all_label_txt, show_progress_bar=True, normalize_embeddings=True, batch_size=256)
+        
+        cos_all = avg_emb @ lbl_emb_all.T
+    
+    
+        out = predict_with_fallback(proba, cos_all, prob_cut, margin_cut, tau, 0.55, trained_labels, all_labels)
+        sub['pred_source'] = out['route']
+        sub['Predicted_Risks_new'] = out['final_names']
+        review_terms = [
+            "student loan", "student debt", "financial aid", "fafsa",
+            "enrollment dropped", "enrollment decline", "adult enrollment",
+            "department of justice", "doj", "department of education",
+            "civil rights investigation", "title ix", "title vi",
+            "in-state tuition", "undocumented students",
+            "artificial intelligence", "ai policy", "ai literacy",
+            "cyberattack", "data breach", "vendor", "third-party",
+            "strike", "union", "collective bargaining",
+            "mental health", "student wellness",
+            "academic freedom", "student speech", "free speech"
+            "infectious disease", "disease outbreak", "outbreak",
+            "epidemic", "pandemic", "quarantine", "cdc",
+            "virus"
+        ]
+        norisk_review = (
+            (out['route'] == 'norisk') &
+            sub['Text'].apply(lambda x: has_any(x, review_terms))
+        )
+        gray_mask = (out['route'] == 'gray') | norisk_review
+    
+        if gray_mask.any():
+            gray_idx = sub.index[gray_mask]
+            gray_texts = sub.loc[gray_idx, 'Text'].tolist()
+    
+            label_list = json.dumps(all_labels + ['No Risk'])
+    
+            adjudicated = []
+            for txt in gray_texts:
+                prompt = f"""
+You are labeling institutional risk articles for a U.S. higher-education risk dashboard.
+
+Return ONLY valid JSON:
+{{"label": "...", "confidence": 0.0, "reason": "..."}}
+
+Choose exactly one label from this closed list:
+{label_list}
+
+Article:
+{txt[:3000]}
+
+Rules:
+- If the article is not clearly about a U.S. higher-education institutional risk, return "No Risk".
+- Do NOT infer risk from generic words like "students", "campus", "college", or "university".
+- Use "Student Conduct Incident" ONLY for hazing, Greek life misconduct, student disciplinary violations, student fights, alcohol/drug violations, sexual misconduct, or Title IX student conduct complaints.
+- Layoffs, budget deficits, program cuts, closures, buyouts, state funding reductions, debt, or enrollment losses are NEVER "Student Conduct Incident".
+- AI tools, AI literacy, AI policy, AI governance, ChatGPT, algorithmic systems, or AI in teaching/support services -> "Artificial Intelligence Ethics & Governance".
+- Student loans, FAFSA, financial aid, graduate loan caps, repayment rules, or borrowing limits -> "Enrollment Pressure".
+- Federal research funding cuts, grant freezes, NSF/NIH disruption, indirect cost caps, terminated grants -> "Research Funding Disruption".
+- Positive grant awards, research collaboration launches, or new research centers -> "No Risk" unless there is a clear compliance, funding, or governance threat.
+- Strikes, unions, bargaining, worker actions, contract negotiations -> "Labor Dispute".
+- Academic freedom, tenure, shared governance, faculty senate restrictions, censorship, or speech suppression -> "Faculty conflict" or "Policy or Political Interference".
+- If the article describes a federal lawsuit, Department of Justice action, Department of Education action, OCR investigation, Title VI/Title IX enforcement, immigration/student visa rule, or state/federal higher-ed law, prefer "Policy or Political Interference" over "Enrollment Pressure" unless the article is mainly about student demand, affordability, admissions volume, or institutional enrollment declines.
+- Protests, activist arrests, political speech disputes, immigration enforcement, or federal/state education policy actions are NOT "Student Conduct Incident".
+- "Violence or Threats" requires physical danger: weapons, shooting, bomb, assault, active shooter, credible violent threat, or lockdown for safety.
+- If confidence is below 0.70, return "No Risk".
+
+Mandatory Tulane-only labels:
+Only use these labels if Tulane University or Tulane leadership is explicitly mentioned:
+"High-Profile Litigation", "Emergency Preparedness Gaps", "Unexpected Expenditures",
+"Leadership Missteps", "Revenue Loss", "Institutional Alignment Risk",
+"Controversial Public Incident".
+"""
+                max_tries = 6
+                last_err = None
+                
+                for attempt in range(1, max_tries +1):
+                    try:
+                        resp = client.models.generate_content(
+                        model="gemini-2.5-flash",
+                        contents=[prompt]
+                        )
+                        break
+                    except ClientError as e:
+                        msg = str(e).lower()
+                        if ("resource exhausted" in msg) or ("quota" in msg) or ("429" in msg):
+                            s = str(e)
+                            m = re.search(r"retryDelay'\s*:\s*'(\d+)s'", s) or re.search(r"retryDelay\s*[:=]\s*'?(\d+)s'?", s, flags=re.I)
+                            retry_delay = int(m.group(1)) if m else None
+                            if retry_delay is None:
+                                retry_delay = min(120, (2 ** (attempt - 1))) + random.uniform(0, 1.5)
+                            print(f"Gemini quota/rate limit (attempt {attempt}/{max_tries}). Sleeping {retry_delay:.1f}s...", flush=True)
+                            time.sleep(retry_delay)
+                            last_err = e
+                            continue
+                        raise
+                    except (ServerError, requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
+                    # transient backend/network
+                        wait = min(120, (2 ** (attempt - 1))) + random.uniform(0, 1.5)
+                        print(f"⚠️ Gemini transient error (attempt {attempt}/{max_tries}): {e} | Sleeping {wait:.1f}s...", flush=True)
+                        time.sleep(wait)
+                        last_err = e
+                        continue
+    
+                    except Exception as e:
+                # Unknown error: small backoff a few times, then fail
+                        wait = min(30, (2 ** (attempt - 1))) + random.uniform(0, 1.0)
+                        print(f"⚠️ Gemini unexpected error (attempt {attempt}/{max_tries}): {e} | Sleeping {wait:.1f}s...", flush=True)
+                        time.sleep(wait)
+                        last_err = e
+                        continue
+                else:
+                    raise RuntimeError(f"Gemini failed after {max_tries} attempts. Last error: {last_err}")
+                
+                raw = getattr(resp, "text", "").strip()
+                # be robust to fencing
+                m = re.search(r"\{.*\}", raw, flags=re.S)
+                try:
+                    obj = json.loads(m.group(0) if m else raw)
+                    label = obj.get("label", "No Risk")
+                    conf = float(obj.get("confidence", 0.0) or 0.0)
+                    if conf < 0.70:
+                        label = "No Risk"
+                    if label not in (all_labels + ["No Risk"]):
+                        label = "No Risk"
+                except Exception:
+                    label = "No Risk"
+                adjudicated.append(label)
+            sub.loc[gray_idx, 'Predicted_Risks_new'] = adjudicated
+            sub.loc[gray_idx, 'pred_source'] = 'gemini'
+            sub.loc[gray_idx, 'Pred_cos_label_all'] = np.array(all_labels)[out['cos_all_idx'][gray_mask]]
+            sub.loc[gray_idx, 'Pred_cos_score_all'] = out['cos_all_max'][gray_mask]
+       
+                
+        sub_texts = sub['Text'].tolist()
+        final_labels = []
+        final_sources = []
+        
+        for txt, lbl, src in zip(
+            sub['Text'].tolist(),
+            sub['Predicted_Risks_new'].tolist(),
+            sub['pred_source'].tolist()
+        ):
+            fixed = rule_route(txt, lbl)
+        
+            if fixed != lbl:
+                final_labels.append(fixed)
+                final_sources.append("rule_final_cleanup")
+            else:
+                final_labels.append(lbl)
+                final_sources.append(src)
+        
+        sub['Predicted_Risks_new'] = final_labels
+        sub['pred_source'] = final_sources
+        
+        
+        sub['Pred_LR_label'] = out['lr_top_prob']
+        sub['Pred_cos_label_all'] = np.array(all_labels)[out['cos_all_idx']]
+        sub['Pred_cos_score_all'] = out['cos_all_max']
+        for col in ['pred_source', 'Predicted_Risks_new', 'Pred_LR_label', 'Pred_cos_label_all', 'Pred_cos_score_all']:
+            df.loc[sub.index, col] = sub[col]
+    
+        return df
+    
+    
+    
+    def call_gemini(prompt, max_tries = 8):
+        GEMINI_API_KEY = os.getenv('PAID_API_KEY')
+        client = genai.Client(api_key=GEMINI_API_KEY)
+        last_err = None
+        for attempt in range(1, max_tries +1):
+            try:
+                return client.models.generate_content(model="gemini-2.5-flash", contents=[prompt])
+            except ClientError as e:
+                msg = str(e).lower()
+                if ("resource exhausted" in msg) or ("quota" in msg) or ("429" in msg):
+                    s = str(e)
+                    m = re.search(r"retryDelay'\s*:\s*'(\d+)s'", s) or re.search(r"retryDelay\s*[:=]\s*'?(\d+)s'?", s, flags=re.I)
+                    retry_delay = int(m.group(1)) if m else None
+                    if retry_delay is None:
+                        retry_delay = min(120, (2 ** (attempt - 1))) + random.uniform(0, 1.5)
+                    print(f"Gemini quota/rate limit (attempt {attempt}/{max_tries}). Sleeping {retry_delay:.1f}s...", flush=True)
+                    time.sleep(retry_delay)
+                    last_err = e
+                    continue
+                raise
+            except (ServerError, requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
+                # transient backend/network
+                wait = min(120, (2 ** (attempt - 1))) + random.uniform(0, 1.5)
+                print(f"⚠️ Gemini transient error (attempt {attempt}/{max_tries}): {e} | Sleeping {wait:.1f}s...", flush=True)
+                time.sleep(wait)
+                last_err = e
+                continue
+    
+            except Exception as e:
+                # Unknown error: small backoff a few times, then fail
+                wait = min(30, (2 ** (attempt - 1))) + random.uniform(0, 1.0)
+                print(f"⚠️ Gemini unexpected error (attempt {attempt}/{max_tries}): {e} | Sleeping {wait:.1f}s...", flush=True)
+                time.sleep(wait)
+                last_err = e
+                continue
+    
+        raise RuntimeError(f"Gemini failed after {max_tries} attempts. Last error: {last_err}")
+                
+    
+    # 🧠 Async article processor
+    @backoff.on_exception(backoff.expo,
+                          (genai.errors.ServerError, requests.exceptions.ConnectionError),
+                          max_tries=6,
+                          jitter=None,
+                          on_backoff=lambda details: print(
+                              f"Retrying after error: {details['exception']} (try {details['tries']} after {details['wait']}s)", flush=True))
+    async def process_article(article, sem, batch_number=None, total_batches=None, article_index=None):
+        async with sem:
+            try:
+                relevant_cats = []
+                for rank in [1, 2, 3]:
+                    cat = article.get(f"top_context_{rank}")
+                    score = article.get(f"top_score_{rank}", 0)
+                    if cat and score >= 0.3:
+                        relevant_cats.append(cat)
+        
+                if not relevant_cats:
+                    print(f"Row {article_index:>3} | 0")
+                    return {"Title": str(article.get('Title', '')), "University Label": 0}
+                if batch_number is not None and total_batches is not None and article_index is not None:
+                    print(f"📦 Processing Batch {batch_number} of {total_batches} | Article {article_index}", flush=True)
+                truncated = article['combined_text'][:3000]
+                content = article['Content']
+                article_title = article['Title']
+                if pd.isna(content) or pd.isna(article_title):
+                    return None
+                categories_block = ''
+                for name in relevant_cats:
+                    description = context_library[name]
+                    categories_block += f"\n### {name}\n{description.strip()}\n"
+                prompt = f"""You are an Enterprise Risk Management analyst for Tulane University, \\
+                a private research university in New Orleans, Louisiana.
+                
+                Read the article below and decide whether it is relevant to Tulane University \\
+                based on the risk categories provided. Be strict: only mark relevant=1 if the article \\
+                clearly describes a risk or event that could affect Tulane or a close peer institution.
+                
+                ARTICLE TITLE: {article_title}
+                
+                ARTICLE TEXT:
+                {truncated}
+                
+                ---
+                RISK CATEGORIES TO CONSIDER:
+                {categories_block}
+                ---
+                
+                Respond with ONLY a valid JSON object in this exact format — no markdown, no extra text:
+                {{
+                  "University Label": 0,
+                  "reasoning": "one sentence explaining your decision"
+                }}
+                
+                Labeling rules:
+                - Return 1 ONLY if the article reports higher-ed institution news in the United States.
+                - Return 1 if the article reports a Louisiana legislative bill REGARDING colleges/universities or higher education.
+                - Return 1 if the article reports a significant U.S. federal acion--such as an executive order, new law, government shutdown, funding decision--that directly or plausibly affects higher-education institutions, even if no specific university is named.
+                - Return 1 if the article mentions Tulane University or clearly affects Tulane operations, funding, leadership, policy, legal exposure, or reputation.
+                - Return 1 if a US Federal/State policy or enforcement action applies to multiple universities and plausibly impacts peer institutions like Tulane.
+                - Return 0 otherwise.
+                
+                Clauses (IMPORTANT!!):
+                - If the article is an executive order from the White House that affects education and higher education, return 1
+                - If the article comes from the Tulane Hullabaloo, return 1 if it reports any news that could be a risk to the organization
+                - If the article is a professional/personal profile or staff/alumni spotlight (e.g., “Meet X…”, “X is a [role] at…”, bio pages, team/staff directory, “welcomes X to the team”, career journey, awards unrelated to institutional policy/funding) → return 0.
+                - Return 1 for leadership announcements ONLY if they clearly indicate institutional impact (e.g., new president/provost with stated policy/strategy changes for the university). Otherwise return 0. (Hints that indicate a profile: “About [Name]”, “Meet [Name]”, “joined [org] as…”, “Biography/Profile”, “Our Team/Staff Directory”, CV-like education + roles with no institutional news.)
+                - If the article is not in English, return 0.
+                - If the article talks about general medical/healthcare advances that in no way impact university operations, return 0
+                - If the article talks about sports news, matches, sports results, return 0
+                - If the article is a news wrap, a podcast, or a video, return 0
+                - If the article is a general scientific discovery, return 0
+                
+                """
+    
+                response = await asyncio.to_thread(call_gemini, prompt)
+                default = {"Title": str(article_title), "University Label": 0, "reasoning": "parse error"}
+                try:
+                    response_text = getattr(response, "text", "") or ""
+                    cleaned = response_text.strip()
+                    if cleaned.startswith("```"):
+                        cleaned = cleaned.split("```")[1]
+                        if cleaned.lower().startswith("json"):
+                            cleaned = cleaned[4:]
+                    cleaned = cleaned.strip()
+                    parsed = json.loads(cleaned)
+                    return {
+                        "Title": str(article_title),
+                        "University Label": 1 if int(parsed.get("University Label", 0)) == 1 else 0,
+                        "reasoning": parsed.get("reasoning", "")
+                    }
+                
+    
+                    ulabel = parsed.get('University Label')
+    
+                    if ulabel is None:
+                        ulabel = parsed.get('university_label') or rec.get('University_label') or rec.get('university label') or 0
+    
+                    try:
+                        ulabel = int(ulabel)
+                        ulabel = 1 if ulabel ==1 else 0
+                    except Exception:
+                        ulabel = 0
+                    return {'Title': str(title), "Content": str(content), 'University Label': ulabel}
+                except Exception as e:
+                    print(f"  [parse error] {e} | raw: {response_text[:200]}")
+                    return default
+            except Exception as e:
+                print(f"🔥 Uncaught error in article {article_index} of batch {batch_number}: {e}", flush=True)
+                return None
+    
+        # 🚀 Async batch runner
+    async def university_label_async(articles, batch_size=15, concurrency=10):
+        
+        sem = asyncio.Semaphore(concurrency)
+        tasks = []
+
+        model = SentenceTransformer("all-MiniLM-L6-v2")
+        print("Model loaded.")
+    
+        total_articles = len(articles)
+        total_batches = (total_articles + batch_size - 1) // batch_size
+        context_names = list(context_library.keys())
+        context_texts = list(context_library.values())
+        context_embeddings = model.encode(context_texts, show_progress_bar = True)
+        for start in range(0, total_articles, batch_size):
+            batch_number = (start // batch_size) + 1
+            print(f"🚚 Starting Batch {batch_number} of {total_batches}", flush=True)
+            batch = articles.iloc[start:start+batch_size]
+            batch['combined_text'] = (
+                batch["Title"].fillna("").astype(str) + " " +
+                batch["Summary"].fillna("").astype(str) + " " +
+                batch["Content"].fillna("").astype(str)
+            )
+            article_embeddings = model.encode(batch['combined_text'].tolist(), show_progress_bar = True)
+
+            similarity_matrix = cosine_similarity(article_embeddings, context_embeddings)
+            top_3_indices = np.argsort(similarity_matrix, axis=1)[:,::-1][:,:3]
+    
+            batch = batch.copy()
+            batch["top_context_1"] = [context_names[row[0]] for row in top_3_indices]
+            batch["top_context_2"] = [context_names[row[1]] for row in top_3_indices]
+            batch["top_context_3"] = [context_names[row[2]] for row in top_3_indices]
+            
+            batch["top_score_1"] = [similarity_matrix[i, row[0]] for i, row in enumerate(top_3_indices)]
+            batch["top_score_2"] = [similarity_matrix[i, row[1]] for i, row in enumerate(top_3_indices)]
+            batch["top_score_3"] = [similarity_matrix[i, row[2]] for i, row in enumerate(top_3_indices)]
+                
+            for i, (_, row) in enumerate(batch.iterrows()):
+                tasks.append(process_article(row, sem,
+                                             batch_number=batch_number,
+                                             total_batches=total_batches,
+                                             article_index=i+1))
+    
+        results = await asyncio.gather(*tasks)
+        return [r for r in results if r is not None]
+    
+    def load_university_label(new_label):
+        
+        all_articles = new_label.copy()
+        all_articles['Source'] = all_articles.get('Source', '').astype(str).fillna('')
+        cutoff = pd.Timestamp.utcnow() - pd.Timedelta(days=10)
+        if 'Published_utc' in all_articles.columns:
+            all_articles['Published_utc'] = pd.to_datetime(all_articles['Published_utc'], errors = 'coerce', utc =  True)
+        else:
+            all_articles['Published_utc'] = pd.to_datetime(
+            all_articles['Published'], errors='coerce', utc=True
+            )
+
+        recent = all_articles[all_articles['Published_utc'] >= cutoff]
+    
+        try:
+            existing = pd.read_csv('pipeline/resources/BERTopic_before.csv')
+            labeled_titles = set(existing['Title']) if 'Title' in existing else set()
+        except FileNotFoundError:
+            existing = pd.DataFrame(columns=['Title', 'University Label'])
+            labeled_titles = set()
+    
+        if not existing.empty and 'University Label' in existing.columns:
+            existing_clean = (
+                existing[['Title', 'University Label']]
+                .dropna(subset=['University Label'])
+                .drop_duplicates(subset=['Title'], keep='last')
+            )
+            all_articles = all_articles.merge(
+                existing_clean[['Title', 'University Label']],
+                on='Title', how='left',
+                suffixes=('', '_prev')
+            )
+    
+        new_articles = recent[~(recent['Title'].isin(labeled_titles))].copy()
+        sorted = new_articles.sort_values(by = 'Published_utc', ascending = False)
+        print(sorted[['Title', 'Published_utc']].head())
+        new_articles = new_articles[~(new_articles['University Label'].isin([0,1]))]
+        print(f"🔎 Total articles: {len(recent)} | Unlabeled: {len(new_articles)}", flush=True)
+    
+        results = asyncio.run(university_label_async(new_articles))
+    
+        if results:
+            labels_df = pd.DataFrame(results)[['Title', 'University Label']]
+            labels_df['Title'] = labels_df['Title'].astype(str).str.strip()
+            labels_df['University Label'] = pd.to_numeric(
+                labels_df['University Label'], errors = 'coerce'
+            ).fillna(0).astype(int)
+
+            new_articles['Title'] = new_articles['Title'].astype(str).str.strip()
+            missing_titles = set(new_articles['Title']) - set(labels_df['Title'])
+            if missing_titles:
+                missing_df = pd.DataFrame({
+                    'Title': list(missing_titles),
+                    'University Label': [0] * len(missing_titles)
+                })
+                labels_df = pd.concat([labels_df, missing_df], ignore_index = True)
+            all_articles = all_articles.merge(
+                labels_df,
+                on = 'Title',
+                how = 'left',
+                suffixes = ('', '_new')
+            )
+
+            if 'University Label_new' in all_articles.columns:
+                all_articles['University Label'] = all_articles['University Label_new'].combine_first(
+                    all_articles.get('University Label')
+                )
+                all_articles = all_articles.drop(columns = ['University Label_new'])
+
+        all_articles['University Label'] = pd.to_numeric(
+            all_articles.get('University Label'), errors = 'coerce'
+        ).fillna(0).astype(int)
+
+        final_labels = (
+            all_articles[['Title','University Label']]
+            .dropna(subset = ['Title'])
+            .drop_duplicates(subset = ['Title'], keep = 'last')
+        )
+        combined = pd.concat([existing, final_labels], ignore_index = True)
+        combined = combined.drop_duplicates(subset = ['Title'], keep ='last')
+    
+        combined.to_csv('pipeline/resources/BERTopic_before.csv',
+                        columns=['Title', 'University Label'],
+                        index=False)
+        all_articles['Source'] = all_articles.get('Source', '').astype(str).fillna('')
+        all_articles['University Label'] = pd.to_numeric(
+            all_articles['University Label'], errors='coerce'
+        ).fillna(0).astype(int)
+        return all_articles
+    
+    
+    
+    
+    
+    
+    
+    
+    def save_dataset_to_releases(df:pd.DataFrame, local_cache_path = 'pipeline/resources/BERTopic_results2.csv.gz'):
+        buf= io.BytesIO()
+        with gzip.GzipFile(fileobj = buf, mode = 'wb') as gz:
+            gz.write(df.to_csv(index = False).encode('utf-8'))
+        gz_bytes = buf.getvalue()
+    
+        Path(local_cache_path).parent.mkdir(parents = True, exist_ok = True)
+        with open(local_cache_path, 'wb') as f:
+            f.write(gz_bytes)
+    
+        rel = ensure_release(Github_owner, Github_repo, Release_tag, GITHUB_TOKEN)
+        upload_asset(Github_owner, Github_repo, rel, Asset_name, gz_bytes, GITHUB_TOKEN)
+    
+    
+    def load_midstep_from_release(local_cache_path = 'pipeline/resources/BERTopic_Streamlit.csv.gz'):
+        rel = get_release_by_tag(Github_owner, Github_repo, Release_tag)
+        if rel:
+            asset = next((a for a in rel.get('assets', []) if a['name']=='BERTopic_Streamlit.csv.gz'), None)
+            if asset:
+                r = requests.get(asset['browser_download_url'], timeout = 60)
+                if r.ok:
+                    return pd.read_csv(io.BytesIO(r.content), compression = 'gzip')
+        P = Path(local_cache_path)
+        if P.exists():
+            return pd.read_csv(local_cache_path, compression='gzip')
+        return pd.DataFrame()
+        
+    
+    
+    #Assign topics and probabilities to new_df
+    dfs = []
+    
+    if blob_exists('latest/BERTopic_results2.csv.gz'):
+        df2 = download_file('latest/BERTopic_results2.csv.gz', 'pipeline/resources/BERTopic_results2.csv.gz', BUCKET_NAME)
+        mem("after loading existing_df")
+        print("It exists", flush = True)
+        dfs.append(df2)
+    else:
+        print("It did not get extracted", flush = True)
+
+    if blob_exists('latest/BERTopic_results3.csv.gz'):
+        df3 = download_file('latest/BERTopic_results3.csv.gz', 'pipeline/resources/BERTopic_results3.csv.gz', BUCKET_NAME)
+        mem("after loading existing_df")
+        dfs.append(df3)
+
+    if dfs:
+        existing_df = pd.concat(dfs, ignore_index = True)
+
+        existing_df['Link'] = existing_df['Link'].astype(str).str.strip()
+        existing_df = existing_df.drop_duplicates(subset = ['Link'], keep = 'last')
+
+        print(f"Combined checkpoint rows: {len(existing_df)}", flush=True)
+    else:
+        existing_df = pd.DataFrame()
+    
+    if existing_df is None or existing_df.empty:
+        existing_df = pd.DataFrame()
+    if not existing_df.empty and 'Link' in existing_df.columns:
+        existing_df['Link'] = existing_df['Link'].astype(str).str.strip()
+        df['Link'] = df['Link'].astype(str).str.strip()
+        processed_links = set(existing_df['Link'])
+        df_to_transform = df[~df['Link'].isin(processed_links)].copy()
+        print(f"Dataframe to transform is removing already preprocessed articles.", flush = True)
+    else:
+        df_to_transform = df.copy()
+        print(f"Dataframe to transform has no articles to remove.", flush = True)
+    debug_date(df_to_transform, "C_df_to_transform")
+    print("✅ Starting transform_text on new data...", flush=True)
+    topic_model.calculate_probabilities = False
+    new_df = transform_text(df_to_transform)
+    debug_date(new_df, "D_new_df_after_transform")
+    del df_to_transform
+    gc.collect()
+    mem("after transform text")
+    new_links = set(new_df['Link'])
+    #Fill missing topic/probability rows in the original df
+    for c in ['Topic', 'Probability']:
+        if c not in df.columns:
+            df[c] = np.nan
+      
+    update_cols = new_df[['Link', 'Topic', 'Probability']].dropna(subset=['Link'])
+    df = df.merge(update_cols, on='Link', how='left', suffixes=('', '_new'))
+    df['Topic'] = df['Topic_new'].combine_first(df['Topic'])
+    df['Probability'] = df['Probability_new'].combine_first(df['Probability'])
+    df.drop(columns=['Topic_new','Probability_new'], inplace=True)
+    #Save only new, non-duplicate rows
+    print("✅ Saving new topics to CSV...", flush=True)
+    df_combined = save_new_topics(existing_df, new_df)
+    debug_date(df_combined, "E_df_combined_after_save_new_topics")
+    del new_df
+    gc.collect()
+    print("Completed save_new_topics", flush = True)
+    print("Merged both dfs", flush = True)
+    df_combined['Probability'] = pd.to_numeric(df_combined['Probability'], errors = 'coerce')
+    #Double-check if there are still unmatched (-1) topics and assign a temporary model to assign topics to them
+    def coerce_pub_utc(x):
+        if pd.isna(x):
+            return pd.NaT
+        if isinstance(x, (int, float)):
+            if x > 1e12:  
+                return pd.to_datetime(x, unit="ms", errors="coerce", utc=True)
+            if x > 1e9: 
+                return pd.to_datetime(x, unit="s", errors="coerce", utc=True)
+        sx = str(x)
+        sx = re.sub(r'\s(EST|EDT|PDT|CDT|MDT|GMT)\b', '', sx, flags=re.I)
+        return pd.to_datetime(sx, errors="coerce", utc=True)
+    print("✅ Running double-check for unmatched topics (-1)...", flush=True)
+    cutoff_utc = pd.Timestamp(datetime.utcnow() - timedelta(days = 15), tz = 'utc')
+    df_combined['Published_utc'] = df_combined['Published'].apply(coerce_pub_utc)
+    debug_date(df_combined, "G_df_combined_after_creating_published_utc")
+    print(f"Length of dataset: {len(df_combined)}", flush = True)
+    print(f"Length of recalculated topic names: {len(df_combined[df_combined['Probability'] < 0.15])}", flush = True)
+    low_conf_mask = df_combined['Probability'] < 0.15
+    df_combined.loc[low_conf_mask, 'Topic'] = -1
+    atomic_write_csv('pipeline/resources/Step0.csv.gz', df_combined, compress = True)
+    upload_file('pipeline/resources/Step0.csv.gz', 'latest/Step0.csv.gz', BUCKET_NAME)
+    #df_combined = load_midstep_from_release()
+    recent_df = df_combined[df_combined['Published_utc'].notna() & (df_combined['Published_utc'] >= cutoff_utc)].copy()
+    debug_date(recent_df, "G_recent_df_for_double_check")
+    temp_model, topic_ids = double_check_articles(recent_df)
+    mem("after double_check_articles")
+    #If there are unmatched topics, name them using Gemini
+    print("✅ Checking for unmatched topics to name using Gemini...", flush=True)
+    if temp_model and topic_ids:
+        topic_name_pairs = get_topic(temp_model, topic_ids)
+        existing_risks_json(topic_name_pairs, temp_model)
+    #Assign weights to each article
+    #df_combined = load_midstep_from_release()
+    df_combined = load_university_label(df_combined)
+    debug_date(df_combined, "H_after_load_university_label")
+    mem("after load_university_label")
+    atomic_write_csv('pipeline/resources/initial_label.csv.gz', df_combined, compress = True)
+    upload_file('pipeline/resources/initial_label.csv.gz', 'latest/initial_label.csv.gz', BUCKET_NAME)
+    #df_combined = load_midstep_from_release()
+    results_df = predict_risks(df_combined)
+    mask_he = pd.to_numeric(results_df['University Label'], errors = 'coerce').fillna(0).astype(int) == 1
+    results_df.loc[mask_he & results_df['Predicted_Risks_new'].isna(), 'Predicted_Risks_new'] = 'No Risk'
+    results_df.loc[mask_he & results_df['Predicted_Risks_new'].astype(str).str.strip().eq(''), 'Predicted_Risks_new'] = 'No Risk'
+    debug_date(results_df, "I_after_predict_risks")
+    mem("after predict_risks")
+    del df_combined
+    gc.collect()
+    results_df['Predicted_Risks'] = results_df.get('Predicted_Risks_new', '')
+    results_df = results_df.drop(columns = ['Acceleration_value_x', 'Acceleration_value_y'], errors='ignore')
+    print("✅ Applying risk_weights...", flush=True)
+    atomic_write_csv('pipeline/resources/Step1.csv.gz', results_df, compress = True)
+    upload_file('pipeline/resources/Step1.csv.gz', 'latest/Step1.csv.gz', BUCKET_NAME)
+    #results_df = load_midstep_from_release()
+    results_df['Predicted_Risks'] = results_df.get('Predicted_Risks_new', results_df.get('Predicted_Risks', ''))
+
+    del results_df
+    gc.collect()
+
+    mem("after dropping results_df before risk_weights")
+
+    risk_usecols = [
+    'Title', 'Content', 'Source', 'Published', 'Link', 'Entities',
+    'Predicted_Risks_new', 'Predicted_Risks', 'Topic', 'Probability',
+    'University Label', 'Location',
+    'pred_source',
+    'Pred_LR_label',
+    'Pred_cos_label_all',
+    'Pred_cos_score_all'
+    ]
+    
+    risk_df = pd.read_csv('pipeline/resources/Step1.csv.gz', compression = 'gzip', usecols = lambda c: c in risk_usecols, low_memory = False)
+    debug_date(risk_df, "J_risk_df_reloaded")
+    mem("before risk_weights")
+    df = risk_weights(risk_df)
+    debug_date(df, "K_after_risk_weights")
+    del risk_df
+    gc.collect()
+    mem("after risk_weights")
+    print("Finished assigning risk weights", flush = True)
+    df = df.drop(columns = ['University Label_x', 'University Label_y'], errors = 'ignore')
+    recent_cut = pd.Timestamp.now(tz='utc') - pd.Timedelta(days=30)
+
+    df['Published_utc'] = pd.to_datetime(
+        df['Published'],
+        errors='coerce',
+        utc=True
+    )
+    
+    rerun_links = set(
+        df.loc[
+            df['Published_utc'].notna() &
+            (df['Published_utc'] >= recent_cut) &
+            (pd.to_numeric(df['University Label'], errors='coerce').fillna(0).astype(int) == 1),
+            'Link'
+        ].astype(str).str.strip()
+    )
+    
+    new_links = set(str(x).strip() for x in new_links)
+    
+    links_to_save = new_links | rerun_links
+    
+    df_new_final = df[df['Link'].astype(str).str.strip().isin(links_to_save)].copy()
+    debug_date(df_new_final, "L_df_new_final_only_new_links")
+    del df
+    gc.collect()
+    existing_new_version = pd.DataFrame()
+    if blob_exists('latest/BERTopic_results3.csv.gz'):
+        existing_new_version = download_file(
+            'latest/BERTopic_results3.csv.gz',
+            'pipeline/resources/BERTopic_results3.csv.gz'
+        )
+        
+    debug_date(existing_new_version, "M_existing_new_version")
+    df_new_version = pd.concat([existing_new_version, df_new_final], ignore_index=True)
+    df_new_version['Published_utc'] = pd.to_datetime(df_new_version['Published'], errors = 'coerce', utc=True)
+    debug_date(df_new_version, "N_df_new_version")
+    
+    # Make sure newest version wins on duplicate links
+    if 'Link' in df_new_version.columns:
+        df_new_version = df_new_version.drop_duplicates(subset=['Link'], keep='last')
+    
+    del existing_new_version
+    gc.collect()
+    mem("after final concat")
+    
+    print("Saving BERTopic_results3.csv.gz", flush=True)
+    atomic_write_csv("pipeline/resources/BERTopic_results3.csv.gz", df_new_version, compress=True)
+    upload_file("pipeline/resources/BERTopic_results3.csv.gz", 'latest/BERTopic_results3.csv.gz', BUCKET_NAME)
+    
+    # NEW: save the canonical fresh full dataset for downstream script 2
+    print("Saving latest article base for downstream enrichment", flush=True)
+    df_latest_full = pd.concat([existing_df, df_new_final], ignore_index = True)
+    df_latest_full['Link'] = df_latest_full['Link'].astype(str).str.strip()
+    df_latest_full = df_latest_full.drop_duplicates(subset=['Link'], keep='last')
+    del df_new_final
+    gc.collect()
+    df_latest_full['Published_utc'] = pd.to_datetime(
+        df_latest_full['Published'],
+        errors='coerce',
+        utc=True
+    )
+    
+    debug_date(df_latest_full, "P_df_latest_full")
+    
+    atomic_write_csv("pipeline/resources/BERTopic_latest_full.csv.gz", df_latest_full, compress=True)
+    upload_file(
+        "pipeline/resources/BERTopic_latest_full.csv.gz",
+        "latest/BERTopic_latest_full.csv.gz",
+        BUCKET_NAME
+    )
+    
+    print("Saving dataset for Streamlit", flush=True)
+    debug_date(df_latest_full, "O_before_streamlit")
+    df_streamlit = df_latest_full[df_latest_full['University Label'] == 1].copy()
+    
+    if 'Link' in df_streamlit.columns:
+        df_streamlit = df_streamlit.drop_duplicates(subset=['Link'], keep='last')
+
+    debug_date(df_streamlit, "Q_df_streamlit_after_university_label")
+    atomic_write_csv("pipeline/resources/BERTopic_Streamlit.csv.gz", df_streamlit, compress=True)
+    upload_file('pipeline/resources/BERTopic_Streamlit.csv.gz', 'latest/BERTopic_Streamlit.csv.gz', BUCKET_NAME)
+    
+    del df_streamlit, df_new_version
+    gc.collect()
