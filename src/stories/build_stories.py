@@ -815,108 +815,6 @@ def build_stories(base_articles):
         print("No new titles were generated.")
     
     return None
-
-#Show the articles over time
-base_articles = load_latest_articles_base()
-debug_date(base_articles, "debug after loading articles base")
-stories = build_stories(base_articles)
-def safe_mode(series):
-    s = series.dropna()
-    return s.mode().iloc[0] if not s.empty else None
-articles = pd.read_csv("pipeline/resources/Articles_with_Stories.csv.gz", compression = 'gzip')
-score_cols = [
-        "avg_risk_score",
-        "avg_frequency",
-        "avg_acceleration",
-        "avg_recency",
-        "avg_source_accuracy",
-        "avg_impact_score",
-        "avg_industry_risk",
-        "avg_location"
-    ]
-existing = [c for c in score_cols if c in articles.columns]
-articles[existing] = articles[existing].apply(pd.to_numeric, errors = 'coerce')
-story_scores = (articles.groupby("story_id").agg(
-    avg_frequency = ("Frequency_Score", "mean"),
-    avg_acceleration = ("Acceleration_value", "max"),
-    avg_source_accuracy = ("Source_Accuracy", "mean"),
-    avg_impact_score = ("Impact_Score", "mean"),
-    avg_industry_risk = ("Industry_Risk", "mean"),
-    avg_location = ("Location", "mean"),
-    risk_label = ("Predicted_Risks_new", safe_mode)).reset_index())
-canonical = pd.read_csv("pipeline/resources/Canonical_Stories_with_Summaries.csv")
-story_score_small = story_scores[['story_id', 'avg_impact_score', 'avg_frequency', 'avg_location', 'risk_label']]
-cols_to_remove = [
-    'avg_impact_score', 'avg_frequency', 'avg_location', 'risk_label',
-    'avg_impact_score_x', 'avg_impact_score_y',
-    'avg_frequency_x', 'avg_frequency_y',
-    'risk_location_x', 'avg_location_y',
-    'risk_label_x', 'risk_label_y'
-]
-canonical = canonical.drop(columns = [c for c in cols_to_remove if c in canonical.columns], errors = 'ignore')
-canonical = canonical.merge(story_score_small, on = "story_id", how = 'left', validate= "one_to_one")
-canonical.to_csv("pipeline/resources/Canonical_Stories_with_Summaries.csv", index = False)
-articles = load_latest_articles_base()
-debug_date(articles, "debug aftr second loading")
-articles = ensure_risk_scores(articles)
-debug_date(articles, "debug after risk scores")
-articles = articles.drop_duplicates(subset = ['Title', 'Link'], keep = 'last')
-debug_date(articles, "debug after dropping duplicates")
-article_story_map = pd.read_csv("pipeline/resources/Articles_with_Stories.csv.gz", compression = 'gzip')
-article_story_map = article_story_map.drop_duplicates(subset = ['Title', 'Link'], keep = 'last')
-canonical = pd.read_csv("pipeline/resources/Canonical_Stories_with_Summaries.csv")
-score_cols = ["avg_risk_score", "avg_frequency", "avg_recency"]
-stories_df = pd.read_csv(
-    "pipeline/resources/Story_Clusters.csv.gz",
-    compression="gzip"
-)
-canonical = canonical.merge(stories_df[["story_id"]], on = "story_id", how = "left")
-articles = articles.merge(article_story_map[['Title', 'Link', 'story_id']], on =['Title','Link'], how='left', validate='many_to_one')
-debug_date(articles, "debug after merging story_id")
-story_sizes = (articles.groupby("story_id").size().rename("story_articles_count").reset_index())
-
-articles = articles.merge(canonical, on = "story_id", how = 'left', validate = 'many_to_one')
-debug_date(articles, "debug after merge with canonical")
-articles = articles.merge(story_sizes, on = "story_id", how = 'left')
-debug_date(articles, "debug after merge with story_sizes")
-
-canonical_articles = articles[articles['story_articles_count'] >= 2].copy()
-
-
-
-
-dashboard_stories = (
-    canonical_articles
-      .groupby("story_id")
-      .agg(
-          canonical_title = ("canonical_title", "first"),
-          summary = ("summary", "first"),
-          article_count = ("story_articles_count", "first"),
-          avg_risk_score = ("Risk_Score", "mean"),
-          avg_frequency = ("Frequency_Score", "mean"),
-          avg_recency = ("Recency", "mean"),
-          avg_acceleration = ("Acceleration_value", "max"),
-          avg_source_accuracy = ("Source_Accuracy", "mean"),
-          avg_impact_score = ("Impact_Score", "mean"),
-          avg_industry_risk = ("Industry_Risk", "mean"),
-          avg_location = ("Location", "mean"),
-
-          risk_label = ("Predicted_Risks_new", safe_mode),
-          last_seen = ("Published_utc", "max")
-      )
-      .reset_index()
-)
-
-
-dropdown_table = canonical_articles[["story_id", "Title","Topic", "Link", "Published_utc", "Risk_Score",'Recency', 'Source_Accuracy', 'Impact_Score', 'Acceleration_value', 'Location','Industry_Risk', 'Frequency_Score', "Predicted_Risks_new"]].sort_values("Published_utc", ascending = False)
-standalone_articles = articles[articles["story_articles_count"] == 1].copy()
-
-dashboard_stories.to_csv("pipeline/resources/dashboard_stories.csv.gz", compression = 'gzip')
-dropdown_table.to_csv("pipeline/resources/dashboard_dropdown.csv.gz", compression = 'gzip')
-standalone_articles.to_csv("pipeline/resources/dashboard_articles.csv.gz", compression = 'gzip')
-
-#articles_only = articles[articles['story_articles_count']<3].copy()
-
 def build_subtopic_clusters(df, subtopics, model, min_sim=0.5, subtopic_centroids = None):
     df = df.copy()
 
@@ -1109,245 +1007,6 @@ def build_subtopic_clusters(df, subtopics, model, min_sim=0.5, subtopic_centroid
 
     return df, centroids
 
-
-nlp = spacy.load("en_core_web_sm")
-model = SentenceTransformer('all-MiniLM-L6-v2')
-if Path('pipeline/resources/subtopics.csv').exists():
-    subtopics = pd.read_csv('pipeline/resources/subtopics.csv')
-else:
-    subtopics = pd.DataFrame(columns=['Title', 'Link', 'Cluster', 'Event_Severity', 'Event_Label'])
-
-
-# Split into already labeled and new
-already_clustered = articles[articles['Title'].isin(subtopics['Title'])]
-already_clustered['Published_utc'] = pd.to_datetime(already_clustered['Published_utc'], errors='coerce', utc=True)
-already_clustered['Window'] = (
-    already_clustered['Published_utc']
-    .dt.to_period('W-MON')
-    .dt.start_time
-    .dt.tz_localize('UTC')
-)
-new_only = articles[
-    (~articles['Title'].isin(subtopics['Title'])) & (articles['University Label'] == 1)
-].copy()
-
-print(f"Already clustered: {len(already_clustered)}, New: {len(new_only)}", flush=True)
-if Path('pipeline/resources/subtopic_centroids.pkl').exists():
-    with open('pipeline/resources/subtopic_centroids.pkl', 'rb') as f:
-        saved = pickle.load(f)
-    subtopic_centroids = pd.Series({k: np.array(v) for k, v in saved.items()})
-else:
-    subtopic_centroids = None
-articles, updated_centroids = build_subtopic_clusters(new_only, subtopics, model, subtopic_centroids=subtopic_centroids)
-
-debug_date(articles, "debug after build_subtopic_clusters")
-
-updated_subtopics = pd.concat([subtopics, articles[['Title', 'Link','Cluster', 'Event_Severity', 'Event_Label', 'Published_utc']]],
-                             ignore_index = True).drop_duplicates(subset = ['Title', 'Link'], keep = 'last')
-
-updated_subtopics.to_csv('pipeline/resources/subtopics.csv', index = False)
-print(f"Saved {len(updated_subtopics)} total subtopics ({len(updated_subtopics) - len(subtopics)} new)", flush=True)
-
-if subtopic_centroids is not None:
-    merged_centroids = {int(k): v.tolist() for k, v in subtopic_centroids.items()}
-else:
-    merged_centroids = []
-
-if updated_centroids is not None:
-    for k, v in updated_centroids.items():
-        merged_centroids[int(k)] = v.tolist() if isinstance(v, np.ndarray) else v
-    
-
-atomic_write_pickle('pipeline/resources/subtopic_centroids.pkl', merged_centroids)
-already_clustered = already_clustered.merge(subtopics[['Title', 'Link', 'Cluster', 'Event_Label', 'Event_Severity']],
-    on=['Title', 'Link'],
-    how='left'
-)
-articles = pd.concat([already_clustered, articles], ignore_index=True)
-debug_date(articles, "debug after concat of already-clustered and articles")
-
-
-atomic_write_csv("pipeline/resources/BERTopic_Streamlit.csv.gz", articles, compress = True)
-upload_file('pipeline/resources/BERTopic_Streamlit.csv.gz', 'latest/BERTopic_Streamlit.csv.gz')
-
-
-df = articles
-df['Published_utc'] = pd.to_datetime(df['Published_utc'], errors = 'coerce')
-df.sort_values('Published_utc', inplace = True)
-df['Content_trunc'] = df['Content'].fillna('').str.slice(0, 500)
-
-bundle = load_model_bundle(Github_owner, Github_repo, 'regression')
-risk_defs = {
-  "No Risk": "Nothing to do with the institution to pose a risk financially, structurally, or academically.",
-  "Research Funding Disruption": "University research funding halted or withdrawn. Grant cuts, pauses, or canceled awards stop lab projects and furlough staff.",
-  "Enrollment Pressure": "Fewer applications or lower student retention reduce tuition revenue. Admissions decline or FAFSA delays cause enrollment stress.",
-  "Policy or Political Interference": "State or federal officials intervene in campus DEI or curriculum policies through mandates or funding threats.",
-  "Institutional Alignment Risk": "University units pursue conflicting goals. Misaligned strategies or budgets stall progress on institutional plans.",
-  "Mission Drift": "University focuses on revenue or prestige projects over teaching and research, weakening academic mission.",
-  "Revenue Loss": "University faces financial shortfall due to budget cuts, declining tuition, or reduced auxiliary income.",
-  "Insurance Market Volatility": "University insurance premiums rise or coverage is reduced after market hardening or claims disputes.",
-  "Unexpected Expenditures": "Campus hit by sudden unplanned costs from facility failures, legal settlements, or emergency repairs.",
-  "Endowment Risk": "University endowment loses value or liquidity, forcing payout cuts that affect scholarships or operations.",
-  "Infrastructure Failure": "Campus systems fail. Power, HVAC, or network outages disrupt classes and research activity.",
-  "Vendor Cyber Exposure": "University data exposed through a third-party SaaS or vendor security breach or SOC 2 gap.",
-  "Unauthorized Access/Data Breach": "Hackers access internal university systems or personal records, requiring breach response.",
-  "Artificial Intelligence Ethics & Governance": "Campus adoption of AI raises fairness, bias, or transparency issues needing governance policy.",
-  "Rapid Speed of Disruptive Innovation": "Ability to develop a systematic approach to the identification of ever-increasing categories of AI risks; ability to adopt artificial intelligence systems to supplement existing equipment and people; Software systemfailure, cybersecurity issues with potential hacking of AI control systems",
-  "Controversial Public Incident": "Campus statement, protest, or viral video sparks public backlash and reputational scrutiny.",
-  "DEI Program Backlash": "Political or donor pressure challenges diversity and inclusion programs on campus.",
-  "Leadership Missteps": "University leaders issue misleading statements or mishandle a crisis, prompting criticism or resignations.",
-  "High-Profile Litigation": "University faces a lawsuit drawing major public or media attention, often around discrimination or research conduct.",
-  "Violence or Threats": "Campus shooting, assault, or credible threat causes lockdowns or safety alerts for students and staff.",
-  "Emergency Preparedness Gaps": "Campus emergency plans prove outdated or untested, delaying response during a crisis.",
-  "Infectious Disease Outbreak": "Cluster of student or staff illness disrupts classes or triggers campus health measures.",
-  "Lab Incident": "Chemical spill or fire in a university lab injures staff or halts research pending investigation.",
-  "Environmental Exposure": "Hazardous materials like asbestos, lead, or mold found in campus buildings trigger closures.",
-  "Hurricane/Flood/Wildfire": "Natural disaster damages campus property and displaces students or staff.",
-  "Student Conduct Incident": "Fraternity hazing, fights, or misconduct lead to discipline, injuries, or suspension.",
-  "Academic Disruption": "Classes canceled or delayed due to strikes, outages, or emergencies on campus.",
-  "Mental Health Crises": "Campus counseling overwhelmed by student mental health emergencies or suicide risk.",
-  "HR Complaint": "Employee alleges harassment, discrimination, or retaliation, leading to internal investigation.",
-  "Labor Dispute": "Faculty or staff strike or protest disrupts classes and campus operations.",
-  "Whistleblower Claims": "Employee reports internal fraud or safety cover-up, prompting investigation or retaliation concerns.",
-  "Accreditation Risk": "Accreditor flags weaknesses in governance, finances, or academic outcomes, threatening status.",
-  "No Risk": "Not relevant to higher education. Not relevant to Tulane University. Not relevant to university.",
-  "Constant Inflation": "Sustained increases in operating costs, wages, or materials erode budget stability and financial planning.",
-  "Morale challenges": "Persistent employee dissatisfaction, burnout, or disengagement reduces productivity and retention.",
-  "Transportation/Access Disruption": "Interruptions to transit, parking, or campus access hinder attendance, operations, or service delivery.",
-  "IT System Failure":  "Critical technology outage or infrastructure breakdown disrupts academic, financial, or administrative functions.",
-  "Title IX/ADA Noncompliance": "Failure to meet federal civil rights obligations exposes institution to legal action and regulatory penalties.",
-  "Housing/Food Insecurity": "Students lack stable housing or reliable nutrition, affecting retention, performance, and wellbeing.",
-  "Policy Misapplication": "Inconsistent or improper enforcement of institutional policies creates fairness, legal, or reputational risks.",
-  "Nepotism/Conflict of Interest": "Personal relationships or undisclosed interests influence hiring, contracts, or governance decisions.",
-  "Grant Mismanagement": "Improper allocation, reporting, or oversight of grant funds jeopardizes funding and compliance status.",
-  "Extreme Weather Events": "Severe storms, flooding, or climate events disrupt campus operations and damage infrastructure.",
-  "FERPA/HIPAA Violations": "Unauthorized disclosure of protected student or health information triggers legal and regulatory consequences.",
-  "Media campaigns": "Coordinated media coverage or social pressure amplifies reputational exposure and stakeholder scrutiny.",
-  "Ransomware/Malware": "Malicious software encrypts or corrupts institutional systems, demanding payment or disrupting operations.",
-  "Credential Phishing": "Deceptive communications obtain login credentials, enabling unauthorized system access or data breach.",
-  "Workplace Safety Violation": "Failure to meet occupational safety standards results in injury, fines, or regulatory enforcement.",
-  "Audit Findings": "Internal or external audit reveals financial irregularities, compliance gaps, misuse of funds, or control weaknesses in university operations.",
-  "Supply Chain Disruption": "Inadequate supply chain management; Inability to comply with contract terms and conditions involving insurance requirements and termination clauses; Immature and decentralized process for vendor oversight; Lack of leverage for buying power; Lack of training to the campus community on supply chain processes and the importance of stewardship of the process.",
-  "Supply Chain Delay": "Inadequate supply chain management; Inability to comply with contract terms and conditions involving insurance requirements and termination clauses; Immature and decentralized process for vendor oversight; Lack of leverage for buying power; Lack of training to the campus community on supply chain processes and the importance of stewardship of the process.",
-  "Cloud Misconfiguration": "Improperly configured cloud storage, access controls, or infrastructure settings expose sensitive university data or systems to unauthorized access.",
-  "AI Ethics and Governance": "University adoption, use, or policy development around artificial raises concerns about academic integrity, data privacy, intellectual property.",
-  "Climate Infrastructure Risks": "University buildings, utilities, or campus infrastructure are vulnerable to long-term climate related deterioration.",
-  "Environmental Noncompliance": "University fails to meet federal, state, or local environmental regulations governing waste disposal, air quality, water discharge, hazardous materials handling, or emissions.",
-  "Accessibility Barriers": "Barriers prevent students, faculty, or staff with disabilities from fully accessing campus facilities, online systems, academic programs, or university services, triggering ADA compliance concerns or student grievances.",
-  "Faculty conflict": "Interpersonal or professional disputes among faculty members, including disagreements over governance, resource allocation, academic freedom, or departmental leadership that may disrupt operations, damage collegial relationships, or escalate into formal grievances or public controversy.",
-  "Executive Board conflicts": "Interpersonal or professional disputes among board members, including disagreements over governance, resource allocation, or leadership that may disrupt operations or escalate into governance or funding conflicts."
-    
-    
-
-
-
-
-}
-print(df.columns.tolist(), flush = True)
-
-grouped = df.groupby(['Window', 'Cluster', 'Predicted_Risks_new']).agg({
-    "Title": ' '.join,
-    "Content_trunc": ' '.join,
-    "Event_Severity": 'max',
-    "Event_Label": 'first',
-    "Acceleration_value": 'last',
-    "Recency": "last",
-    "Source_Accuracy": "mean",
-    "Impact_Score": "mean",
-    "Location": 'mean',
-    "Industry_Risk": "mean",
-    "Frequency_Score": "mean"
-}).reset_index()
-
-grouped['combined_text'] = (grouped['Title'].fillna('') + grouped['Content_trunc'].fillna(''))
-
-model = SentenceTransformer('all-mpnet-base-v2')
-
-risk_names = list(risk_defs.keys())
-risk_labels = list(risk_defs.values())
-
-risk_embeddings = model.encode(risk_labels, normalize_embeddings = True, show_progress_bar = True)
-text_embeddings = model.encode(grouped['combined_text'].tolist(), normalize_embeddings = True, show_progress_bar = True)
-risk_to_index = {name: i for i, name in enumerate(risk_defs.keys())}
-risk_to_index = {
-    k.lower(): v for k, v in risk_to_index.items()
-}
-
-similarities = []
-for i, row in grouped.iterrows():
-    risk_name = row['Predicted_Risks_new']
-    risk_name = risk_name.strip().lower()
-    risk_idx = risk_to_index[risk_name]
-
-    sim = np.dot(text_embeddings[i], risk_embeddings[risk_idx])
-    sim = np.clip(sim, 0, 1)
-    similarities.append(sim)
-
-grouped['similarity'] = similarities
-
-s_min = grouped['similarity'].quantile(0.2)
-s_max = grouped['similarity'].quantile(0.9)
-
-grouped['rel_cos'] = np.clip((grouped['similarity'] - s_min)/(s_max - s_min), 0, 1)
-
-
-sim_matrix = np.dot(text_embeddings, risk_embeddings.T)
-grouped['Predicted_Risks_new_norm'] = (
-    grouped['Predicted_Risks_new']
-    .fillna('')
-    .astype(str)
-    .str.strip()
-    .str.lower()
-)
-pred_idx = grouped['Predicted_Risks_new_norm'].map(risk_to_index)
-chosen_sim = sim_matrix[np.arange(len(grouped)), pred_idx]
-
-sim_excluding_chosen = sim_matrix.copy()
-sim_excluding_chosen[np.arange(len(grouped)), pred_idx] = -1
-best_alt_sim = sim_excluding_chosen.max(axis = 1)
-
-margin = chosen_sim - best_alt_sim
-
-
-grouped['margin'] = margin
-
-margin_cap = 0.2
-
-tau = 0.05
-grouped['rel_margin'] = 1/(1 + np.exp(-(grouped['margin']/tau)))
-
-
-relevance = (0.7 * grouped['rel_cos']) + (0.3 * grouped['rel_margin'])
-
-grouped['raw_score'] = grouped['Event_Severity'] * relevance
-
-grouped = grouped.sort_values(['Window', 'Predicted_Risks_new', 'raw_score'], ascending = [True, True, False])
-
-grouped['rank'] = grouped.groupby(['Window', 'Predicted_Risks_new']).cumcount() + 1
-
-lam = 0.7
-
-grouped['decay_weight'] = lam ** (grouped['rank'] - 1)
-
-grouped['weighted_strength'] = (grouped['decay_weight'] * grouped['raw_score'])
-grouped.to_csv('grouped_risk_scores1.csv', index = False)
-K = 3
-grouped_ranked = grouped.copy()
-grouped_ranked = grouped_ranked[grouped_ranked['rank'] <= K]
-grouped_ranked.to_csv('ranked_events_risks1.csv', index = False)
-
-risk_scores = (grouped_ranked.groupby(['Window', 'Predicted_Risks_new'])['weighted_strength']
-               .sum()
-               .reset_index()
-               .rename(columns = {'weighted_strength': 'raw_risk_score'})
-)
-
-
-c = 2.5
-risk_scores['final_risk_score'] = (5 * risk_scores['raw_risk_score'] / (risk_scores['raw_risk_score'] + c))
-
-risk_scores.to_csv('pipeline/resources/final_risk_scores1.csv', index = False)
-
 def risk_weights_second_pass(df):
     base = df.copy()
     for col in ['Title','Content','Source']:
@@ -1530,25 +1189,374 @@ def risk_weights_second_pass(df):
 
     return base
 
-articles = df
+def run_story_build():
+    base_articles = load_latest_articles_base()
+    debug_date(base_articles, "debug after loading articles base")
+    stories = build_stories(base_articles)
+    def safe_mode(series):
+        s = series.dropna()
+        return s.mode().iloc[0] if not s.empty else None
+    articles = pd.read_csv("pipeline/resources/Articles_with_Stories.csv.gz", compression = 'gzip')
+    score_cols = [
+            "avg_risk_score",
+            "avg_frequency",
+            "avg_acceleration",
+            "avg_recency",
+            "avg_source_accuracy",
+            "avg_impact_score",
+            "avg_industry_risk",
+            "avg_location"
+        ]
+    existing = [c for c in score_cols if c in articles.columns]
+    articles[existing] = articles[existing].apply(pd.to_numeric, errors = 'coerce')
+    story_scores = (articles.groupby("story_id").agg(
+        avg_frequency = ("Frequency_Score", "mean"),
+        avg_acceleration = ("Acceleration_value", "max"),
+        avg_source_accuracy = ("Source_Accuracy", "mean"),
+        avg_impact_score = ("Impact_Score", "mean"),
+        avg_industry_risk = ("Industry_Risk", "mean"),
+        avg_location = ("Location", "mean"),
+        risk_label = ("Predicted_Risks_new", safe_mode)).reset_index())
+    canonical = pd.read_csv("pipeline/resources/Canonical_Stories_with_Summaries.csv")
+    story_score_small = story_scores[['story_id', 'avg_impact_score', 'avg_frequency', 'avg_location', 'risk_label']]
+    cols_to_remove = [
+        'avg_impact_score', 'avg_frequency', 'avg_location', 'risk_label',
+        'avg_impact_score_x', 'avg_impact_score_y',
+        'avg_frequency_x', 'avg_frequency_y',
+        'risk_location_x', 'avg_location_y',
+        'risk_label_x', 'risk_label_y'
+    ]
+    canonical = canonical.drop(columns = [c for c in cols_to_remove if c in canonical.columns], errors = 'ignore')
+    canonical = canonical.merge(story_score_small, on = "story_id", how = 'left', validate= "one_to_one")
+    canonical.to_csv("pipeline/resources/Canonical_Stories_with_Summaries.csv", index = False)
+    articles = load_latest_articles_base()
+    debug_date(articles, "debug aftr second loading")
+    articles = ensure_risk_scores(articles)
+    debug_date(articles, "debug after risk scores")
+    articles = articles.drop_duplicates(subset = ['Title', 'Link'], keep = 'last')
+    debug_date(articles, "debug after dropping duplicates")
+    article_story_map = pd.read_csv("pipeline/resources/Articles_with_Stories.csv.gz", compression = 'gzip')
+    article_story_map = article_story_map.drop_duplicates(subset = ['Title', 'Link'], keep = 'last')
+    canonical = pd.read_csv("pipeline/resources/Canonical_Stories_with_Summaries.csv")
+    score_cols = ["avg_risk_score", "avg_frequency", "avg_recency"]
+    stories_df = pd.read_csv(
+        "pipeline/resources/Story_Clusters.csv.gz",
+        compression="gzip"
+    )
+    canonical = canonical.merge(stories_df[["story_id"]], on = "story_id", how = "left")
+    articles = articles.merge(article_story_map[['Title', 'Link', 'story_id']], on =['Title','Link'], how='left', validate='many_to_one')
+    debug_date(articles, "debug after merging story_id")
+    story_sizes = (articles.groupby("story_id").size().rename("story_articles_count").reset_index())
+
+    articles = articles.merge(canonical, on = "story_id", how = 'left', validate = 'many_to_one')
+    debug_date(articles, "debug after merge with canonical")
+    articles = articles.merge(story_sizes, on = "story_id", how = 'left')
+    debug_date(articles, "debug after merge with story_sizes")
+
+    canonical_articles = articles[articles['story_articles_count'] >= 2].copy()
 
 
-articles = risk_weights_second_pass(articles)
-debug_date(articles, "debug after second run of weights")
-# Ensure latest date from base survived through enrichment
-base_pub = pd.to_datetime(base_articles['Published_utc'], errors='coerce', utc=True) if 'Published_utc' in base_articles.columns else pd.Series(dtype='datetime64[ns, UTC]')
-min_expected_date = base_pub.max() if not base_pub.empty else None
-
-if 'Link' in articles.columns:
-    articles = articles.drop_duplicates(subset=['Link'], keep='last')
-
-debug_date(articles, "debug after final dedup")
-articles['Predicted_Risks_new'] = (articles['Predicted_Risks_new'].fillna('No Risk').astype(str).str.strip())
-articles.loc[articles['Predicted_Risks_new'].eq('') | articles['Predicted_Risks_new'].str.lower().eq('nan'), 'Predicted_Risks_new'] = 'No Risk'
-atomic_write_csv("pipeline/resources/BERTopic_Streamlit.csv.gz", articles, compress=True)
-upload_file('pipeline/resources/BERTopic_Streamlit.csv.gz', 'latest/BERTopic_Streamlit.csv.gz')
 
 
-print("Articles over time", flush = True)
-#
-track_over_time(df)
+    dashboard_stories = (
+        canonical_articles
+        .groupby("story_id")
+        .agg(
+            canonical_title = ("canonical_title", "first"),
+            summary = ("summary", "first"),
+            article_count = ("story_articles_count", "first"),
+            avg_risk_score = ("Risk_Score", "mean"),
+            avg_frequency = ("Frequency_Score", "mean"),
+            avg_recency = ("Recency", "mean"),
+            avg_acceleration = ("Acceleration_value", "max"),
+            avg_source_accuracy = ("Source_Accuracy", "mean"),
+            avg_impact_score = ("Impact_Score", "mean"),
+            avg_industry_risk = ("Industry_Risk", "mean"),
+            avg_location = ("Location", "mean"),
+
+            risk_label = ("Predicted_Risks_new", safe_mode),
+            last_seen = ("Published_utc", "max")
+        )
+        .reset_index()
+    )
+
+
+    dropdown_table = canonical_articles[["story_id", "Title","Topic", "Link", "Published_utc", "Risk_Score",'Recency', 'Source_Accuracy', 'Impact_Score', 'Acceleration_value', 'Location','Industry_Risk', 'Frequency_Score', "Predicted_Risks_new"]].sort_values("Published_utc", ascending = False)
+    standalone_articles = articles[articles["story_articles_count"] == 1].copy()
+
+    dashboard_stories.to_csv("pipeline/resources/dashboard_stories.csv.gz", compression = 'gzip')
+    dropdown_table.to_csv("pipeline/resources/dashboard_dropdown.csv.gz", compression = 'gzip')
+    standalone_articles.to_csv("pipeline/resources/dashboard_articles.csv.gz", compression = 'gzip')
+
+    #articles_only = articles[articles['story_articles_count']<3].copy()
+
+
+
+    nlp = spacy.load("en_core_web_sm")
+    model = SentenceTransformer('all-MiniLM-L6-v2')
+    if Path('pipeline/resources/subtopics.csv').exists():
+        subtopics = pd.read_csv('pipeline/resources/subtopics.csv')
+    else:
+        subtopics = pd.DataFrame(columns=['Title', 'Link', 'Cluster', 'Event_Severity', 'Event_Label'])
+
+
+    # Split into already labeled and new
+    already_clustered = articles[articles['Title'].isin(subtopics['Title'])]
+    already_clustered['Published_utc'] = pd.to_datetime(already_clustered['Published_utc'], errors='coerce', utc=True)
+    already_clustered['Window'] = (
+        already_clustered['Published_utc']
+        .dt.to_period('W-MON')
+        .dt.start_time
+        .dt.tz_localize('UTC')
+    )
+    new_only = articles[
+        (~articles['Title'].isin(subtopics['Title'])) & (articles['University Label'] == 1)
+    ].copy()
+
+    print(f"Already clustered: {len(already_clustered)}, New: {len(new_only)}", flush=True)
+    if Path('pipeline/resources/subtopic_centroids.pkl').exists():
+        with open('pipeline/resources/subtopic_centroids.pkl', 'rb') as f:
+            saved = pickle.load(f)
+        subtopic_centroids = pd.Series({k: np.array(v) for k, v in saved.items()})
+    else:
+        subtopic_centroids = None
+    articles, updated_centroids = build_subtopic_clusters(new_only, subtopics, model, subtopic_centroids=subtopic_centroids)
+
+    debug_date(articles, "debug after build_subtopic_clusters")
+
+    updated_subtopics = pd.concat([subtopics, articles[['Title', 'Link','Cluster', 'Event_Severity', 'Event_Label', 'Published_utc']]],
+                                ignore_index = True).drop_duplicates(subset = ['Title', 'Link'], keep = 'last')
+
+    updated_subtopics.to_csv('pipeline/resources/subtopics.csv', index = False)
+    print(f"Saved {len(updated_subtopics)} total subtopics ({len(updated_subtopics) - len(subtopics)} new)", flush=True)
+
+    if subtopic_centroids is not None:
+        merged_centroids = {int(k): v.tolist() for k, v in subtopic_centroids.items()}
+    else:
+        merged_centroids = []
+
+    if updated_centroids is not None:
+        for k, v in updated_centroids.items():
+            merged_centroids[int(k)] = v.tolist() if isinstance(v, np.ndarray) else v
+        
+
+    atomic_write_pickle('pipeline/resources/subtopic_centroids.pkl', merged_centroids)
+    already_clustered = already_clustered.merge(subtopics[['Title', 'Link', 'Cluster', 'Event_Label', 'Event_Severity']],
+        on=['Title', 'Link'],
+        how='left'
+    )
+    articles = pd.concat([already_clustered, articles], ignore_index=True)
+    debug_date(articles, "debug after concat of already-clustered and articles")
+
+
+    atomic_write_csv("pipeline/resources/BERTopic_Streamlit.csv.gz", articles, compress = True)
+    upload_file('pipeline/resources/BERTopic_Streamlit.csv.gz', 'latest/BERTopic_Streamlit.csv.gz')
+
+
+    df = articles
+    df['Published_utc'] = pd.to_datetime(df['Published_utc'], errors = 'coerce')
+    df.sort_values('Published_utc', inplace = True)
+    df['Content_trunc'] = df['Content'].fillna('').str.slice(0, 500)
+
+    bundle = load_model_bundle(Github_owner, Github_repo, 'regression')
+    risk_defs = {
+    "No Risk": "Nothing to do with the institution to pose a risk financially, structurally, or academically.",
+    "Research Funding Disruption": "University research funding halted or withdrawn. Grant cuts, pauses, or canceled awards stop lab projects and furlough staff.",
+    "Enrollment Pressure": "Fewer applications or lower student retention reduce tuition revenue. Admissions decline or FAFSA delays cause enrollment stress.",
+    "Policy or Political Interference": "State or federal officials intervene in campus DEI or curriculum policies through mandates or funding threats.",
+    "Institutional Alignment Risk": "University units pursue conflicting goals. Misaligned strategies or budgets stall progress on institutional plans.",
+    "Mission Drift": "University focuses on revenue or prestige projects over teaching and research, weakening academic mission.",
+    "Revenue Loss": "University faces financial shortfall due to budget cuts, declining tuition, or reduced auxiliary income.",
+    "Insurance Market Volatility": "University insurance premiums rise or coverage is reduced after market hardening or claims disputes.",
+    "Unexpected Expenditures": "Campus hit by sudden unplanned costs from facility failures, legal settlements, or emergency repairs.",
+    "Endowment Risk": "University endowment loses value or liquidity, forcing payout cuts that affect scholarships or operations.",
+    "Infrastructure Failure": "Campus systems fail. Power, HVAC, or network outages disrupt classes and research activity.",
+    "Vendor Cyber Exposure": "University data exposed through a third-party SaaS or vendor security breach or SOC 2 gap.",
+    "Unauthorized Access/Data Breach": "Hackers access internal university systems or personal records, requiring breach response.",
+    "Artificial Intelligence Ethics & Governance": "Campus adoption of AI raises fairness, bias, or transparency issues needing governance policy.",
+    "Rapid Speed of Disruptive Innovation": "Ability to develop a systematic approach to the identification of ever-increasing categories of AI risks; ability to adopt artificial intelligence systems to supplement existing equipment and people; Software systemfailure, cybersecurity issues with potential hacking of AI control systems",
+    "Controversial Public Incident": "Campus statement, protest, or viral video sparks public backlash and reputational scrutiny.",
+    "DEI Program Backlash": "Political or donor pressure challenges diversity and inclusion programs on campus.",
+    "Leadership Missteps": "University leaders issue misleading statements or mishandle a crisis, prompting criticism or resignations.",
+    "High-Profile Litigation": "University faces a lawsuit drawing major public or media attention, often around discrimination or research conduct.",
+    "Violence or Threats": "Campus shooting, assault, or credible threat causes lockdowns or safety alerts for students and staff.",
+    "Emergency Preparedness Gaps": "Campus emergency plans prove outdated or untested, delaying response during a crisis.",
+    "Infectious Disease Outbreak": "Cluster of student or staff illness disrupts classes or triggers campus health measures.",
+    "Lab Incident": "Chemical spill or fire in a university lab injures staff or halts research pending investigation.",
+    "Environmental Exposure": "Hazardous materials like asbestos, lead, or mold found in campus buildings trigger closures.",
+    "Hurricane/Flood/Wildfire": "Natural disaster damages campus property and displaces students or staff.",
+    "Student Conduct Incident": "Fraternity hazing, fights, or misconduct lead to discipline, injuries, or suspension.",
+    "Academic Disruption": "Classes canceled or delayed due to strikes, outages, or emergencies on campus.",
+    "Mental Health Crises": "Campus counseling overwhelmed by student mental health emergencies or suicide risk.",
+    "HR Complaint": "Employee alleges harassment, discrimination, or retaliation, leading to internal investigation.",
+    "Labor Dispute": "Faculty or staff strike or protest disrupts classes and campus operations.",
+    "Whistleblower Claims": "Employee reports internal fraud or safety cover-up, prompting investigation or retaliation concerns.",
+    "Accreditation Risk": "Accreditor flags weaknesses in governance, finances, or academic outcomes, threatening status.",
+    "No Risk": "Not relevant to higher education. Not relevant to Tulane University. Not relevant to university.",
+    "Constant Inflation": "Sustained increases in operating costs, wages, or materials erode budget stability and financial planning.",
+    "Morale challenges": "Persistent employee dissatisfaction, burnout, or disengagement reduces productivity and retention.",
+    "Transportation/Access Disruption": "Interruptions to transit, parking, or campus access hinder attendance, operations, or service delivery.",
+    "IT System Failure":  "Critical technology outage or infrastructure breakdown disrupts academic, financial, or administrative functions.",
+    "Title IX/ADA Noncompliance": "Failure to meet federal civil rights obligations exposes institution to legal action and regulatory penalties.",
+    "Housing/Food Insecurity": "Students lack stable housing or reliable nutrition, affecting retention, performance, and wellbeing.",
+    "Policy Misapplication": "Inconsistent or improper enforcement of institutional policies creates fairness, legal, or reputational risks.",
+    "Nepotism/Conflict of Interest": "Personal relationships or undisclosed interests influence hiring, contracts, or governance decisions.",
+    "Grant Mismanagement": "Improper allocation, reporting, or oversight of grant funds jeopardizes funding and compliance status.",
+    "Extreme Weather Events": "Severe storms, flooding, or climate events disrupt campus operations and damage infrastructure.",
+    "FERPA/HIPAA Violations": "Unauthorized disclosure of protected student or health information triggers legal and regulatory consequences.",
+    "Media campaigns": "Coordinated media coverage or social pressure amplifies reputational exposure and stakeholder scrutiny.",
+    "Ransomware/Malware": "Malicious software encrypts or corrupts institutional systems, demanding payment or disrupting operations.",
+    "Credential Phishing": "Deceptive communications obtain login credentials, enabling unauthorized system access or data breach.",
+    "Workplace Safety Violation": "Failure to meet occupational safety standards results in injury, fines, or regulatory enforcement.",
+    "Audit Findings": "Internal or external audit reveals financial irregularities, compliance gaps, misuse of funds, or control weaknesses in university operations.",
+    "Supply Chain Disruption": "Inadequate supply chain management; Inability to comply with contract terms and conditions involving insurance requirements and termination clauses; Immature and decentralized process for vendor oversight; Lack of leverage for buying power; Lack of training to the campus community on supply chain processes and the importance of stewardship of the process.",
+    "Supply Chain Delay": "Inadequate supply chain management; Inability to comply with contract terms and conditions involving insurance requirements and termination clauses; Immature and decentralized process for vendor oversight; Lack of leverage for buying power; Lack of training to the campus community on supply chain processes and the importance of stewardship of the process.",
+    "Cloud Misconfiguration": "Improperly configured cloud storage, access controls, or infrastructure settings expose sensitive university data or systems to unauthorized access.",
+    "AI Ethics and Governance": "University adoption, use, or policy development around artificial raises concerns about academic integrity, data privacy, intellectual property.",
+    "Climate Infrastructure Risks": "University buildings, utilities, or campus infrastructure are vulnerable to long-term climate related deterioration.",
+    "Environmental Noncompliance": "University fails to meet federal, state, or local environmental regulations governing waste disposal, air quality, water discharge, hazardous materials handling, or emissions.",
+    "Accessibility Barriers": "Barriers prevent students, faculty, or staff with disabilities from fully accessing campus facilities, online systems, academic programs, or university services, triggering ADA compliance concerns or student grievances.",
+    "Faculty conflict": "Interpersonal or professional disputes among faculty members, including disagreements over governance, resource allocation, academic freedom, or departmental leadership that may disrupt operations, damage collegial relationships, or escalate into formal grievances or public controversy.",
+    "Executive Board conflicts": "Interpersonal or professional disputes among board members, including disagreements over governance, resource allocation, or leadership that may disrupt operations or escalate into governance or funding conflicts."
+        
+        
+
+
+
+
+    }
+    print(df.columns.tolist(), flush = True)
+
+    grouped = df.groupby(['Window', 'Cluster', 'Predicted_Risks_new']).agg({
+        "Title": ' '.join,
+        "Content_trunc": ' '.join,
+        "Event_Severity": 'max',
+        "Event_Label": 'first',
+        "Acceleration_value": 'last',
+        "Recency": "last",
+        "Source_Accuracy": "mean",
+        "Impact_Score": "mean",
+        "Location": 'mean',
+        "Industry_Risk": "mean",
+        "Frequency_Score": "mean"
+    }).reset_index()
+
+    grouped['combined_text'] = (grouped['Title'].fillna('') + grouped['Content_trunc'].fillna(''))
+
+    model = SentenceTransformer('all-mpnet-base-v2')
+
+    risk_names = list(risk_defs.keys())
+    risk_labels = list(risk_defs.values())
+
+    risk_embeddings = model.encode(risk_labels, normalize_embeddings = True, show_progress_bar = True)
+    text_embeddings = model.encode(grouped['combined_text'].tolist(), normalize_embeddings = True, show_progress_bar = True)
+    risk_to_index = {name: i for i, name in enumerate(risk_defs.keys())}
+    risk_to_index = {
+        k.lower(): v for k, v in risk_to_index.items()
+    }
+
+    similarities = []
+    for i, row in grouped.iterrows():
+        risk_name = row['Predicted_Risks_new']
+        risk_name = risk_name.strip().lower()
+        risk_idx = risk_to_index[risk_name]
+
+        sim = np.dot(text_embeddings[i], risk_embeddings[risk_idx])
+        sim = np.clip(sim, 0, 1)
+        similarities.append(sim)
+
+    grouped['similarity'] = similarities
+
+    s_min = grouped['similarity'].quantile(0.2)
+    s_max = grouped['similarity'].quantile(0.9)
+
+    grouped['rel_cos'] = np.clip((grouped['similarity'] - s_min)/(s_max - s_min), 0, 1)
+
+
+    sim_matrix = np.dot(text_embeddings, risk_embeddings.T)
+    grouped['Predicted_Risks_new_norm'] = (
+        grouped['Predicted_Risks_new']
+        .fillna('')
+        .astype(str)
+        .str.strip()
+        .str.lower()
+    )
+    pred_idx = grouped['Predicted_Risks_new_norm'].map(risk_to_index)
+    chosen_sim = sim_matrix[np.arange(len(grouped)), pred_idx]
+
+    sim_excluding_chosen = sim_matrix.copy()
+    sim_excluding_chosen[np.arange(len(grouped)), pred_idx] = -1
+    best_alt_sim = sim_excluding_chosen.max(axis = 1)
+
+    margin = chosen_sim - best_alt_sim
+
+
+    grouped['margin'] = margin
+
+    margin_cap = 0.2
+
+    tau = 0.05
+    grouped['rel_margin'] = 1/(1 + np.exp(-(grouped['margin']/tau)))
+
+
+    relevance = (0.7 * grouped['rel_cos']) + (0.3 * grouped['rel_margin'])
+
+    grouped['raw_score'] = grouped['Event_Severity'] * relevance
+
+    grouped = grouped.sort_values(['Window', 'Predicted_Risks_new', 'raw_score'], ascending = [True, True, False])
+
+    grouped['rank'] = grouped.groupby(['Window', 'Predicted_Risks_new']).cumcount() + 1
+
+    lam = 0.7
+
+    grouped['decay_weight'] = lam ** (grouped['rank'] - 1)
+
+    grouped['weighted_strength'] = (grouped['decay_weight'] * grouped['raw_score'])
+    grouped.to_csv('grouped_risk_scores1.csv', index = False)
+    K = 3
+    grouped_ranked = grouped.copy()
+    grouped_ranked = grouped_ranked[grouped_ranked['rank'] <= K]
+    grouped_ranked.to_csv('ranked_events_risks1.csv', index = False)
+
+    risk_scores = (grouped_ranked.groupby(['Window', 'Predicted_Risks_new'])['weighted_strength']
+                .sum()
+                .reset_index()
+                .rename(columns = {'weighted_strength': 'raw_risk_score'})
+    )
+
+
+    c = 2.5
+    risk_scores['final_risk_score'] = (5 * risk_scores['raw_risk_score'] / (risk_scores['raw_risk_score'] + c))
+
+    risk_scores.to_csv('pipeline/resources/final_risk_scores1.csv', index = False)
+
+
+
+    articles = df
+
+
+    articles = risk_weights_second_pass(articles)
+    debug_date(articles, "debug after second run of weights")
+    # Ensure latest date from base survived through enrichment
+    base_pub = pd.to_datetime(base_articles['Published_utc'], errors='coerce', utc=True) if 'Published_utc' in base_articles.columns else pd.Series(dtype='datetime64[ns, UTC]')
+    min_expected_date = base_pub.max() if not base_pub.empty else None
+
+    if 'Link' in articles.columns:
+        articles = articles.drop_duplicates(subset=['Link'], keep='last')
+
+    debug_date(articles, "debug after final dedup")
+    articles['Predicted_Risks_new'] = (articles['Predicted_Risks_new'].fillna('No Risk').astype(str).str.strip())
+    articles.loc[articles['Predicted_Risks_new'].eq('') | articles['Predicted_Risks_new'].str.lower().eq('nan'), 'Predicted_Risks_new'] = 'No Risk'
+    atomic_write_csv("pipeline/resources/BERTopic_Streamlit.csv.gz", articles, compress=True)
+    upload_file('pipeline/resources/BERTopic_Streamlit.csv.gz', 'latest/BERTopic_Streamlit.csv.gz')
+
+
+    print("Articles over time", flush = True)
+    #
+    track_over_time(df)
+
+def main():
+    run_story_build()
+
+if __name__ == "__main__":
+    main()

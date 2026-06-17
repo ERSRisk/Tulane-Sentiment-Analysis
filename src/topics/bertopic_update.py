@@ -991,7 +991,7 @@ GITHUB_TOKEN = os.getenv('TOKEN')
 
 GEMINI_API_KEY = os.getenv("PAID_API_KEY")
 client = genai.Client(api_key=GEMINI_API_KEY)
-if __name__ == '__main__':
+def run_bertopic_update():
     
     
     print(f"📥 Downloading all_RSS.json from release link...", flush=True)
@@ -2780,3 +2780,11 @@ Only use these labels if Tulane University or Tulane leadership is explicitly me
     
     del df_streamlit, df_new_version
     gc.collect()
+
+
+def main():
+    run_bertopic_update()
+
+if __name__ == "__main__":
+    main()
+
