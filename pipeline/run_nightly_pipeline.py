@@ -1,21 +1,19 @@
 """
 Nightly pipeline orchestrator.
-
-Current status:
-- Legacy working scripts are preserved in pipeline/source.
-- Modular refactor is being built under src/.
-- This file will become the single entry point for scheduled runs.
 """
 
-def main():
-    print("Nightly pipeline orchestrator placeholder.")
-    print("Planned steps:")
-    print("1. Run RSS ingestion")
-    print("2. Run BERTopic update")
-    print("3. Run risk scoring")
-    print("4. Run story clustering")
-    print("5. Export reporting datasets")
+from src.topics.bertopic_update import run_bertopic_update
 
+from src.stories.build_stories import run_story_build
+
+def main():
+    print("Starting nightly risk intelligence pipeline...")
+    print("Step 1: Updating BERTopic risk intelligence outputs...")
+    run_bertopic_update()
+    print("Step 2: Building story clusters and dashboard outputs...")
+    run_story_build()
+
+    print("Nightly pipeline completed.")
 
 if __name__ == "__main__":
     main()
