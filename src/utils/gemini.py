@@ -5,6 +5,10 @@ import random
 import re
 import time
 import requests
+from config.settings import GEMINI_API_KEY
+
+def get_gemini_client():
+    return genai.Client(api_key=GEMINI_API_KEY)
 
 def call_gemini(prompt, max_tries = 8):
         GEMINI_API_KEY = os.getenv('PAID_API_KEY')

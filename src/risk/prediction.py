@@ -4,7 +4,7 @@ import numpy as np
 import json
 from src.storage.github_releases import load_model_bundle
 import torch
-from sentence_transformers import SentenceTransformers
+from sentence_transformers import SentenceTransformer
 from google import genai
 from google.genai.errors import ClientError, ServerError
 import time
@@ -16,7 +16,7 @@ from config.settings import (
     GITHUB_REPO
 )
 
-from src.utils.clients import get_gemini_client
+from src.utils.gemini import get_gemini_client
 
 client = get_gemini_client()
 
