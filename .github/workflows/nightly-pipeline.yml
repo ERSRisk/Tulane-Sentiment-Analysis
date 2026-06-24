@@ -45,7 +45,7 @@ jobs:
             -v "${{ env.GOOGLE_GHA_CREDS_PATH }}:${{ env.GOOGLE_GHA_CREDS_PATH }}:ro" \
             -v ${{ github.workspace }}:/app \
             ghcr.io/ersrisk/risk-pipeline:latest \
-            python pipeline/source/RSS_extraction.py
+            python -m src.ingestion.rss_extraction
       - name: Run stage 2 - build datasets pt 1
         run: |
             docker run --rm \
@@ -56,7 +56,7 @@ jobs:
             -v "${{ env.GOOGLE_GHA_CREDS_PATH }}:${{ env.GOOGLE_GHA_CREDS_PATH }}:ro" \
             -v ${{ github.workspace }}:/app \
             ghcr.io/ersrisk/risk-pipeline:latest \
-            python pipeline/source/BERT_update.py
+            python -m src.topics.bertopic_update
       - name: Run stage 3 - build datasets pt 2
         run: |
             docker run --rm \
@@ -67,10 +67,10 @@ jobs:
             -v "${{ env.GOOGLE_GHA_CREDS_PATH }}:${{ env.GOOGLE_GHA_CREDS_PATH }}:ro" \
             -v ${{ github.workspace }}:/app \
             ghcr.io/ersrisk/risk-pipeline:latest \
-            python pipeline/source/stories_build.py
+            python -m src.stories.build_stories
       
       
-      - name: Upload outputsto GCS
+      - name: Upload outputs to GCS
         run: |
           gcloud storage cp pipeline/resources/BERTopic_results3.csv.gz gs://tulane-risk-data/latest/BERTopic_results3.csv.gz
           gcloud storage cp pipeline/resources/BERTopic_Streamlit.csv.gz gs://tulane-risk-data/latest/BERTopic_Streamlit.csv.gz
@@ -138,6 +138,6 @@ jobs:
           git status --porcelain=1 -uall || true
           ls -lh pipeline/resources/topic_trend.csv* || true        
           git commit -m "Update results CSV (gz) and topic trend" || echo "Nothing to commit"
-          git pull --rebase --autostash origin main || true
-          git push origin HEAD:main || true
+          git pull --rebase --autostash origin "${GITHUB_REF_NAME}" || true
+          git push origin HEAD:"${GITHUB_REF_NAME}" || true
 
