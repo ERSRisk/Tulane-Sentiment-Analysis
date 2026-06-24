@@ -832,7 +832,8 @@ def build_subtopic_clusters(df, subtopics, model, min_sim=0.5, subtopic_centroid
 
     df['Published_utc'] = pd.to_datetime(df['Published_utc'], errors = 'coerce', utc = True)
     df = df.dropna(subset= ['Published_utc'])
-
+    if "Published_utc" not in subtopics.columns:
+        subtopics["Published_utc"] = pd.NaT
     subtopics['Published_utc'] = pd.to_datetime(subtopics['Published_utc'], errors = 'coerce', utc = True)
     subtopics = subtopics.dropna(subset = ['Published_utc'])
 
@@ -1311,7 +1312,10 @@ def update_subtopic_clusters(articles):
     if Path('pipeline/resources/subtopics.csv').exists():
         subtopics = pd.read_csv('pipeline/resources/subtopics.csv')
     else:
-        subtopics = pd.DataFrame(columns=['Title', 'Link', 'Cluster', 'Event_Severity', 'Event_Label'])
+        subtopics = pd.DataFrame(columns=['Title', 'Link', 'Cluster', 'Event_Severity', 'Event_Label', 'Published_utc'])
+
+    if "Published_utc" not in subtopics.columns:
+        subtopics["Published_utc"] = pd.NaT
 
 
     # Split into already labeled and new
