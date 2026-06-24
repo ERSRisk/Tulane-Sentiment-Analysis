@@ -184,7 +184,7 @@ def load_existing_topics_checkpoint(df):
     dfs = []
     
     if blob_exists('latest/BERTopic_results2.csv.gz'):
-        df2 = download_file('latest/BERTopic_results2.csv.gz', 'pipeline/resources/BERTopic_results2.csv.gz', BUCKET_NAME)
+        df2 = download_file('latest/BERTopic_results2.csv.gz', 'pipeline/resources/BERTopic_results2.csv.gz')
         mem("after loading existing_df")
         print("It exists", flush = True)
         dfs.append(df2)
@@ -192,7 +192,7 @@ def load_existing_topics_checkpoint(df):
         print("It did not get extracted", flush = True)
 
     if blob_exists('latest/BERTopic_results3.csv.gz'):
-        df3 = download_file('latest/BERTopic_results3.csv.gz', 'pipeline/resources/BERTopic_results3.csv.gz', BUCKET_NAME)
+        df3 = download_file('latest/BERTopic_results3.csv.gz', 'pipeline/resources/BERTopic_results3.csv.gz')
         mem("after loading existing_df")
         dfs.append(df3)
 

@@ -1,6 +1,7 @@
 import psutil
 import os
 import pandas as pd
+import re
 
 PROC = psutil.Process(os.getpid())
 
