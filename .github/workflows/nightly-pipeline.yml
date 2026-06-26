@@ -108,13 +108,11 @@ jobs:
             BERTopic_results2.csv
 
           add_if_exists () {
-            for f  in "$@"; do 
+            for f in "$@"; do
               if [ -f "$f" ]; then
                 echo "Adding $f"
-                git add "$f"
-              else 
-                echo "Skip (not found): $f" 
-              fi 
+                git add -f "$f"
+              fi
             done
           }
 

@@ -545,8 +545,12 @@ def score_risks_from_step1():
     'University Label', 'Location',
     'pred_source',
     'Pred_LR_label',
+    'Pred_LR_margin',
     'Pred_cos_label_all',
-    'Pred_cos_score_all'
+    'Pred_cos_score_all',
+    'chosen_label_sim',
+    'best_alt_sim',
+    'semantic_margin'
     ]
     
     risk_df = pd.read_csv('pipeline/resources/Step1.csv.gz', compression = 'gzip', usecols = lambda c: c in risk_usecols, low_memory = False)
