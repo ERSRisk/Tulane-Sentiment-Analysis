@@ -12,7 +12,7 @@ def risk_weights(df):
     print(f"[risk_weights] start: df = {df.shape}", flush = True)
 
     # ---------- Load config ----------
-    with open('pipeline/resources/risks.json', 'r', encoding='utf-8') as f:
+    with open('Model_training/risks.json', 'r', encoding='utf-8') as f:
         risks_cfg = json.load(f)
 
     json_all_labels = [r['name'] for block in risks_cfg.get('new_risks', []) for _, items in block.items() for r in items]
@@ -40,6 +40,7 @@ def risk_weights(df):
     higher_ed_dict = risks_cfg.get('HigherEdRisks', None)
 
     base = df
+    
     for col in ['Title','Content','Source']:
         if col not in base.columns:
             base[col] = ''
@@ -60,8 +61,11 @@ def risk_weights(df):
     if 'Published' not in base.columns: 
         base['Published'] = pd.NaT 
     base['Published'] = base['Published'].apply(_coerce_pub) 
+    
     if pd.api.types.is_datetime64tz_dtype(base['Published']): 
         base['Published'] = base['Published'].dt.tz_convert('UTC').dt.tz_localize(None) 
+
+    base['Week'] = base['Published'].dt.to_period('W-MON').dt.to_timestamp(how='start')
 
     now_naive = datetime.utcnow() 
     base['Days_Ago'] = (now_naive - base['Published']).dt.days 
@@ -143,80 +147,6 @@ def risk_weights(df):
     if 'Topic' not in base.columns:
         base['Topic'] = -1
     base['Topic'] = base['Topic'].fillna(-1)
-    def recency_features_topic_risk(df, now=None):
-        fx = df[['Topic', '_RiskList', 'Published', 'Days_Ago']].copy()
-
-        required = {'Topic', '_RiskList', 'Published', 'Days_Ago'}
-        if not required.issubset(fx.columns) or fx.empty:
-            return pd.DataFrame(columns=['Topic','_RiskList','last_seen_days','decayed_volume','recency_score_tr'])
-
-        if now is None:
-            now = pd.Timestamp.utcnow()
-
-        art_w = 1.0
-        if 'Impact_Score' in base.columns:
-            art_w = pd.to_numeric(base['Impact_Score'], errors='coerce').fillna(0.0).clip(0, 1)
-
-        def half_life(risk):
-            return risk_half_life.get(risk, 30)
-
-        hl  = fx['_RiskList'].map(lambda r: max(1.0, half_life(r)))
-        lam = np.log(2.0) / hl
-        w_decay = np.exp(-lam * fx['Days_Ago'])
-        fx['_w'] = w_decay * art_w
-
-        grp = fx.groupby(['Topic', '_RiskList'], dropna=False)
-        out = grp.agg(
-            last_seen=('Days_Ago', 'min'),
-            decayed_volume=('_w', 'sum'),
-            mentions=('Published', 'count')
-        ).reset_index()
-
-        out['hl'] = out['_RiskList'].map(lambda r: max(1.0, half_life(r)))
-        out['freshness'] = np.exp(-np.log(2.0) * (out['last_seen'] / out['hl']))
-
-        def _safe_minmax(s):
-            rng = s.max() - s.min()
-            return (s - s.min()) / (rng + 1e-12)
-
-        out['decayed_z'] = out.groupby('_RiskList')['decayed_volume'].transform(_safe_minmax)
-
-        w_fresh, w_vol = 0.6, 0.4
-        out['recency_score_tr'] = (w_fresh * out['freshness'] + w_vol * out['decayed_z']).clip(0, 1)
-        out = out.rename(columns={'last_seen': 'last_seen_days'})
-        return out[['Topic','_RiskList','last_seen_days','decayed_volume','recency_score_tr']]
-
-
-    def attach_topic_risk_recency(df):
-        tr = recency_features_topic_risk(df)
-        for c in ['last_seen_days','decayed_volume','recency_score_tr']:
-            if c not in tr.columns:
-                tr[c] = np.nan
-        cols_to_drop = ["last_seen_days","decayed_volume",
-                    "recency_score_tr","recency_score_tr_x","recency_score_tr_y"]
-        df = df.drop(columns=[c for c in cols_to_drop if c in df.columns], errors="ignore")
-
-        tr_small = tr[["Topic", "_RiskList", "last_seen_days", "decayed_volume", "recency_score_tr"]].rename(
-            columns={"recency_score_tr": "recency_score_tr_tr"}
-        )
-        overlap = [c for c in tr_small.columns if c in df.columns and c not in ['Topic', '_RiskList']]
-        if overlap:
-            df = df.drop(columns = overlap)
-        enriched = df.merge(tr_small, on=["Topic","_RiskList"], how="left", validate = "m:1")
-
-        days = pd.to_numeric(enriched.get('Days_Ago', np.nan), errors='coerce').astype(float)
-        enriched['article_freshness'] = np.exp(-np.log(2.0) * (days / 14.0)).fillna(0.0)
-
-        if 'recency_score_tr_tr' not in enriched.columns:
-            enriched['recency_score_tr_tr'] = 0.0
-
-        alpha = 0.7
-        enriched['Recency_TR_Blended'] = (
-            alpha * enriched['recency_score_tr_tr'].fillna(0.0)
-            + (1 - alpha) * enriched['article_freshness']
-        ).clip(0, 1)
-
-        return enriched
     
 
     def _src_acc(row):
@@ -270,181 +200,34 @@ def risk_weights(df):
     print('Location created', flush = True)
 
 
-
-    def _window_tag(d):
-        if d <= 30: return 'recent'
-        if d <= 60: return 'previous'
-        return 'older'
-    tmp = base[['Topic','Days_Ago']].copy()
-    tmp['Time_Window'] = tmp['Days_Ago'].apply(_window_tag)
-    topic_counts = tmp.groupby(['Topic','Time_Window']).size().unstack(fill_value=0)
-    for c in ['recent','previous']:
-        if c not in topic_counts.columns:
-            topic_counts[c] = 0
-
-    periods = base['Published'].dt.to_period('W-MON')
-    base['Week'] = periods.dt.to_timestamp(how = 'start')
-    ts = (
-        base.loc[base['Week'].notna()]
-        .groupby(['Risk_item','Week'])
-        .size().rename('n').reset_index()
-        .sort_values(['Risk_item','Week'])
-    )
-    if not ts.empty:
-        ts['EMWA'] = ts.groupby('Risk_item')['n'].transform(
-            lambda s: s.ewm(span = 4, adjust =False).mean()
-        )
-
-        ts['EMWA_Delta'] = ts.groupby('Risk_item')['EMWA'].diff().fillna(0.0)
-        def slope(counts, k=6):
-            x = np.arange(len(counts), dtype=float)
-            out = np.zeros(len(counts), dtype=float)
-            for i in range(len(counts)):
-                lo = max(0, i - min(k, i) + 1) 
-                xi = x[lo:i+1]; yi = counts[lo:i+1].astype(float)
-                if len(xi) >= 2: 
-                    m, _ = np.polyfit(xi, yi, 1)
-                    out[i] = m
-            return out
-
-        ts['Slope'] = ts.groupby('Risk_item', group_keys = False)['n'].apply(lambda g: pd.Series(slope(g.values, k=6), index = g.index)).astype(float)
-
-        def normalize_groupwise(s, by):
-            return s.groupby(by, group_keys=False).rank(pct = True).fillna(0.0)
-
-        ts['emwa_norm']  = normalize_groupwise(ts['EMWA'].clip(lower=0),  ts['Risk_item'])
-        ts['slope_norm'] = normalize_groupwise(ts['Slope'].clip(lower = 0), ts['Risk_item'])
-
-        w_emwa, w_slope = 0.6, 0.4
-        ts['accel_score'] = (w_emwa*ts['emwa_norm'] + w_slope * ts['slope_norm']).clip(0,1)
-        weeks_seen = ts.groupby('Risk_item')['Week'].transform('nunique')
-        ts.loc[weeks_seen < 4, 'accel_score'] *= 0.6
-
-
-        #if 'Sentiment Score' not in base.columns:
-        #    base['Sentiment Score'] = 0.0
-        #ts_sent = (
-        #    base.loc[base['Week'].notna()]
-        #    .groupby(['Risk_item','Week'])
-        #    .agg(sent_mean=('Sentiment Score','mean'))
-        #    .reset_index()
-        #    .sort_values(['Risk_item','Week'])
-        #)
-        #ts_sent['sent_flipped'] = -ts_sent['sent_mean']
-        #ts_sent['sent_ewma'] = ts_sent.groupby('Risk_item')['sent_flipped'].transform(
-        #    lambda s: s.ewm(span=4, adjust=False).mean()
-        #)
-        #ts_sent['sent_delta'] = ts_sent.groupby('Risk_item')['sent_ewma'].diff().fillna(0.0)
-        #ts_sent['sent_slope'] = ts_sent.groupby('Risk_item', group_keys=False)['sent_flipped'] \
-        #    .apply(lambda g: pd.Series(slope(g.values, k=6), index=g.index)) \
-        #    .astype(float)
-        #ts_sent['sent_delta_norm'] = normalize_groupwise(ts_sent['sent_delta'], ts_sent['Risk_item'])
-        #ts_sent['sent_slope_norm'] = normalize_groupwise(ts_sent['sent_slope'], ts_sent['Risk_item'])
-        #w_sent_delta, w_sent_slope = 0.6, 0.4
-        #ts_sent['accel_score_sent'] = (w_sent_delta*ts_sent['sent_delta_norm'] + w_sent_slope*ts_sent['sent_slope_norm']).clip(0,1)
-
-        ts['accel_score'] = ts['accel_score'].fillna(0.0)
-
-
-
-        def _acc_value(d):
-            if d < 0.1: return 0
-            if d < 0.25: return 1
-            if d < 0.40: return 2
-            if d < 0.60: return 3
-            if d < 0.80: return 4
-            return 5
-        ts['Acceleration_value'] = ts['accel_score'].apply(_acc_value).astype(int)
-
-        def cue_eta_from_text(t):
-            t = str(t).lower()
-            if re.search(r'\b(today|tonight|tomorrow|immediately|right now)\b', t):
-                return 3
-            if re.search(r'\b(this week|in\s*the\s*coming\s*days)\b', t):
-                return 7
-            # near-term windows
-            if re.search(r'\b(next week|within\s*2\s*weeks|in\s*2\s*weeks)\b', t):
-                return 14
-            if re.search(r'\b(within\s*30\s*days|this month|in\s*\d+\s*days)\b', t):
-                return 30
-            return 45
-
-        temp = base.loc[base['Week'].notna(), ['Risk_item', 'Week', 'Title','Content', 'Location','University Label']].copy()
-        temp['cue_eta'] = (temp['Title'] + ' ' + temp['Content'].fillna('')).apply(cue_eta_from_text)
-
-        def location_eta(l):
-            try:
-                loc = int(l)
-            except Exception:
-                loc = 0
-            if loc == 5: return 7
-            if loc == 1: return 21
-            return 45
-        temp['loc_eta'] = temp['Location'].apply(location_eta)
-        def tulane_pull(u_label, eta):
-            try:
-                label = int(u_label)
-            except Exception:
-                label = 0
-            return max(1, eta - (7 if label ==1 else 0))
-
-        ulab = pd.to_numeric(temp['University Label'], errors='coerce').fillna(0).astype('int8')
-        eta_min = np.minimum(temp['cue_eta'].to_numpy(), temp['loc_eta'].to_numpy())
-        temp['eta_article'] = np.maximum(1, eta_min - np.where(ulab.to_numpy() == 1, 7, 0))
-
-        eta_by_bucket = (
-            temp.groupby(['Risk_item', 'Week'])['eta_article'].min()
-            .rename('eta_days_proxy').reset_index()
-        )
-
-        ts = ts.merge(eta_by_bucket, on = ['Risk_item', 'Week'], how='left')
-        ts['eta_days_proxy'] = ts['eta_days_proxy'].fillna(45).astype(float)
-
-        ts['eta_days_proxy'] = (ts['eta_days_proxy']- (ts['accel_score'] * 5.0)).clip(lower =1)
-
-        def cap_by_eta(val, eta_days):
-            if eta_days <= 15:
-                return(min(int(val), 5))
-            elif eta_days <= 30:
-                return (min(int(val),4))
-            else: 
-                return min(int(val), 3)
-
-        ts['Acceleration_value'] = ts.apply(
-            lambda r: cap_by_eta(r['Acceleration_value'], r['eta_days_proxy']),
-            axis=1
-        ).astype(int)
-
-    base = base.drop(columns = ['Acceleration_value_x', 'Acceleration_value_y'], errors = 'ignore')
-    right = ts[['Risk_item', 'Week', 'Acceleration_value']].rename(columns = {'Acceleration_value': 'Acceleration_value_new'})
-    base = base.merge(right, on = ['Risk_item', 'Week'], how = 'left', validate = 'm:m')
-    if 'Acceleration_value' in base.columns:
-        base['Acceleration_value'] = base['Acceleration_value_new'].fillna(base['Acceleration_value'])
-    else:
-        base['Acceleration_value'] = base['Acceleration_value_new']
-
-
-    base = base.drop(columns = ['Acceleration_value_new'])
-    base['Acceleration_value'] =base['Acceleration_value'].fillna(0).astype(int)
-    print('Acceleration value created', flush = True)
-
-
     if base.empty:
         base['Frequency_Score'] = 0
     else:
-        counts = base['Risk_item'].value_counts().rename_axis('Risk_item').reset_index(name='Count')
-        try:
-            bins = pd.qcut(counts['Count'].rank(method='first'), 5, labels=[1,2,3,4,5])
-            counts['Frequency_Score'] = bins.astype(int)
-        except Exception:
-            mn, mx = counts['Count'].min(), counts['Count'].max()
-            if mx == mn:
-                counts['Frequency_Score'] = 3
-            else:
-                scaled = 1 + 4 * (counts['Count'] - mn) / float(mx - mn)
-                counts['Frequency_Score'] = scaled.round().clip(1,5).astype(int)
-        freq_map = dict(zip(counts['Risk_item'], counts['Frequency_Score']))
-        base['Frequency_Score'] = base['Risk_item'].map(freq_map).fillna(0).astype(int)
+        recent = base[base['Days_Ago'] <= 30].copy()
+        counts = (
+            recent['Risk_item']
+            .value_counts()
+            .rename_axis('Risk_item')
+            .reset_index(name='Count')
+        )
+
+        counts = counts[counts['Risk_item'] != 'No Risk']
+        if counts.empty:
+            base['Frequency_Score'] = 0
+        else:
+            
+            try:
+                bins = pd.qcut(counts['Count'].rank(method='first'), 5, labels=[1,2,3,4,5])
+                counts['Frequency_Score'] = bins.astype(int)
+            except Exception:
+                mn, mx = counts['Count'].min(), counts['Count'].max()
+                if mx == mn:
+                    counts['Frequency_Score'] = 3
+                else:
+                    scaled = 1 + 4 * (counts['Count'] - mn) / float(mx - mn)
+                    counts['Frequency_Score'] = scaled.round().clip(1,5).astype(int)
+            freq_map = dict(zip(counts['Risk_item'], counts['Frequency_Score']))
+            base['Frequency_Score'] = base['Risk_item'].map(freq_map).fillna(0).astype(int)
 
     hed = risks_cfg.get('HigherEdRisks') or {}
     hed_norm = {
@@ -523,6 +306,7 @@ def risk_weights(df):
     )
     agg = agg.merge(tulane_week, on='Week', how='left').fillna({'tulane_mentions': 0})
 
+    
 
     if not agg.empty:
         week_max = agg['Week'].max()
@@ -618,18 +402,19 @@ def risk_weights(df):
 
     t_rec = time.perf_counter()
     print("attach_topic_risk_recency() start", flush = True)
-    base = attach_topic_risk_recency(base) 
-    base['Recency'] = (base['Recency_TR_Blended'] * 5).round(2)
+    days = pd.to_numeric(base['Days_Ago'], errors='coerce').fillna(10_000)
+    base['Article_Freshness'] = np.exp(-np.log(2.0) * (days / 14.0)).clip(0, 1)
+    base['Recency'] = (base['Article_Freshness'] * 5).round(2)
     print("[recency] attached in {time.perf_counter()-t_rec:.1f}s", flush = True)
+    base['Acceleration_value'] = 0
 
 
     w = {
         'Recency': 0.15,
-        'Source_Accuracy': 0.10,
-        'Impact_Score': 0.35,
-        'Acceleration_value': 0.25,
-        'Location': 0.05,
-        'Industry_Risk': 0.05,
+        'Source_Accuracy': 0.15,
+        'Impact_Score': 0.40,
+        'Location': 0.15,
+        'Industry_Risk': 0.10,
         'Frequency_Score': 0.05
     }
     weight_sum = sum(w.values()) 
@@ -638,7 +423,6 @@ def risk_weights(df):
         base['Recency'] * w['Recency'] +
         base['Source_Accuracy'] * w['Source_Accuracy'] +
         base['Impact_Score'] * w['Impact_Score'] +
-        base['Acceleration_value'] * w['Acceleration_value'] +
         base['Location'] * w['Location'] +
         base['Industry_Risk'] * w['Industry_Risk'] +
         base['Frequency_Score'] * w['Frequency_Score']
@@ -647,5 +431,236 @@ def risk_weights(df):
     base['Weights'] = base['Risk_Score']
 
     print(f"[risk_weights] done: base = {base.shape} elapsed = {time.perf_counter()- t0:.1f}s", flush = True)
+
+    return base
+
+def risk_weights_second_pass(df):
+    base = df.copy()
+
+    if 'story_id' not in base.columns:
+        raise ValueError("risk_weights_second_pass requires story_id. Run build_stories() first.")
+    for col in ['Title','Content','Source']:
+        if col not in base.columns:
+            base[col] = ''
+    base['Title'] = base['Title'].fillna('').astype(str)
+    base['Content'] = base['Content'].fillna('').astype(str)
+    base['Source'] = base['Source'].fillna('').astype(str)
+    def _coerce_pub(x): 
+        if pd.isna(x): 
+            return pd.NaT 
+        if isinstance(x, (int, float)): 
+            if x > 1e12: # epoch ms 
+                return pd.to_datetime(x, unit='ms', errors='coerce', utc=True) 
+            if x > 1e9: # epoch s 
+                return pd.to_datetime(x, unit='s', errors='coerce', utc=True) 
+        sx = str(x) 
+        sx = re.sub(r'\s(EST|EDT|PDT|CDT|MDT|GMT)\b', '', sx, flags=re.I) 
+        return pd.to_datetime(sx, errors='coerce', utc=True) 
+    if 'Published' not in base.columns: 
+        base['Published'] = pd.NaT 
+    base['Published'] = base['Published'].apply(_coerce_pub) 
+    if pd.api.types.is_datetime64tz_dtype(base['Published']): 
+        base['Published'] = base['Published'].dt.tz_convert('UTC').dt.tz_localize(None)
+
+    now_naive = datetime.utcnow()
+    base['Days_Ago'] = (now_naive - base['Published']).dt.days
+    base['Days_Ago'] = base['Days_Ago'].fillna(10_000).astype(int) 
+    base['Window'] = base['Published'].dt.to_period('W-MON').dt.to_timestamp(how='start')
+
+    risk_half_life = { 
+        "Research Funding Disruption": 60, 
+        "Enrollment Pressure": 60, 
+        "Policy or Political Interference": 90, 
+        "Institutional Alignment Risk": 60, 
+        "Mission Drift": 90, 
+        "Revenue Loss": 90, 
+        "Insurance Market Volatility": 90, 
+        "Unexpected Expenditures": 15, 
+        "Endowment Risk": 30, 
+        "Constant Inflation": 15, 
+        "Infrastructure Failure": 15, 
+        "Transportation/Access Disruption": 7, 
+        "Supply Chain Delay": 15, 
+        "Emergency Preparedness Gaps": 15, 
+        "Title IX/ADA Noncompliance": 30, 
+        "Accreditation Risk": 120, 
+        "FERPA/HIPAA Violations": 7, 
+        "Grant Mismanagement": 7, 
+        "Audit Findings": 30, 
+        "Unauthorized Access/Data Breach": 7, 
+        "Credential Phishing": 7, 
+        "Vendor Cyber Exposure": 7, 
+        "Cloud Misconfiguration": 7, 
+        "Artificial Intelligence Ethics & Governance": 7, 
+        "Rapid Speed of Disruptive Innovation": 90, 
+        # --- Reputational and Social --- 
+        "Controversial Public Incident": 30, 
+        "DEI Program Backlash": 30, 
+        "High-Profile Litigation": 90, 
+        "Leadership Missteps": 30, 
+        "Media Campaigns": 15, 
+        # --- Health, Safety and Security --- 
+        "Violence or Threats": 10, 
+        "Infectious Disease Outbreak": 30, 
+        "Lab Incident": 7, 
+        "Workplace Safety Violation": 7, 
+        "Environmental Exposure": 30, 
+        # --- Environmental & Climate --- 
+        "Hurricane/Flood/Wildfire": 30, 
+        "Extreme Weather Events": 30, 
+        "Climate Infrastructure Risks": 15, 
+        "Environmental Noncompliance": 90, 
+        "Insurance Withdrawal": 120, 
+        # --- Student Experience & Welfare --- 
+        "Mental Health Crises": 15, 
+        "Housing/Food Insecurity": 15, 
+        "Academic Disruption": 15, 
+        "Student Conduct Incident": 7, 
+        "Accessibility Barriers": 15, 
+        # --- Internal Organization --- 
+        "HR Complaint": 15, 
+        "Labor Dispute": 30, 
+        "Morale challenges": 30, 
+        "Faculty conflict": 15, 
+        "Executive Board conflicts": 30, 
+        "Nepotism/Conflict of Interest": 15, 
+        "Policy Misapplication": 15, 
+        "Whistleblower Claims": 30 } 
+    cand = base.get('Predicted_Risks_new', pd.Series('', index=base.index)).fillna('')
+    cand = np.where(cand=='', base.get('Predicted_Risks_new', ''), cand)
+    cand = pd.Series(cand, index=base.index).fillna('').astype(str)
+    
+    def _first_label(s):
+        s = s.strip()
+        if not s:
+            return ''
+        s = re.sub(r'^\[|\]$', '', s)
+        s = re.split(r'[;,]', s)[0].strip().strip("'\"")
+        return s
+    base['Risk_item'] = cand.apply(_first_label)
+    base['Risk_item'] = np.where(base['Risk_item'].eq(''), 'No Risk', base['Risk_item'])
+
+    def recency_features_story_risk(df, now=None):
+        fx = df.copy()
+
+        required = {'story_id', 'Risk_item', 'Published', 'Days_Ago'}
+        if not required.issubset(fx.columns) or fx.empty:
+            return pd.DataFrame(columns=[
+                'story_id',
+                'Risk_item',
+                'last_seen_days',
+                'decayed_volume',
+                'Story_Recency_Score'
+            ])
+
+        if now is None:
+            now = pd.Timestamp.utcnow()
+
+        art_w = 1.0
+        if 'Impact_Score' in fx.columns:
+            art_w = pd.to_numeric(fx['Impact_Score'], errors='coerce').fillna(0.0).clip(0, 5) / 5
+
+        def half_life(risk):
+            return risk_half_life.get(risk, 30)
+
+        hl = fx['Risk_item'].map(lambda r: max(1.0, half_life(r)))
+        lam = np.log(2.0) / hl
+        w_decay = np.exp(-lam * fx['Days_Ago'])
+        fx['_w'] = w_decay * art_w
+
+        grp = fx.groupby(['story_id', 'Risk_item'], dropna=False)
+        out = grp.agg(
+            last_seen=('Days_Ago', 'min'),
+            decayed_volume=('_w', 'sum'),
+            mentions=('Published', 'count')
+        ).reset_index()
+
+        out['hl'] = out['Risk_item'].map(lambda r: max(1.0, half_life(r)))
+        out['freshness'] = np.exp(-np.log(2.0) * (out['last_seen'] / out['hl']))
+
+
+        max_vol = out['decayed_volume'].max()
+        out['volume_score'] = np.where(
+            max_vol > 0,
+            np.log1p(out['decayed_volume']) / np.log1p(max_vol),
+            0
+        )
+
+        out['Story_Recency_Score'] = (
+            0.75 * out['freshness'] +
+            0.25 * out['volume_score']
+        ).clip(0, 1)
+
+        out = out.rename(columns={'last_seen': 'last_seen_days'})
+
+        return out[
+            ['story_id', 'Risk_item', 'last_seen_days', 'decayed_volume', 'Story_Recency_Score']
+        ]
+
+    def attach_story_risk_recency(df):
+        tr = recency_features_story_risk(df)
+
+        df = df.drop(
+            columns=[
+                'last_seen_days',
+                'decayed_volume',
+                'Story_Recency_Score',
+                'Story_Recency'
+            ],
+            errors='ignore'
+        )
+
+        enriched = df.merge(
+            tr,
+            on=['story_id', 'Risk_item'],
+            how='left',
+            validate='m:1'
+        )
+
+        enriched['Story_Recency_Score'] = enriched['Story_Recency_Score'].fillna(0)
+        enriched['Story_Recency'] = (enriched['Story_Recency_Score'] * 5).round(2)
+        enriched['Recency'] = enriched['Story_Recency']
+
+        return enriched
+    
+    print("attach_story_risk_recency() start", flush=True)
+    base = attach_story_risk_recency(base)
+
+    risk_week = (
+        base[base['Risk_item'] != 'No Risk']
+        .dropna(subset=['Window'])
+        .drop_duplicates(['story_id', 'Risk_item', 'Window'])
+        .groupby(['Risk_item', 'Window'])
+        .size()
+        .reset_index(name='story_count')
+    )
+
+    risk_week = risk_week.sort_values(['Risk_item', 'Window'])
+
+    risk_week['ewma'] = risk_week.groupby('Risk_item')['story_count'].transform(
+        lambda s: s.ewm(span=4, adjust=False).mean()
+    )
+
+    risk_week['prev_ewma'] = risk_week.groupby('Risk_item')['ewma'].shift(1)
+
+    risk_week['growth'] = (
+        (risk_week['ewma'] - risk_week['prev_ewma']) /
+        (risk_week['prev_ewma'] + 1)
+    ).fillna(0).clip(lower=0)
+
+    risk_week['Acceleration_value'] = (
+        risk_week['growth'] * 5
+    ).clip(0, 5).round().astype(int)
+
+    base = base.drop(columns=['Acceleration_value'], errors='ignore')
+
+    base = base.merge(
+        risk_week[['Risk_item', 'Window', 'Acceleration_value']],
+        on=['Risk_item', 'Window'],
+        how='left',
+        validate='m:1'
+    )
+
+    base['Acceleration_value'] = base['Acceleration_value'].fillna(0).astype(int)
 
     return base
