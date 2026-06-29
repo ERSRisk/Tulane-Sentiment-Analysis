@@ -419,7 +419,7 @@ def upload_asset(owner, repo, release, asset_name, data_bytes, content_type = 'a
   params = {"name":asset_name}
   headers = _gh_headers()
   headers['Content-type'] = content_type
-  up = requests.post(upload_url, headers = headers, params = params, data = data_bytes, timeout = 60)
+  up = requests.post(upload_url, headers=headers, params=params, data=data_bytes, timeout=(30, 600))
   if not up.ok:
     raise RuntimeError(f"Upload failed{up.status_code}: {up.text[:500]}")
   return up.json()
