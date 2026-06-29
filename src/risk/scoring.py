@@ -5,15 +5,14 @@ import re
 from datetime import datetime
 import numpy as np
 from urllib.parse import urlparse
-
+from config.settings import RISKS
 
 def risk_weights(df):
     t0 = time.perf_counter()
     print(f"[risk_weights] start: df = {df.shape}", flush = True)
 
     # ---------- Load config ----------
-    with open('Model_training/risks.json', 'r', encoding='utf-8') as f:
-        risks_cfg = json.load(f)
+    risks_cfg = RISKS
 
     json_all_labels = [r['name'] for block in risks_cfg.get('new_risks', []) for _, items in block.items() for r in items]
 
