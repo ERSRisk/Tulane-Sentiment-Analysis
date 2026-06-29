@@ -13,4 +13,6 @@ GITHUB_TOKEN = os.getenv("TOKEN")
 NEWS_API_KEY = os.getenv('NEWS_API_KEY')
 GEMINI_API_KEY = os.getenv('PAID_API_KEY')
 
+RISKS = os.getenv('RISKS')
+
 GCS_LATEST_PREFIX = "latest"
