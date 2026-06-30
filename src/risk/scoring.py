@@ -13,6 +13,12 @@ def risk_weights(df):
 
     # ---------- Load config ----------
     risks_cfg = RISKS
+    if risks_cfg is None:
+        with open('pipeline/resources/risks.json', 'r', encoding='utf-8') as f:
+            risks_cfg = json.load(f)
+    
+    if not isinstance(risks_cfg, dict):
+        raise ValueError(f"RISKS config did not load as dict. Got: {type(risks_cfg)}")
 
     json_all_labels = [r['name'] for block in risks_cfg.get('new_risks', []) for _, items in block.items() for r in items]
 
