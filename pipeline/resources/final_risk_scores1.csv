@@ -1,0 +1,445 @@
+Window,Predicted_Risks_new,raw_risk_score,final_risk_score
+2019-06-25 00:00:00+00:00,No Risk,0,0.0
+2023-06-13 00:00:00+00:00,Policy or Political Interference,0,0.0
+2024-09-17 00:00:00+00:00,Research Funding Disruption,0,0.0
+2024-09-24 00:00:00+00:00,Transportation/Access Disruption,0,0.0
+2024-10-08 00:00:00+00:00,No Risk,0,0.0
+2025-01-07 00:00:00+00:00,No Risk,0,0.0
+2025-05-06 00:00:00+00:00,Research Funding Disruption,0,0.0
+2025-05-20 00:00:00+00:00,Enrollment Pressure,0,0.0
+2025-05-20 00:00:00+00:00,No Risk,0,0.0
+2025-05-20 00:00:00+00:00,Policy or Political Interference,0,0.0
+2025-05-20 00:00:00+00:00,Research Funding Disruption,0,0.0
+2025-05-27 00:00:00+00:00,Enrollment Pressure,0,0.0
+2025-05-27 00:00:00+00:00,Research Funding Disruption,0,0.0
+2025-06-03 00:00:00+00:00,Policy or Political Interference,0,0.0
+2025-06-10 00:00:00+00:00,Research Funding Disruption,0,0.0
+2025-06-17 00:00:00+00:00,Academic Disruption,0,0.0
+2025-06-17 00:00:00+00:00,Audit Findings,0,0.0
+2025-06-17 00:00:00+00:00,No Risk,0,0.0
+2025-06-17 00:00:00+00:00,Policy or Political Interference,0,0.0
+2025-06-17 00:00:00+00:00,Student Conduct Incident,0,0.0
+2025-06-24 00:00:00+00:00,Artificial Intelligence Ethics & Governance,0,0.0
+2025-06-24 00:00:00+00:00,Controversial Public Incident,0,0.0
+2025-06-24 00:00:00+00:00,Endowment Risk,0,0.0
+2025-06-24 00:00:00+00:00,Enrollment Pressure,0,0.0
+2025-06-24 00:00:00+00:00,High-Profile Litigation,0,0.0
+2025-06-24 00:00:00+00:00,No Risk,0,0.0
+2025-06-24 00:00:00+00:00,Policy or Political Interference,0,0.0
+2025-06-24 00:00:00+00:00,Ransomware/Malware,0,0.0
+2025-06-24 00:00:00+00:00,Research Funding Disruption,0,0.0
+2025-06-24 00:00:00+00:00,Revenue Loss,0,0.0
+2025-06-24 00:00:00+00:00,Student Conduct Incident,0,0.0
+2025-06-24 00:00:00+00:00,Title IX/ADA Noncompliance,0,0.0
+2025-07-01 00:00:00+00:00,Enrollment Pressure,0,0.0
+2025-07-01 00:00:00+00:00,High-Profile Litigation,0,0.0
+2025-07-01 00:00:00+00:00,No Risk,0,0.0
+2025-07-01 00:00:00+00:00,Policy or Political Interference,0,0.0
+2025-07-01 00:00:00+00:00,Rapid Speed of Disruptive Innovation,0,0.0
+2025-07-01 00:00:00+00:00,Research Funding Disruption,0,0.0
+2025-07-01 00:00:00+00:00,Revenue Loss,0,0.0
+2025-07-01 00:00:00+00:00,Student Conduct Incident,0,0.0
+2025-07-01 00:00:00+00:00,Transportation/Access Disruption,0,0.0
+2025-07-01 00:00:00+00:00,Unauthorized Access/Data Breach,0,0.0
+2025-07-08 00:00:00+00:00,Academic Disruption,0,0.0
+2025-07-08 00:00:00+00:00,Accreditation Risk,0,0.0
+2025-07-08 00:00:00+00:00,Artificial Intelligence Ethics & Governance,0,0.0
+2025-07-08 00:00:00+00:00,Controversial Public Incident,0,0.0
+2025-07-08 00:00:00+00:00,DEI Program Backlash,0,0.0
+2025-07-08 00:00:00+00:00,Enrollment Pressure,0,0.0
+2025-07-08 00:00:00+00:00,High-Profile Litigation,0,0.0
+2025-07-08 00:00:00+00:00,Infrastructure Failure,0,0.0
+2025-07-08 00:00:00+00:00,Labor Dispute,0,0.0
+2025-07-08 00:00:00+00:00,Mission Drift,0,0.0
+2025-07-08 00:00:00+00:00,No Risk,0,0.0
+2025-07-08 00:00:00+00:00,Policy or Political Interference,0,0.0
+2025-07-08 00:00:00+00:00,Research Funding Disruption,0,0.0
+2025-07-08 00:00:00+00:00,Revenue Loss,0,0.0
+2025-07-08 00:00:00+00:00,Student Conduct Incident,0,0.0
+2025-07-08 00:00:00+00:00,Title IX/ADA Noncompliance,0,0.0
+2025-07-15 00:00:00+00:00,Enrollment Pressure,0,0.0
+2025-07-15 00:00:00+00:00,No Risk,0,0.0
+2025-07-15 00:00:00+00:00,Policy or Political Interference,0,0.0
+2025-07-15 00:00:00+00:00,Rapid Speed of Disruptive Innovation,0,0.0
+2025-07-15 00:00:00+00:00,Revenue Loss,0,0.0
+2025-07-15 00:00:00+00:00,Student Conduct Incident,0,0.0
+2025-07-15 00:00:00+00:00,Violence or Threats,0,0.0
+2025-09-16 00:00:00+00:00,Enrollment Pressure,0,0.0
+2025-09-16 00:00:00+00:00,Infrastructure Failure,0,0.0
+2025-09-16 00:00:00+00:00,No Risk,0,0.0
+2025-09-16 00:00:00+00:00,Policy or Political Interference,0,0.0
+2025-09-16 00:00:00+00:00,Research Funding Disruption,0,0.0
+2025-09-23 00:00:00+00:00,Academic Disruption,0,0.0
+2025-09-23 00:00:00+00:00,Controversial Public Incident,0,0.0
+2025-09-23 00:00:00+00:00,DEI Program Backlash,0,0.0
+2025-09-23 00:00:00+00:00,Emergency Preparedness Gaps,0,0.0
+2025-09-23 00:00:00+00:00,Endowment Risk,0,0.0
+2025-09-23 00:00:00+00:00,Enrollment Pressure,0,0.0
+2025-09-23 00:00:00+00:00,Faculty conflict,0,0.0
+2025-09-23 00:00:00+00:00,Housing/Food Insecurity,0,0.0
+2025-09-23 00:00:00+00:00,Hurricane/Flood/Wildfire,0,0.0
+2025-09-23 00:00:00+00:00,No Risk,0,0.0
+2025-09-23 00:00:00+00:00,Policy or Political Interference,0,0.0
+2025-09-23 00:00:00+00:00,Research Funding Disruption,0,0.0
+2025-09-23 00:00:00+00:00,Student Conduct Incident,0,0.0
+2025-09-23 00:00:00+00:00,Title IX/ADA Noncompliance,0,0.0
+2025-09-23 00:00:00+00:00,Violence or Threats,0,0.0
+2025-09-30 00:00:00+00:00,Academic Disruption,0,0.0
+2025-09-30 00:00:00+00:00,Artificial Intelligence Ethics & Governance,0,0.0
+2025-09-30 00:00:00+00:00,Controversial Public Incident,0,0.0
+2025-09-30 00:00:00+00:00,DEI Program Backlash,0,0.0
+2025-09-30 00:00:00+00:00,Endowment Risk,0,0.0
+2025-09-30 00:00:00+00:00,Enrollment Pressure,0,0.0
+2025-09-30 00:00:00+00:00,Extreme Weather Events,0,0.0
+2025-09-30 00:00:00+00:00,Grant Mismanagement,0,0.0
+2025-09-30 00:00:00+00:00,Labor Dispute,0,0.0
+2025-09-30 00:00:00+00:00,No Risk,0,0.0
+2025-09-30 00:00:00+00:00,Policy or Political Interference,0,0.0
+2025-09-30 00:00:00+00:00,Research Funding Disruption,0,0.0
+2025-09-30 00:00:00+00:00,Revenue Loss,0,0.0
+2025-09-30 00:00:00+00:00,Student Conduct Incident,0,0.0
+2025-09-30 00:00:00+00:00,Title IX/ADA Noncompliance,0,0.0
+2025-09-30 00:00:00+00:00,Transportation/Access Disruption,0,0.0
+2025-09-30 00:00:00+00:00,Vendor Cyber Exposure,0,0.0
+2025-09-30 00:00:00+00:00,Violence or Threats,0,0.0
+2025-10-07 00:00:00+00:00,Controversial Public Incident,0,0.0
+2025-10-07 00:00:00+00:00,DEI Program Backlash,0,0.0
+2025-10-07 00:00:00+00:00,Endowment Risk,0,0.0
+2025-10-07 00:00:00+00:00,Enrollment Pressure,0,0.0
+2025-10-07 00:00:00+00:00,Housing/Food Insecurity,0,0.0
+2025-10-07 00:00:00+00:00,Leadership Missteps,0,0.0
+2025-10-07 00:00:00+00:00,No Risk,0,0.0
+2025-10-07 00:00:00+00:00,Policy or Political Interference,0,0.0
+2025-10-07 00:00:00+00:00,Research Funding Disruption,0,0.0
+2025-10-07 00:00:00+00:00,Revenue Loss,0,0.0
+2025-10-07 00:00:00+00:00,Transportation/Access Disruption,0,0.0
+2025-10-07 00:00:00+00:00,Violence or Threats,0,0.0
+2025-10-14 00:00:00+00:00,Academic Disruption,0,0.0
+2025-10-14 00:00:00+00:00,Enrollment Pressure,0,0.0
+2025-10-14 00:00:00+00:00,IT System Failure,0,0.0
+2025-10-14 00:00:00+00:00,Infrastructure Failure,0,0.0
+2025-10-14 00:00:00+00:00,No Risk,0,0.0
+2025-10-14 00:00:00+00:00,Policy or Political Interference,0,0.0
+2025-10-14 00:00:00+00:00,Ransomware/Malware,0,0.0
+2025-10-14 00:00:00+00:00,Research Funding Disruption,0,0.0
+2025-10-14 00:00:00+00:00,Revenue Loss,0,0.0
+2025-10-14 00:00:00+00:00,Student Conduct Incident,0,0.0
+2025-10-14 00:00:00+00:00,Title IX/ADA Noncompliance,0,0.0
+2025-10-14 00:00:00+00:00,Transportation/Access Disruption,0,0.0
+2025-10-14 00:00:00+00:00,Unexpected Expenditures,0,0.0
+2025-10-14 00:00:00+00:00,Violence or Threats,0,0.0
+2025-10-21 00:00:00+00:00,Emergency Preparedness Gaps,0,0.0
+2025-10-21 00:00:00+00:00,Enrollment Pressure,0,0.0
+2025-10-21 00:00:00+00:00,High-Profile Litigation,0,0.0
+2025-10-21 00:00:00+00:00,IT System Failure,0,0.0
+2025-10-21 00:00:00+00:00,Infectious Disease Outbreak,0,0.0
+2025-10-21 00:00:00+00:00,No Risk,0,0.0
+2025-10-21 00:00:00+00:00,Policy or Political Interference,0,0.0
+2025-10-21 00:00:00+00:00,Rapid Speed of Disruptive Innovation,0,0.0
+2025-10-21 00:00:00+00:00,Research Funding Disruption,0,0.0
+2025-10-21 00:00:00+00:00,Revenue Loss,0,0.0
+2025-10-21 00:00:00+00:00,Student Conduct Incident,0,0.0
+2025-10-21 00:00:00+00:00,Title IX/ADA Noncompliance,0,0.0
+2025-10-21 00:00:00+00:00,Transportation/Access Disruption,0,0.0
+2025-10-21 00:00:00+00:00,Violence or Threats,0,0.0
+2025-10-28 00:00:00+00:00,Academic Disruption,0,0.0
+2025-10-28 00:00:00+00:00,Controversial Public Incident,0,0.0
+2025-10-28 00:00:00+00:00,Enrollment Pressure,0,0.0
+2025-10-28 00:00:00+00:00,Institutional Alignment Risk,0,0.0
+2025-10-28 00:00:00+00:00,Lab Incident,0,0.0
+2025-10-28 00:00:00+00:00,Leadership Missteps,0,0.0
+2025-10-28 00:00:00+00:00,No Risk,0,0.0
+2025-10-28 00:00:00+00:00,Policy or Political Interference,0,0.0
+2025-10-28 00:00:00+00:00,Research Funding Disruption,0,0.0
+2025-10-28 00:00:00+00:00,Revenue Loss,0,0.0
+2025-10-28 00:00:00+00:00,Student Conduct Incident,0,0.0
+2025-10-28 00:00:00+00:00,Title IX/ADA Noncompliance,0,0.0
+2025-10-28 00:00:00+00:00,Transportation/Access Disruption,0,0.0
+2025-10-28 00:00:00+00:00,Violence or Threats,0,0.0
+2025-11-04 00:00:00+00:00,Academic Disruption,0,0.0
+2025-11-04 00:00:00+00:00,Emergency Preparedness Gaps,0,0.0
+2025-11-04 00:00:00+00:00,Enrollment Pressure,0,0.0
+2025-11-04 00:00:00+00:00,High-Profile Litigation,0,0.0
+2025-11-04 00:00:00+00:00,IT System Failure,0,0.0
+2025-11-04 00:00:00+00:00,Institutional Alignment Risk,0,0.0
+2025-11-04 00:00:00+00:00,No Risk,0,0.0
+2025-11-04 00:00:00+00:00,Policy Misapplication,0,0.0
+2025-11-04 00:00:00+00:00,Policy or Political Interference,0,0.0
+2025-11-04 00:00:00+00:00,Research Funding Disruption,0,0.0
+2025-11-04 00:00:00+00:00,Revenue Loss,0,0.0
+2025-11-04 00:00:00+00:00,Title IX/ADA Noncompliance,0,0.0
+2025-11-04 00:00:00+00:00,Transportation/Access Disruption,0,0.0
+2025-11-04 00:00:00+00:00,Violence or Threats,0,0.0
+2025-11-11 00:00:00+00:00,Artificial Intelligence Ethics & Governance,0,0.0
+2025-11-11 00:00:00+00:00,Controversial Public Incident,0,0.0
+2025-11-11 00:00:00+00:00,Emergency Preparedness Gaps,0,0.0
+2025-11-11 00:00:00+00:00,Enrollment Pressure,0,0.0
+2025-11-11 00:00:00+00:00,High-Profile Litigation,0,0.0
+2025-11-11 00:00:00+00:00,Leadership Missteps,0,0.0
+2025-11-11 00:00:00+00:00,No Risk,0,0.0
+2025-11-11 00:00:00+00:00,Policy or Political Interference,0,0.0
+2025-11-11 00:00:00+00:00,Research Funding Disruption,0,0.0
+2025-11-11 00:00:00+00:00,Revenue Loss,0,0.0
+2025-11-11 00:00:00+00:00,Student Conduct Incident,0,0.0
+2025-11-11 00:00:00+00:00,Title IX/ADA Noncompliance,0,0.0
+2025-11-11 00:00:00+00:00,Transportation/Access Disruption,0,0.0
+2025-11-11 00:00:00+00:00,Unexpected Expenditures,0,0.0
+2025-11-11 00:00:00+00:00,Violence or Threats,0,0.0
+2025-11-18 00:00:00+00:00,Academic Disruption,0,0.0
+2025-11-18 00:00:00+00:00,Constant Inflation,0,0.0
+2025-11-18 00:00:00+00:00,Controversial Public Incident,0,0.0
+2025-11-18 00:00:00+00:00,Enrollment Pressure,0,0.0
+2025-11-18 00:00:00+00:00,High-Profile Litigation,0,0.0
+2025-11-18 00:00:00+00:00,Institutional Alignment Risk,0,0.0
+2025-11-18 00:00:00+00:00,No Risk,0,0.0
+2025-11-18 00:00:00+00:00,Policy or Political Interference,0,0.0
+2025-11-18 00:00:00+00:00,Rapid Speed of Disruptive Innovation,0,0.0
+2025-11-18 00:00:00+00:00,Research Funding Disruption,0,0.0
+2025-11-18 00:00:00+00:00,Revenue Loss,0,0.0
+2025-11-18 00:00:00+00:00,Student Conduct Incident,0,0.0
+2025-11-18 00:00:00+00:00,Violence or Threats,0,0.0
+2025-11-25 00:00:00+00:00,Enrollment Pressure,0,0.0
+2025-11-25 00:00:00+00:00,No Risk,0,0.0
+2025-11-25 00:00:00+00:00,Policy or Political Interference,0,0.0
+2025-11-25 00:00:00+00:00,Ransomware/Malware,0,0.0
+2025-11-25 00:00:00+00:00,Research Funding Disruption,0,0.0
+2025-11-25 00:00:00+00:00,Transportation/Access Disruption,0,0.0
+2025-12-02 00:00:00+00:00,Controversial Public Incident,0,0.0
+2025-12-02 00:00:00+00:00,DEI Program Backlash,0,0.0
+2025-12-02 00:00:00+00:00,Enrollment Pressure,0,0.0
+2025-12-02 00:00:00+00:00,High-Profile Litigation,0,0.0
+2025-12-02 00:00:00+00:00,IT System Failure,0,0.0
+2025-12-02 00:00:00+00:00,Institutional Alignment Risk,0,0.0
+2025-12-02 00:00:00+00:00,Leadership Missteps,0,0.0
+2025-12-02 00:00:00+00:00,No Risk,0,0.0
+2025-12-02 00:00:00+00:00,Policy or Political Interference,0,0.0
+2025-12-02 00:00:00+00:00,Rapid Speed of Disruptive Innovation,0,0.0
+2025-12-02 00:00:00+00:00,Research Funding Disruption,0,0.0
+2025-12-02 00:00:00+00:00,Title IX/ADA Noncompliance,0,0.0
+2025-12-09 00:00:00+00:00,Academic Disruption,0,0.0
+2025-12-09 00:00:00+00:00,Artificial Intelligence Ethics & Governance,0,0.0
+2025-12-09 00:00:00+00:00,DEI Program Backlash,0,0.0
+2025-12-09 00:00:00+00:00,Enrollment Pressure,0,0.0
+2025-12-09 00:00:00+00:00,Grant Mismanagement,0,0.0
+2025-12-09 00:00:00+00:00,Leadership Missteps,0,0.0
+2025-12-09 00:00:00+00:00,No Risk,0,0.0
+2025-12-09 00:00:00+00:00,Policy or Political Interference,0,0.0
+2025-12-09 00:00:00+00:00,Research Funding Disruption,0,0.0
+2025-12-09 00:00:00+00:00,Revenue Loss,0,0.0
+2025-12-09 00:00:00+00:00,Violence or Threats,0,0.0
+2025-12-09 00:00:00+00:00,Workplace Safety Violation,0,0.0
+2025-12-16 00:00:00+00:00,Controversial Public Incident,0,0.0
+2025-12-16 00:00:00+00:00,DEI Program Backlash,0,0.0
+2025-12-16 00:00:00+00:00,Emergency Preparedness Gaps,0,0.0
+2025-12-16 00:00:00+00:00,Enrollment Pressure,0,0.0
+2025-12-16 00:00:00+00:00,Leadership Missteps,0,0.0
+2025-12-16 00:00:00+00:00,Mental Health Crises,0,0.0
+2025-12-16 00:00:00+00:00,No Risk,0,0.0
+2025-12-16 00:00:00+00:00,Policy or Political Interference,0,0.0
+2025-12-16 00:00:00+00:00,Research Funding Disruption,0,0.0
+2025-12-16 00:00:00+00:00,Revenue Loss,0,0.0
+2025-12-16 00:00:00+00:00,Student Conduct Incident,0,0.0
+2025-12-16 00:00:00+00:00,Violence or Threats,0,0.0
+2025-12-23 00:00:00+00:00,Emergency Preparedness Gaps,0,0.0
+2025-12-23 00:00:00+00:00,Enrollment Pressure,0,0.0
+2025-12-23 00:00:00+00:00,Labor Dispute,0,0.0
+2025-12-23 00:00:00+00:00,No Risk,0,0.0
+2025-12-23 00:00:00+00:00,Policy or Political Interference,0,0.0
+2025-12-23 00:00:00+00:00,Research Funding Disruption,0,0.0
+2025-12-23 00:00:00+00:00,Revenue Loss,0,0.0
+2025-12-23 00:00:00+00:00,Violence or Threats,0,0.0
+2025-12-30 00:00:00+00:00,IT System Failure,0,0.0
+2025-12-30 00:00:00+00:00,No Risk,0,0.0
+2025-12-30 00:00:00+00:00,Policy or Political Interference,0,0.0
+2025-12-30 00:00:00+00:00,Research Funding Disruption,0,0.0
+2025-12-30 00:00:00+00:00,Title IX/ADA Noncompliance,0,0.0
+2025-12-30 00:00:00+00:00,Transportation/Access Disruption,0,0.0
+2025-12-30 00:00:00+00:00,Violence or Threats,0,0.0
+2026-01-06 00:00:00+00:00,Artificial Intelligence Ethics & Governance,0,0.0
+2026-01-06 00:00:00+00:00,Enrollment Pressure,0,0.0
+2026-01-06 00:00:00+00:00,High-Profile Litigation,0,0.0
+2026-01-06 00:00:00+00:00,Infectious Disease Outbreak,0,0.0
+2026-01-06 00:00:00+00:00,No Risk,0,0.0
+2026-01-06 00:00:00+00:00,Policy or Political Interference,0,0.0
+2026-01-06 00:00:00+00:00,Research Funding Disruption,0,0.0
+2026-01-06 00:00:00+00:00,Student Conduct Incident,0,0.0
+2026-01-06 00:00:00+00:00,Title IX/ADA Noncompliance,0,0.0
+2026-01-06 00:00:00+00:00,Violence or Threats,0,0.0
+2026-01-13 00:00:00+00:00,Artificial Intelligence Ethics & Governance,0,0.0
+2026-01-13 00:00:00+00:00,Enrollment Pressure,0,0.0
+2026-01-13 00:00:00+00:00,Infectious Disease Outbreak,0,0.0
+2026-01-13 00:00:00+00:00,Institutional Alignment Risk,0,0.0
+2026-01-13 00:00:00+00:00,Lab Incident,0,0.0
+2026-01-13 00:00:00+00:00,No Risk,0,0.0
+2026-01-13 00:00:00+00:00,Policy or Political Interference,0,0.0
+2026-01-13 00:00:00+00:00,Research Funding Disruption,0,0.0
+2026-01-13 00:00:00+00:00,Revenue Loss,0,0.0
+2026-01-13 00:00:00+00:00,Student Conduct Incident,0,0.0
+2026-01-13 00:00:00+00:00,Violence or Threats,0,0.0
+2026-01-20 00:00:00+00:00,Artificial Intelligence Ethics & Governance,0,0.0
+2026-01-20 00:00:00+00:00,Controversial Public Incident,0,0.0
+2026-01-20 00:00:00+00:00,DEI Program Backlash,0,0.0
+2026-01-20 00:00:00+00:00,Emergency Preparedness Gaps,0,0.0
+2026-01-20 00:00:00+00:00,Enrollment Pressure,0,0.0
+2026-01-20 00:00:00+00:00,Extreme Weather Events,0,0.0
+2026-01-20 00:00:00+00:00,FERPA/HIPAA Violations,0,0.0
+2026-01-20 00:00:00+00:00,Infectious Disease Outbreak,0,0.0
+2026-01-20 00:00:00+00:00,Leadership Missteps,0,0.0
+2026-01-20 00:00:00+00:00,No Risk,0,0.0
+2026-01-20 00:00:00+00:00,Policy or Political Interference,0,0.0
+2026-01-20 00:00:00+00:00,Research Funding Disruption,0,0.0
+2026-01-20 00:00:00+00:00,Title IX/ADA Noncompliance,0,0.0
+2026-01-20 00:00:00+00:00,Violence or Threats,0,0.0
+2026-01-27 00:00:00+00:00,Academic Disruption,0,0.0
+2026-01-27 00:00:00+00:00,Enrollment Pressure,0,0.0
+2026-01-27 00:00:00+00:00,Extreme Weather Events,0,0.0
+2026-01-27 00:00:00+00:00,High-Profile Litigation,0,0.0
+2026-01-27 00:00:00+00:00,Infrastructure Failure,0,0.0
+2026-01-27 00:00:00+00:00,Institutional Alignment Risk,0,0.0
+2026-01-27 00:00:00+00:00,Leadership Missteps,0,0.0
+2026-01-27 00:00:00+00:00,No Risk,0,0.0
+2026-01-27 00:00:00+00:00,Policy or Political Interference,0,0.0
+2026-01-27 00:00:00+00:00,Research Funding Disruption,0,0.0
+2026-01-27 00:00:00+00:00,Student Conduct Incident,0,0.0
+2026-01-27 00:00:00+00:00,Unexpected Expenditures,0,0.0
+2026-02-03 00:00:00+00:00,Academic Disruption,0,0.0
+2026-02-03 00:00:00+00:00,Artificial Intelligence Ethics & Governance,0,0.0
+2026-02-03 00:00:00+00:00,Controversial Public Incident,0,0.0
+2026-02-03 00:00:00+00:00,Emergency Preparedness Gaps,0,0.0
+2026-02-03 00:00:00+00:00,Enrollment Pressure,0,0.0
+2026-02-03 00:00:00+00:00,High-Profile Litigation,0,0.0
+2026-02-03 00:00:00+00:00,Infectious Disease Outbreak,0,0.0
+2026-02-03 00:00:00+00:00,Infrastructure Failure,0,0.0
+2026-02-03 00:00:00+00:00,Leadership Missteps,0,0.0
+2026-02-03 00:00:00+00:00,No Risk,0,0.0
+2026-02-03 00:00:00+00:00,Policy or Political Interference,0,0.0
+2026-02-03 00:00:00+00:00,Research Funding Disruption,0,0.0
+2026-02-03 00:00:00+00:00,Student Conduct Incident,0,0.0
+2026-02-03 00:00:00+00:00,Title IX/ADA Noncompliance,0,0.0
+2026-02-03 00:00:00+00:00,Violence or Threats,0,0.0
+2026-02-10 00:00:00+00:00,Controversial Public Incident,0,0.0
+2026-02-10 00:00:00+00:00,Emergency Preparedness Gaps,0,0.0
+2026-02-10 00:00:00+00:00,Enrollment Pressure,0,0.0
+2026-02-10 00:00:00+00:00,High-Profile Litigation,0,0.0
+2026-02-10 00:00:00+00:00,Infectious Disease Outbreak,0,0.0
+2026-02-10 00:00:00+00:00,No Risk,0,0.0
+2026-02-10 00:00:00+00:00,Policy or Political Interference,0,0.0
+2026-02-10 00:00:00+00:00,Research Funding Disruption,0,0.0
+2026-02-10 00:00:00+00:00,Student Conduct Incident,0,0.0
+2026-02-10 00:00:00+00:00,Transportation/Access Disruption,0,0.0
+2026-02-10 00:00:00+00:00,Violence or Threats,0,0.0
+2026-02-17 00:00:00+00:00,Emergency Preparedness Gaps,0,0.0
+2026-02-17 00:00:00+00:00,High-Profile Litigation,0,0.0
+2026-02-17 00:00:00+00:00,No Risk,0,0.0
+2026-02-17 00:00:00+00:00,Policy or Political Interference,0,0.0
+2026-02-17 00:00:00+00:00,Ransomware/Malware,0,0.0
+2026-02-17 00:00:00+00:00,Research Funding Disruption,0,0.0
+2026-02-17 00:00:00+00:00,Student Conduct Incident,0,0.0
+2026-02-24 00:00:00+00:00,Controversial Public Incident,0,0.0
+2026-02-24 00:00:00+00:00,DEI Program Backlash,0,0.0
+2026-02-24 00:00:00+00:00,Enrollment Pressure,0,0.0
+2026-02-24 00:00:00+00:00,Extreme Weather Events,0,0.0
+2026-02-24 00:00:00+00:00,FERPA/HIPAA Violations,0,0.0
+2026-02-24 00:00:00+00:00,High-Profile Litigation,0,0.0
+2026-02-24 00:00:00+00:00,Infectious Disease Outbreak,0,0.0
+2026-02-24 00:00:00+00:00,No Risk,0,0.0
+2026-02-24 00:00:00+00:00,Policy or Political Interference,0,0.0
+2026-02-24 00:00:00+00:00,Research Funding Disruption,0,0.0
+2026-02-24 00:00:00+00:00,Student Conduct Incident,0,0.0
+2026-02-24 00:00:00+00:00,Title IX/ADA Noncompliance,0,0.0
+2026-04-21 00:00:00+00:00,Academic Disruption,0,0.0
+2026-04-21 00:00:00+00:00,Enrollment Pressure,0,0.0
+2026-04-21 00:00:00+00:00,Labor Dispute,0,0.0
+2026-04-21 00:00:00+00:00,Nepotism/Conflict of Interest,0,0.0
+2026-04-21 00:00:00+00:00,No Risk,0,0.0
+2026-04-21 00:00:00+00:00,Policy or Political Interference,0,0.0
+2026-04-28 00:00:00+00:00,Accreditation Risk,0,0.0
+2026-04-28 00:00:00+00:00,Artificial Intelligence Ethics & Governance,0,0.0
+2026-04-28 00:00:00+00:00,Enrollment Pressure,0,0.0
+2026-04-28 00:00:00+00:00,Infectious Disease Outbreak,0,0.0
+2026-04-28 00:00:00+00:00,Labor Dispute,0,0.0
+2026-04-28 00:00:00+00:00,No Risk,0,0.0
+2026-04-28 00:00:00+00:00,Policy or Political Interference,0,0.0
+2026-04-28 00:00:00+00:00,Violence or Threats,0,0.0
+2026-05-05 00:00:00+00:00,Artificial Intelligence Ethics & Governance,0,0.0
+2026-05-05 00:00:00+00:00,Enrollment Pressure,0,0.0
+2026-05-05 00:00:00+00:00,Faculty conflict,0,0.0
+2026-05-05 00:00:00+00:00,Infectious Disease Outbreak,0,0.0
+2026-05-05 00:00:00+00:00,Labor Dispute,0,0.0
+2026-05-05 00:00:00+00:00,Mental Health Crises,0,0.0
+2026-05-05 00:00:00+00:00,No Risk,0,0.0
+2026-05-05 00:00:00+00:00,Policy or Political Interference,0,0.0
+2026-05-05 00:00:00+00:00,Unauthorized Access/Data Breach,0,0.0
+2026-05-05 00:00:00+00:00,Vendor Cyber Exposure,0,0.0
+2026-05-12 00:00:00+00:00,Artificial Intelligence Ethics & Governance,0,0.0
+2026-05-12 00:00:00+00:00,Enrollment Pressure,0,0.0
+2026-05-12 00:00:00+00:00,Infectious Disease Outbreak,0,0.0
+2026-05-12 00:00:00+00:00,Institutional Alignment Risk,0,0.0
+2026-05-12 00:00:00+00:00,Labor Dispute,0,0.0
+2026-05-12 00:00:00+00:00,Mental Health Crises,0,0.0
+2026-05-12 00:00:00+00:00,No Risk,0,0.0
+2026-05-12 00:00:00+00:00,Policy Misapplication,0,0.0
+2026-05-12 00:00:00+00:00,Policy or Political Interference,0,0.0
+2026-05-12 00:00:00+00:00,Vendor Cyber Exposure,0,0.0
+2026-05-19 00:00:00+00:00,Artificial Intelligence Ethics & Governance,0,0.0
+2026-05-19 00:00:00+00:00,Enrollment Pressure,0,0.0
+2026-05-19 00:00:00+00:00,Executive Board conflicts,0,0.0
+2026-05-19 00:00:00+00:00,Infectious Disease Outbreak,0,0.0
+2026-05-19 00:00:00+00:00,Institutional Alignment Risk,0,0.0
+2026-05-19 00:00:00+00:00,No Risk,0,0.0
+2026-05-19 00:00:00+00:00,Policy or Political Interference,0,0.0
+2026-05-19 00:00:00+00:00,Research Funding Disruption,0,0.0
+2026-05-26 00:00:00+00:00,Artificial Intelligence Ethics & Governance,0,0.0
+2026-05-26 00:00:00+00:00,Enrollment Pressure,0,0.0
+2026-05-26 00:00:00+00:00,Infectious Disease Outbreak,0,0.0
+2026-05-26 00:00:00+00:00,Labor Dispute,0,0.0
+2026-05-26 00:00:00+00:00,Leadership Missteps,0,0.0
+2026-05-26 00:00:00+00:00,No Risk,0,0.0
+2026-05-26 00:00:00+00:00,Policy or Political Interference,0,0.0
+2026-05-26 00:00:00+00:00,Research Funding Disruption,0,0.0
+2026-06-02 00:00:00+00:00,Artificial Intelligence Ethics & Governance,0,0.0
+2026-06-02 00:00:00+00:00,Enrollment Pressure,0,0.0
+2026-06-02 00:00:00+00:00,Infectious Disease Outbreak,0,0.0
+2026-06-02 00:00:00+00:00,Labor Dispute,0,0.0
+2026-06-02 00:00:00+00:00,No Risk,0,0.0
+2026-06-02 00:00:00+00:00,Policy or Political Interference,0,0.0
+2026-06-02 00:00:00+00:00,Rapid Speed of Disruptive Innovation,0,0.0
+2026-06-02 00:00:00+00:00,Research Funding Disruption,0,0.0
+2026-06-09 00:00:00+00:00,Artificial Intelligence Ethics & Governance,0,0.0
+2026-06-09 00:00:00+00:00,Emergency Preparedness Gaps,0,0.0
+2026-06-09 00:00:00+00:00,Enrollment Pressure,0,0.0
+2026-06-09 00:00:00+00:00,IT System Failure,0,0.0
+2026-06-09 00:00:00+00:00,Infectious Disease Outbreak,0,0.0
+2026-06-09 00:00:00+00:00,Labor Dispute,0,0.0
+2026-06-09 00:00:00+00:00,Mission Drift,0,0.0
+2026-06-09 00:00:00+00:00,No Risk,0,0.0
+2026-06-09 00:00:00+00:00,Policy or Political Interference,0,0.0
+2026-06-09 00:00:00+00:00,Research Funding Disruption,0,0.0
+2026-06-09 00:00:00+00:00,Vendor Cyber Exposure,0,0.0
+2026-06-16 00:00:00+00:00,Artificial Intelligence Ethics & Governance,0,0.0
+2026-06-16 00:00:00+00:00,Enrollment Pressure,0,0.0
+2026-06-16 00:00:00+00:00,Infectious Disease Outbreak,0,0.0
+2026-06-16 00:00:00+00:00,Labor Dispute,0,0.0
+2026-06-16 00:00:00+00:00,No Risk,0,0.0
+2026-06-16 00:00:00+00:00,Policy or Political Interference,0,0.0
+2026-06-16 00:00:00+00:00,Research Funding Disruption,0,0.0
+2026-06-16 00:00:00+00:00,Title IX/ADA Noncompliance,0,0.0
+2026-06-23 00:00:00+00:00,Artificial Intelligence Ethics & Governance,0,0.0
+2026-06-23 00:00:00+00:00,Enrollment Pressure,0,0.0
+2026-06-23 00:00:00+00:00,Infectious Disease Outbreak,0,0.0
+2026-06-23 00:00:00+00:00,Institutional Alignment Risk,0,0.0
+2026-06-23 00:00:00+00:00,Labor Dispute,0,0.0
+2026-06-23 00:00:00+00:00,No Risk,0,0.0
+2026-06-23 00:00:00+00:00,Policy or Political Interference,0,0.0
+2026-06-23 00:00:00+00:00,Rapid Speed of Disruptive Innovation,0,0.0
+2026-06-23 00:00:00+00:00,Research Funding Disruption,0,0.0
+2026-06-30 00:00:00+00:00,Artificial Intelligence Ethics & Governance,0,0.0
+2026-06-30 00:00:00+00:00,Enrollment Pressure,0,0.0
+2026-06-30 00:00:00+00:00,No Risk,0,0.0
+2026-06-30 00:00:00+00:00,Policy or Political Interference,0,0.0
+2026-06-30 00:00:00+00:00,Research Funding Disruption,0,0.0
+2026-06-30 00:00:00+00:00,Title IX/ADA Noncompliance,0,0.0
+2026-07-28 00:00:00+00:00,Labor Dispute,0,0.0
+2026-07-28 00:00:00+00:00,No Risk,0,0.0
+2026-07-28 00:00:00+00:00,Policy or Political Interference,0,0.0
+2026-12-29 00:00:00+00:00,No Risk,0,0.0
