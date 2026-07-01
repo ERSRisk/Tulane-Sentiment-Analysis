@@ -26,6 +26,24 @@ Github_repo = 'Tulane-Sentiment-Analysis'
 Release_tag = 'BERTopic_results'
 GITHUB_TOKEN = os.getenv('TOKEN')
 client = get_gemini_client()
+TOPICS_PREFIX = "latest/topics"
+STORIES_PREFIX = "latest/stories"
+DASHBOARD_PREFIX = "latest/dashboard"
+SUBTOPICS_PREFIX = "latest/subtopics"
+SCORES_PREFIX = "latest/scores"
+
+def gcs_key(prefix, filename):
+    return f"{prefix}/{filename}"
+
+
+def download_if_exists(gcs_path, local_path):
+    if blob_exists(gcs_path):
+        return download_file(gcs_path, local_path)
+    return None
+
+
+def upload_local(local_path, gcs_path):
+    upload_file(local_path, gcs_path)
 
 def norm_text(x):
     x = (x or '')
@@ -88,9 +106,9 @@ def load_latest_articles_base():
     3. load_full_topics(results2)           <- last-resort fallback
     """
     try:
-        if blob_exists('latest/BERTopic_latest_full.csv.gz'):
+        if blob_exists('latest/topics/BERTopic_latest_full.csv.gz'):
             df = download_file(
-                'latest/BERTopic_latest_full.csv.gz',
+                'latest/topics/BERTopic_latest_full.csv.gz',
                 'pipeline/resources/BERTopic_latest_full.csv.gz'
             )
             if df is not None and not df.empty:
@@ -102,9 +120,9 @@ def load_latest_articles_base():
         print(f"Could not load latest full article base: {e}", flush=True)
 
     try:
-        if blob_exists('latest/BERTopic_Streamlit.csv.gz'):
+        if blob_exists('latest/topics/BERTopic_Streamlit.csv.gz'):
             df = download_file(
-                'latest/BERTopic_Streamlit.csv.gz',
+                'latest/topics/BERTopic_Streamlit.csv.gz',
                 'pipeline/resources/BERTopic_Streamlit.csv.gz'
             )
             if df is not None and not df.empty:
@@ -118,7 +136,7 @@ def load_latest_articles_base():
     print("Falling back to historical merge base.", flush=True)
     df = load_full_topics(
         download_file(
-            'latest/BERTopic_results2.csv.gz',
+            'latest/topics/BERTopic_results2.csv.gz',
             'pipeline/resources/BERTopic_results2.csv.gz'
         )
     )
@@ -181,6 +199,10 @@ def track_over_time(df, week_anchor="W-MON", out_csv="pipeline/resources/topic_t
     )
     os.makedirs(os.path.dirname(out_csv), exist_ok=True)
     topic_trend.to_csv(out_csv, index=False)
+    upload_local(
+        out_csv,
+        gcs_key(SCORES_PREFIX, "topic_trend.csv")
+    )
     print(f"✅ Saved topic trend to {out_csv}")
 
 def ensure_risk_scores(df: pd.DataFrame) -> pd.DataFrame:
@@ -197,6 +219,30 @@ def ensure_risk_scores(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 def load_existing_story_state(base_articles, model):
+    download_if_exists(
+        gcs_key(STORIES_PREFIX, "Story_Clusters.csv.gz"),
+        "pipeline/resources/Story_Clusters.csv.gz"
+    )
+
+    download_if_exists(
+        gcs_key(DASHBOARD_PREFIX, "dashboard_dropdown.csv.gz"),
+        "pipeline/resources/dashboard_dropdown.csv.gz"
+    )
+
+    download_if_exists(
+        gcs_key(STORIES_PREFIX, "Articles_with_Stories.csv.gz"),
+        "pipeline/resources/Articles_with_Stories.csv.gz"
+    )
+
+    download_if_exists(
+        gcs_key(STORIES_PREFIX, "Canonical_Stories_with_Summaries.csv"),
+        "pipeline/resources/Canonical_Stories_with_Summaries.csv"
+    )
+
+    download_if_exists(
+        gcs_key(STORIES_PREFIX, "story_centroids.pkl"),
+        "pipeline/resources/story_centroids.pkl"
+    )
     df = base_articles.copy()
     df = ensure_risk_scores(df)
     df['University Label'] = pd.to_numeric(df['University Label'], errors='coerce').fillna(0).astype(int)
@@ -569,10 +615,17 @@ def save_story_centroids(open_stories):
         for s in open_stories
     ]
     atomic_write_pickle("pipeline/resources/story_centroids.pkl", centroid_records)
+    upload_local(
+        "pipeline/resources/story_centroids.pkl",
+        gcs_key(STORIES_PREFIX, "story_centroids.pkl")
+    )
 
 def save_story_outputs(articles_with_stories, stories_df):
     articles_with_stories.to_csv("pipeline/resources/Articles_with_Stories.csv.gz", index = False, compression = 'gzip')
-
+    upload_local(
+        "pipeline/resources/Articles_with_Stories.csv.gz",
+        gcs_key(STORIES_PREFIX, "Articles_with_Stories.csv.gz")
+    )
     df = articles_with_stories
     print(df.columns.tolist())
     merged = pd.merge(df, stories_df, on='story_id', how='left')
@@ -630,6 +683,11 @@ def save_story_outputs(articles_with_stories, stories_df):
         assert stories_df["canonical_title"].notna().all()
     
     stories_df.to_csv("pipeline/resources/Story_Clusters.csv.gz", index = False, compression = 'gzip')
+    
+    upload_local(
+        "pipeline/resources/Story_Clusters.csv.gz",
+        gcs_key(STORIES_PREFIX, "Story_Clusters.csv.gz")
+    )
 
 def generate_canonical_story_titles():
     stories_df = pd.read_csv("pipeline/resources/Story_Clusters.csv.gz", compression="gzip")
@@ -641,6 +699,7 @@ def generate_canonical_story_titles():
         df_stories = pd.DataFrame(columns=['story_id', 'canonical_title', 'canonical_source', 
                                             'last_seen', 'avg_risk_score', 'avg_recency'])
         df_stories.to_csv('pipeline/resources/Story_Clusters_backup.csv', index=False)
+        
     
     
     if Path('pipeline/resources/Canonical_Stories_with_Summaries.csv').exists():
@@ -800,9 +859,17 @@ def generate_canonical_story_titles():
             final = pd.concat([existing, new_df], ignore_index=True)
             final = final.drop_duplicates(subset=['story_id'], keep='last')
             final.to_csv("pipeline/resources/Canonical_Stories_with_Summaries.csv", index=False)
+            upload_local(
+                "pipeline/resources/Canonical_Stories_with_Summaries.csv",
+                gcs_key(STORIES_PREFIX, "Canonical_Stories_with_Summaries.csv")
+            )
         except FileNotFoundError:
             final = new_df
             final.to_csv("pipeline/resources/Canonical_Stories_with_Summaries.csv", index=False)
+            upload_local(
+                "pipeline/resources/Canonical_Stories_with_Summaries.csv",
+                gcs_key(STORIES_PREFIX, "Canonical_Stories_with_Summaries.csv")
+            )
     else:
         print("No new titles were generated.")
 
@@ -1125,10 +1192,33 @@ def build_story_dashboard_tables():
     dashboard_stories.to_csv("pipeline/resources/dashboard_stories.csv.gz", compression = 'gzip')
     dropdown_table.to_csv("pipeline/resources/dashboard_dropdown.csv.gz", compression = 'gzip')
     standalone_articles.to_csv("pipeline/resources/dashboard_articles.csv.gz", compression = 'gzip')
+    upload_local(
+        "pipeline/resources/dashboard_stories.csv.gz",
+        gcs_key(DASHBOARD_PREFIX, "dashboard_stories.csv.gz")
+    )
+
+    upload_local(
+        "pipeline/resources/dashboard_dropdown.csv.gz",
+        gcs_key(DASHBOARD_PREFIX, "dashboard_dropdown.csv.gz")
+    )
+
+    upload_local(
+        "pipeline/resources/dashboard_articles.csv.gz",
+        gcs_key(DASHBOARD_PREFIX, "dashboard_articles.csv.gz")
+    )
     return articles
 
 def update_subtopic_clusters(articles):
     model = SentenceTransformer('all-MiniLM-L6-v2')
+    download_if_exists(
+        gcs_key(SUBTOPICS_PREFIX, "subtopics.csv"),
+        "pipeline/resources/subtopics.csv"
+    )
+
+    download_if_exists(
+        gcs_key(SUBTOPICS_PREFIX, "subtopic_centroids.pkl"),
+        "pipeline/resources/subtopic_centroids.pkl"
+    )
     if Path('pipeline/resources/subtopics.csv').exists():
         subtopics = pd.read_csv('pipeline/resources/subtopics.csv')
     else:
@@ -1166,6 +1256,10 @@ def update_subtopic_clusters(articles):
                                 ignore_index = True).drop_duplicates(subset = ['Title', 'Link'], keep = 'last')
 
     updated_subtopics.to_csv('pipeline/resources/subtopics.csv', index = False)
+    upload_local(
+        "pipeline/resources/subtopics.csv",
+        gcs_key(SUBTOPICS_PREFIX, "subtopics.csv")
+    )
     print(f"Saved {len(updated_subtopics)} total subtopics ({len(updated_subtopics) - len(subtopics)} new)", flush=True)
 
     if subtopic_centroids is not None:
@@ -1179,6 +1273,10 @@ def update_subtopic_clusters(articles):
         
 
     atomic_write_pickle('pipeline/resources/subtopic_centroids.pkl', merged_centroids)
+    upload_local(
+        "pipeline/resources/subtopic_centroids.pkl",
+        gcs_key(SUBTOPICS_PREFIX, "subtopic_centroids.pkl")
+    )
     already_clustered = already_clustered.merge(subtopics[['Title', 'Link', 'Cluster', 'Event_Label', 'Event_Severity']],
         on=['Title', 'Link'],
         how='left'
@@ -1188,7 +1286,7 @@ def update_subtopic_clusters(articles):
 
 
     atomic_write_csv("pipeline/resources/BERTopic_Streamlit.csv.gz", articles, compress = True)
-    upload_file('pipeline/resources/BERTopic_Streamlit.csv.gz', 'latest/BERTopic_Streamlit.csv.gz')
+    upload_file('pipeline/resources/BERTopic_Streamlit.csv.gz', gcs_key(TOPICS_PREFIX, "BERTopic_Streamlit.csv.gz"))
     return articles
 
 def calculate_and_save_event_risk_scores(articles, base_articles):
@@ -1351,11 +1449,19 @@ def calculate_and_save_event_risk_scores(articles, base_articles):
     grouped['decay_weight'] = lam ** (grouped['rank'] - 1)
 
     grouped['weighted_strength'] = (grouped['decay_weight'] * grouped['raw_score'])
-    grouped.to_csv('grouped_risk_scores1.csv', index = False)
+    grouped.to_csv('pipeline/resources/grouped_risk_scores1.csv', index=False)
+    upload_local(
+        "pipeline/resources/grouped_risk_scores1.csv",
+        gcs_key(SCORES_PREFIX, "grouped_risk_scores1.csv")
+    )
     K = 3
     grouped_ranked = grouped.copy()
     grouped_ranked = grouped_ranked[grouped_ranked['rank'] <= K]
-    grouped_ranked.to_csv('ranked_events_risks1.csv', index = False)
+    grouped_ranked.to_csv('pipeline/resources/ranked_events_risks1.csv', index=False)
+    upload_local(
+        "pipeline/resources/ranked_events_risks1.csv",
+        gcs_key(SCORES_PREFIX, "ranked_events_risks1.csv")
+    )
 
     risk_scores = (grouped_ranked.groupby(['Window', 'Predicted_Risks_new'])['weighted_strength']
                 .sum()
@@ -1368,6 +1474,10 @@ def calculate_and_save_event_risk_scores(articles, base_articles):
     risk_scores['final_risk_score'] = (5 * risk_scores['raw_risk_score'] / (risk_scores['raw_risk_score'] + c))
 
     risk_scores.to_csv('pipeline/resources/final_risk_scores1.csv', index = False)
+    upload_local(
+        "pipeline/resources/final_risk_scores1.csv",
+        gcs_key(SCORES_PREFIX, "final_risk_scores1.csv")
+    )
 
 
 

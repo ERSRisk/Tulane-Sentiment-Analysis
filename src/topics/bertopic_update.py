@@ -183,16 +183,16 @@ def load_or_train_model(df):
 def load_existing_topics_checkpoint(df):
     dfs = []
     
-    if blob_exists('latest/BERTopic_results2.csv.gz'):
-        df2 = download_file('latest/BERTopic_results2.csv.gz', 'pipeline/resources/BERTopic_results2.csv.gz')
+    if blob_exists('latest/topics/BERTopic_results2.csv.gz'):
+        df2 = download_file('latest/topics/BERTopic_results2.csv.gz', 'pipeline/resources/BERTopic_results2.csv.gz')
         mem("after loading existing_df")
         print("It exists", flush = True)
         dfs.append(df2)
     else:
         print("It did not get extracted", flush = True)
 
-    if blob_exists('latest/BERTopic_results3.csv.gz'):
-        df3 = download_file('latest/BERTopic_results3.csv.gz', 'pipeline/resources/BERTopic_results3.csv.gz')
+    if blob_exists('latest/topics/BERTopic_results3.csv.gz'):
+        df3 = download_file('latest/topics/BERTopic_results3.csv.gz', 'pipeline/resources/BERTopic_results3.csv.gz')
         mem("after loading existing_df")
         dfs.append(df3)
 
@@ -499,7 +499,7 @@ def double_check_and_name_unmatched_topics(df_combined):
     low_conf_mask = df_combined['Probability'] < 0.15
     df_combined.loc[low_conf_mask, 'Topic'] = -1
     atomic_write_csv('pipeline/resources/Step0.csv.gz', df_combined, compress = True)
-    upload_file('pipeline/resources/Step0.csv.gz', 'latest/Step0.csv.gz')
+    upload_file('pipeline/resources/Step0.csv.gz', 'latest/topics/Step0.csv.gz')
     #df_combined = load_midstep_from_release()
     recent_df = df_combined[df_combined['Published_utc'].notna() & (df_combined['Published_utc'] >= cutoff_utc)].copy()
     debug_date(recent_df, "G_recent_df_for_double_check")
@@ -520,7 +520,7 @@ def label_and_predict_risks(df_combined):
     debug_date(df_combined, "H_after_load_university_label")
     mem("after load_university_label")
     atomic_write_csv('pipeline/resources/initial_label.csv.gz', df_combined, compress = True)
-    upload_file('pipeline/resources/initial_label.csv.gz', 'latest/initial_label.csv.gz')
+    upload_file('pipeline/resources/initial_label.csv.gz', 'latest/topics/initial_label.csv.gz')
     #df_combined = load_midstep_from_release()
     results_df = predict_risks(df_combined)
     mask_he = pd.to_numeric(results_df['University Label'], errors = 'coerce').fillna(0).astype(int) == 1
@@ -534,7 +534,7 @@ def label_and_predict_risks(df_combined):
     results_df = results_df.drop(columns = ['Acceleration_value_x', 'Acceleration_value_y'], errors='ignore')
     print("✅ Applying risk_weights...", flush=True)
     atomic_write_csv('pipeline/resources/Step1.csv.gz', results_df, compress = True)
-    upload_file('pipeline/resources/Step1.csv.gz', 'latest/Step1.csv.gz')
+    upload_file('pipeline/resources/Step1.csv.gz', 'latest/topics/Step1.csv.gz')
     results_df['Predicted_Risks'] = results_df.get('Predicted_Risks_new', results_df.get('Predicted_Risks', ''))
     return results_df
 
@@ -593,9 +593,9 @@ def save_final_topic_outputs(df, new_links, existing_df):
     del df
     gc.collect()
     existing_new_version = pd.DataFrame()
-    if blob_exists('latest/BERTopic_results3.csv.gz'):
+    if blob_exists('latest/topics/BERTopic_results3.csv.gz'):
         existing_new_version = download_file(
-            'latest/BERTopic_results3.csv.gz',
+            'latest/topics/BERTopic_results3.csv.gz',
             'pipeline/resources/BERTopic_results3.csv.gz'
         )
         
@@ -614,7 +614,7 @@ def save_final_topic_outputs(df, new_links, existing_df):
     
     print("Saving BERTopic_results3.csv.gz", flush=True)
     atomic_write_csv("pipeline/resources/BERTopic_results3.csv.gz", df_new_version, compress=True)
-    upload_file("pipeline/resources/BERTopic_results3.csv.gz", 'latest/BERTopic_results3.csv.gz')
+    upload_file("pipeline/resources/BERTopic_results3.csv.gz", 'latest/topics/BERTopic_results3.csv.gz')
     
     # NEW: save the canonical fresh full dataset for downstream script 2
     print("Saving latest article base for downstream enrichment", flush=True)
@@ -634,7 +634,7 @@ def save_final_topic_outputs(df, new_links, existing_df):
     atomic_write_csv("pipeline/resources/BERTopic_latest_full.csv.gz", df_latest_full, compress=True)
     upload_file(
         "pipeline/resources/BERTopic_latest_full.csv.gz",
-        "latest/BERTopic_latest_full.csv.gz"
+        "latest/topics/BERTopic_latest_full.csv.gz"
     )
     
     print("Saving dataset for Streamlit", flush=True)
@@ -646,7 +646,7 @@ def save_final_topic_outputs(df, new_links, existing_df):
 
     debug_date(df_streamlit, "Q_df_streamlit_after_university_label")
     atomic_write_csv("pipeline/resources/BERTopic_Streamlit.csv.gz", df_streamlit, compress=True)
-    upload_file('pipeline/resources/BERTopic_Streamlit.csv.gz', 'latest/BERTopic_Streamlit.csv.gz')
+    upload_file('pipeline/resources/BERTopic_Streamlit.csv.gz', 'latest/topics/BERTopic_Streamlit.csv.gz')
     
     del df_streamlit, df_new_version
     gc.collect()

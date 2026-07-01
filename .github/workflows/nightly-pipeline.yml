@@ -72,12 +72,12 @@ jobs:
       
       - name: Upload outputs to GCS
         run: |
-          gcloud storage cp pipeline/resources/BERTopic_results3.csv.gz gs://tulane-risk-data/latest/BERTopic_results3.csv.gz
-          gcloud storage cp pipeline/resources/BERTopic_Streamlit.csv.gz gs://tulane-risk-data/latest/BERTopic_Streamlit.csv.gz
-          gcloud storage cp pipeline/resources/initial_label.csv.gz gs://tulane-risk-data/latest/initial_label.csv.gz
-          gcloud storage cp pipeline/resources/Step0.csv.gz gs://tulane-risk-data/latest/Step0.csv.gz
-          gcloud storage cp pipeline/resources/Step1.csv.gz gs://tulane-risk-data/latest/Step1.csv.gz
-          gcloud storage cp pipeline/resources/all_RSS.json.gz gs://tulane-risk-data/latest/all_RSS.json.gz
+          gcloud storage cp pipeline/resources/BERTopic_results3.csv.gz gs://tulane-risk-data/latest/topics/BERTopic_results3.csv.gz
+          gcloud storage cp pipeline/resources/BERTopic_Streamlit.csv.gz gs://tulane-risk-data/latest/topics/BERTopic_Streamlit.csv.gz
+          gcloud storage cp pipeline/resources/initial_label.csv.gz gs://tulane-risk-data/latest/topics/initial_label.csv.gz
+          gcloud storage cp pipeline/resources/Step0.csv.gz gs://tulane-risk-data/latest/topics/Step0.csv.gz
+          gcloud storage cp pipeline/resources/Step1.csv.gz gs://tulane-risk-data/latest/topics/Step1.csv.gz
+          gcloud storage cp pipeline/resources/all_RSS.json.gz gs://tulane-risk-data/latest/topics/all_RSS.json.gz
 
       - name: Commit and push (only small/compressed files)
         run: |
