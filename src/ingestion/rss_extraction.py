@@ -1561,7 +1561,7 @@ for article in articles:
 articles = unique_articles
 
 cogr = COGR()
-deloitte = Deloitte()
+#deloitte = Deloitte()
 homeland = homeland_sec()
 ace = Ace()
 data = Whitehouse()
